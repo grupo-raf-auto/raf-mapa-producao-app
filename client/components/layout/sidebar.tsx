@@ -5,11 +5,8 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   FileText,
-  HelpCircle,
-  FolderTree,
-  BarChart3,
-  Settings,
-  Search
+  Search,
+  FileStack
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,10 +14,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Consultas', href: '/consultas', icon: Search },
   { name: 'Formulários', href: '/forms', icon: FileText },
-  { name: 'Questões', href: '/questions', icon: HelpCircle },
-  { name: 'Categorias', href: '/categories', icon: FolderTree },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Configurações', href: '/settings', icon: Settings },
+  { name: 'Templates', href: '/templates', icon: FileStack },
 ];
 
 export function Sidebar() {

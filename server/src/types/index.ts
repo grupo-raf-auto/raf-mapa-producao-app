@@ -26,6 +26,17 @@ export interface Form {
   questions: string[]; // Question IDs
   createdAt: Date;
   updatedAt: Date;
+  isTemplate?: boolean; // Indica se é um template
+}
+
+export interface Template {
+  _id?: string;
+  title: string;
+  description?: string;
+  questions: string[]; // Question IDs
+  createdAt: Date;
+  updatedAt: Date;
+  isDefault?: boolean; // Indica se é um template padrão do sistema
 }
 
 export interface FormSubmission {

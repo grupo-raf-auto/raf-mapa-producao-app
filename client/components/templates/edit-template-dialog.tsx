@@ -8,7 +8,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,13 +29,13 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
-const formSchema = z.object({
+const templateSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
   questions: z.array(z.string()).default([]),
 });
 
-type FormFormValues = z.infer<typeof formSchema>;
+type TemplateFormValues = z.infer<typeof templateSchema>;
 
 interface Question {
   _id?: string;
@@ -46,28 +45,47 @@ interface Question {
   status: string;
 }
 
-export function CreateFormDialog({ children }: { children: React.ReactNode }) {
-  const [open, setOpen] = useState(false);
+interface Template {
+  _id?: string;
+  title: string;
+  description?: string;
+  questions: string[];
+  isDefault?: boolean;
+}
+
+interface EditTemplateDialogProps {
+  template: Template;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplateDialogProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const form = useForm<FormFormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TemplateFormValues>({
+    resolver: zodResolver(templateSchema),
     defaultValues: {
-      title: '',
-      description: '',
-      questions: [],
+      title: template.title,
+      description: template.description || '',
+      questions: template.questions || [],
     },
   });
 
-  // Buscar questões quando o dialog abrir
+  // Carregar questões quando o dialog abrir ou template mudar
   useEffect(() => {
     if (open) {
       loadQuestions();
+      // Resetar form com dados do template
+      form.reset({
+        title: template.title,
+        description: template.description || '',
+        questions: template.questions || [],
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, template]);
 
   const loadQuestions = async () => {
     setLoading(true);
@@ -81,19 +99,24 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const onSubmit = async (data: FormFormValues) => {
+  const onSubmit = async (data: TemplateFormValues) => {
     try {
-      await api.forms.create({
+      if (!template._id) {
+        alert('ID do template não encontrado');
+        return;
+      }
+
+      await api.templates.update(template._id, {
         title: data.title,
         description: data.description || undefined,
         questions: data.questions || [],
       });
+
       router.refresh();
-      setOpen(false);
-      form.reset();
+      onOpenChange(false);
     } catch (error) {
-      console.error('Error creating form:', error);
-      alert('Erro ao criar formulário. Tente novamente.');
+      console.error('Error updating template:', error);
+      alert('Erro ao atualizar template. Tente novamente.');
     }
   };
 
@@ -108,13 +131,12 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Novo Formulário</DialogTitle>
+          <DialogTitle>Editar Template</DialogTitle>
           <DialogDescription>
-            Crie um novo formulário e selecione as questões que deseja incluir
+            Edite o template e ajuste as questões conforme necessário
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -124,9 +146,9 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Título</FormLabel>
+                  <FormLabel>Título do Template</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite o título do formulário" {...field} />
+                    <Input placeholder="Digite o título do template" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,7 +162,7 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Digite a descrição do formulário (opcional)"
+                      placeholder="Digite a descrição do template (opcional)"
                       {...field}
                     />
                   </FormControl>
@@ -157,7 +179,7 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
                   <div className="mb-4">
                     <FormLabel className="text-base">Questões</FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Selecione as questões que deseja incluir no formulário
+                      Selecione as questões que deseja incluir no template
                     </p>
                     {selectedQuestions.length > 0 && (
                       <p className="text-sm text-primary mt-1">
@@ -243,11 +265,11 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setOpen(false)}
+                onClick={() => onOpenChange(false)}
               >
                 Cancelar
               </Button>
-              <Button type="submit">Criar Formulário</Button>
+              <Button type="submit">Salvar Alterações</Button>
             </div>
           </form>
         </Form>

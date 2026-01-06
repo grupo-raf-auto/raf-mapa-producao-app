@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import questionRoutes from './routes/question.routes';
 import categoryRoutes from './routes/category.routes';
 import formRoutes from './routes/form.routes';
+import templateRoutes from './routes/template.routes';
+import { seedTemplates } from './scripts/seed-templates';
 
 // Load environment variables
 dotenv.config();
@@ -28,11 +30,17 @@ app.get('/health', (req, res) => {
 app.use('/api/questions', questionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/forms', formRoutes);
+app.use('/api/templates', templateRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err);
   res.status(500).json({ error: 'Internal server error' });
+});
+
+// Initialize default templates on server start
+seedTemplates().catch((error) => {
+  console.error('Error seeding templates:', error);
 });
 
 // Start server

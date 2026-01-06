@@ -30,13 +30,13 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
-const formSchema = z.object({
+const templateSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
   questions: z.array(z.string()).default([]),
 });
 
-type FormFormValues = z.infer<typeof formSchema>;
+type TemplateFormValues = z.infer<typeof templateSchema>;
 
 interface Question {
   _id?: string;
@@ -46,14 +46,14 @@ interface Question {
   status: string;
 }
 
-export function CreateFormDialog({ children }: { children: React.ReactNode }) {
+export function CreateTemplateDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const form = useForm<FormFormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TemplateFormValues>({
+    resolver: zodResolver(templateSchema),
     defaultValues: {
       title: '',
       description: '',
@@ -81,9 +81,9 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const onSubmit = async (data: FormFormValues) => {
+  const onSubmit = async (data: TemplateFormValues) => {
     try {
-      await api.forms.create({
+      await api.templates.create({
         title: data.title,
         description: data.description || undefined,
         questions: data.questions || [],
@@ -92,8 +92,8 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
       setOpen(false);
       form.reset();
     } catch (error) {
-      console.error('Error creating form:', error);
-      alert('Erro ao criar formulário. Tente novamente.');
+      console.error('Error creating template:', error);
+      alert('Erro ao criar template. Tente novamente.');
     }
   };
 
@@ -112,9 +112,9 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Novo Formulário</DialogTitle>
+          <DialogTitle>Novo Template</DialogTitle>
           <DialogDescription>
-            Crie um novo formulário e selecione as questões que deseja incluir
+            Crie um template de formulário para reutilizar posteriormente
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -124,9 +124,9 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Título</FormLabel>
+                  <FormLabel>Título do Template</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite o título do formulário" {...field} />
+                    <Input placeholder="Digite o título do template" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,7 +140,7 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Digite a descrição do formulário (opcional)"
+                      placeholder="Digite a descrição do template (opcional)"
                       {...field}
                     />
                   </FormControl>
@@ -157,7 +157,7 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
                   <div className="mb-4">
                     <FormLabel className="text-base">Questões</FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Selecione as questões que deseja incluir no formulário
+                      Selecione as questões que deseja incluir no template
                     </p>
                     {selectedQuestions.length > 0 && (
                       <p className="text-sm text-primary mt-1">
@@ -247,7 +247,7 @@ export function CreateFormDialog({ children }: { children: React.ReactNode }) {
               >
                 Cancelar
               </Button>
-              <Button type="submit">Criar Formulário</Button>
+              <Button type="submit">Criar Template</Button>
             </div>
           </form>
         </Form>

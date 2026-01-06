@@ -118,4 +118,41 @@ export const api = {
       return res.json();
     },
   },
+  templates: {
+    getAll: async () => {
+      const res = await fetch(`${API_URL}/api/templates`);
+      if (!res.ok) throw new Error('Failed to fetch templates');
+      return res.json();
+    },
+    getById: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/templates/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch template');
+      return res.json();
+    },
+    create: async (data: any) => {
+      const res = await fetch(`${API_URL}/api/templates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create template');
+      return res.json();
+    },
+    update: async (id: string, data: any) => {
+      const res = await fetch(`${API_URL}/api/templates/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update template');
+      return res.json();
+    },
+    delete: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/templates/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete template');
+      return res.json();
+    },
+  },
 };

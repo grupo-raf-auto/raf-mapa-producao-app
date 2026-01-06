@@ -1,37 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HelpCircle, FolderTree, FileText, TrendingUp } from 'lucide-react';
+import { FileText, TrendingUp } from 'lucide-react';
 import { QuestionsChart } from './questions-chart';
 import { ActivityChart } from './activity-chart';
 import { api } from '@/lib/api';
 
 export async function DashboardContent() {
   // TODO: Create stats endpoint in backend
-  const [questions, categories, forms] = await Promise.all([
-    api.questions.getAll(),
-    api.categories.getAll(),
+  const [forms] = await Promise.all([
     api.forms.getAll(),
   ]);
 
   const stats = {
-    totalQuestions: questions.length,
-    totalCategories: categories.length,
     totalForms: forms.length,
     totalSubmissions: 0, // TODO: Implement submissions
   };
 
   const kpiCards = [
     {
-      title: 'Total de Questões',
-      value: stats.totalQuestions,
-      icon: HelpCircle,
-      change: '+12%',
-      trend: 'up' as const,
-    },
-    {
-      title: 'Categorias',
-      value: stats.totalCategories,
-      icon: FolderTree,
-      change: '+3',
+      title: 'Submissões',
+      value: stats.totalSubmissions,
+      icon: TrendingUp,
+      change: '+24%',
       trend: 'up' as const,
     },
     {
@@ -39,13 +28,6 @@ export async function DashboardContent() {
       value: stats.totalForms,
       icon: FileText,
       change: '+5',
-      trend: 'up' as const,
-    },
-    {
-      title: 'Submissões',
-      value: stats.totalSubmissions,
-      icon: TrendingUp,
-      change: '+24%',
       trend: 'up' as const,
     },
   ];
@@ -62,7 +44,7 @@ export async function DashboardContent() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {kpiCards.map((kpi) => {
           const Icon = kpi.icon;
           return (

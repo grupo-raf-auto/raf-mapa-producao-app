@@ -59,9 +59,9 @@ export function CreateQuestionDialog({ children }: { children: React.ReactNode }
   const onSubmit = async (data: QuestionFormValues) => {
     try {
       await api.questions.create(data);
-      router.refresh();
-      setOpen(false);
-      form.reset();
+        router.refresh();
+        setOpen(false);
+        form.reset();
     } catch (error) {
       console.error('Error creating question:', error);
     }

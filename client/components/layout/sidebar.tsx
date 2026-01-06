@@ -8,12 +8,14 @@ import {
   HelpCircle,
   FolderTree,
   BarChart3,
-  Settings
+  Settings,
+  Search
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Consultas', href: '/consultas', icon: Search },
   { name: 'Formulários', href: '/forms', icon: FileText },
   { name: 'Questões', href: '/questions', icon: HelpCircle },
   { name: 'Categorias', href: '/categories', icon: FolderTree },

@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
 import Link from 'next/link';
+import { CreateFormDialog } from './create-form-dialog';
 
 export async function FormsList() {
   const forms = await api.forms.getAll();
@@ -20,10 +21,12 @@ export async function FormsList() {
             Crie e gerencie formulários dinâmicos
           </p>
         </div>
+        <CreateFormDialog>
         <Button className="gap-2">
           <Plus className="w-4 h-4" />
           Novo Formulário
         </Button>
+        </CreateFormDialog>
       </div>
 
       {forms.length === 0 ? (

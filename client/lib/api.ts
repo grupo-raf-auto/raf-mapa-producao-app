@@ -1,0 +1,164 @@
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+export const api = {
+  questions: {
+    getAll: async (params?: { status?: string; search?: string }) => {
+      const queryParams = new URLSearchParams();
+      if (params?.status) queryParams.append('status', params.status);
+      if (params?.search) queryParams.append('search', params.search);
+
+      const url = `${API_URL}/api/questions${queryParams.toString() ? `?${queryParams}` : ''}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch questions');
+      return res.json();
+    },
+    getById: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/questions/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch question');
+      return res.json();
+    },
+    create: async (data: any) => {
+      const res = await fetch(`${API_URL}/api/questions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create question');
+      return res.json();
+    },
+    update: async (id: string, data: any) => {
+      const res = await fetch(`${API_URL}/api/questions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update question');
+      return res.json();
+    },
+    delete: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/questions/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete question');
+      return res.json();
+    },
+  },
+  categories: {
+    getAll: async () => {
+      const res = await fetch(`${API_URL}/api/categories`);
+      if (!res.ok) throw new Error('Failed to fetch categories');
+      return res.json();
+    },
+    getById: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/categories/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch category');
+      return res.json();
+    },
+    create: async (data: any) => {
+      const res = await fetch(`${API_URL}/api/categories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create category');
+      return res.json();
+    },
+    update: async (id: string, data: any) => {
+      const res = await fetch(`${API_URL}/api/categories/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update category');
+      return res.json();
+    },
+    delete: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/categories/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete category');
+      return res.json();
+    },
+  },
+  templates: {
+    getAll: async () => {
+      const res = await fetch(`${API_URL}/api/templates`);
+      if (!res.ok) throw new Error('Failed to fetch templates');
+      return res.json();
+    },
+    getById: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/templates/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch template');
+      return res.json();
+    },
+    create: async (data: any) => {
+      const res = await fetch(`${API_URL}/api/templates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create template');
+      return res.json();
+    },
+    update: async (id: string, data: any) => {
+      const res = await fetch(`${API_URL}/api/templates/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update template');
+      return res.json();
+    },
+    delete: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/templates/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete template');
+      return res.json();
+    },
+  },
+  submissions: {
+    getAll: async (params?: { templateId?: string }) => {
+      const queryParams = new URLSearchParams();
+      if (params?.templateId) queryParams.append('templateId', params.templateId);
+
+      const url = `${API_URL}/api/submissions${queryParams.toString() ? `?${queryParams}` : ''}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch submissions');
+      return res.json();
+    },
+    getById: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/submissions/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch submission');
+      return res.json();
+    },
+    create: async (data: { templateId: string; answers: { questionId: string; answer: string }[]; submittedBy?: string }) => {
+      const res = await fetch(`${API_URL}/api/submissions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({ error: 'Failed to create submission' }));
+        throw new Error(error.error || 'Failed to create submission');
+      }
+      return res.json();
+    },
+    delete: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/submissions/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete submission');
+      return res.json();
+    },
+    getStats: async (params?: { templateId?: string }) => {
+      const queryParams = new URLSearchParams();
+      if (params?.templateId) queryParams.append('templateId', params.templateId);
+
+      const url = `${API_URL}/api/submissions/stats${queryParams.toString() ? `?${queryParams}` : ''}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch submission stats');
+      return res.json();
+    },
+  },
+};

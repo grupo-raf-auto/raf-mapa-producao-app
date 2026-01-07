@@ -37,7 +37,7 @@ const questionSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
   status: z.enum(['active', 'inactive']),
-  inputType: z.enum(['text', 'date', 'select', 'email', 'tel', 'number']).optional(),
+  inputType: z.enum(['text', 'date', 'select', 'email', 'tel', 'number', 'radio']).optional(),
   options: z.array(z.string()).optional(),
 });
 
@@ -149,6 +149,7 @@ export function CreateQuestionDialog({ children }: { children: React.ReactNode }
                       <SelectItem value="text">Texto</SelectItem>
                       <SelectItem value="date">Data</SelectItem>
                       <SelectItem value="select">Seleção (Select)</SelectItem>
+                      <SelectItem value="radio">Radio Button</SelectItem>
                       <SelectItem value="email">Email</SelectItem>
                       <SelectItem value="tel">Telefone</SelectItem>
                       <SelectItem value="number">Número</SelectItem>
@@ -158,7 +159,7 @@ export function CreateQuestionDialog({ children }: { children: React.ReactNode }
                 </FormItem>
               )}
             />
-            {inputType === 'select' && (
+            {(inputType === 'select' || inputType === 'radio') && (
               <FormField
                 control={form.control}
                 name="options"

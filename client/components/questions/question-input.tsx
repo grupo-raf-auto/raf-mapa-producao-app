@@ -8,6 +8,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import {
   Popover,
@@ -25,7 +30,7 @@ interface QuestionInputProps {
     _id?: string;
     title: string;
     description?: string;
-    inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number';
+    inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
     options?: string[];
   };
   value?: string | Date;
@@ -99,6 +104,34 @@ export function QuestionInput({ question, value, onChange, disabled }: QuestionI
           )}
         </SelectContent>
       </Select>
+    );
+  }
+
+  if (inputType === 'radio') {
+    return (
+      <RadioGroup
+        value={value as string}
+        onValueChange={onChange}
+        disabled={disabled}
+      >
+        {question.options && question.options.length > 0 ? (
+          question.options.map((option, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <RadioGroupItem value={option} id={`${question._id}-${index}`} />
+              <Label
+                htmlFor={`${question._id}-${index}`}
+                className="font-normal cursor-pointer"
+              >
+                {option}
+              </Label>
+            </div>
+          ))
+        ) : (
+          <div className="text-sm text-muted-foreground">
+            Nenhuma opção disponível
+          </div>
+        )}
+      </RadioGroup>
     );
   }
 

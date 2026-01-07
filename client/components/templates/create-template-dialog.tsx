@@ -33,7 +33,7 @@ import { Card, CardContent } from '@/components/ui/card';
 const templateSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
-  questions: z.array(z.string()).default([]),
+  questions: z.array(z.string()),
 });
 
 type TemplateFormValues = z.infer<typeof templateSchema>;
@@ -43,7 +43,7 @@ interface Question {
   title: string;
   description?: string;
   status: string;
-  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number';
+  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
   options?: string[];
 }
 
@@ -70,11 +70,55 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  // Ordem definida para as questões
+  const questionOrder = [
+    'Data',
+    'Apontador',
+    'Agente',
+    'Nome do Cliente',
+    'Data nascimento',
+    'Email cliente',
+    'Telefone cliente',
+    'Distrito cliente',
+    'Rating cliente',
+    'Seguradora',
+    'Banco',
+    'Valor',
+    'Fracionamento',
+  ];
+
+  const sortQuestions = (questions: Question[]): Question[] => {
+    // Remover duplicatas baseado no título
+    const uniqueQuestions = questions.filter(
+      (q, index, self) =>
+        index === self.findIndex((t) => t.title === q.title)
+    );
+
+    // Ordenar de acordo com a ordem especificada
+    return uniqueQuestions.sort((a, b) => {
+      const indexA = questionOrder.indexOf(a.title);
+      const indexB = questionOrder.indexOf(b.title);
+
+      // Se ambos estão na ordem, ordenar pela posição
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      // Se apenas A está na ordem, A vem primeiro
+      if (indexA !== -1) return -1;
+      // Se apenas B está na ordem, B vem primeiro
+      if (indexB !== -1) return 1;
+      // Se nenhum está na ordem, manter ordem alfabética
+      return a.title.localeCompare(b.title);
+    });
+  };
+
   const loadQuestions = async () => {
     setLoading(true);
     try {
       const allQuestions = await api.questions.getAll({ status: 'active' });
-      setQuestions(allQuestions);
+      // Ordenar e remover duplicatas
+      const sortedQuestions = sortQuestions(allQuestions);
+      setQuestions(sortedQuestions);
     } catch (error) {
       console.error('Error loading questions:', error);
     } finally {
@@ -210,10 +254,10 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
                                           {question.description}
                                         </p>
                                       )}
-                                      {question.inputType === 'select' && question.options && question.options.length > 0 && (
+                                      {((question.inputType === 'select' || question.inputType === 'radio') && question.options && question.options.length > 0) && (
                                         <div className="mt-2 p-2 bg-muted rounded-md">
                                           <p className="text-xs font-medium text-muted-foreground mb-1">
-                                            Opções do Select:
+                                            {question.inputType === 'select' ? 'Opções do Select:' : 'Opções do Radio:'}
                                           </p>
                                           <div className="flex flex-wrap gap-1">
                                             {question.options.map((option, idx) => (
@@ -233,6 +277,7 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
                                       <Badge variant="outline" className="text-xs">
                                         {question.inputType === 'date' && '📅 Data'}
                                         {question.inputType === 'select' && '📋 Select'}
+                                        {question.inputType === 'radio' && '🔘 Radio'}
                                         {question.inputType === 'email' && '📧 Email'}
                                         {question.inputType === 'tel' && '📞 Telefone'}
                                         {question.inputType === 'number' && '🔢 Número'}

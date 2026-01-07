@@ -44,6 +44,22 @@ const seguradoras = [
   'Mgen',
 ];
 
+const bancos = [
+  'BPI',
+  'Santander',
+  'NovoBanco',
+  'CGD',
+  'Bankinter',
+  'Abanca',
+  'AbancaSerfin',
+  'Montepio',
+  'TD Credito',
+  'Credibom',
+  'CTT',
+  'Chance Plus',
+  'Caixa Crédito Agricola',
+];
+
 const questionsData = [
   {
     title: 'Data',
@@ -65,7 +81,7 @@ const questionsData = [
     options: agentes,
   },
   {
-    title: 'Nome do cliente',
+    title: 'Nome do Cliente',
     description: 'Nome completo do cliente',
     status: 'active' as const,
     inputType: 'text' as const,
@@ -89,7 +105,7 @@ const questionsData = [
     inputType: 'tel' as const,
   },
   {
-    title: 'Distrito do cliente',
+    title: 'Distrito cliente',
     description: 'Distrito de residência do cliente',
     status: 'active' as const,
     inputType: 'text' as const,
@@ -111,13 +127,27 @@ const questionsData = [
     title: 'Banco',
     description: 'Nome do banco',
     status: 'active' as const,
-    inputType: 'text' as const,
+    inputType: 'select' as const,
+    options: bancos,
   },
   {
     title: 'Valor',
     description: 'Valor total do financiamento (crédito)',
     status: 'active' as const,
     inputType: 'number' as const,
+  },
+  {
+    title: 'Fracionamento',
+    description: 'Fracionamento',
+    status: 'active' as const,
+    inputType: 'radio' as const,
+    options: [
+      'Mensal',
+      'Trimestral',
+      'Semestral',
+      'Anual',
+      'Não aplicável (para crédito)',
+    ],
   },
 ];
 
@@ -175,19 +205,21 @@ async function seedTemplates() {
   // 2. Criar templates
   console.log('\n📋 Criando templates...');
 
-  // Template 1: Registo de Produção Crédito
+  // Template 1: Registo de Produção Crédito (TODAS EXCETO Seguradora)
   const template1Questions = [
     questionIds['Data'],
     questionIds['Apontador'],
     questionIds['Agente'],
-    questionIds['Nome do cliente'],
+    questionIds['Nome do Cliente'],
     questionIds['Data nascimento'],
     questionIds['Email cliente'],
     questionIds['Telefone cliente'],
-    questionIds['Distrito do cliente'],
+    questionIds['Distrito cliente'],
     questionIds['Rating cliente'],
     questionIds['Banco'],
     questionIds['Valor'],
+    questionIds['Fracionamento'],
+    // Seguradora NÃO incluída (única que não fica marcada por padrão)
   ].filter(Boolean);
 
   const template1 = await templatesCollection.findOne({
@@ -213,18 +245,21 @@ async function seedTemplates() {
     console.log('  ✓ Template "Registo de Produção Crédito" atualizado');
   }
 
-  // Template 2: Registo de Produção Seguros
+  // Template 2: Registo de Produção Seguros (TODAS as questões)
   const template2Questions = [
     questionIds['Data'],
     questionIds['Apontador'],
     questionIds['Agente'],
-    questionIds['Nome do cliente'],
+    questionIds['Nome do Cliente'],
     questionIds['Data nascimento'],
     questionIds['Email cliente'],
     questionIds['Telefone cliente'],
-    questionIds['Distrito do cliente'],
+    questionIds['Distrito cliente'],
     questionIds['Rating cliente'],
     questionIds['Seguradora'],
+    questionIds['Banco'],
+    questionIds['Valor'],
+    questionIds['Fracionamento'],
   ].filter(Boolean);
 
   const template2 = await templatesCollection.findOne({
@@ -250,20 +285,21 @@ async function seedTemplates() {
     console.log('  ✓ Template "Registo de Produção Seguros" atualizado');
   }
 
-  // Template 3: Registo de Vendas Imobiliária
+  // Template 3: Registo de Vendas Imobiliária (TODAS as questões)
   const template3Questions = [
     questionIds['Data'],
     questionIds['Apontador'],
     questionIds['Agente'],
-    questionIds['Nome do cliente'],
+    questionIds['Nome do Cliente'],
     questionIds['Data nascimento'],
     questionIds['Email cliente'],
     questionIds['Telefone cliente'],
-    questionIds['Distrito do cliente'],
+    questionIds['Distrito cliente'],
     questionIds['Rating cliente'],
     questionIds['Seguradora'],
     questionIds['Banco'],
     questionIds['Valor'],
+    questionIds['Fracionamento'],
   ].filter(Boolean);
 
   const template3 = await templatesCollection.findOne({

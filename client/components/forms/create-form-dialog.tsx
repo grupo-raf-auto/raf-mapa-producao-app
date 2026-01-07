@@ -43,7 +43,7 @@ interface Question {
   title: string;
   description?: string;
   status: string;
-  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number';
+  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
   options?: string[];
 }
 

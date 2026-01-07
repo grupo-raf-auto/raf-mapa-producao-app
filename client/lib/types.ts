@@ -1,7 +1,7 @@
 export type QuestionStatus = 'active' | 'inactive';
 export type QuestionCategory = 'Finance' | 'Marketing' | 'HR' | 'Tech' | 'Custom';
 
-export type QuestionInputType = 'text' | 'date' | 'select' | 'email' | 'tel' | 'number';
+export type QuestionInputType = 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
 
 export interface Question {
   _id?: string;

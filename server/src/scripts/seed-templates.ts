@@ -24,6 +24,26 @@ const agentes = [
   'Vera Sá',
 ];
 
+const seguradoras = [
+  'Prevoir',
+  'Prevoir DOMUS',
+  'Liberty',
+  'Zurich',
+  'Asisa',
+  'Ageas',
+  'Generali Tranquilidade',
+  'Fidelidade',
+  'Metlife',
+  'Una',
+  'AdvanceCare',
+  'Real',
+  'AIG',
+  'Caravela',
+  'Allianz',
+  'Vitoria',
+  'Mgen',
+];
+
 const questionsData = [
   {
     title: 'Data',
@@ -84,7 +104,8 @@ const questionsData = [
     title: 'Seguradora',
     description: 'Nome da seguradora',
     status: 'active' as const,
-    inputType: 'text' as const,
+    inputType: 'select' as const,
+    options: seguradoras,
   },
   {
     title: 'Banco',

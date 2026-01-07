@@ -5,10 +5,9 @@ import { Question } from '../types';
 export class QuestionController {
   static async getAll(req: Request, res: Response) {
     try {
-      const { category, status, search } = req.query;
+      const { status, search } = req.query;
 
       const questions = await QuestionModel.findAll({
-        category: category as any,
         status: status as any,
         search: search as string,
       });
@@ -41,8 +40,9 @@ export class QuestionController {
       const questionData: Omit<Question, '_id' | 'createdAt' | 'updatedAt'> = {
         title: req.body.title,
         description: req.body.description,
-        category: req.body.category,
         status: req.body.status,
+        inputType: req.body.inputType,
+        options: req.body.options,
       };
 
       const id = await QuestionModel.create(questionData);

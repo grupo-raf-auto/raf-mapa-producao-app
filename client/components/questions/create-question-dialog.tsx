@@ -36,8 +36,9 @@ import { api } from '@/lib/api';
 const questionSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
-  category: z.enum(['Finance', 'Marketing', 'HR', 'Tech', 'Custom']),
   status: z.enum(['active', 'inactive']),
+  inputType: z.enum(['text', 'date', 'select', 'email', 'tel', 'number']).optional(),
+  options: z.array(z.string()).optional(),
 });
 
 type QuestionFormValues = z.infer<typeof questionSchema>;
@@ -51,10 +52,13 @@ export function CreateQuestionDialog({ children }: { children: React.ReactNode }
     defaultValues: {
       title: '',
       description: '',
-      category: 'Custom',
       status: 'active',
+      inputType: 'text',
+      options: [],
     },
   });
+
+  const inputType = form.watch('inputType');
 
   const onSubmit = async (data: QuestionFormValues) => {
     try {
@@ -104,31 +108,6 @@ export function CreateQuestionDialog({ children }: { children: React.ReactNode }
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Categoria</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione uma categoria" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Finance">Finance</SelectItem>
-                        <SelectItem value="Marketing">Marketing</SelectItem>
-                        <SelectItem value="HR">HR</SelectItem>
-                        <SelectItem value="Tech">Tech</SelectItem>
-                        <SelectItem value="Custom">Custom</SelectItem>
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -154,7 +133,56 @@ export function CreateQuestionDialog({ children }: { children: React.ReactNode }
                   </FormItem>
                 )}
               />
-            </div>
+            <FormField
+              control={form.control}
+              name="inputType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Input</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo de input" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="text">Texto</SelectItem>
+                      <SelectItem value="date">Data</SelectItem>
+                      <SelectItem value="select">Seleção (Select)</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="tel">Telefone</SelectItem>
+                      <SelectItem value="number">Número</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {inputType === 'select' && (
+              <FormField
+                control={form.control}
+                name="options"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Opções (uma por linha)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Digite as opções, uma por linha"
+                        value={field.value?.join('\n') || ''}
+                        onChange={(e) => {
+                          const options = e.target.value
+                            .split('\n')
+                            .map(line => line.trim())
+                            .filter(line => line.length > 0);
+                          field.onChange(options);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 type="button"

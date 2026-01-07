@@ -2,19 +2,102 @@ import { getDatabase } from '../config/database';
 import { Question, Template } from '../types';
 import { ObjectId } from 'mongodb';
 
+const agentes = [
+  'Andreia Freitas',
+  'Ricardo Freitas',
+  'Carina Pereira',
+  'Daniela Martins',
+  'Isabel Ribeiro',
+  'Monica Martins',
+  'Maria Patricia',
+  'Sara Oliveira',
+  'Maria João',
+  'Daniel Matos',
+  'Marisa Guimaraes',
+  'Sara da Costa',
+  'Sara Costa',
+  'Ana Claudia',
+  'Anabela Ataíde',
+  'Patricia Gonçalves',
+  'Patricia Viana',
+  'Tiago Nascimento',
+  'Vera Sá',
+];
+
 const questionsData = [
-  { title: 'Data', description: 'Data do registo', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Apontador', description: 'Nome do apontador', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Agente', description: 'Nome do agente', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Nome do cliente', description: 'Nome completo do cliente', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Data nascimento', description: 'Data de nascimento do cliente', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Email cliente', description: 'Endereço de email do cliente', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Telefone cliente', description: 'Telefone do cliente (sem indicativo)', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Distrito do cliente', description: 'Distrito de residência do cliente', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Rating cliente', description: 'Rating/classificação do cliente', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Seguradora', description: 'Nome da seguradora', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Banco', description: 'Nome do banco', category: 'Custom' as const, status: 'active' as const },
-  { title: 'Valor', description: 'Valor total do financiamento (crédito)', category: 'Custom' as const, status: 'active' as const },
+  {
+    title: 'Data',
+    description: 'Data do registo',
+    status: 'active' as const,
+    inputType: 'date' as const,
+  },
+  {
+    title: 'Apontador',
+    description: 'Nome do apontador',
+    status: 'active' as const,
+    inputType: 'text' as const,
+  },
+  {
+    title: 'Agente',
+    description: 'Nome do agente',
+    status: 'active' as const,
+    inputType: 'select' as const,
+    options: agentes,
+  },
+  {
+    title: 'Nome do cliente',
+    description: 'Nome completo do cliente',
+    status: 'active' as const,
+    inputType: 'text' as const,
+  },
+  {
+    title: 'Data nascimento',
+    description: 'Data de nascimento do cliente',
+    status: 'active' as const,
+    inputType: 'date' as const,
+  },
+  {
+    title: 'Email cliente',
+    description: 'Endereço de email do cliente',
+    status: 'active' as const,
+    inputType: 'email' as const,
+  },
+  {
+    title: 'Telefone cliente',
+    description: 'Telefone do cliente (sem indicativo)',
+    status: 'active' as const,
+    inputType: 'tel' as const,
+  },
+  {
+    title: 'Distrito do cliente',
+    description: 'Distrito de residência do cliente',
+    status: 'active' as const,
+    inputType: 'text' as const,
+  },
+  {
+    title: 'Rating cliente',
+    description: 'Rating/classificação do cliente',
+    status: 'active' as const,
+    inputType: 'text' as const,
+  },
+  {
+    title: 'Seguradora',
+    description: 'Nome da seguradora',
+    status: 'active' as const,
+    inputType: 'text' as const,
+  },
+  {
+    title: 'Banco',
+    description: 'Nome do banco',
+    status: 'active' as const,
+    inputType: 'text' as const,
+  },
+  {
+    title: 'Valor',
+    description: 'Valor total do financiamento (crédito)',
+    status: 'active' as const,
+    inputType: 'number' as const,
+  },
 ];
 
 async function seedTemplates() {
@@ -32,12 +115,28 @@ async function seedTemplates() {
     // Verificar se a questão já existe
     const existing = await questionsCollection.findOne({
       title: qData.title,
-      category: qData.category
     });
 
     if (existing) {
       questionIds[qData.title] = existing._id?.toString() || '';
-      console.log(`  ✓ Questão "${qData.title}" já existe`);
+      // Sempre atualizar questão existente para garantir que tem inputType e options corretos
+      const updateData: any = {
+        updatedAt: new Date(),
+      };
+
+      if (qData.inputType) {
+        updateData.inputType = qData.inputType;
+      }
+
+      if (qData.inputType === 'select' && qData.options) {
+        updateData.options = qData.options;
+      }
+
+      await questionsCollection.updateOne(
+        { _id: existing._id },
+        { $set: updateData }
+      );
+      console.log(`  ✓ Questão "${qData.title}" atualizada`);
     } else {
       const now = new Date();
       const question: Question = {
@@ -70,7 +169,9 @@ async function seedTemplates() {
     questionIds['Valor'],
   ].filter(Boolean);
 
-  const template1 = await templatesCollection.findOne({ title: 'Registo de Produção Crédito' });
+  const template1 = await templatesCollection.findOne({
+    title: 'Registo de Produção Crédito',
+  });
   if (!template1) {
     const now = new Date();
     await templatesCollection.insertOne({
@@ -105,7 +206,9 @@ async function seedTemplates() {
     questionIds['Seguradora'],
   ].filter(Boolean);
 
-  const template2 = await templatesCollection.findOne({ title: 'Registo de Produção Seguros' });
+  const template2 = await templatesCollection.findOne({
+    title: 'Registo de Produção Seguros',
+  });
   if (!template2) {
     const now = new Date();
     await templatesCollection.insertOne({
@@ -142,7 +245,9 @@ async function seedTemplates() {
     questionIds['Valor'],
   ].filter(Boolean);
 
-  const template3 = await templatesCollection.findOne({ title: 'Registo de Vendas Imobiliária' });
+  const template3 = await templatesCollection.findOne({
+    title: 'Registo de Vendas Imobiliária',
+  });
   if (!template3) {
     const now = new Date();
     await templatesCollection.insertOne({

@@ -26,7 +26,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const templateSchema = z.object({
@@ -41,8 +41,9 @@ interface Question {
   _id?: string;
   title: string;
   description?: string;
-  category: string;
   status: string;
+  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number';
+  options?: string[];
 }
 
 interface Template {
@@ -59,8 +60,13 @@ interface EditTemplateDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplateDialogProps) {
+export function EditTemplateDialog({
+  template,
+  open,
+  onOpenChange,
+}: EditTemplateDialogProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [originalQuestions, setOriginalQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -83,6 +89,11 @@ export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplat
         description: template.description || '',
         questions: template.questions || [],
       });
+    } else {
+      // Ao fechar, resetar para o estado original
+      if (originalQuestions.length > 0) {
+        setQuestions([...originalQuestions]);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, template]);
@@ -91,12 +102,30 @@ export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplat
     setLoading(true);
     try {
       const allQuestions = await api.questions.getAll({ status: 'active' });
+      // Criar cópia profunda para backup
+      const questionsCopy = JSON.parse(JSON.stringify(allQuestions));
+      setOriginalQuestions(questionsCopy);
       setQuestions(allQuestions);
     } catch (error) {
       console.error('Error loading questions:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRemoveOption = (questionId: string, optionToRemove: string) => {
+    // Apenas atualizar o estado local, sem chamar a API
+    setQuestions((prev) =>
+      prev.map((q) => {
+        if (q._id === questionId && q.options) {
+          return {
+            ...q,
+            options: q.options.filter((opt) => opt !== optionToRemove),
+          };
+        }
+        return q;
+      })
+    );
   };
 
   const onSubmit = async (data: TemplateFormValues) => {
@@ -106,6 +135,26 @@ export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplat
         return;
       }
 
+      // Aplicar todas as mudanças nas questões (remover opções)
+      const questionsToUpdate = questions.filter((q) => {
+        const original = originalQuestions.find((oq) => oq._id === q._id);
+        if (!original) return false;
+        // Verificar se as opções mudaram
+        const originalOptions = JSON.stringify(original.options || []);
+        const currentOptions = JSON.stringify(q.options || []);
+        return originalOptions !== currentOptions;
+      });
+
+      // Atualizar cada questão que teve opções removidas
+      for (const question of questionsToUpdate) {
+        if (question._id) {
+          await api.questions.update(question._id, {
+            options: question.options || [],
+          });
+        }
+      }
+
+      // Atualizar o template
       await api.templates.update(template._id, {
         title: data.title,
         description: data.description || undefined,
@@ -121,14 +170,6 @@ export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplat
   };
 
   const selectedQuestions = form.watch('questions') || [];
-
-  const categoryColors: Record<string, string> = {
-    Finance: 'bg-blue-100 text-blue-800',
-    Marketing: 'bg-purple-100 text-purple-800',
-    HR: 'bg-green-100 text-green-800',
-    Tech: 'bg-orange-100 text-orange-800',
-    Custom: 'bg-gray-100 text-gray-800',
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -148,7 +189,10 @@ export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplat
                 <FormItem>
                   <FormLabel>Título do Template</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite o título do template" {...field} />
+                    <Input
+                      placeholder="Digite o título do template"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -195,7 +239,8 @@ export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplat
                     <Card className="shadow-sm">
                       <CardContent className="py-8 text-center">
                         <p className="text-muted-foreground">
-                          Nenhuma questão ativa disponível. Crie questões primeiro.
+                          Nenhuma questão ativa disponível. Crie questões
+                          primeiro.
                         </p>
                       </CardContent>
                     </Card>
@@ -214,11 +259,16 @@ export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplat
                               >
                                 <FormControl>
                                   <Checkbox
-                                    checked={field.value?.includes(question._id || '')}
+                                    checked={field.value?.includes(
+                                      question._id || ''
+                                    )}
                                     onCheckedChange={(checked) => {
                                       const currentValue = field.value || [];
                                       return checked
-                                        ? field.onChange([...currentValue, question._id])
+                                        ? field.onChange([
+                                            ...currentValue,
+                                            question._id,
+                                          ])
                                         : field.onChange(
                                             currentValue.filter(
                                               (value) => value !== question._id
@@ -238,15 +288,62 @@ export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplat
                                           {question.description}
                                         </p>
                                       )}
+                                      {question.inputType === 'select' &&
+                                        question.options &&
+                                        question.options.length > 0 && (
+                                          <div className="mt-2 p-2 bg-muted rounded-md">
+                                            <p className="text-xs font-medium text-muted-foreground mb-1">
+                                              Opções do Select:
+                                            </p>
+                                            <div className="flex flex-wrap gap-1">
+                                              {question.options.map(
+                                                (option, idx) => (
+                                                  <Badge
+                                                    key={idx}
+                                                    variant="secondary"
+                                                    className="text-xs relative pr-6"
+                                                  >
+                                                    {option}
+                                                    <button
+                                                      type="button"
+                                                      onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        if (question._id) {
+                                                          handleRemoveOption(question._id, option);
+                                                        }
+                                                      }}
+                                                      className="absolute top-0 right-0 h-full w-5 flex items-center justify-center hover:bg-destructive/20 rounded-r transition-colors"
+                                                      aria-label={`Remover ${option}`}
+                                                    >
+                                                      <X className="h-3 w-3 text-white" />
+                                                    </button>
+                                                  </Badge>
+                                                )
+                                              )}
+                                            </div>
+                                          </div>
+                                        )}
                                     </div>
-                                    <Badge
-                                      className={
-                                        categoryColors[question.category] ||
-                                        categoryColors.Custom
-                                      }
-                                    >
-                                      {question.category}
-                                    </Badge>
+                                    {question.inputType && (
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs"
+                                      >
+                                        {question.inputType === 'date' &&
+                                          '📅 Data'}
+                                        {question.inputType === 'select' &&
+                                          '📋 Select'}
+                                        {question.inputType === 'email' &&
+                                          '📧 Email'}
+                                        {question.inputType === 'tel' &&
+                                          '📞 Telefone'}
+                                        {question.inputType === 'number' &&
+                                          '🔢 Número'}
+                                        {question.inputType === 'text' &&
+                                          '📝 Texto'}
+                                      </Badge>
+                                    )}
                                   </div>
                                 </FormLabel>
                               </FormItem>
@@ -265,7 +362,13 @@ export function EditTemplateDialog({ template, open, onOpenChange }: EditTemplat
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => onOpenChange(false)}
+                onClick={() => {
+                  // Resetar questões para o estado original
+                  if (originalQuestions.length > 0) {
+                    setQuestions([...originalQuestions]);
+                  }
+                  onOpenChange(false);
+                }}
               >
                 Cancelar
               </Button>

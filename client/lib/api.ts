@@ -2,9 +2,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export const api = {
   questions: {
-    getAll: async (params?: { category?: string; status?: string; search?: string }) => {
+    getAll: async (params?: { status?: string; search?: string }) => {
       const queryParams = new URLSearchParams();
-      if (params?.category) queryParams.append('category', params.category);
       if (params?.status) queryParams.append('status', params.status);
       if (params?.search) queryParams.append('search', params.search);
 

@@ -13,14 +13,6 @@ import { QuestionActions } from './question-actions';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
 
-const categoryColors: Record<string, string> = {
-  Finance: 'bg-blue-100 text-blue-800',
-  Marketing: 'bg-purple-100 text-purple-800',
-  HR: 'bg-green-100 text-green-800',
-  Tech: 'bg-orange-100 text-orange-800',
-  Custom: 'bg-gray-100 text-gray-800',
-};
-
 export async function QuestionsTable() {
   const questions = await api.questions.getAll();
 
@@ -30,7 +22,7 @@ export async function QuestionsTable() {
         <TableHeader>
           <TableRow>
             <TableHead className="text-xs uppercase text-muted-foreground">Título</TableHead>
-            <TableHead className="text-xs uppercase text-muted-foreground">Categoria</TableHead>
+            <TableHead className="text-xs uppercase text-muted-foreground">Tipo</TableHead>
             <TableHead className="text-xs uppercase text-muted-foreground">Status</TableHead>
             <TableHead className="text-xs uppercase text-muted-foreground">Criado em</TableHead>
             <TableHead className="text-xs uppercase text-muted-foreground text-right">Ações</TableHead>
@@ -48,9 +40,16 @@ export async function QuestionsTable() {
               <TableRow key={question._id} className="hover:bg-muted/50">
                 <TableCell className="font-medium">{question.title}</TableCell>
                 <TableCell>
-                  <Badge className={categoryColors[question.category] || categoryColors.Custom}>
-                    {question.category}
+                  {question.inputType && (
+                    <Badge variant="outline">
+                      {question.inputType === 'date' && '📅 Data'}
+                      {question.inputType === 'select' && '📋 Select'}
+                      {question.inputType === 'email' && '📧 Email'}
+                      {question.inputType === 'tel' && '📞 Telefone'}
+                      {question.inputType === 'number' && '🔢 Número'}
+                      {question.inputType === 'text' && '📝 Texto'}
                   </Badge>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Badge variant={question.status === 'active' ? 'default' : 'secondary'}>

@@ -1,12 +1,14 @@
 export type QuestionStatus = 'active' | 'inactive';
-export type QuestionCategory = 'Finance' | 'Marketing' | 'HR' | 'Tech' | 'Custom';
+
+export type QuestionInputType = 'text' | 'date' | 'select' | 'email' | 'tel' | 'number';
 
 export interface Question {
   _id?: string;
   title: string;
   description?: string;
-  category: QuestionCategory;
   status: QuestionStatus;
+  inputType?: QuestionInputType; // Tipo de input
+  options?: string[]; // Opções para select
   createdAt: Date;
   updatedAt: Date;
 }

@@ -21,7 +21,6 @@ interface Question {
   _id?: string;
   title: string;
   description?: string;
-  category: string;
   status: string;
   createdAt: Date | string;
   updatedAt: Date | string;
@@ -119,12 +118,7 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
       );
     }
 
-    // Aplicar filtro de categoria
-    if (filters.category !== 'all') {
-      filteredQuestions = filteredQuestions.filter(
-        (q) => q.category === filters.category
-      );
-    }
+    // Filtro de categoria removido das questões
 
     // Aplicar filtro de status
     if (filters.status !== 'all') {
@@ -178,9 +172,6 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-3">
                           <h4 className="font-semibold text-foreground">{question.title}</h4>
-                          <Badge className={categoryColors[question.category] || categoryColors.Custom}>
-                            {question.category}
-                          </Badge>
                           <Badge variant={question.status === 'active' ? 'default' : 'secondary'}>
                             {question.status === 'active' ? (
                               <><CheckCircle2 className="w-3 h-3 mr-1" />Ativo</>
@@ -311,12 +302,9 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-3">
-                        <h4 className="font-semibold text-foreground">{question.title}</h4>
-                        <Badge className={categoryColors[question.category] || categoryColors.Custom}>
-                          {question.category}
-                        </Badge>
-                        <Badge variant={question.status === 'active' ? 'default' : 'secondary'}>
+                        <div className="flex items-center gap-3">
+                          <h4 className="font-semibold text-foreground">{question.title}</h4>
+                          <Badge variant={question.status === 'active' ? 'default' : 'secondary'}>
                           {question.status === 'active' ? (
                             <><CheckCircle2 className="w-3 h-3 mr-1" />Ativo</>
                           ) : (

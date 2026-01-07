@@ -42,8 +42,9 @@ interface Question {
   _id?: string;
   title: string;
   description?: string;
-  category: string;
   status: string;
+  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number';
+  options?: string[];
 }
 
 export function CreateTemplateDialog({ children }: { children: React.ReactNode }) {
@@ -99,13 +100,6 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
 
   const selectedQuestions = form.watch('questions') || [];
 
-  const categoryColors: Record<string, string> = {
-    Finance: 'bg-blue-100 text-blue-800',
-    Marketing: 'bg-purple-100 text-purple-800',
-    HR: 'bg-green-100 text-green-800',
-    Tech: 'bg-orange-100 text-orange-800',
-    Custom: 'bg-gray-100 text-gray-800',
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -216,15 +210,35 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
                                           {question.description}
                                         </p>
                                       )}
+                                      {question.inputType === 'select' && question.options && question.options.length > 0 && (
+                                        <div className="mt-2 p-2 bg-muted rounded-md">
+                                          <p className="text-xs font-medium text-muted-foreground mb-1">
+                                            Opções do Select:
+                                          </p>
+                                          <div className="flex flex-wrap gap-1">
+                                            {question.options.map((option, idx) => (
+                                              <Badge
+                                                key={idx}
+                                                variant="secondary"
+                                                className="text-xs"
+                                              >
+                                                {option}
+                                              </Badge>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
-                                    <Badge
-                                      className={
-                                        categoryColors[question.category] ||
-                                        categoryColors.Custom
-                                      }
-                                    >
-                                      {question.category}
-                                    </Badge>
+                                    {question.inputType && (
+                                      <Badge variant="outline" className="text-xs">
+                                        {question.inputType === 'date' && '📅 Data'}
+                                        {question.inputType === 'select' && '📋 Select'}
+                                        {question.inputType === 'email' && '📧 Email'}
+                                        {question.inputType === 'tel' && '📞 Telefone'}
+                                        {question.inputType === 'number' && '🔢 Número'}
+                                        {question.inputType === 'text' && '📝 Texto'}
+                                      </Badge>
+                                    )}
                                   </div>
                                 </FormLabel>
                               </FormItem>

@@ -1,21 +1,13 @@
 import { getDatabase } from '../config/database';
-import { Question, QuestionCategory, QuestionStatus } from '../types';
+import { Question, QuestionStatus } from '../types';
 import { ObjectId } from 'mongodb';
 
 export class QuestionModel {
-  static async findAll(filters?: {
-    category?: QuestionCategory;
-    status?: QuestionStatus;
-    search?: string;
-  }) {
+  static async findAll(filters?: { status?: QuestionStatus; search?: string }) {
     const db = await getDatabase();
     const collection = db.collection<Question>('questions');
 
     const query: any = {};
-
-    if (filters?.category) {
-      query.category = filters.category;
-    }
 
     if (filters?.status) {
       query.status = filters.status;
@@ -28,8 +20,11 @@ export class QuestionModel {
       ];
     }
 
-    const questions = await collection.find(query).sort({ createdAt: -1 }).toArray();
-    return questions.map(q => ({
+    const questions = await collection
+      .find(query)
+      .sort({ createdAt: -1 })
+      .toArray();
+    return questions.map((q) => ({
       ...q,
       _id: q._id?.toString(),
     }));

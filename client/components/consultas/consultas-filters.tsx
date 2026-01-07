@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Search, X } from 'lucide-react';
 
-export type FilterType = 'all' | 'questions' | 'categories' | 'forms';
+export type FilterType = 'all' | 'questions' | 'categories';
 export type CategoryFilter = 'all' | 'Finance' | 'Marketing' | 'HR' | 'Tech' | 'Custom';
 export type StatusFilter = 'all' | 'active' | 'inactive';
 
@@ -107,7 +107,6 @@ export function ConsultasFilters({ onFilterChange }: ConsultasFiltersProps) {
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="questions">Questões</SelectItem>
                 <SelectItem value="categories">Categorias</SelectItem>
-                <SelectItem value="forms">Formulários</SelectItem>
               </SelectContent>
             </Select>
           </div>

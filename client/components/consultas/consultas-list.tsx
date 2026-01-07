@@ -9,13 +9,16 @@ import { ptBR } from 'date-fns/locale/pt-BR';
 import {
   HelpCircle,
   FolderTree,
-  FileText,
   Calendar,
   Tag,
   CheckCircle2,
-  XCircle
+  XCircle,
 } from 'lucide-react';
-import type { FilterType, CategoryFilter, StatusFilter } from './consultas-filters';
+import type {
+  FilterType,
+  CategoryFilter,
+  StatusFilter,
+} from './consultas-filters';
 
 interface Question {
   _id?: string;
@@ -33,19 +36,9 @@ interface Category {
   createdAt: Date | string;
 }
 
-interface Form {
-  _id?: string;
-  title: string;
-  description?: string;
-  questions: string[];
-  createdAt: Date | string;
-  updatedAt: Date | string;
-}
-
 interface ConsultasListProps {
   questions: Question[];
   categories: Category[];
-  forms: Form[];
   filters?: {
     type: FilterType;
     category: CategoryFilter;
@@ -62,12 +55,18 @@ const categoryColors: Record<string, string> = {
   Custom: 'bg-gray-100 text-gray-800',
 };
 
-export function ConsultasList({ questions, categories, forms, filters: externalFilters }: ConsultasListProps) {
-  const [activeTab, setActiveTab] = useState<'all' | 'questions' | 'categories' | 'forms'>('all');
+export function ConsultasList({
+  questions,
+  categories,
+  filters: externalFilters,
+}: ConsultasListProps) {
+  const [activeTab, setActiveTab] = useState<
+    'all' | 'questions' | 'categories'
+  >('all');
   const [filters, setFilters] = useState({
-    type: ('all' as FilterType),
-    category: ('all' as CategoryFilter),
-    status: ('all' as StatusFilter),
+    type: 'all' as FilterType,
+    category: 'all' as CategoryFilter,
+    status: 'all' as StatusFilter,
     search: '',
   });
 
@@ -84,18 +83,12 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
   const filteredData = useMemo(() => {
     let filteredQuestions = questions;
     let filteredCategories = categories;
-    let filteredForms = forms;
 
     // Aplicar filtro de tipo
     if (filters.type === 'questions' || activeTab === 'questions') {
       filteredCategories = [];
-      filteredForms = [];
     } else if (filters.type === 'categories' || activeTab === 'categories') {
       filteredQuestions = [];
-      filteredForms = [];
-    } else if (filters.type === 'forms' || activeTab === 'forms') {
-      filteredQuestions = [];
-      filteredCategories = [];
     }
 
     // Aplicar filtro de pesquisa
@@ -111,11 +104,6 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
           c.name.toLowerCase().includes(searchLower) ||
           c.description?.toLowerCase().includes(searchLower)
       );
-      filteredForms = filteredForms.filter(
-        (f) =>
-          f.title.toLowerCase().includes(searchLower) ||
-          f.description?.toLowerCase().includes(searchLower)
-      );
     }
 
     // Filtro de categoria removido das questões
@@ -130,30 +118,22 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
     return {
       questions: filteredQuestions,
       categories: filteredCategories,
-      forms: filteredForms,
     };
-  }, [questions, categories, forms, filters, activeTab]);
+  }, [questions, categories, filters, activeTab]);
 
   const totalItems =
-    filteredData.questions.length +
-    filteredData.categories.length +
-    filteredData.forms.length;
+    filteredData.questions.length + filteredData.categories.length;
 
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
         <TabsList>
-          <TabsTrigger value="all">
-            Todos ({totalItems})
-          </TabsTrigger>
+          <TabsTrigger value="all">Todos ({totalItems})</TabsTrigger>
           <TabsTrigger value="questions">
             Questões ({filteredData.questions.length})
           </TabsTrigger>
           <TabsTrigger value="categories">
             Categorias ({filteredData.categories.length})
-          </TabsTrigger>
-          <TabsTrigger value="forms">
-            Formulários ({filteredData.forms.length})
           </TabsTrigger>
         </TabsList>
 
@@ -166,34 +146,65 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
                 Questões ({filteredData.questions.length})
               </h3>
               {filteredData.questions.map((question) => (
-                <Card key={question._id} className="shadow-sm hover:shadow-md transition-shadow">
+                <Card
+                  key={question._id}
+                  className="shadow-sm hover:shadow-md transition-shadow"
+                >
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-3">
-                          <h4 className="font-semibold text-foreground">{question.title}</h4>
-                          <Badge variant={question.status === 'active' ? 'default' : 'secondary'}>
+                          <h4 className="font-semibold text-foreground">
+                            {question.title}
+                          </h4>
+                          <Badge
+                            variant={
+                              question.status === 'active'
+                                ? 'default'
+                                : 'secondary'
+                            }
+                          >
                             {question.status === 'active' ? (
-                              <><CheckCircle2 className="w-3 h-3 mr-1" />Ativo</>
+                              <>
+                                <CheckCircle2 className="w-3 h-3 mr-1" />
+                                Ativo
+                              </>
                             ) : (
-                              <><XCircle className="w-3 h-3 mr-1" />Inativo</>
+                              <>
+                                <XCircle className="w-3 h-3 mr-1" />
+                                Inativo
+                              </>
                             )}
                           </Badge>
                         </div>
                         {question.description && (
-                          <p className="text-sm text-muted-foreground">{question.description}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {question.description}
+                          </p>
                         )}
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            Criado em {format(new Date(question.createdAt), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
+                            Criado em{' '}
+                            {format(
+                              new Date(question.createdAt),
+                              "dd MMM yyyy 'às' HH:mm",
+                              { locale: ptBR }
+                            )}
                           </span>
-                          {question.updatedAt && new Date(question.updatedAt).getTime() !== new Date(question.createdAt).getTime() && (
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              Atualizado em {format(new Date(question.updatedAt), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
-                            </span>
-                          )}
+                          {question.updatedAt &&
+                            new Date(question.updatedAt).getTime() !==
+                              new Date(question.createdAt).getTime() && (
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                Atualizado em{' '}
+                                {format(
+                                  new Date(question.updatedAt),
+                                  "dd MMM yyyy 'às' HH:mm",
+                                  { locale: ptBR }
+                                )}
+                              </span>
+                            )}
                         </div>
                       </div>
                     </div>
@@ -211,66 +222,42 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
                 Categorias ({filteredData.categories.length})
               </h3>
               {filteredData.categories.map((category) => (
-                <Card key={category._id} className="shadow-sm hover:shadow-md transition-shadow">
+                <Card
+                  key={category._id}
+                  className="shadow-sm hover:shadow-md transition-shadow"
+                >
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-3">
-                          <h4 className="font-semibold text-foreground">{category.name}</h4>
-                          <Badge className={categoryColors[category.name] || categoryColors.Custom}>
+                          <h4 className="font-semibold text-foreground">
+                            {category.name}
+                          </h4>
+                          <Badge
+                            className={
+                              categoryColors[category.name] ||
+                              categoryColors.Custom
+                            }
+                          >
                             <Tag className="w-3 h-3 mr-1" />
                             {category.name}
                           </Badge>
                         </div>
                         {category.description && (
-                          <p className="text-sm text-muted-foreground">{category.description}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {category.description}
+                          </p>
                         )}
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            Criado em {format(new Date(category.createdAt), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
+                            Criado em{' '}
+                            {format(
+                              new Date(category.createdAt),
+                              "dd MMM yyyy 'às' HH:mm",
+                              { locale: ptBR }
+                            )}
                           </span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* Formulários */}
-          {filteredData.forms.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Formulários ({filteredData.forms.length})
-              </h3>
-              {filteredData.forms.map((form) => (
-                <Card key={form._id} className="shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-3">
-                          <h4 className="font-semibold text-foreground">{form.title}</h4>
-                          <Badge variant="outline">
-                            {form.questions.length} questão(ões)
-                          </Badge>
-                        </div>
-                        {form.description && (
-                          <p className="text-sm text-muted-foreground">{form.description}</p>
-                        )}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            Criado em {format(new Date(form.createdAt), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
-                          </span>
-                          {form.updatedAt && new Date(form.updatedAt).getTime() !== new Date(form.createdAt).getTime() && (
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              Atualizado em {format(new Date(form.updatedAt), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -283,7 +270,9 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
           {totalItems === 0 && (
             <Card className="shadow-sm">
               <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">Nenhum resultado encontrado com os filtros aplicados</p>
+                <p className="text-muted-foreground">
+                  Nenhum resultado encontrado com os filtros aplicados
+                </p>
               </CardContent>
             </Card>
           )}
@@ -293,32 +282,58 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
           {filteredData.questions.length === 0 ? (
             <Card className="shadow-sm">
               <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">Nenhuma questão encontrada</p>
+                <p className="text-muted-foreground">
+                  Nenhuma questão encontrada
+                </p>
               </CardContent>
             </Card>
           ) : (
             filteredData.questions.map((question) => (
-              <Card key={question._id} className="shadow-sm hover:shadow-md transition-shadow">
+              <Card
+                key={question._id}
+                className="shadow-sm hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-3">
-                          <h4 className="font-semibold text-foreground">{question.title}</h4>
-                          <Badge variant={question.status === 'active' ? 'default' : 'secondary'}>
+                      <div className="flex items-center gap-3">
+                        <h4 className="font-semibold text-foreground">
+                          {question.title}
+                        </h4>
+                        <Badge
+                          variant={
+                            question.status === 'active'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
                           {question.status === 'active' ? (
-                            <><CheckCircle2 className="w-3 h-3 mr-1" />Ativo</>
+                            <>
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Ativo
+                            </>
                           ) : (
-                            <><XCircle className="w-3 h-3 mr-1" />Inativo</>
+                            <>
+                              <XCircle className="w-3 h-3 mr-1" />
+                              Inativo
+                            </>
                           )}
                         </Badge>
                       </div>
                       {question.description && (
-                        <p className="text-sm text-muted-foreground">{question.description}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {question.description}
+                        </p>
                       )}
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          Criado em {format(new Date(question.createdAt), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
+                          Criado em{' '}
+                          {format(
+                            new Date(question.createdAt),
+                            "dd MMM yyyy 'às' HH:mm",
+                            { locale: ptBR }
+                          )}
                         </span>
                       </div>
                     </div>
@@ -333,65 +348,48 @@ export function ConsultasList({ questions, categories, forms, filters: externalF
           {filteredData.categories.length === 0 ? (
             <Card className="shadow-sm">
               <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">Nenhuma categoria encontrada</p>
+                <p className="text-muted-foreground">
+                  Nenhuma categoria encontrada
+                </p>
               </CardContent>
             </Card>
           ) : (
             filteredData.categories.map((category) => (
-              <Card key={category._id} className="shadow-sm hover:shadow-md transition-shadow">
+              <Card
+                key={category._id}
+                className="shadow-sm hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-3">
-                        <h4 className="font-semibold text-foreground">{category.name}</h4>
-                        <Badge className={categoryColors[category.name] || categoryColors.Custom}>
+                        <h4 className="font-semibold text-foreground">
+                          {category.name}
+                        </h4>
+                        <Badge
+                          className={
+                            categoryColors[category.name] ||
+                            categoryColors.Custom
+                          }
+                        >
                           <Tag className="w-3 h-3 mr-1" />
                           {category.name}
                         </Badge>
                       </div>
                       {category.description && (
-                        <p className="text-sm text-muted-foreground">{category.description}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {category.description}
+                        </p>
                       )}
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          Criado em {format(new Date(category.createdAt), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </TabsContent>
-
-        <TabsContent value="forms" className="space-y-4 mt-6">
-          {filteredData.forms.length === 0 ? (
-            <Card className="shadow-sm">
-              <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">Nenhum formulário encontrado</p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredData.forms.map((form) => (
-              <Card key={form._id} className="shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-3">
-                        <h4 className="font-semibold text-foreground">{form.title}</h4>
-                        <Badge variant="outline">
-                          {form.questions.length} questão(ões)
-                        </Badge>
-                      </div>
-                      {form.description && (
-                        <p className="text-sm text-muted-foreground">{form.description}</p>
-                      )}
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          Criado em {format(new Date(form.createdAt), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
+                          Criado em{' '}
+                          {format(
+                            new Date(category.createdAt),
+                            "dd MMM yyyy 'às' HH:mm",
+                            { locale: ptBR }
+                          )}
                         </span>
                       </div>
                     </div>

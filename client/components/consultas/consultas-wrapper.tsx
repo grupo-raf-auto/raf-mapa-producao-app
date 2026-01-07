@@ -22,22 +22,12 @@ interface Category {
   createdAt: Date | string;
 }
 
-interface Form {
-  _id?: string;
-  title: string;
-  description?: string;
-  questions: string[];
-  createdAt: Date | string;
-  updatedAt: Date | string;
-}
-
 interface ConsultasWrapperProps {
   questions: Question[];
   categories: Category[];
-  forms: Form[];
 }
 
-export function ConsultasWrapper({ questions, categories, forms }: ConsultasWrapperProps) {
+export function ConsultasWrapper({ questions, categories }: ConsultasWrapperProps) {
   const [filters, setFilters] = useState({
     type: 'all' as FilterType,
     category: 'all' as CategoryFilter,
@@ -51,7 +41,6 @@ export function ConsultasWrapper({ questions, categories, forms }: ConsultasWrap
       <ConsultasList
         questions={questions}
         categories={categories}
-        forms={forms}
         filters={filters}
       />
     </>

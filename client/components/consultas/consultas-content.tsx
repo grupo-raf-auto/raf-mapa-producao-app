@@ -3,10 +3,9 @@ import { api } from '@/lib/api';
 
 export async function ConsultasContent() {
   // Buscar todos os dados
-  const [questions, categories, forms] = await Promise.all([
+  const [questions, categories] = await Promise.all([
     api.questions.getAll(),
     api.categories.getAll(),
-    api.forms.getAll(),
   ]);
 
   return (
@@ -23,7 +22,6 @@ export async function ConsultasContent() {
       <ConsultasWrapper
         questions={questions}
         categories={categories}
-        forms={forms}
       />
     </div>
   );

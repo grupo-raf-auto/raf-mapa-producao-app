@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import questionRoutes from './routes/question.routes';
 import categoryRoutes from './routes/category.routes';
-import formRoutes from './routes/form.routes';
 import templateRoutes from './routes/template.routes';
 import { seedTemplates } from './scripts/seed-templates';
 
@@ -29,7 +28,6 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/questions', questionRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/forms', formRoutes);
 app.use('/api/templates', templateRoutes);
 
 // Error handling middleware

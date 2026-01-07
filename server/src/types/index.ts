@@ -21,16 +21,6 @@ export interface Category {
   createdAt: Date;
 }
 
-export interface Form {
-  _id?: string;
-  title: string;
-  description?: string;
-  questions: string[]; // Question IDs
-  createdAt: Date;
-  updatedAt: Date;
-  isTemplate?: boolean; // Indica se é um template
-}
-
 export interface Template {
   _id?: string;
   title: string;
@@ -43,10 +33,11 @@ export interface Template {
 
 export interface FormSubmission {
   _id?: string;
-  formId: string;
+  templateId: string; // Referência ao template usado
   answers: {
     questionId: string;
     answer: string;
   }[];
   submittedAt: Date;
+  submittedBy?: string; // ID do usuário que submeteu (quando implementar login)
 }

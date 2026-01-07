@@ -1,17 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, TrendingUp } from 'lucide-react';
+import { FileStack, TrendingUp } from 'lucide-react';
 import { QuestionsChart } from './questions-chart';
 import { ActivityChart } from './activity-chart';
 import { api } from '@/lib/api';
 
 export async function DashboardContent() {
   // TODO: Create stats endpoint in backend
-  const [forms] = await Promise.all([
-    api.forms.getAll(),
+  const [templates] = await Promise.all([
+    api.templates.getAll(),
   ]);
 
   const stats = {
-    totalForms: forms.length,
+    totalTemplates: templates.length,
     totalSubmissions: 0, // TODO: Implement submissions
   };
 
@@ -24,9 +24,9 @@ export async function DashboardContent() {
       trend: 'up' as const,
     },
     {
-      title: 'Formulários',
-      value: stats.totalForms,
-      icon: FileText,
+      title: 'Templates',
+      value: stats.totalTemplates,
+      icon: FileStack,
       change: '+5',
       trend: 'up' as const,
     },

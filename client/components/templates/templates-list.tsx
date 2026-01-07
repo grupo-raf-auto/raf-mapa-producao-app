@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
@@ -21,6 +27,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { EditTemplateDialog } from './edit-template-dialog';
+import { FillTemplateDialog } from './fill-template-dialog';
 
 interface Template {
   _id?: string;
@@ -37,6 +44,8 @@ export function TemplatesList() {
   const [loading, setLoading] = useState(true);
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [fillingTemplate, setFillingTemplate] = useState<Template | null>(null);
+  const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
   const router = useRouter();
 
   // Carregar templates
@@ -59,7 +68,7 @@ export function TemplatesList() {
     try {
       await api.templates.delete(id);
       // Atualizar lista local removendo o template excluído
-      setTemplates(prev => prev.filter(t => t._id !== id));
+      setTemplates((prev) => prev.filter((t) => t._id !== id));
       router.refresh();
     } catch (error) {
       console.error('Error deleting template:', error);
@@ -105,7 +114,9 @@ export function TemplatesList() {
         <Card className="shadow-sm">
           <CardContent className="py-12 text-center">
             <FileStack className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Nenhum template criado ainda</p>
+            <p className="text-muted-foreground">
+              Nenhum template criado ainda
+            </p>
             <p className="text-sm text-muted-foreground mt-2">
               Crie templates para reutilizar em seus formulários
             </p>
@@ -114,7 +125,10 @@ export function TemplatesList() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
-            <Card key={template._id} className="shadow-sm hover:shadow-md transition-shadow">
+            <Card
+              key={template._id}
+              className="shadow-sm hover:shadow-md transition-shadow"
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -137,12 +151,23 @@ export function TemplatesList() {
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Calendar className="w-3 h-3" />
                     <span>
-                      Criado em {format(new Date(template.createdAt), "dd MMM yyyy", { locale: ptBR })}
+                      Criado em{' '}
+                      {format(new Date(template.createdAt), 'dd MMM yyyy', {
+                        locale: ptBR,
+                      })}
                     </span>
                   </div>
                   <div className="flex gap-2 pt-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      Usar Template
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => {
+                        setFillingTemplate(template);
+                        setIsFillDialogOpen(true);
+                      }}
+                    >
+                      Preencher
                     </Button>
                     <Button
                       variant="outline"
@@ -155,21 +180,31 @@ export function TemplatesList() {
                     {!template.isDefault && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                            <AlertDialogTitle>
+                              Confirmar exclusão
+                            </AlertDialogTitle>
                             <AlertDialogDescription>
-                              Tem certeza que deseja excluir o template "{template.title}"? Esta ação não pode ser desfeita.
+                              Tem certeza que deseja excluir o template &quot;
+                              {template.title}&quot;? Esta ação não pode ser
+                              desfeita.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => template._id && handleDelete(template._id)}
+                              onClick={() =>
+                                template._id && handleDelete(template._id)
+                              }
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
                               Excluir
@@ -193,6 +228,17 @@ export function TemplatesList() {
           onOpenChange={handleEditDialogClose}
         />
       )}
+
+      <FillTemplateDialog
+        template={fillingTemplate}
+        open={isFillDialogOpen}
+        onOpenChange={(open) => {
+          setIsFillDialogOpen(open);
+          if (!open) {
+            setFillingTemplate(null);
+          }
+        }}
+      />
     </div>
   );
 }

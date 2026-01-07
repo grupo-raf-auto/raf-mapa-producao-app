@@ -28,6 +28,7 @@ import { api } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
 
 const templateSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -174,7 +175,7 @@ export function EditTemplateDialog({
   const onSubmit = async (data: TemplateFormValues) => {
     try {
       if (!template._id) {
-        alert('ID do template não encontrado');
+        toast.error('ID do template não encontrado');
         return;
       }
 
@@ -206,9 +207,10 @@ export function EditTemplateDialog({
 
       router.refresh();
       onOpenChange(false);
+      toast.success('Template atualizado com sucesso!');
     } catch (error) {
       console.error('Error updating template:', error);
-      alert('Erro ao atualizar template. Tente novamente.');
+      toast.error('Erro ao atualizar template. Tente novamente.');
     }
   };
 

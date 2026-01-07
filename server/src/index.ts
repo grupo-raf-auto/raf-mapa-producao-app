@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import questionRoutes from './routes/question.routes';
 import categoryRoutes from './routes/category.routes';
 import templateRoutes from './routes/template.routes';
+import submissionRoutes from './routes/submission.routes';
 import { seedTemplates } from './scripts/seed-templates';
 
 // Load environment variables
@@ -29,6 +30,7 @@ app.get('/health', (req, res) => {
 app.use('/api/questions', questionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/templates', templateRoutes);
+app.use('/api/submissions', submissionRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

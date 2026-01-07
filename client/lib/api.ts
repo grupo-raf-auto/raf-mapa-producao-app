@@ -117,4 +117,48 @@ export const api = {
       return res.json();
     },
   },
+  submissions: {
+    getAll: async (params?: { templateId?: string }) => {
+      const queryParams = new URLSearchParams();
+      if (params?.templateId) queryParams.append('templateId', params.templateId);
+
+      const url = `${API_URL}/api/submissions${queryParams.toString() ? `?${queryParams}` : ''}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch submissions');
+      return res.json();
+    },
+    getById: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/submissions/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch submission');
+      return res.json();
+    },
+    create: async (data: { templateId: string; answers: { questionId: string; answer: string }[]; submittedBy?: string }) => {
+      const res = await fetch(`${API_URL}/api/submissions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({ error: 'Failed to create submission' }));
+        throw new Error(error.error || 'Failed to create submission');
+      }
+      return res.json();
+    },
+    delete: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/submissions/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete submission');
+      return res.json();
+    },
+    getStats: async (params?: { templateId?: string }) => {
+      const queryParams = new URLSearchParams();
+      if (params?.templateId) queryParams.append('templateId', params.templateId);
+
+      const url = `${API_URL}/api/submissions/stats${queryParams.toString() ? `?${queryParams}` : ''}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch submission stats');
+      return res.json();
+    },
+  },
 };

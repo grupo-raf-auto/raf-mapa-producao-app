@@ -40,6 +40,7 @@ interface QuestionInputProps {
 
 export function QuestionInput({ question, value, onChange, disabled }: QuestionInputProps) {
   const inputType = question.inputType || 'text';
+  const hasValue = value && String(value).trim().length > 0;
 
   if (inputType === 'date') {
     const dateValue = value instanceof Date ? value : value ? new Date(value) : undefined;
@@ -51,7 +52,8 @@ export function QuestionInput({ question, value, onChange, disabled }: QuestionI
             variant="outline"
             className={cn(
               'w-full justify-start text-left font-normal',
-              !dateValue && 'text-muted-foreground'
+              !dateValue && 'text-muted-foreground',
+              dateValue && 'border-2 border-primary'
             )}
             disabled={disabled}
           >
@@ -87,7 +89,7 @@ export function QuestionInput({ question, value, onChange, disabled }: QuestionI
         onValueChange={onChange}
         disabled={disabled}
       >
-        <SelectTrigger>
+        <SelectTrigger className={cn(hasValue && 'border-2 border-primary')}>
           <SelectValue placeholder="Selecione uma opção" />
         </SelectTrigger>
         <SelectContent>
@@ -136,13 +138,25 @@ export function QuestionInput({ question, value, onChange, disabled }: QuestionI
   }
 
   // Para text, email, tel, number
+  // Placeholders específicos apenas quando faz sentido
+  const getPlaceholder = () => {
+    if (inputType === 'email') return 'exemplo@email.com';
+    if (inputType === 'tel') return '912 345 678';
+    if (inputType === 'number') return '0';
+    // Para text, não colocar placeholder
+    return '';
+  };
+
   return (
     <Input
       type={inputType}
       value={value as string || ''}
       onChange={(e) => onChange?.(e.target.value)}
-      placeholder={question.description || `Digite ${question.title.toLowerCase()}`}
+      placeholder={getPlaceholder()}
       disabled={disabled}
+      className={cn(
+        hasValue && 'border-2 border-primary'
+      )}
     />
   );
 }

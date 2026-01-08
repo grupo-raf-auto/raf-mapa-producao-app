@@ -109,7 +109,7 @@ export function TemplatesList() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {templates.length === 0 ? (
         <Card className="shadow-sm">
           <CardContent className="py-12 text-center">
@@ -123,7 +123,7 @@ export function TemplatesList() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {templates.map((template) => (
             <Card
               key={template._id}
@@ -159,9 +159,9 @@ export function TemplatesList() {
                   </div>
                   <div className="flex gap-2 pt-2">
                     <Button
-                      variant="outline"
+                      variant="default"
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 bg-foreground text-background hover:bg-foreground/90"
                       onClick={() => {
                         setFillingTemplate(template);
                         setIsFillDialogOpen(true);

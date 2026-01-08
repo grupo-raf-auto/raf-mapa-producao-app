@@ -33,7 +33,7 @@ export async function DashboardContent() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Dashboard
@@ -44,7 +44,7 @@ export async function DashboardContent() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {kpiCards.map((kpi) => {
           const Icon = kpi.icon;
           return (
@@ -69,7 +69,7 @@ export async function DashboardContent() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg font-medium">Questões por Categoria</CardTitle>

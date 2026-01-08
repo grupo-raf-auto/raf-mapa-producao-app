@@ -37,7 +37,7 @@ export async function QuestionsTable() {
             </TableRow>
           ) : (
             questions.map((question) => (
-              <TableRow key={question._id} className="hover:bg-muted/50">
+              <TableRow key={question._id} className="hover:bg-gray-50 active:bg-gray-100">
                 <TableCell className="font-medium">{question.title}</TableCell>
                 <TableCell>
                   {question.inputType && (

@@ -3,44 +3,48 @@
 import { useState } from 'react';
 import { ConsultasFilters } from './consultas-filters';
 import { ConsultasList } from './consultas-list';
-import type { FilterType, CategoryFilter, StatusFilter } from './consultas-filters';
+import type { ConsultasFiltersState } from './consultas-filters';
 
 interface Question {
   _id?: string;
   title: string;
   description?: string;
-  category: string;
   status: string;
+  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
+  options?: string[];
   createdAt: Date | string;
   updatedAt: Date | string;
 }
 
-interface Category {
+interface Template {
   _id?: string;
-  name: string;
+  title: string;
   description?: string;
+  questions: string[];
+  questionsData: Question[];
   createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 interface ConsultasWrapperProps {
-  questions: Question[];
-  categories: Category[];
+  templates: Template[];
+  allQuestions: Question[];
 }
 
-export function ConsultasWrapper({ questions, categories }: ConsultasWrapperProps) {
-  const [filters, setFilters] = useState({
-    type: 'all' as FilterType,
-    category: 'all' as CategoryFilter,
-    status: 'all' as StatusFilter,
+export function ConsultasWrapper({ templates, allQuestions }: ConsultasWrapperProps) {
+  const [filters, setFilters] = useState<ConsultasFiltersState>({
+    templateId: 'all',
+    status: 'all',
+    inputType: 'all',
     search: '',
   });
 
   return (
     <>
-      <ConsultasFilters onFilterChange={setFilters} />
+      <ConsultasFilters templates={templates} onFilterChange={setFilters} />
       <ConsultasList
-        questions={questions}
-        categories={categories}
+        templates={templates}
+        allQuestions={allQuestions}
         filters={filters}
       />
     </>

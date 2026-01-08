@@ -3,6 +3,51 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@keyframes grid {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes shine-pulse {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  to {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes rotatingGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.rotatingGradient {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(var(--primary)),
+    hsl(var(--accent))
+  );
+  background-size: 300% 300%;
+  animation: rotatingGradient 3s ease infinite;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -44,44 +89,48 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  --animate-grid: grid 15s linear infinite;
+  --animate-shine-pulse: shine-pulse 14s infinite linear;
 }
 
 :root {
   --radius: 0.75rem;
-  /* Design System Colors */
-  --background: #F6F7F9;
-  --foreground: #111827;
+  /* Apple Design System Colors - Light Mode */
+  --background: #F5F5F7;
+  --foreground: #1D1D1F;
   --card: #FFFFFF;
-  --card-foreground: #111827;
+  --card-foreground: #1D1D1F;
   --popover: #FFFFFF;
-  --popover-foreground: #111827;
-  --primary: #5347CE;
+  --popover-foreground: #1D1D1F;
+  --primary: #007AFF;
   --primary-foreground: #FFFFFF;
-  --secondary: #4896FE;
+  --secondary: #8E8E93;
   --secondary-foreground: #FFFFFF;
-  --muted: #F6F7F9;
-  --muted-foreground: #6B7280;
-  --accent: #16CBC7;
-  --accent-foreground: #FFFFFF;
-  --destructive: #DC2626;
+  --muted: #F5F5F7;
+  --muted-foreground: #8E8E93;
+  --accent: #E5E5EA;
+  --accent-foreground: #1D1D1F;
+  --destructive: #FF3B30;
   --destructive-foreground: #FFFFFF;
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --ring: #5347CE;
-  --success: #16A34A;
-  --chart-1: #5347CE;
-  --chart-2: #887CFD;
-  --chart-3: #4896FE;
-  --chart-4: #16CBC7;
-  --chart-5: #16A34A;
+  --border: #D1D1D6;
+  --input: #D1D1D6;
+  --ring: #007AFF;
+  --success: #34C759;
+  --chart-1: #007AFF;
+  --chart-2: #5856D6;
+  --chart-3: #FF9500;
+  --chart-4: #FF2D55;
+  --chart-5: #34C759;
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #111827;
-  --sidebar-primary: #5347CE;
+  --sidebar-foreground: #1D1D1F;
+  --sidebar-primary: #007AFF;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F6F7F9;
-  --sidebar-accent-foreground: #111827;
-  --sidebar-border: #E5E7EB;
-  --sidebar-ring: #5347CE;
+  --sidebar-accent: #F5F5F7;
+  --sidebar-accent-foreground: #1D1D1F;
+  --sidebar-border: #D1D1D6;
+  --sidebar-ring: #007AFF;
+  --color-background: var(--background);
+  --color-text: var(--foreground);
 }
 
 .dark {
@@ -105,6 +154,8 @@
   --input: #374151;
   --ring: #887CFD;
   --success: #16A34A;
+  --color-background: var(--background);
+  --color-text: var(--foreground);
 }
 
 @layer base {

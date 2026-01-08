@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -12,9 +12,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from '@/components/ui/pagination';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ConsultasFiltersState } from './consultas-filters';
 
 interface Question {
@@ -53,6 +54,8 @@ export function ConsultasDataTable({
 }: ConsultasDataTableProps) {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -70,52 +73,101 @@ export function ConsultasDataTable({
   };
 
   const sortedQuestions = useMemo(() => {
-    if (!sortField || !sortDirection) {
-      return questions;
+    let sorted = questions;
+
+    if (sortField && sortDirection) {
+      sorted = [...questions].sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortField) {
+          case 'title':
+            aValue = a.title?.toLowerCase() || '';
+            bValue = b.title?.toLowerCase() || '';
+            break;
+          case 'status':
+            aValue = a.status || '';
+            bValue = b.status || '';
+            break;
+          case 'inputType':
+            aValue = a.inputType || '';
+            bValue = b.inputType || '';
+            break;
+          case 'createdAt':
+            aValue = new Date(a.createdAt).getTime();
+            bValue = new Date(b.createdAt).getTime();
+            break;
+          case 'updatedAt':
+            aValue = new Date(a.updatedAt).getTime();
+            bValue = new Date(b.updatedAt).getTime();
+            break;
+          case 'templateTitle':
+            aValue = a.templateTitle?.toLowerCase() || '';
+            bValue = b.templateTitle?.toLowerCase() || '';
+            break;
+          default:
+            return 0;
+        }
+
+        if (aValue < bValue) {
+          return sortDirection === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortDirection === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
     }
 
-    return [...questions].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (sortField) {
-        case 'title':
-          aValue = a.title?.toLowerCase() || '';
-          bValue = b.title?.toLowerCase() || '';
-          break;
-        case 'status':
-          aValue = a.status || '';
-          bValue = b.status || '';
-          break;
-        case 'inputType':
-          aValue = a.inputType || '';
-          bValue = b.inputType || '';
-          break;
-        case 'createdAt':
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
-          break;
-        case 'updatedAt':
-          aValue = new Date(a.updatedAt).getTime();
-          bValue = new Date(b.updatedAt).getTime();
-          break;
-        case 'templateTitle':
-          aValue = a.templateTitle?.toLowerCase() || '';
-          bValue = b.templateTitle?.toLowerCase() || '';
-          break;
-        default:
-          return 0;
-      }
-
-      if (aValue < bValue) {
-        return sortDirection === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortDirection === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
+    return sorted;
   }, [questions, sortField, sortDirection]);
+
+  // Calcular paginação
+  const totalPages = Math.ceil(sortedQuestions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedQuestions = sortedQuestions.slice(startIndex, endIndex);
+
+  // Resetar para página 1 quando os dados mudarem
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [questions.length, filters]);
+
+  // Gerar números de página para exibir
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('ellipsis');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('ellipsis');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('ellipsis');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('ellipsis');
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
 
   const SortButton = ({ field, children }: { field: SortField; children: React.ReactNode }) => {
     const isActive = sortField === field;
@@ -167,15 +219,15 @@ export function ConsultasDataTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedQuestions.length === 0 ? (
+          {paginatedQuestions.length === 0 ? (
             <TableRow>
               <TableCell colSpan={7} className="text-center px-6 py-12 text-muted-foreground">
                 Nenhuma questão encontrada com os filtros aplicados
               </TableCell>
             </TableRow>
           ) : (
-            sortedQuestions.map((question, index) => (
-              <TableRow key={question._id || `question-${index}-${question.title}-${question.createdAt}`} className="hover:bg-gray-50 active:bg-gray-100">
+            paginatedQuestions.map((question, index) => (
+              <TableRow key={question._id || `question-${startIndex + index}-${question.title}-${question.createdAt}`} className="hover:bg-gray-50 active:bg-gray-100">
                 <TableCell className="font-medium px-6 py-4">{question.title}</TableCell>
                 <TableCell className="px-6 py-4">
                   {question.templateTitle ? (
@@ -222,6 +274,55 @@ export function ConsultasDataTable({
           )}
         </TableBody>
       </Table>
+
+      {sortedQuestions.length > itemsPerPage && (
+        <div className="py-4 border-t">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Anterior
+                </Button>
+              </PaginationItem>
+
+              {getPageNumbers().map((page, index) => (
+                <PaginationItem key={index}>
+                  {page === 'ellipsis' ? (
+                    <PaginationEllipsis />
+                  ) : (
+                    <Button
+                      variant={currentPage === page ? 'outline' : 'ghost'}
+                      size="sm"
+                      className={currentPage === page ? 'w-9' : 'w-9'}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  )}
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Próxima
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </Card>
   );
 }

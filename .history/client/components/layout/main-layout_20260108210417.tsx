@@ -7,8 +7,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen relative overflow-hidden bg-transparent">
       <RetroGrid className="fixed inset-0 -z-10" />
       <NavbarWrapper />
-      <div className="pt-16 sm:pt-20 pb-20 sm:pb-0 relative z-20">
-        <main className="px-12 md:px-16 lg:px-20 py-16 max-w-[1600px] mx-auto">
+      <div className="pt-20 sm:pt-24 pb-20 sm:pb-0 relative z-20">
+        <main className="px-24 md:px-32 lg:px-40 py-16 max-w-[1400px] mx-auto">
           <PageAnimation>{children}</PageAnimation>
         </main>
       </div>

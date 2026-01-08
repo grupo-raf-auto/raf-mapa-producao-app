@@ -159,9 +159,9 @@ export function TemplatesList() {
                   </div>
                   <div className="flex gap-2 pt-2">
                     <Button
-                      variant="outline"
+                      variant="default"
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 bg-foreground text-background hover:bg-foreground/90"
                       onClick={() => {
                         setFillingTemplate(template);
                         setIsFillDialogOpen(true);

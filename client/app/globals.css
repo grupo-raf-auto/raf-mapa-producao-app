@@ -12,6 +12,42 @@
   }
 }
 
+@keyframes shine-pulse {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  to {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes rotatingGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.rotatingGradient {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(var(--primary)),
+    hsl(var(--accent))
+  );
+  background-size: 300% 300%;
+  animation: rotatingGradient 3s ease infinite;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -54,6 +90,7 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
   --animate-grid: grid 15s linear infinite;
+  --animate-shine-pulse: shine-pulse 14s infinite linear;
 }
 
 :root {
@@ -92,6 +129,8 @@
   --sidebar-accent-foreground: #1D1D1F;
   --sidebar-border: #D1D1D6;
   --sidebar-ring: #007AFF;
+  --color-background: var(--background);
+  --color-text: var(--foreground);
 }
 
 .dark {
@@ -115,6 +154,8 @@
   --input: #374151;
   --ring: #887CFD;
   --success: #16A34A;
+  --color-background: var(--background);
+  --color-text: var(--foreground);
 }
 
 @layer base {

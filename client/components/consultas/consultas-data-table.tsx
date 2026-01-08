@@ -174,8 +174,8 @@ export function ConsultasDataTable({
               </TableCell>
             </TableRow>
           ) : (
-            sortedQuestions.map((question) => (
-              <TableRow key={question._id} className="hover:bg-muted/50">
+            sortedQuestions.map((question, index) => (
+              <TableRow key={question._id || `question-${index}-${question.title}-${question.createdAt}`} className="hover:bg-gray-50 active:bg-gray-100">
                 <TableCell className="font-medium px-6 py-4">{question.title}</TableCell>
                 <TableCell className="px-6 py-4">
                   {question.templateTitle ? (

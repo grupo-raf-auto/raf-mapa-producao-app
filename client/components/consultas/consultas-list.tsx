@@ -90,7 +90,7 @@ export function ConsultasList({
   }, [questionsWithTemplate, filters, templates]);
 
   return (
-    <div className="space-y-6 py-2">
+    <div className="space-y-8 py-2">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">

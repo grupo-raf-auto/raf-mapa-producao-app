@@ -17,7 +17,7 @@ export async function ConsultasContent() {
   }));
 
   return (
-    <div className="space-y-8 px-6 py-8">
+    <div className="space-y-10">
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Consultas

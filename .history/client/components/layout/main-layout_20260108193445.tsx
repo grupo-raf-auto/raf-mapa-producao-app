@@ -1,0 +1,16 @@
+import { Sidebar } from './sidebar';
+import { Topbar } from './topbar';
+import { DottedSurface } from '@/components/ui/dotted-surface';
+
+export function MainLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen relative overflow-hidden bg-transparent">
+      <DottedSurface />
+      <Sidebar />
+      <div className="ml-32 pt-16 relative z-10">
+        <Topbar />
+        <main className="px-10 py-16 max-w-[1600px] mx-auto">{children}</main>
+      </div>
+    </div>
+  );
+}

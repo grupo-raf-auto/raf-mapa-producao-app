@@ -57,8 +57,8 @@ export function ConsultasFilters({ templates, onFilterChange }: ConsultasFilters
   };
 
   return (
-    <Card className="p-6 shadow-sm">
-      <div className="space-y-5">
+    <Card className="p-7 shadow-sm">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">Filtros</h3>
           <Button
@@ -72,7 +72,7 @@ export function ConsultasFilters({ templates, onFilterChange }: ConsultasFilters
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Filtro Primário: Template */}
           <div>
             <Label htmlFor="template" className="text-xs text-muted-foreground mb-2 block">

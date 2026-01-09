@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import Link, { LinkProps } from "next/link";
-import React, { useState, createContext, useContext } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { cn } from '@/lib/utils';
+import Link, { LinkProps } from 'next/link';
+import React, { useState, createContext, useContext } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
 
 interface Links {
   label: string;
@@ -25,7 +25,7 @@ const SidebarContext = createContext<SidebarContextProps | undefined>(
 export const useSidebar = () => {
   const context = useContext(SidebarContext);
   if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider");
+    throw new Error('useSidebar must be used within a SidebarProvider');
   }
   return context;
 };
@@ -75,7 +75,7 @@ export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
   return (
     <>
       <DesktopSidebar {...props} />
-      <MobileSidebar {...(props as React.ComponentProps<"div">)} />
+      <MobileSidebar {...(props as React.ComponentProps<'div'>)} />
     </>
   );
 };
@@ -86,20 +86,52 @@ export const DesktopSidebar = ({
   ...props
 }: React.ComponentProps<typeof motion.div>) => {
   const { open, setOpen, animate } = useSidebar();
+  const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
+    // Limpa qualquer timeout pendente
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    // Adiciona delay antes de abrir
+    hoverTimeoutRef.current = setTimeout(() => {
+      setOpen(true);
+    }, 200); // 200ms de delay
+  };
+
+  const handleMouseLeave = () => {
+    // Limpa o timeout se o mouse sair antes do delay
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    // Fecha imediatamente quando o mouse sai
+    setOpen(false);
+  };
+
+  // Cleanup no unmount
+  React.useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <motion.div
       className={cn(
-        "h-full py-6 hidden md:flex md:flex-col bg-neutral-200 dark:bg-neutral-900 w-[300px] shrink-0 fixed left-0 top-0 z-40 border-r border-neutral-200 dark:border-neutral-700",
+        'h-full py-6 hidden md:flex md:flex-col bg-neutral-200 dark:bg-neutral-900 w-[300px] shrink-0 fixed left-0 top-0 z-30 border-r border-neutral-200 dark:border-neutral-700',
         className
       )}
       animate={{
-        width: animate ? (open ? "300px" : "80px") : "300px",
-        paddingLeft: animate ? (open ? "1rem" : "0.75rem") : "1rem",
-        paddingRight: animate ? (open ? "1rem" : "0.75rem") : "1rem",
+        width: animate ? (open ? '300px' : '80px') : '300px',
+        paddingLeft: animate ? (open ? '1rem' : '0.75rem') : '1rem',
+        paddingRight: animate ? (open ? '1rem' : '0.75rem') : '1rem',
       }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       {...props}
     >
       {children}
@@ -111,13 +143,13 @@ export const MobileSidebar = ({
   className,
   children,
   ...props
-}: React.ComponentProps<"div">) => {
+}: React.ComponentProps<'div'>) => {
   const { open, setOpen } = useSidebar();
   return (
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-200 dark:bg-neutral-900 w-full"
+          'h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-200 dark:bg-neutral-900 w-full'
         )}
         {...props}
       >
@@ -130,15 +162,15 @@ export const MobileSidebar = ({
         <AnimatePresence>
           {open && (
             <motion.div
-              initial={{ x: "-100%", opacity: 0 }}
+              initial={{ x: '-100%', opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
+              exit={{ x: '-100%', opacity: 0 }}
               transition={{
                 duration: 0.3,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
               className={cn(
-                "fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between",
+                'fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between',
                 className
               )}
             >
@@ -168,13 +200,13 @@ export const SidebarLink = ({
 }) => {
   const { open, animate } = useSidebar();
   const [isHovered, setIsHovered] = React.useState(false);
-  
+
   return (
     <Link
       href={link.href}
       className={cn(
-        "flex items-center group/sidebar relative",
-        open ? "justify-start gap-3" : "justify-center gap-0",
+        'flex items-center group/sidebar relative',
+        open ? 'justify-start gap-3' : 'justify-center gap-0',
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -184,13 +216,13 @@ export const SidebarLink = ({
       {link.icon}
       <motion.span
         animate={{
-          display: animate ? (open ? "inline-block" : "none") : "inline-block",
+          display: animate ? (open ? 'inline-block' : 'none') : 'inline-block',
           opacity: animate ? (open ? 1 : 0) : 1,
           x: isHovered && open ? -4 : 0,
         }}
         className="text-neutral-700 dark:text-neutral-200 text-base whitespace-pre inline-block p-0 m-0 relative"
         transition={{
-          type: "spring",
+          type: 'spring',
           stiffness: 400,
           damping: 25,
         }}

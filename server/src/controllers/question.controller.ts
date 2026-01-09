@@ -37,12 +37,17 @@ export class QuestionController {
 
   static async create(req: Request, res: Response) {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
       const questionData: Omit<Question, '_id' | 'createdAt' | 'updatedAt'> = {
         title: req.body.title,
         description: req.body.description,
         status: req.body.status,
         inputType: req.body.inputType,
         options: req.body.options,
+        createdBy: req.user.clerkId,
       };
 
       const id = await QuestionModel.create(questionData);
@@ -66,7 +71,22 @@ export class QuestionController {
 
   static async delete(req: Request, res: Response) {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
       const { id } = req.params;
+      const question = await QuestionModel.findById(id);
+
+      if (!question) {
+        return res.status(404).json({ error: 'Question not found' });
+      }
+
+      // Users só podem deletar suas próprias questões, admins podem deletar qualquer
+      if (req.user.role !== 'admin' && question.createdBy !== req.user.clerkId) {
+        return res.status(403).json({ error: 'Forbidden: You can only delete your own questions' });
+      }
+
       await QuestionModel.delete(id);
       res.json({ success: true });
     } catch (error) {

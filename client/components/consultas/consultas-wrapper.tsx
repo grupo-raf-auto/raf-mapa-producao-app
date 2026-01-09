@@ -5,47 +5,58 @@ import { ConsultasFilters } from './consultas-filters';
 import { ConsultasList } from './consultas-list';
 import type { ConsultasFiltersState } from './consultas-filters';
 
-interface Question {
+interface Submission {
   _id?: string;
-  title: string;
-  description?: string;
-  status: string;
-  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
-  options?: string[];
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  templateId: string;
+  answers: {
+    questionId: string;
+    answer: string;
+  }[];
+  submittedAt: Date | string;
+  submittedBy: string;
 }
 
 interface Template {
   _id?: string;
   title: string;
   description?: string;
-  questions: string[];
-  questionsData: Question[];
-  createdAt: Date | string;
-  updatedAt: Date | string;
 }
 
 interface ConsultasWrapperProps {
+  submissions: Submission[];
   templates: Template[];
-  allQuestions: Question[];
+  onSubmissionUpdate?: () => void;
 }
 
-export function ConsultasWrapper({ templates, allQuestions }: ConsultasWrapperProps) {
+export function ConsultasWrapper({ submissions, templates, onSubmissionUpdate }: ConsultasWrapperProps) {
   const [filters, setFilters] = useState<ConsultasFiltersState>({
     templateId: 'all',
     status: 'all',
     inputType: 'all',
     search: '',
+    banco: '',
+    seguradora: '',
+    valorMin: '',
+    valorMax: '',
   });
+  const [bancos, setBancos] = useState<string[]>([]);
+  const [seguradoras, setSeguradoras] = useState<string[]>([]);
 
   return (
     <>
-      <ConsultasFilters templates={templates} onFilterChange={setFilters} />
+      <ConsultasFilters 
+        templates={templates} 
+        bancos={bancos}
+        seguradoras={seguradoras}
+        onFilterChange={setFilters} 
+      />
       <ConsultasList
+        submissions={submissions}
         templates={templates}
-        allQuestions={allQuestions}
         filters={filters}
+        onSubmissionUpdate={onSubmissionUpdate}
+        onBancosChange={setBancos}
+        onSeguradorasChange={setSeguradoras}
       />
     </>
   );

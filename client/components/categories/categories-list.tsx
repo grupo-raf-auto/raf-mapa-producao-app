@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { api } from '@/lib/api';
+import { apiClient as api } from '@/lib/api-client';
 import { Badge } from '@/components/ui/badge';
 
 const categoryColors: Record<string, string> = {
@@ -19,7 +19,7 @@ export async function CategoriesList() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-4xl font-bold text-foreground">
             Categorias
           </h1>
           <p className="text-sm text-muted-foreground mt-2">

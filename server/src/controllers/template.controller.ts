@@ -5,8 +5,22 @@ import { Template } from '../types';
 export class TemplateController {
   static async getAll(req: Request, res: Response) {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
       const templates = await TemplateModel.findAll();
-      res.json(templates);
+      
+      // Filtrar templates: users veem apenas públicos e seus próprios, admins veem todos
+      const filteredTemplates = req.user.role === 'admin'
+        ? templates
+        : templates.filter(t => 
+            t.isPublic || 
+            t.isDefault || 
+            t.createdBy === req.user?.clerkId
+          );
+
+      res.json(filteredTemplates);
     } catch (error) {
       console.error('Error fetching templates:', error);
       res.status(500).json({ error: 'Failed to fetch templates' });
@@ -31,10 +45,16 @@ export class TemplateController {
 
   static async create(req: Request, res: Response) {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
       const templateData: Omit<Template, '_id' | 'createdAt' | 'updatedAt'> = {
         title: req.body.title,
         description: req.body.description,
         questions: req.body.questions || [],
+        createdBy: req.user.clerkId,
+        isPublic: req.body.isPublic || false,
       };
 
       const id = await TemplateModel.create(templateData);
@@ -58,12 +78,25 @@ export class TemplateController {
 
   static async delete(req: Request, res: Response) {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
       const { id } = req.params;
       const template = await TemplateModel.findById(id);
 
+      if (!template) {
+        return res.status(404).json({ error: 'Template not found' });
+      }
+
       // Não permitir deletar templates padrão
-      if (template?.isDefault) {
+      if (template.isDefault) {
         return res.status(400).json({ error: 'Não é possível excluir templates padrão do sistema' });
+      }
+
+      // Users só podem deletar seus próprios templates, admins podem deletar qualquer (exceto padrão)
+      if (req.user.role !== 'admin' && template.createdBy !== req.user.clerkId) {
+        return res.status(403).json({ error: 'Forbidden: You can only delete your own templates' });
       }
 
       await TemplateModel.delete(id);

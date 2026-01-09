@@ -51,7 +51,7 @@ export function QuestionInput({ question, value, onChange, disabled }: QuestionI
           <Button
             variant="outline"
             className={cn(
-              'w-full justify-start text-left font-normal',
+              'w-full justify-start text-left font-normal text-sm min-h-[40px] h-auto py-3',
               !dateValue && 'text-muted-foreground',
               dateValue && 'border-2 border-primary'
             )}
@@ -89,7 +89,10 @@ export function QuestionInput({ question, value, onChange, disabled }: QuestionI
         onValueChange={onChange}
         disabled={disabled}
       >
-        <SelectTrigger className={cn(hasValue && 'border-2 border-primary')}>
+        <SelectTrigger className={cn(
+          'text-sm min-h-[40px]',
+          hasValue && 'border-2 border-primary'
+        )}>
           <SelectValue placeholder="Selecione uma opção" />
         </SelectTrigger>
         <SelectContent>
@@ -155,6 +158,7 @@ export function QuestionInput({ question, value, onChange, disabled }: QuestionI
       placeholder={getPlaceholder()}
       disabled={disabled}
       className={cn(
+        'text-sm min-h-[40px] p-3',
         hasValue && 'border-2 border-primary'
       )}
     />

@@ -11,10 +11,11 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { api } from '@/lib/api';
+import { apiClient as api } from '@/lib/api-client';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
 import { FileStack, Calendar, Trash2, Edit } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +43,7 @@ interface Template {
 export function TemplatesList() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [fillingTemplate, setFillingTemplate] = useState<Template | null>(null);
@@ -52,10 +54,12 @@ export function TemplatesList() {
   useEffect(() => {
     const loadTemplates = async () => {
       try {
+        setError(null);
         const templatesData = await api.templates.getAll();
         setTemplates(templatesData);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading templates:', error);
+        setError(error.message || 'Erro ao carregar templates. Tente novamente.');
       } finally {
         setLoading(false);
       }
@@ -88,10 +92,12 @@ export function TemplatesList() {
       // Recarregar templates após edição
       const loadTemplates = async () => {
         try {
+          setError(null);
           const templatesData = await api.templates.getAll();
           setTemplates(templatesData);
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error loading templates:', error);
+          setError(error.message || 'Erro ao carregar templates. Tente novamente.');
         }
       };
       loadTemplates();
@@ -101,8 +107,42 @@ export function TemplatesList() {
   if (loading) {
     return (
       <Card className="shadow-sm">
-        <CardContent className="py-12 text-center">
+        <CardContent className="py-12 text-center flex flex-col items-center gap-4">
+          <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
           <p className="text-muted-foreground">Carregando templates...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="shadow-sm">
+        <CardContent className="py-12 text-center">
+          <FileStack className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-destructive font-medium mb-2">Erro ao carregar templates</p>
+          <p className="text-sm text-muted-foreground">{error}</p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              const loadTemplates = async () => {
+                try {
+                  const templatesData = await api.templates.getAll();
+                  setTemplates(templatesData);
+                } catch (error: any) {
+                  setError(error.message || 'Erro ao carregar templates. Tente novamente.');
+                } finally {
+                  setLoading(false);
+                }
+              };
+              loadTemplates();
+            }}
+          >
+            Tentar novamente
+          </Button>
         </CardContent>
       </Card>
     );

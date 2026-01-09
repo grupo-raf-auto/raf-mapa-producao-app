@@ -10,7 +10,7 @@ export function TemplatesContent() {
     <div className="space-y-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-4xl font-bold text-foreground">
             Templates
           </h1>
           <p className="text-sm text-muted-foreground mt-2">

@@ -1,4 +1,4 @@
-import { api } from '@/lib/api';
+import { apiClient as api } from '@/lib/api-client';
 import {
   Table,
   TableBody,

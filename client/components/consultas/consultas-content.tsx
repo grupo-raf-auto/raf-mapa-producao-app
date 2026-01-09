@@ -1,35 +1,91 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { apiClient as api } from '@/lib/api-client';
 import { ConsultasWrapper } from './consultas-wrapper';
-import { api } from '@/lib/api';
+import { Spinner } from '@/components/ui/spinner';
+import { Card, CardContent } from '@/components/ui/card';
 
-export async function ConsultasContent() {
-  // Buscar todos os dados: templates e questões
-  const [templates, questions] = await Promise.all([
-    api.templates.getAll(),
-    api.questions.getAll(),
-  ]);
+export function ConsultasContent() {
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Enriquecer templates com questões completas
-  const templatesWithQuestions = templates.map((template: any) => ({
-    ...template,
-    questionsData: template.questions
-      .map((questionId: string) => questions.find((q: any) => q._id === questionId))
-      .filter(Boolean),
-  }));
+  const loadData = async () => {
+    try {
+      setError(null);
+      setLoading(true);
+      // A API já filtra automaticamente para mostrar apenas as submissões do usuário logado
+      const [submissionsData, templatesData] = await Promise.all([
+        api.submissions.getAll().catch(() => []),
+        api.templates.getAll().catch(() => []),
+      ]);
+      setSubmissions(submissionsData || []);
+      setTemplates(templatesData || []);
+    } catch (error: any) {
+      console.error('Error loading data:', error);
+      setError(error.message || 'Erro ao carregar dados. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-10">
+        <div>
+          <h1 className="text-4xl font-bold text-foreground">Consultas</h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            Visualize os seus formulários registados
+          </p>
+        </div>
+        <Card>
+          <CardContent className="py-12 text-center flex flex-col items-center gap-4">
+            <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
+            <p className="text-muted-foreground">Carregando formulários...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-10">
+        <div>
+          <h1 className="text-4xl font-bold text-foreground">Consultas</h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            Visualize os seus formulários registados
+          </p>
+        </div>
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-destructive font-medium mb-2">Erro ao carregar formulários</p>
+            <p className="text-sm text-muted-foreground">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Consultas
-        </h1>
+        <h1 className="text-4xl font-bold text-foreground">Consultas</h1>
         <p className="text-sm text-muted-foreground mt-2">
-          Visualize e filtre questões por template e outros critérios
+          Visualize os seus formulários registados
         </p>
       </div>
 
-      <ConsultasWrapper
-        templates={templatesWithQuestions}
-        allQuestions={questions}
+      <ConsultasWrapper 
+        submissions={submissions} 
+        templates={templates}
+        onSubmissionUpdate={loadData}
       />
     </div>
   );

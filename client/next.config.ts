@@ -8,6 +8,15 @@ const nextConfig: NextConfig = {
       root: process.cwd(),
     },
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'xubohuah.github.io',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

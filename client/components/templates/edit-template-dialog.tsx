@@ -24,9 +24,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { api } from '@/lib/api';
+import { apiClient as api } from '@/lib/api-client';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 
@@ -278,7 +279,7 @@ export function EditTemplateDialog({
                   </div>
                   {loading ? (
                     <div className="flex items-center justify-center py-8">
-                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
                     </div>
                   ) : questions.length === 0 ? (
                     <Card className="shadow-sm">

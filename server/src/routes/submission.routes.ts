@@ -7,6 +7,7 @@ router.get('/', SubmissionController.getAll);
 router.get('/stats', SubmissionController.getStats);
 router.get('/:id', SubmissionController.getById);
 router.post('/', SubmissionController.create);
+router.patch('/:id', SubmissionController.update);
 router.delete('/:id', SubmissionController.delete);
 
 export default router;

@@ -232,15 +232,16 @@ async function seedTemplates() {
       description: 'Template para registo de produção de crédito',
       questions: template1Questions,
       isDefault: true,
+      isPublic: true, // Templates padrão são públicos
       createdAt: now,
       updatedAt: now,
     });
     console.log('  ✓ Template "Registo de Produção Crédito" criado');
   } else {
-    // Atualizar se já existe para garantir que tem isDefault
+    // Atualizar se já existe para garantir que tem isDefault e isPublic
     await templatesCollection.updateOne(
       { title: 'Registo de Produção Crédito' },
-      { $set: { isDefault: true, questions: template1Questions } }
+      { $set: { isDefault: true, isPublic: true, questions: template1Questions } }
     );
     console.log('  ✓ Template "Registo de Produção Crédito" atualizado');
   }
@@ -272,15 +273,16 @@ async function seedTemplates() {
       description: 'Template para registo de produção de seguros',
       questions: template2Questions,
       isDefault: true,
+      isPublic: true, // Templates padrão são públicos
       createdAt: now,
       updatedAt: now,
     });
     console.log('  ✓ Template "Registo de Produção Seguros" criado');
   } else {
-    // Atualizar se já existe para garantir que tem isDefault
+    // Atualizar se já existe para garantir que tem isDefault e isPublic
     await templatesCollection.updateOne(
       { title: 'Registo de Produção Seguros' },
-      { $set: { isDefault: true, questions: template2Questions } }
+      { $set: { isDefault: true, isPublic: true, questions: template2Questions } }
     );
     console.log('  ✓ Template "Registo de Produção Seguros" atualizado');
   }
@@ -312,15 +314,16 @@ async function seedTemplates() {
       description: 'Template para registo de vendas imobiliária',
       questions: template3Questions,
       isDefault: true,
+      isPublic: true, // Templates padrão são públicos
       createdAt: now,
       updatedAt: now,
     });
     console.log('  ✓ Template "Registo de Vendas Imobiliária" criado');
   } else {
-    // Atualizar se já existe para garantir que tem isDefault
+    // Atualizar se já existe para garantir que tem isDefault e isPublic
     await templatesCollection.updateOne(
       { title: 'Registo de Vendas Imobiliária' },
-      { $set: { isDefault: true, questions: template3Questions } }
+      { $set: { isDefault: true, isPublic: true, questions: template3Questions } }
     );
     console.log('  ✓ Template "Registo de Vendas Imobiliária" atualizado');
   }

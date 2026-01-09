@@ -31,7 +31,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { api } from '@/lib/api';
+import { apiClient as api } from '@/lib/api-client';
 
 const questionSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),

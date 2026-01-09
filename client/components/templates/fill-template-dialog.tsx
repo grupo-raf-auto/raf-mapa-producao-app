@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -22,9 +22,9 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { api } from '@/lib/api';
+import { apiClient as api } from '@/lib/api-client';
 import { QuestionInput } from '@/components/questions/question-input';
-import { Loader2 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
@@ -98,6 +98,60 @@ export function FillTemplateDialog({
   const router = useRouter();
 
   // Carregar questões do template
+  const loadQuestions = useCallback(async () => {
+    if (!template?.questions || template.questions.length === 0) {
+      setQuestions([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const questionsData = await Promise.all(
+        template.questions.map(async (id) => {
+          if (!id) return null;
+          try {
+            return await api.questions.getById(id);
+          } catch (err) {
+            console.error(`Error loading question ${id}:`, err);
+            return null;
+          }
+        })
+      );
+      
+      // Filtrar questões válidas, ordenar pela ordem do template
+      // Mostrar todas as questões válidas (não apenas ativas) para debug
+      const validQuestions = questionsData
+        .filter((q): q is Question => {
+          return q !== null && q !== undefined;
+        })
+        .sort((a, b) => {
+          const indexA = template.questions.indexOf(a._id || '');
+          const indexB = template.questions.indexOf(b._id || '');
+          return indexA - indexB;
+        });
+      
+      setQuestions(validQuestions);
+      
+      if (validQuestions.length === 0) {
+        const hasLoadedQuestions = questionsData.some(q => q !== null);
+        if (hasLoadedQuestions) {
+          toast.warning('Nenhuma questão válida encontrada neste template');
+        } else {
+          toast.error('Erro ao carregar questões do template. Verifique se o servidor está rodando.');
+        }
+      } else {
+        // Log para debug - remover depois
+        console.log(`Loaded ${validQuestions.length} questions for template ${template._id}`);
+      }
+    } catch (error) {
+      console.error('Error loading questions:', error);
+      toast.error('Erro ao carregar questões. Tente novamente.');
+      setQuestions([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [template]);
+
   useEffect(() => {
     if (open && template) {
       loadQuestions();
@@ -105,31 +159,7 @@ export function FillTemplateDialog({
       // Resetar quando fechar
       setQuestions([]);
     }
-  }, [open, template]);
-
-  const loadQuestions = async () => {
-    if (!template?.questions || template.questions.length === 0) return;
-
-    setLoading(true);
-    try {
-      const questionsData = await Promise.all(
-        template.questions.map((id) => api.questions.getById(id))
-      );
-      // Filtrar apenas questões ativas e ordenar pela ordem do template
-      const activeQuestions = questionsData
-        .filter((q) => q && q.status === 'active')
-        .sort((a, b) => {
-          const indexA = template.questions.indexOf(a._id || '');
-          const indexB = template.questions.indexOf(b._id || '');
-          return indexA - indexB;
-        });
-      setQuestions(activeQuestions);
-    } catch (error) {
-      console.error('Error loading questions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [open, template, loadQuestions]);
 
   // Gerar schema dinâmico
   const formSchema = useMemo(() => generateSchema(questions), [questions]);
@@ -208,16 +238,25 @@ export function FillTemplateDialog({
 
         {loading ? (
           <div className="flex items-center justify-center py-12 px-6 flex-1">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
             <span className="ml-2 text-muted-foreground">
               Carregando questões...
             </span>
           </div>
         ) : questions.length === 0 ? (
           <div className="flex items-center justify-center py-12 px-6 flex-1">
-            <p className="text-muted-foreground">
-              Nenhuma questão ativa neste template
-            </p>
+            <div className="text-center">
+              <p className="text-muted-foreground mb-2">
+                {template.questions && template.questions.length > 0
+                  ? 'Nenhuma questão ativa encontrada neste template'
+                  : 'Este template não possui questões'}
+              </p>
+              {template.questions && template.questions.length > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Verifique se as questões estão ativas
+                </p>
+              )}
+            </div>
           </div>
         ) : (
           <Form {...form}>
@@ -277,7 +316,7 @@ export function FillTemplateDialog({
                 <Button type="submit" disabled={submitting}>
                   {submitting ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Spinner variant="bars" className="w-4 h-4 mr-2" />
                       Submetendo...
                     </>
                   ) : (

@@ -107,7 +107,7 @@ export function Sidebar() {
                 key={item.label}
                 link={item}
                 className={cn(
-                  'rounded-lg py-2.5 flex items-center justify-center md:justify-start group',
+                  'rounded-lg py-2.5 flex items-center justify-center md:justify-start group transition-colors hover:bg-neutral-300 dark:hover:bg-neutral-800',
                   open ? 'px-4' : 'px-4',
                   isActive && ' text-primary font-medium'
                 )}
@@ -135,7 +135,7 @@ export function Sidebar() {
             ),
           }}
           className={cn(
-            'rounded-lg py-2.5 flex items-center group',
+            'rounded-lg py-2.5 flex items-center group transition-colors hover:bg-neutral-300 dark:hover:bg-neutral-800',
             open ? 'justify-start px-3' : 'justify-center px-0'
           )}
         />

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { NavbarWrapper } from './navbar-wrapper';
 import { Sidebar } from './sidebar';
 import { RetroGrid } from '@/components/ui/retro-grid';
 import { PageAnimation } from '@/components/ui/page-animation';
@@ -13,7 +12,7 @@ function MainContent({ children }: { children: React.ReactNode }) {
 
   return (
     <motion.div
-      className="pt-16 sm:pt-20 pb-20 sm:pb-0 relative z-20 md:ml-[300px] transition-all duration-300"
+      className="pt-8 pb-20 sm:pb-0 relative z-20 md:ml-[300px] transition-all duration-300"
       animate={{
         marginLeft: animate ? (open ? '300px' : '80px') : '300px',
       }}
@@ -34,7 +33,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen relative overflow-hidden bg-transparent">
         <RetroGrid className="fixed inset-0 -z-10" />
         <Sidebar />
-        <NavbarWrapper />
         <MainContent>{children}</MainContent>
       </div>
     </SidebarBase>

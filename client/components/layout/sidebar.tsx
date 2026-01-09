@@ -1,64 +1,145 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Search, FileStack } from 'lucide-react';
-import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
+import Link from 'next/link';
+import {
+  LayoutDashboard,
+  Search,
+  FileStack,
+  Brain,
+  LogOut,
+} from 'lucide-react';
+import { SidebarBody, SidebarLink, useSidebar } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Consultas', href: '/consultas', icon: Search },
-  { name: 'Templates', href: '/templates', icon: FileStack },
+  {
+    label: 'Dashboard',
+    href: '/',
+    icon: (
+      <LayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-6 w-6 shrink-0" />
+    ),
+  },
+  {
+    label: 'Consultas',
+    href: '/consultas',
+    icon: (
+      <Search className="text-neutral-700 dark:text-neutral-200 h-6 w-6 shrink-0" />
+    ),
+  },
+  {
+    label: 'Templates',
+    href: '/templates',
+    icon: (
+      <FileStack className="text-neutral-700 dark:text-neutral-200 h-6 w-6 shrink-0" />
+    ),
+  },
+  {
+    label: 'MySabichão',
+    href: '/mysabichao',
+    icon: (
+      <Brain className="text-neutral-700 dark:text-neutral-200 h-6 w-6 shrink-0" />
+    ),
+  },
+  {
+    label: 'Sair',
+    href: '/logout',
+    icon: (
+      <LogOut className="text-neutral-700 dark:text-neutral-200 h-6 w-6 shrink-0" />
+    ),
+  },
 ];
+
+const Logo = () => {
+  const { open } = useSidebar();
+  return (
+    <Link
+      href="/"
+      className="font-normal flex space-x-2 items-center text-sm text-black dark:text-white py-1 relative z-20"
+    >
+      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm shrink-0" />
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: open ? 1 : 0,
+          display: open ? 'inline-block' : 'none',
+        }}
+        className="font-medium text-black dark:text-white whitespace-pre"
+      >
+        RAF Mapa
+      </motion.span>
+    </Link>
+  );
+};
+
+const LogoIcon = () => {
+  return (
+    <Link
+      href="/"
+      className="font-normal flex space-x-2 items-center text-sm text-black dark:text-white py-1 relative z-20"
+    >
+      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm shrink-0" />
+    </Link>
+  );
+};
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { open } = useSidebar();
 
   return (
-    <aside
-      className="w-20 h-screen fixed top-0 flex items-center justify-center py-8 ml-24 overflow-visible z-40"
-      style={{ left: 0 }}
-    >
-      <Dock
-        orientation="vertical"
-        magnification={72}
-        distance={120}
-        panelHeight={64}
-        className="w-full px-3"
-      >
-        {navigation.map((item) => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full flex justify-center"
-              aria-label={item.name}
-            >
-              <DockItem
+    <SidebarBody className="justify-between gap-10">
+      <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+        <div
+          className={cn(
+            'mt-4 mb-12 flex items-center',
+            open ? 'justify-start' : 'justify-center'
+          )}
+        >
+          {open ? <Logo /> : <LogoIcon />}
+        </div>
+        <div className={cn('flex flex-col', open ? 'gap-2' : 'gap-3')}>
+          {navigation.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <SidebarLink
+                key={item.label}
+                link={item}
                 className={cn(
-                  'aspect-square rounded-full transition-all duration-200 cursor-pointer border-2',
-                  isActive
-                    ? 'bg-primary shadow-sm border-primary'
-                    : 'bg-white hover:bg-gray-100 border-gray-200'
+                  'rounded-lg py-2.5 flex items-center justify-center md:justify-start group',
+                  open ? 'px-4' : 'px-4',
+                  isActive && ' text-primary font-medium'
+                )}
+              />
+            );
+          })}
+        </div>
+      </div>
+      <div className="pb-4">
+        <SidebarLink
+          link={{
+            label: 'Usuário',
+            href: '#',
+            icon: (
+              <div
+                className={cn(
+                  'h-7 w-7 shrink-0 rounded-full bg-neutral-400 dark:bg-neutral-500 flex items-center justify-center text-white font-semibold text-xs',
+                  !open && 'mx-auto'
                 )}
               >
-                <DockLabel>{item.name}</DockLabel>
-                <DockIcon>
-                  <Icon
-                    className={cn(
-                      'h-full w-full',
-                      isActive ? 'text-primary-foreground' : 'text-foreground'
-                    )}
-                  />
-                </DockIcon>
-              </DockItem>
-            </Link>
-          );
-        })}
-      </Dock>
-    </aside>
+                <span className="leading-none flex items-center justify-center w-full h-full">
+                  U
+                </span>
+              </div>
+            ),
+          }}
+          className={cn(
+            'rounded-lg py-2.5 flex items-center group',
+            open ? 'justify-start px-3' : 'justify-center px-0'
+          )}
+        />
+      </div>
+    </SidebarBody>
   );
 }

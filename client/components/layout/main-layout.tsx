@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './sidebar';
 import { AdminButton } from './admin-button';
+import { SupportChatFab } from '@/components/support/support-chat-fab';
 import { RetroGrid } from '@/components/ui/retro-grid';
 import { PageAnimation } from '@/components/ui/page-animation';
 import { Sidebar as SidebarBase, useSidebar } from '@/components/ui/sidebar';
@@ -41,6 +42,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         <AdminButton />
         {showSidebar && <Sidebar />}
         <MainContent showSidebar={showSidebar}>{children}</MainContent>
+        <SupportChatFab />
       </div>
     </SidebarBase>
   );

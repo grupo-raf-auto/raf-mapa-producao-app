@@ -41,7 +41,9 @@ export function MySabichaoContent() {
     setLoading(true);
 
     try {
-      const response = await api.chat.sendMessage(messageToSend, conversationId || undefined);
+      // O backend adiciona o prefixo 'sabichao-' automaticamente, então enviamos sem prefixo
+      const cleanConvId = conversationId?.replace(/^sabichao-/, '') || undefined;
+      const response = await api.chat.sendMessage(messageToSend, cleanConvId, 'sabichao');
       
       const assistantMessage: Message = {
         id: generateId(),
@@ -51,6 +53,7 @@ export function MySabichaoContent() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+      // O backend retorna o conversationId com o prefixo 'sabichao-'
       setConversationId(response.conversationId);
     } catch (error: any) {
       toast.error('Erro ao enviar mensagem: ' + error.message);

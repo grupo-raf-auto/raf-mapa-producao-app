@@ -215,10 +215,10 @@ export const apiClient = {
     },
   },
   chat: {
-    sendMessage: async (message: string, conversationId?: string) => {
+    sendMessage: async (message: string, conversationId?: string, context?: 'sabichao' | 'support') => {
       return fetchWithAuth('chat/message', {
         method: 'POST',
-        body: JSON.stringify({ message, conversationId }),
+        body: JSON.stringify({ message, conversationId, context }),
       });
     },
     getConversation: async (conversationId: string) => {

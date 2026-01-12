@@ -13,6 +13,7 @@ import webhookRoutes from './routes/webhook.routes';
 import { seedTemplates } from './scripts/seed-templates';
 import { authenticateUser } from './middleware/auth.middleware';
 import { UserModel } from './models/user.model';
+import { ChatModel } from './models/chat.model';
 
 // Load environment variables
 dotenv.config();
@@ -32,10 +33,12 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -56,10 +59,17 @@ app.use('/api/users', userRoutes);
 app.use('/api/chat', chatRoutes);
 
 // Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
-  res.status(500).json({ error: 'Internal server error' });
-});
+app.use(
+  (
+    err: Error,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error('Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+);
 
 // Initialize database indexes and default templates on server start
 async function initializeServer() {
@@ -68,6 +78,13 @@ async function initializeServer() {
     await UserModel.createIndexes();
   } catch (error) {
     console.error('Error creating database indexes:', error);
+  }
+
+  try {
+    // Criar índices para chat messages
+    await ChatModel.createIndexes();
+  } catch (error) {
+    console.error('Error creating chat indexes:', error);
   }
 
   try {
@@ -82,7 +99,7 @@ async function initializeServer() {
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📡 API available at http://localhost:${PORT}/api`);
-  
+
   // Initialize after server starts
   await initializeServer();
 });

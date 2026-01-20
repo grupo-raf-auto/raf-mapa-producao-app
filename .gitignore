@@ -16,6 +16,10 @@ client/.next/
 dist/
 server/dist/
 
+# Uploads
+uploads/
+server/uploads/
+
 # Logs
 *.log
 npm-debug.log*

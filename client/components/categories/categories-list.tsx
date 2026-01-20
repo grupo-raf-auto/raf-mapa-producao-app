@@ -12,8 +12,10 @@ const categoryColors: Record<string, string> = {
   Custom: 'bg-gray-100 text-gray-800',
 };
 
+type Category = { _id: string; name: string; description?: string; color?: string };
+
 export async function CategoriesList() {
-  const categories = await api.categories.getAll();
+  const categories = (await api.categories.getAll()) as Category[];
 
   return (
     <div className="space-y-8">
@@ -40,7 +42,7 @@ export async function CategoriesList() {
             </CardContent>
           </Card>
         ) : (
-          categories.map((category) => (
+          categories.map((category: Category) => (
             <Card key={category._id} className="shadow-sm hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">

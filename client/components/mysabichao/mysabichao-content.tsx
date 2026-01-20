@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 import { V0AIChat } from '@/components/ui/v0-ai-chat';
+import { DocumentsManager } from './documents-manager';
 import { apiClient as api } from '@/lib/api-client';
 import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MessageSquare, FileText } from 'lucide-react';
 
 // Helper para gerar IDs únicos
 function generateId() {
@@ -67,24 +70,45 @@ export function MySabichaoContent() {
   return (
     <div className="flex flex-col min-h-[600px]">
       <div className="mb-6">
+        <h1 className="text-3xl font-bold text-foreground mb-2">MySabichão</h1>
         <p className="text-sm text-muted-foreground">
-          Chatbot com IA para responder suas perguntas sobre a empresa
+          Chatbot com IA para responder suas perguntas sobre a empresa usando RAG (Retrieval Augmented Generation)
         </p>
       </div>
-      <div className="flex-1">
-        <V0AIChat
-          value={input}
-          onChange={setInput}
-          onSend={sendMessage}
-          loading={loading}
-          messages={messages}
-          placeholder="Pergunte ao MySabichão sobre a empresa, templates, relatórios..."
-          title="MySabichão"
-          onQuickAction={(action) => {
-            sendMessage(action);
-          }}
-        />
-      </div>
+
+      <Tabs defaultValue="chat" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="chat" className="gap-2">
+            <MessageSquare className="w-4 h-4" />
+            Chat
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="gap-2">
+            <FileText className="w-4 h-4" />
+            Documentos
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="chat" className="mt-6">
+          <div className="flex-1">
+            <V0AIChat
+              value={input}
+              onChange={setInput}
+              onSend={sendMessage}
+              loading={loading}
+              messages={messages}
+              placeholder="Pergunte ao MySabichão sobre a empresa, templates, relatórios... O sistema buscará informações relevantes dos documentos enviados."
+              title="MySabichão"
+              onQuickAction={(action) => {
+                sendMessage(action);
+              }}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="documents" className="mt-6">
+          <DocumentsManager />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

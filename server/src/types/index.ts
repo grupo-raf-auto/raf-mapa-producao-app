@@ -71,8 +71,22 @@ export interface Document {
   uploadedBy: string; // Clerk ID
   uploadedAt: Date;
   processedAt?: Date;
-  vectorIds?: string[]; // IDs dos vetores no vector database
+  vectorIds?: string[]; // IDs dos chunks no MongoDB
   isActive: boolean;
+}
+
+export interface DocumentChunk {
+  _id?: string;
+  documentId: string; // ID do documento original
+  chunkIndex: number; // Índice do chunk no documento
+  content: string; // Texto do chunk
+  embedding?: number[]; // Embedding vector (1536 dimensões para text-embedding-3-small)
+  metadata?: {
+    startChar?: number;
+    endChar?: number;
+    pageNumber?: number; // Para PDFs
+  };
+  createdAt: Date;
 }
 
 export interface ChatMessage {

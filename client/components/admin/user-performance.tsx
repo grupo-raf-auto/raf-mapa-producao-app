@@ -3,14 +3,14 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiClient as api } from '@/lib/api-client';
-import { TrendingUp, FileStack, HelpCircle, Calendar } from 'lucide-react';
+import { TrendingUp, FileStack, HelpCircle } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { format, subDays, parseISO } from 'date-fns';
 
 interface UserStats {
   userId: string;
-  clerkId: string;
+  clerkId?: string; // opcional (compatibilidade; API pode enviar id como clerkId)
   email: string;
   firstName?: string;
   lastName?: string;

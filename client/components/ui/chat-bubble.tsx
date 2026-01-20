@@ -2,9 +2,9 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { MessageLoading } from "@/components/ui/message-loading";
+import { User, Bot } from "lucide-react"
 
 interface ChatBubbleProps {
   variant?: "sent" | "received"
@@ -22,7 +22,7 @@ export function ChatBubble({
   return (
     <div
       className={cn(
-        "flex items-start gap-2 mb-4",
+        "flex items-start gap-2.5 mb-3 px-3",
         variant === "sent" && "flex-row-reverse",
         className,
       )}
@@ -48,17 +48,19 @@ export function ChatBubbleMessage({
   return (
     <div
       className={cn(
-        "rounded-lg p-3",
-        variant === "sent" ? "bg-primary text-primary-foreground" : "bg-muted",
+        "rounded-xl px-3.5 py-2.5 text-sm",
+        variant === "sent"
+          ? "bg-primary text-primary-foreground"
+          : "bg-muted text-foreground",
         className
       )}
     >
       {isLoading ? (
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 py-0.5">
           <MessageLoading />
         </div>
       ) : (
-        children
+        <span className="leading-relaxed">{children}</span>
       )}
     </div>
   )
@@ -68,18 +70,30 @@ interface ChatBubbleAvatarProps {
   src?: string
   fallback?: string
   className?: string
+  variant?: "sent" | "received"
 }
 
 export function ChatBubbleAvatar({
-  src,
   fallback = "AI",
   className,
+  variant = "received",
 }: ChatBubbleAvatarProps) {
   return (
-    <Avatar className={cn("h-8 w-8", className)}>
-      {src && <AvatarImage src={src} />}
-      <AvatarFallback>{fallback}</AvatarFallback>
-    </Avatar>
+    <div
+      className={cn(
+        "h-7 w-7 rounded-lg flex items-center justify-center shrink-0",
+        variant === "sent"
+          ? "bg-primary text-primary-foreground"
+          : "bg-muted text-muted-foreground",
+        className
+      )}
+    >
+      {variant === "sent" ? (
+        <User className="h-3.5 w-3.5" />
+      ) : (
+        <Bot className="h-3.5 w-3.5" />
+      )}
+    </div>
   )
 }
 

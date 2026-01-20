@@ -1,0 +1,176 @@
+<mxfile host="app.diagrams.net" modified="2024-01-15T00:00:00.000Z" agent="draw.io" version="21.0.0" etag="diagrama-classes-raf-mapa" type="device">
+  <diagram id="diagrama-classes" name="Diagrama de Classes - RAF Mapa Produção">
+    <mxGraphModel dx="3000" dy="2000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="4000" pageHeight="3000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Título -->
+        <mxCell id="title" value="Diagrama de Classes - RAF Mapa Produção App" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1000" y="30" width="800" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Classe: User -->
+        <mxCell id="class-user" value="User&#xa;─────────────&#xa;- _id: string&#xa;- clerkId: string&#xa;- email: string&#xa;- firstName: string&#xa;- lastName: string&#xa;- role: UserRole&#xa;- createdAt: Date&#xa;- updatedAt: Date&#xa;- isActive: boolean&#xa;- createdBy: string&#xa;─────────────&#xa;+ getUserData()&#xa;+ getAllUsersData()&#xa;+ createUser()&#xa;+ updateUser()&#xa;+ removeUser()&#xa;+ getUserSubmissions()&#xa;+ getUserTemplates()" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;align=left;" vertex="1" parent="1">
+          <mxGeometry x="200" y="150" width="300" height="280" as="geometry" />
+        </mxCell>
+
+        <!-- Classe: Template -->
+        <mxCell id="class-template" value="Template&#xa;─────────────&#xa;- _id: string&#xa;- title: string&#xa;- description: string&#xa;- questions: string[]&#xa;- createdAt: Date&#xa;- updatedAt: Date&#xa;- isDefault: boolean&#xa;- createdBy: string&#xa;- isPublic: boolean&#xa;─────────────&#xa;+ createTemplate()&#xa;+ removeTemplate()&#xa;+ updateTemplate()&#xa;+ getTemplate()&#xa;+ getTemplateQuestions()" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;align=left;" vertex="1" parent="1">
+          <mxGeometry x="700" y="150" width="300" height="250" as="geometry" />
+        </mxCell>
+
+        <!-- Classe: Question -->
+        <mxCell id="class-question" value="Question&#xa;─────────────&#xa;- _id: string&#xa;- title: string&#xa;- description: string&#xa;- status: QuestionStatus&#xa;- inputType: QuestionInputType&#xa;- options: string[]&#xa;- createdAt: Date&#xa;- updatedAt: Date&#xa;- createdBy: string&#xa;─────────────&#xa;+ createQuestion()&#xa;+ removeQuestion()&#xa;+ updateQuestion()&#xa;+ getQuestion()" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="150" width="300" height="230" as="geometry" />
+        </mxCell>
+
+        <!-- Classe: Category -->
+        <mxCell id="class-category" value="Category&#xa;─────────────&#xa;- _id: string&#xa;- name: QuestionCategory&#xa;- description: string&#xa;- color: string&#xa;- createdAt: Date&#xa;─────────────&#xa;+ createCategory()&#xa;+ removeCategory()&#xa;+ updateCategory()&#xa;+ getCategory()" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="150" width="300" height="200" as="geometry" />
+        </mxCell>
+
+        <!-- Classe: FormSubmission -->
+        <mxCell id="class-formsubmission" value="FormSubmission&#xa;─────────────&#xa;- _id: string&#xa;- templateId: string&#xa;- answers: Answer[]&#xa;- submittedAt: Date&#xa;- submittedBy: string&#xa;─────────────&#xa;+ createSubmission()&#xa;+ removeSubmission()&#xa;+ updateSubmission()&#xa;+ getSubmission()&#xa;+ getSubmissionStats()" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;align=left;" vertex="1" parent="1">
+          <mxGeometry x="200" y="550" width="300" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- Classe: Document -->
+        <mxCell id="class-document" value="Document&#xa;─────────────&#xa;- _id: string&#xa;- filename: string&#xa;- originalName: string&#xa;- mimeType: string&#xa;- size: number&#xa;- uploadedBy: string&#xa;- uploadedAt: Date&#xa;- processedAt: Date&#xa;- vectorIds: string[]&#xa;- isActive: boolean&#xa;─────────────&#xa;+ createDocument()&#xa;+ removeDocument()&#xa;+ updateDocument()&#xa;+ getDocument()&#xa;+ getDocumentChunks()" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;align=left;" vertex="1" parent="1">
+          <mxGeometry x="700" y="550" width="300" height="250" as="geometry" />
+        </mxCell>
+
+        <!-- Classe: DocumentChunk -->
+        <mxCell id="class-documentchunk" value="DocumentChunk&#xa;─────────────&#xa;- _id: string&#xa;- documentId: string&#xa;- chunkIndex: number&#xa;- content: string&#xa;- embedding: number[]&#xa;- metadata: object&#xa;- createdAt: Date&#xa;─────────────&#xa;+ createChunk()&#xa;+ removeChunk()&#xa;+ getChunk()&#xa;+ searchChunks()" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="550" width="300" height="230" as="geometry" />
+        </mxCell>
+
+        <!-- Classe: ChatMessage -->
+        <mxCell id="class-chatmessage" value="ChatMessage&#xa;─────────────&#xa;- _id: string&#xa;- conversationId: string&#xa;- role: string&#xa;- content: string&#xa;- createdAt: Date&#xa;- userId: string&#xa;─────────────&#xa;+ createMessage()&#xa;+ removeMessage()&#xa;+ getMessages()&#xa;+ getConversationHistory()" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="550" width="300" height="200" as="geometry" />
+        </mxCell>
+
+        <!-- Relações: User para FormSubmission -->
+        <mxCell id="rel-user-submission" value="" style="endArrow=block;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="class-user" target="class-formsubmission">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-submission-label" value="submittedBy" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;" vertex="1" connectable="0" parent="rel-user-submission">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="20" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-user-submission-multiplicity" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="rel-user-submission">
+          <mxGeometry x="0.1" y="-1" relative="1" as="geometry">
+            <mxPoint x="-20" y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relações: User para Document -->
+        <mxCell id="rel-user-document" value="" style="endArrow=block;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="class-user" target="class-document">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-document-label" value="uploadedBy" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;" vertex="1" connectable="0" parent="rel-user-document">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="20" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-user-document-multiplicity" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="rel-user-document">
+          <mxGeometry x="0.1" y="-1" relative="1" as="geometry">
+            <mxPoint x="-20" y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relações: User para ChatMessage -->
+        <mxCell id="rel-user-chatmessage" value="" style="endArrow=block;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="class-user" target="class-chatmessage">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-chatmessage-label" value="userId" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;" vertex="1" connectable="0" parent="rel-user-chatmessage">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="20" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-user-chatmessage-multiplicity" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="rel-user-chatmessage">
+          <mxGeometry x="0.1" y="-1" relative="1" as="geometry">
+            <mxPoint x="-20" y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relações: Template para Question -->
+        <mxCell id="rel-template-question" value="" style="endArrow=block;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="class-template" target="class-question">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-template-question-label" value="questions" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;" vertex="1" connectable="0" parent="rel-template-question">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="20" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-template-question-multiplicity" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="rel-template-question">
+          <mxGeometry x="0.1" y="-1" relative="1" as="geometry">
+            <mxPoint x="-20" y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relações: Template para FormSubmission -->
+        <mxCell id="rel-template-submission" value="" style="endArrow=block;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="class-template" target="class-formsubmission">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-template-submission-label" value="templateId" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;" vertex="1" connectable="0" parent="rel-template-submission">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="20" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-template-submission-multiplicity" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="rel-template-submission">
+          <mxGeometry x="0.1" y="-1" relative="1" as="geometry">
+            <mxPoint x="-20" y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relações: Document para DocumentChunk (Composição) -->
+        <mxCell id="rel-document-chunk" value="" style="endArrow=block;endFill=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=diamond;startFill=1;strokeWidth=2;strokeColor=#666666;fillColor=#666666;" edge="1" parent="1" source="class-document" target="class-documentchunk">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-document-chunk-label" value="documentId" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;" vertex="1" connectable="0" parent="rel-document-chunk">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="20" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-document-chunk-multiplicity" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="rel-document-chunk">
+          <mxGeometry x="0.1" y="-1" relative="1" as="geometry">
+            <mxPoint x="-20" y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relações: User para Template -->
+        <mxCell id="rel-user-template" value="" style="endArrow=block;html=1;exitX=0.75;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="class-user" target="class-template">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-template-label" value="createdBy" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;" vertex="1" connectable="0" parent="rel-user-template">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="20" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-user-template-multiplicity" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="rel-user-template">
+          <mxGeometry x="0.1" y="-1" relative="1" as="geometry">
+            <mxPoint x="-20" y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relações: User para Question -->
+        <mxCell id="rel-user-question" value="" style="endArrow=block;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="class-user" target="class-question">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-question-label" value="createdBy" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;" vertex="1" connectable="0" parent="rel-user-question">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="20" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-user-question-multiplicity" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="rel-user-question">
+          <mxGeometry x="0.1" y="-1" relative="1" as="geometry">
+            <mxPoint x="-20" y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

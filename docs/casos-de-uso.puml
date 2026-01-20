@@ -1,0 +1,286 @@
+@startuml Casos de Uso - RAF Mapa Produção App
+
+!define RECTANGLE class
+
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #E8F4F8
+  BorderColor #2E86AB
+}
+
+title Diagrama de Casos de Uso - RAF Mapa Produção App
+
+' ============================================
+' ATORES
+' ============================================
+actor "Usuário" as Usuario
+actor "Administrador" as Admin
+actor "Sistema Clerk" as Clerk
+actor "Sistema IA\n(OpenAI)" as IA
+
+' ============================================
+' PACOTE: AUTENTICAÇÃO
+' ============================================
+package "Autenticação e Autorização" {
+  usecase "UC-001: Login" as UC001
+  usecase "UC-002: Registro" as UC002
+  usecase "UC-003: Logout" as UC003
+  usecase "UC-004: Verificar Sessão" as UC004
+  usecase "UC-005: Visualizar Perfil" as UC005
+  usecase "UC-007: Sincronizar Usuário\n(Webhook Clerk)" as UC007
+}
+
+' ============================================
+' PACOTE: DASHBOARD
+' ============================================
+package "Dashboard e Análises" {
+  usecase "UC-008: Visualizar KPIs" as UC008
+  usecase "UC-009: Visualizar Estatísticas" as UC009
+  usecase "UC-010: Filtrar por Período" as UC010
+  usecase "UC-011: Gráfico de Atividade" as UC011
+  usecase "UC-012: Gráfico de Perguntas" as UC012
+  usecase "UC-013: Vendas por Banco" as UC013
+  usecase "UC-014: Vendas por Distrito" as UC014
+  usecase "UC-015: Vendas por Seguradora" as UC015
+  usecase "UC-016: Timeline de Vendas" as UC016
+  usecase "UC-017: Top Bancos (Pizza)" as UC017
+}
+
+' ============================================
+' PACOTE: TEMPLATES
+' ============================================
+package "Gestão de Templates" {
+  usecase "UC-018: Listar Templates" as UC018
+  usecase "UC-019: Visualizar Template" as UC019
+  usecase "UC-020: Criar Template" as UC020
+  usecase "UC-021: Atualizar Template" as UC021
+  usecase "UC-022: Deletar Template" as UC022
+  usecase "UC-023: Visualizar Lista\n(Interface)" as UC023
+  usecase "UC-024: Criar via Diálogo" as UC024
+  usecase "UC-025: Editar Template" as UC025
+  usecase "UC-026: Deletar Template\n(Interface)" as UC026
+  usecase "UC-027: Seed Templates\nPadrão" as UC027
+}
+
+' ============================================
+' PACOTE: FORMULÁRIOS
+' ============================================
+package "Gestão de Formulários" {
+  usecase "UC-028: Listar Templates\nDisponíveis" as UC028
+  usecase "UC-029: Selecionar Template" as UC029
+  usecase "UC-030: Preencher Formulário" as UC030
+  usecase "UC-031: Submeter Formulário" as UC031
+  usecase "UC-032: Listar Submissões" as UC032
+  usecase "UC-033: Visualizar Submissão" as UC033
+  usecase "UC-034: Filtrar por Template" as UC034
+  usecase "UC-035: Pesquisar Submissões" as UC035
+  usecase "UC-036: Filtrar por Banco" as UC036
+  usecase "UC-037: Filtrar por Seguradora" as UC037
+  usecase "UC-038: Filtrar por Valor" as UC038
+  usecase "UC-039: Editar Submissão" as UC039
+  usecase "UC-040: Deletar Submissão" as UC040
+  usecase "UC-041: Visualizar Detalhes" as UC041
+}
+
+' ============================================
+' PACOTE: PERGUNTAS E CATEGORIAS
+' ============================================
+package "Gestão de Perguntas e Categorias" {
+  usecase "UC-042: Listar Perguntas" as UC042
+  usecase "UC-043: Visualizar Pergunta" as UC043
+  usecase "UC-044: Criar Pergunta" as UC044
+  usecase "UC-045: Atualizar Pergunta" as UC045
+  usecase "UC-046: Deletar Pergunta" as UC046
+  usecase "UC-047: Listar Categorias" as UC047
+  usecase "UC-048: Visualizar Categoria" as UC048
+  usecase "UC-049: Criar Categoria" as UC049
+  usecase "UC-050: Atualizar Categoria" as UC050
+  usecase "UC-051: Deletar Categoria" as UC051
+}
+
+' ============================================
+' PACOTE: MYSABICHÃO
+' ============================================
+package "MySabichão - Chat com IA" {
+  usecase "UC-052: Enviar Mensagem" as UC052
+  usecase "UC-053: Receber Resposta\ncom RAG" as UC053
+  usecase "UC-054: Visualizar Histórico" as UC054
+  usecase "UC-055: Manter Contexto" as UC055
+  usecase "UC-056: Ações Rápidas" as UC056
+  usecase "UC-057: Upload Documento" as UC057
+  usecase "UC-058: Listar Documentos" as UC058
+  usecase "UC-059: Visualizar Documento" as UC059
+  usecase "UC-060: Deletar Documento" as UC060
+  usecase "UC-061: Processar Documento\n(Assíncrono)" as UC061
+  usecase "UC-062: Buscar Chunks\nRelevantes (RAG)" as UC062
+}
+
+' ============================================
+' PACOTE: ADMINISTRAÇÃO
+' ============================================
+package "Painel Administrativo" {
+  usecase "UC-063: Listar Usuários" as UC063
+  usecase "UC-064: Visualizar Usuário" as UC064
+  usecase "UC-065: Criar Usuário" as UC065
+  usecase "UC-066: Atualizar Usuário" as UC066
+  usecase "UC-067: Deletar Usuário" as UC067
+  usecase "UC-068: Estatísticas Usuários" as UC068
+  usecase "UC-069: Desempenho Usuários" as UC069
+  usecase "UC-070: Estatísticas Sistema" as UC070
+  usecase "UC-071: Gerenciar Usuários\n(Interface)" as UC071
+  usecase "UC-072: Configurações" as UC072
+  usecase "UC-073: Gerenciar Templates\n(Admin)" as UC073
+  usecase "UC-074: Verificar Permissões" as UC074
+  usecase "UC-075: Restringir Acesso" as UC075
+  usecase "UC-076: Ver Todas Submissões" as UC076
+}
+
+' ============================================
+' RELAÇÕES - USUÁRIO
+' ============================================
+Usuario --> UC001
+Usuario --> UC002
+Usuario --> UC003
+Usuario --> UC004
+Usuario --> UC005
+Usuario --> UC008
+Usuario --> UC009
+Usuario --> UC010
+Usuario --> UC011
+Usuario --> UC012
+Usuario --> UC013
+Usuario --> UC014
+Usuario --> UC015
+Usuario --> UC016
+Usuario --> UC017
+Usuario --> UC018
+Usuario --> UC019
+Usuario --> UC028
+Usuario --> UC029
+Usuario --> UC030
+Usuario --> UC031
+Usuario --> UC032
+Usuario --> UC033
+Usuario --> UC034
+Usuario --> UC035
+Usuario --> UC036
+Usuario --> UC037
+Usuario --> UC038
+Usuario --> UC039
+Usuario --> UC040
+Usuario --> UC041
+Usuario --> UC052
+Usuario --> UC053
+Usuario --> UC054
+Usuario --> UC055
+Usuario --> UC056
+Usuario --> UC057
+Usuario --> UC058
+Usuario --> UC059
+Usuario --> UC060
+
+' ============================================
+' RELAÇÕES - ADMINISTRADOR
+' ============================================
+Admin --> UC001
+Admin --> UC002
+Admin --> UC003
+Admin --> UC004
+Admin --> UC005
+Admin --> UC008
+Admin --> UC009
+Admin --> UC010
+Admin --> UC011
+Admin --> UC012
+Admin --> UC013
+Admin --> UC014
+Admin --> UC015
+Admin --> UC016
+Admin --> UC017
+Admin --> UC018
+Admin --> UC019
+Admin --> UC020
+Admin --> UC021
+Admin --> UC022
+Admin --> UC023
+Admin --> UC024
+Admin --> UC025
+Admin --> UC026
+Admin --> UC028
+Admin --> UC029
+Admin --> UC030
+Admin --> UC031
+Admin --> UC032
+Admin --> UC033
+Admin --> UC034
+Admin --> UC035
+Admin --> UC036
+Admin --> UC037
+Admin --> UC038
+Admin --> UC039
+Admin --> UC040
+Admin --> UC041
+Admin --> UC042
+Admin --> UC043
+Admin --> UC044
+Admin --> UC045
+Admin --> UC046
+Admin --> UC047
+Admin --> UC048
+Admin --> UC049
+Admin --> UC050
+Admin --> UC051
+Admin --> UC052
+Admin --> UC053
+Admin --> UC054
+Admin --> UC055
+Admin --> UC056
+Admin --> UC057
+Admin --> UC058
+Admin --> UC059
+Admin --> UC060
+Admin --> UC063
+Admin --> UC064
+Admin --> UC065
+Admin --> UC066
+Admin --> UC067
+Admin --> UC068
+Admin --> UC069
+Admin --> UC070
+Admin --> UC071
+Admin --> UC072
+Admin --> UC073
+Admin --> UC074
+Admin --> UC075
+Admin --> UC076
+
+' ============================================
+' RELAÇÕES - SISTEMA
+' ============================================
+Clerk --> UC001
+Clerk --> UC002
+Clerk --> UC007
+UC007 --> UC005
+IA --> UC053
+UC052 --> IA
+UC062 --> IA
+UC061 --> UC062
+
+' ============================================
+' EXTENSÕES E INCLUSÕES
+' ============================================
+UC031 ..> UC030 : <<extends>>
+UC053 ..> UC062 : <<includes>>
+UC052 ..> UC055 : <<includes>>
+UC020 ..> UC024 : <<extends>>
+UC021 ..> UC025 : <<extends>>
+UC022 ..> UC026 : <<extends>>
+UC032 ..> UC034 : <<extends>>
+UC032 ..> UC035 : <<extends>>
+UC032 ..> UC036 : <<extends>>
+UC032 ..> UC037 : <<extends>>
+UC032 ..> UC038 : <<extends>>
+UC076 ..> UC032 : <<extends>>
+
+@enduml

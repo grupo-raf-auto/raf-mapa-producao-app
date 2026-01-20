@@ -3,7 +3,6 @@ import { Inter, Montserrat } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from 'next-themes';
-import { ClerkProvider } from '@clerk/nextjs';
 import { ModalProvider } from '@/lib/contexts/modal-context';
 
 const inter = Inter({
@@ -31,27 +30,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      signInUrl="/sign-in"
-      signUpUrl="/sign-up"
-      afterSignInUrl="/"
-      afterSignUpUrl="/"
-    >
-      <html lang="pt" suppressHydrationWarning>
-        <body className={`${inter.variable} ${montserrat.variable} antialiased`}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <ModalProvider>
-              {children}
-              <Toaster position="top-center" richColors />
-            </ModalProvider>
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="pt" suppressHydrationWarning>
+      <body className={`${inter.variable} ${montserrat.variable} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ModalProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </ModalProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

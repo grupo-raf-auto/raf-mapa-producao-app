@@ -13,8 +13,10 @@ import { QuestionActions } from './question-actions';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
 
+type Question = { _id?: string; title: string; inputType?: string; status?: string; createdAt: string | Date };
+
 export async function QuestionsTable() {
-  const questions = await api.questions.getAll();
+  const questions = (await api.questions.getAll()) as Question[];
 
   return (
     <Card className="shadow-sm">
@@ -36,7 +38,7 @@ export async function QuestionsTable() {
               </TableCell>
             </TableRow>
           ) : (
-            questions.map((question) => (
+            questions.map((question: Question) => (
               <TableRow key={question._id} className="hover:bg-gray-50 active:bg-gray-100">
                 <TableCell className="font-medium">{question.title}</TableCell>
                 <TableCell>

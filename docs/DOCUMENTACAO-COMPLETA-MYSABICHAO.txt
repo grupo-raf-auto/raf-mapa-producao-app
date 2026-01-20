@@ -1,0 +1,1121 @@
+================================================================================
+                    DOCUMENTAÇÃO COMPLETA - MySabichão
+================================================================================
+
+ÍNDICE
+================================================================================
+
+1️⃣  Visão Geral do Projeto
+2️⃣  Arquitetura Geral
+3️⃣  Stack Tecnológica
+4️⃣  Lógica do Chat com IA
+5️⃣  Componentes Reutilizáveis
+6️⃣  Lógica de Negócio
+7️⃣  Gestão de Estado e Dados
+8️⃣  Autenticação e Segurança
+9️⃣  Integração com IA
+🔟  Guia de Replicação para Novo Projeto
+1️⃣1️⃣  Boas Práticas e Recomendações
+
+================================================================================
+1️⃣  VISÃO GERAL DO PROJETO
+================================================================================
+
+FINALIDADE
+----------
+O MySabichão é um assistente virtual inteligente com IA que permite aos
+utilizadores fazer qualquer tipo de dúvida e receber respostas inteligentes.
+Utiliza RAG (Retrieval Augmented Generation) para acessar documentos da empresa.
+
+Funcionalidades principais:
+- Consultas sobre dados e informações da empresa
+- Análise de dados e relatórios
+- Perguntas sobre informações armazenadas no sistema
+- Dúvidas sobre templates e formulários
+- Orientação sobre dados históricos e estatísticas
+- Informações extraídas de documentos da empresa (PDFs, DOCX, TXT) que foram
+  processados e indexados
+
+PÚBLICO-ALVO
+------------
+- Funcionários da empresa que precisam de informações rápidas
+- Utilizadores que precisam de ajuda com processos do sistema
+- Administradores que gerem documentos e conhecimento
+
+PROBLEMA QUE RESOLVE
+--------------------
+- Acesso rápido a informações da empresa sem consultar múltiplas fontes
+- Respostas baseadas em documentos internos processados
+- Suporte automatizado para processos e funcionalidades do sistema
+- Centralização do conhecimento organizacional
+
+PRINCIPAIS FUNCIONALIDADES
+---------------------------
+1. Chat Principal (MySabichão): Responde perguntas usando RAG com documentos
+   da empresa
+2. Chat de Suporte: Ajuda com processos e uso do sistema
+3. Gestão de Documentos: Upload, processamento e indexação de documentos
+4. Histórico de Conversas: Persistência e recuperação de conversas anteriores
+5. Contexto Separado: Conversas separadas por contexto (sabichao/support)
+
+================================================================================
+2️⃣  ARQUITETURA GERAL
+================================================================================
+
+TIPO DE ARQUITETURA
+-------------------
+Arquitetura full-stack separada em frontend e backend, com comunicação via
+API REST.
+
+ORGANIZAÇÃO DAS PASTAS
+----------------------
+
+raf-mapa-producao-app/
+├── client/                    # Frontend Next.js
+│   ├── app/                  # App Router do Next.js
+│   │   ├── api/              # API Routes (proxy, upload)
+│   │   ├── mysabichao/       # Página do MySabichão
+│   │   └── ...
+│   ├── components/           # Componentes React
+│   │   ├── mysabichao/      # Componentes específicos do chat
+│   │   ├── support/         # Componentes do chat de suporte
+│   │   ├── ui/              # Componentes UI reutilizáveis
+│   │   └── ...
+│   └── lib/                  # Utilitários e helpers
+│       ├── api-client.ts    # Cliente API
+│       └── ...
+│
+└── server/                   # Backend Express
+    ├── src/
+    │   ├── config/          # Configurações (DB, etc)
+    │   ├── controllers/      # Lógica de negócio
+    │   ├── models/           # Modelos de dados (MongoDB)
+    │   ├── routes/           # Definição de rotas
+    │   ├── services/         # Serviços (OpenAI, RAG, etc)
+    │   ├── middleware/       # Middlewares (auth, etc)
+    │   └── types/            # Tipos TypeScript
+
+SEPARAÇÃO DE RESPONSABILIDADES
+-------------------------------
+
+Frontend (Next.js 16 + React 19):
+- UI/UX: Componentes React com Tailwind CSS
+- Autenticação: Clerk (via @clerk/nextjs)
+- Comunicação: API proxy para backend
+- Estado: React hooks (useState, useEffect)
+- Roteamento: Next.js App Router
+
+Backend (Express + TypeScript):
+- API REST: Endpoints para chat, documentos, etc.
+- Autenticação: Clerk backend (@clerk/backend)
+- Persistência: MongoDB
+- IA: OpenAI API (GPT-4o-mini)
+- RAG: Processamento e busca semântica de documentos
+
+FLUXO GERAL DE DADOS
+--------------------
+
+1. Utilizador envia mensagem no frontend
+   ↓
+2. Frontend chama apiClient.chat.sendMessage()
+   ↓
+3. Request vai para /api/proxy/[...path] (Next.js API Route)
+   ↓
+4. API Route adiciona token Clerk e faz proxy para backend Express
+   ↓
+5. Backend middleware autentica token com Clerk
+   ↓
+6. ChatController.sendMessage() processa:
+   - Busca histórico da conversa
+   - Se contexto 'sabichao': busca chunks relevantes via RAG
+   - Constrói prompt com contexto
+   - Chama OpenAI API
+   - Salva mensagens no MongoDB
+   ↓
+7. Resposta retornada ao frontend
+   ↓
+8. Frontend atualiza UI com nova mensagem
+
+================================================================================
+3️⃣  STACK TECNOLÓGICA
+================================================================================
+
+LINGUAGENS
+----------
+- TypeScript (frontend e backend)
+- JavaScript (runtime)
+
+FRAMEWORKS E BIBLIOTECAS PRINCIPAIS
+------------------------------------
+
+Frontend:
+- Next.js 16.1.1 (React framework)
+- React 19.2.3
+- Tailwind CSS 4 (styling)
+- Framer Motion 12.24.12 (animações)
+- Radix UI (componentes acessíveis)
+- React Hook Form 7.70.0 (formulários)
+- Zod 4.3.5 (validação)
+- Recharts 3.6.0 (gráficos)
+- Sonner 2.0.7 (toasts)
+
+Backend:
+- Express 4.18.2 (web framework)
+- MongoDB 7.0.0 (driver)
+- OpenAI 6.16.0 (SDK)
+- Multer 1.4.5-lts.1 (upload de ficheiros)
+- pdf-parse 1.1.4 (extração de PDF)
+- mammoth 1.11.0 (extração de DOCX)
+- Helmet 8.1.0 (segurança)
+- express-rate-limit 8.2.1 (rate limiting)
+- CORS 2.8.5
+
+SERVIÇOS EXTERNOS
+-----------------
+1. Clerk: Autenticação e gestão de utilizadores
+2. OpenAI: GPT-4o-mini e text-embedding-3-small
+3. MongoDB: Base de dados NoSQL
+
+FERRAMENTAS DE BUILD E DESENVOLVIMENTO
+--------------------------------------
+- TypeScript 5.3.3
+- tsx 4.7.0 (execução TypeScript)
+- ESLint 9 (linting)
+- concurrently 8.2.2 (executar frontend/backend simultaneamente)
+
+================================================================================
+4️⃣  LÓGICA DO CHAT COM IA
+================================================================================
+
+COMO O INPUT DO UTILIZADOR É TRATADO
+-------------------------------------
+
+1. Frontend (MySabichaoContent ou SupportChatFab):
+   - Cria mensagem do utilizador
+   - Adiciona ao estado local
+   - Envia via API
+
+2. Envio via API:
+   - apiClient.chat.sendMessage(message, conversationId, context)
+
+COMO O PROMPT PARA A IA É CONSTRUÍDO
+-------------------------------------
+
+1. Busca do histórico:
+   - Carrega todas as mensagens da conversa
+   - Formata para formato OpenAI
+
+2. Busca RAG (apenas para contexto 'sabichao'):
+   - Gera embedding da pergunta
+   - Busca chunks relevantes (top 3)
+   - Adiciona ao contexto
+
+3. System prompt:
+   - Baseado no contexto (sabichao/support)
+   - Enriquecido com contexto RAG se disponível
+
+4. Chamada OpenAI:
+   - Envia mensagens + system prompt
+   - Recebe resposta
+
+ESTRATÉGIA DE CONTEXTO E HISTÓRICO
+-----------------------------------
+
+- ConversationId com prefixo: {context}-{uuid}
+  Exemplo: "sabichao-abc123", "support-xyz789"
+- Histórico: Todas as mensagens da conversa são carregadas e enviadas à OpenAI
+- Contexto RAG: Apenas para 'sabichao', busca os 3 chunks mais relevantes
+- System prompts diferentes:
+  - sabichao: Focado em dados e documentos da empresa
+  - support: Focado em processos e uso do sistema
+
+COMO A RESPOSTA DA IA É PROCESSADA
+------------------------------------
+
+1. Receção da resposta da OpenAI
+2. Persistência no MongoDB
+3. Retorno ao frontend
+4. Atualização da UI
+
+LIMITAÇÕES, VALIDAÇÕES E TRATAMENTO DE ERROS
+---------------------------------------------
+
+Validações:
+- Mensagem não vazia
+- Autenticação obrigatória
+- Contexto válido (sabichao/support)
+
+Limitações OpenAI:
+- Modelo: gpt-4o-mini (configurável)
+- Temperature: 0.7
+- Max tokens: 1000
+- Rate limiting: 100 requests/15min por IP
+
+Tratamento de erros:
+- Erros específicos da OpenAI (401, 429, 500)
+- Toast de erro no frontend
+- Remoção de mensagem otimista em caso de erro
+- Loading state durante processamento
+
+================================================================================
+5️⃣  COMPONENTES REUTILIZÁVEIS
+================================================================================
+
+COMPONENTES DE UI REUTILIZÁVEIS
+-------------------------------
+
+1. V0AIChat (client/components/ui/v0-ai-chat.tsx)
+   - Responsabilidade: Interface de chat completa
+   - Props: value, onChange, onSend, loading, messages, placeholder, title,
+     onQuickAction
+   - Funcionalidades:
+     * Auto-resize do textarea
+     * Scroll automático para última mensagem
+     * Botões de ação rápida
+     * Indicador de loading
+   - Dependências: Textarea, Spinner, lucide-react
+
+2. ExpandableChat (client/components/ui/expandable-chat.tsx)
+   - Responsabilidade: Chat expansível (FAB)
+   - Props: position, size, icon, children
+   - Sub-componentes:
+     * ExpandableChatHeader: Cabeçalho
+     * ExpandableChatBody: Corpo (scrollable)
+     * ExpandableChatFooter: Rodapé
+
+3. ChatBubble (client/components/ui/chat-bubble.tsx)
+   - Responsabilidade: Bolha de mensagem
+   - Variantes: sent (utilizador) | received (assistente)
+   - Sub-componentes:
+     * ChatBubbleAvatar: Avatar
+     * ChatBubbleMessage: Conteúdo da mensagem
+
+4. ChatMessageList (client/components/ui/chat-message-list.tsx)
+   - Responsabilidade: Container scrollable para mensagens
+
+5. ChatInput (client/components/ui/chat-input.tsx)
+   - Responsabilidade: Input de texto para chat
+
+HOOKS REUTILIZÁVEIS
+-------------------
+
+1. useAutoScroll (client/components/hooks/use-auto-scroll.ts)
+   - Responsabilidade: Scroll automático para elemento
+
+2. usePagination (client/components/hooks/use-pagination.ts)
+   - Responsabilidade: Lógica de paginação
+
+SERVICES E HELPERS
+------------------
+
+1. apiClient (client/lib/api-client.ts)
+   - Responsabilidade: Cliente API centralizado
+   - Métodos:
+     * apiClient.chat.sendMessage(message, conversationId?, context?)
+     * apiClient.chat.getConversation(conversationId)
+     * apiClient.documents.upload(file)
+     * apiClient.documents.getAll()
+     * apiClient.documents.delete(id)
+   - Funcionalidades:
+     * Tratamento de erros
+     * Rate limiting (429)
+     * Parsing de respostas JSON/texto
+
+2. utils.ts (client/lib/utils.ts)
+   - Função: cn(...classes) - merge de classes Tailwind
+
+PADRÕES DE CÓDIGO
+-----------------
+
+1. Geração de IDs únicos:
+   function generateId() {
+     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+   }
+
+2. Estrutura de mensagem:
+   interface Message {
+     id: string;
+     role: 'user' | 'assistant';
+     content: string;
+     timestamp: Date;
+   }
+
+3. Estado de loading:
+   const [loading, setLoading] = useState(false);
+   // Durante requisição
+   setLoading(true);
+   try {
+     // ...
+   } finally {
+     setLoading(false);
+   }
+
+================================================================================
+6️⃣  LÓGICA DE NEGÓCIO
+================================================================================
+
+REGRAS DE NEGÓCIO PRINCIPAIS
+----------------------------
+
+1. Separação de contextos:
+   - sabichao: Usa RAG, focado em documentos da empresa
+   - support: Não usa RAG, focado em processos do sistema
+
+2. ConversationId:
+   - Formato: {context}-{uuid}
+   - Permite múltiplas conversas por utilizador
+   - Histórico isolado por contexto
+
+3. RAG (apenas 'sabichao'):
+   - Busca os 3 chunks mais relevantes
+   - Similaridade por cosseno
+   - Contexto adicionado ao system prompt
+
+4. Persistência:
+   - Todas as mensagens são salvas no MongoDB
+   - Ordenação por createdAt para histórico
+
+FLUXOS CRÍTICOS
+---------------
+
+Fluxo: Enviar Mensagem
+1. Utilizador digita mensagem
+2. Validação: mensagem não vazia
+3. Adiciona mensagem ao estado local (otimista)
+4. Envia para backend via API
+5. Backend:
+   a. Autentica utilizador
+   b. Busca histórico
+   c. Se 'sabichao': busca RAG
+   d. Constrói prompt
+   e. Chama OpenAI
+   f. Salva mensagens (user + assistant)
+6. Retorna resposta
+7. Frontend atualiza UI
+8. Em caso de erro: remove mensagem otimista
+
+Fluxo: Upload de Documento
+1. Utilizador seleciona ficheiro
+2. Validação: tipo (PDF/DOCX/TXT/MD) e tamanho (10MB)
+3. Upload via FormData
+4. Backend:
+   a. Salva ficheiro temporariamente
+   b. Cria registro no MongoDB
+   c. Processa assincronamente:
+      - Extrai texto
+      - Divide em chunks
+      - Gera embeddings
+      - Salva chunks
+   d. Atualiza documento com vectorIds
+   e. Remove ficheiro temporário
+5. Frontend atualiza lista de documentos
+
+Fluxo: Busca RAG
+1. Utilizador envia pergunta
+2. Gera embedding da pergunta (text-embedding-3-small)
+3. Busca todos os chunks com embeddings
+4. Calcula similaridade de cosseno para cada chunk
+5. Ordena por similaridade
+6. Retorna top 3 chunks
+7. Adiciona ao system prompt
+
+RESTRIÇÕES E VALIDAÇÕES
+------------------------
+
+Frontend:
+- Mensagem: não vazia, trim aplicado
+- Ficheiro: tipo permitido, máximo 10MB
+- Autenticação: obrigatória (Clerk)
+
+Backend:
+- Rate limiting: 100 req/15min por IP
+- Autenticação: token Clerk válido
+- Mensagem: string não vazia
+- Contexto: 'sabichao' ou 'support'
+- Ficheiro: tipos MIME permitidos
+
+CONFIGURAÇÕES POR AMBIENTE
+---------------------------
+
+Desenvolvimento:
+NODE_ENV=development
+PORT=3001
+CLIENT_URL=http://localhost:3000
+
+Produção:
+NODE_ENV=production
+PORT=3001
+CLIENT_URL=https://yourdomain.com
+
+Variáveis obrigatórias:
+- MONGODB_URI
+- DATABASE_NAME
+- CLERK_SECRET_KEY
+- OPENAI_API_KEY
+- OPENAI_MODEL (opcional, padrão: gpt-4o-mini)
+- NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+- NEXT_PUBLIC_API_URL
+
+================================================================================
+7️⃣  GESTÃO DE ESTADO E DADOS
+================================================================================
+
+ESTADO DO CHAT
+--------------
+
+Frontend (React State):
+const [messages, setMessages] = useState<Message[]>([]);
+const [input, setInput] = useState('');
+const [loading, setLoading] = useState(false);
+const [conversationId, setConversationId] = useState<string | null>(null);
+
+- Estado local: não usa Redux/Zustand
+- Persistência: backend (MongoDB)
+- Recuperação: ao carregar conversa, busca histórico do backend
+
+ESTRUTURA DOS MODELOS DE DADOS
+-------------------------------
+
+ChatMessage (MongoDB):
+{
+  _id: ObjectId,
+  conversationId: string,  // "sabichao-uuid" ou "support-uuid"
+  role: 'user' | 'assistant',
+  content: string,
+  createdAt: Date,
+  userId: string  // Clerk ID
+}
+
+Document (MongoDB):
+{
+  _id: ObjectId,
+  filename: string,        // Nome único do ficheiro
+  originalName: string,    // Nome original
+  mimeType: string,
+  size: number,
+  uploadedBy: string,      // Clerk ID
+  uploadedAt: Date,
+  processedAt?: Date,
+  vectorIds?: string[],    // IDs dos chunks
+  isActive: boolean
+}
+
+DocumentChunk (MongoDB):
+{
+  _id: ObjectId,
+  documentId: string,
+  chunkIndex: number,
+  content: string,
+  embedding?: number[],    // 1536 dimensões
+  metadata?: {
+    startChar?: number,
+    endChar?: number,
+    pageNumber?: number
+  },
+  createdAt: Date
+}
+
+ESTRATÉGIA DE PERSISTÊNCIA
+--------------------------
+
+Histórico de Conversas:
+- Persistência: Todas as mensagens salvas imediatamente
+- Recuperação: ChatModel.findByConversationId(conversationId)
+- Ordenação: sort({ createdAt: 1 }) (cronológica)
+- Índices:
+  * { conversationId: 1, createdAt: 1 }
+  * { userId: 1, createdAt: -1 }
+
+Documentos e Chunks:
+- Upload: Ficheiro temporário → Extração → Chunks → Embeddings
+- Processamento assíncrono: não bloqueia resposta
+- Soft delete: isActive: false (não remove chunks imediatamente)
+- Limpeza: Ao deletar documento, remove chunks associados
+
+================================================================================
+8️⃣  AUTENTICAÇÃO E SEGURANÇA
+================================================================================
+
+AUTENTICAÇÃO
+------------
+
+Frontend (Clerk):
+- Integração: @clerk/nextjs
+- Middleware: middleware.ts protege rotas
+- Token: obtido via auth().getToken()
+
+Backend (Clerk):
+- Verificação: @clerk/backend - verifyToken()
+- Middleware: auth.middleware.ts em todas as rotas protegidas
+- Fluxo:
+  1. Frontend obtém token do Clerk
+  2. Envia no header: Authorization: Bearer {token}
+  3. Backend verifica token
+  4. Busca/cria utilizador no MongoDB
+  5. Adiciona req.user ao request
+
+CONTROLO DE ACESSOS
+-------------------
+
+Roles:
+- admin: Acesso total
+- user: Acesso limitado
+- Atribuição:
+  * Primeiro utilizador: admin
+  * Emails na lista adminEmails: admin
+  * Resto: user
+
+Middleware de roles:
+- role.middleware.ts: verifica role antes de acessar recursos
+
+PROTEÇÃO DE DADOS
+-----------------
+
+Rate Limiting:
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // 100 requests por IP
+});
+app.use('/api/', limiter);
+
+Helmet:
+- Headers de segurança
+- Proteção contra XSS, clickjacking, etc.
+
+CORS:
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true,
+}));
+
+Validação de ficheiros:
+- Tipos MIME permitidos
+- Tamanho máximo: 10MB
+- Validação no frontend e backend
+
+BOAS PRÁTICAS IMPLEMENTADAS
+----------------------------
+
+1. Tokens nunca expostos no frontend (via API proxy)
+2. Validação de input (Zod no backend)
+3. Sanitização de ficheiros (validação de tipo)
+4. Índices MongoDB para performance
+5. Tratamento de erros sem expor detalhes internos
+6. Logs de segurança (sem tokens)
+
+================================================================================
+9️⃣  INTEGRAÇÃO COM IA
+================================================================================
+
+SERVIÇO DE IA UTILIZADO
+-----------------------
+- OpenAI API
+- Modelo de chat: gpt-4o-mini (configurável)
+- Modelo de embeddings: text-embedding-3-small (1536 dimensões)
+
+CONFIGURAÇÃO DO MODELO
+----------------------
+
+Chat:
+const completion = await openai.chat.completions.create({
+  model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+  messages: messagesToSend,
+  temperature: 0.7,
+  max_tokens: 1000,
+});
+
+Embeddings:
+const response = await openai.embeddings.create({
+  model: 'text-embedding-3-small',
+  input: text,
+});
+
+ESTRATÉGIA DE PROMPTS
+---------------------
+
+System Prompts:
+
+1. MySabichão (sabichao):
+   - Foco: dados e documentos da empresa
+   - RAG: usa contexto dos documentos
+   - Tom: profissional e objetivo
+   - Idioma: português brasileiro
+
+2. Suporte (support):
+   - Foco: processos e uso do sistema
+   - Sem RAG
+   - Tom: passo-a-passo e claro
+   - Idioma: português brasileiro
+
+Construção do prompt:
+- Base prompt: getSystemPrompt(chatContext)
+- Se houver contexto RAG: adiciona ao system prompt
+- Mensagens da conversa: adicionadas ao array de mensagens
+
+LIMITES, CUSTOS E OTIMIZAÇÕES
+------------------------------
+
+Limites:
+- Rate limiting: 100 req/15min (backend)
+- Max tokens: 1000 por resposta
+- Chunks RAG: top 3 mais relevantes
+- Tamanho de ficheiro: 10MB
+
+Custos (estimativa):
+- GPT-4o-mini: ~$0.15/1M input tokens, ~$0.60/1M output tokens
+- text-embedding-3-small: ~$0.02/1M tokens
+
+Otimizações:
+- Modelo mais barato (gpt-4o-mini)
+- Max tokens limitado (1000)
+- Embeddings pequenos (text-embedding-3-small)
+- Apenas 3 chunks por busca
+
+OTIMIZAÇÕES IMPLEMENTADAS
+-------------------------
+
+1. Chunks com overlap (200 chars) para contexto
+2. Busca semântica (não busca todos os chunks)
+3. Processamento assíncrono de documentos
+4. Cache de embeddings (já calculados)
+5. Rate limiting para evitar custos excessivos
+
+MELHORIAS E ABSTRAÇÕES
+----------------------
+
+Abstrações possíveis:
+
+1. Service de IA genérico:
+   interface AIService {
+     generateResponse(messages, systemPrompt): Promise<string>;
+     generateEmbedding(text): Promise<number[]>;
+   }
+   Permite trocar OpenAI por outro provedor
+
+2. Configuração de modelos:
+   const AI_CONFIG = {
+     chat: { model: 'gpt-4o-mini', temperature: 0.7, maxTokens: 1000 },
+     embedding: { model: 'text-embedding-3-small' },
+   };
+
+3. Cache de embeddings:
+   - Evitar recalcular embeddings idênticos
+   - Redis ou MongoDB para cache
+
+4. Streaming de respostas:
+   - Respostas em tempo real
+   - Melhor UX
+
+================================================================================
+🔟  GUIA DE REPLICAÇÃO PARA NOVO PROJETO
+================================================================================
+
+PASSO 1: ESTRUTURA BASE
+-----------------------
+
+1.1 Criar estrutura de pastas:
+novo-projeto/
+├── client/
+│   ├── app/
+│   ├── components/
+│   │   ├── chat/
+│   │   ├── ui/
+│   │   └── ...
+│   └── lib/
+└── server/
+    └── src/
+        ├── config/
+        ├── controllers/
+        ├── models/
+        ├── routes/
+        ├── services/
+        └── middleware/
+
+1.2 Instalar dependências:
+
+Backend:
+npm install express cors dotenv helmet express-rate-limit
+npm install @clerk/backend mongodb openai
+npm install multer pdf-parse mammoth uuid zod
+npm install -D typescript tsx @types/express @types/node
+
+Frontend:
+npm install next@16 react@19 react-dom@19
+npm install @clerk/nextjs tailwindcss
+npm install framer-motion lucide-react
+npm install react-hook-form zod @hookform/resolvers
+npm install sonner recharts
+npm install -D typescript @types/react @types/node
+
+PASSO 2: CONFIGURAÇÃO BASE
+--------------------------
+
+2.1 Variáveis de ambiente:
+
+Backend (.env):
+MONGODB_URI=mongodb://localhost:27017
+DATABASE_NAME=novo_projeto
+CLERK_SECRET_KEY=sk_test_...
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4o-mini
+PORT=3001
+CLIENT_URL=http://localhost:3000
+NODE_ENV=development
+
+Frontend (.env.local):
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+NEXT_PUBLIC_API_URL=http://localhost:3001
+
+2.2 Configuração do banco:
+Copiar server/src/config/database.ts e adaptar nome da base de dados.
+
+PASSO 3: COMPONENTES REUTILIZÁVEIS
+---------------------------------
+
+3.1 Copiar componentes UI:
+- V0AIChat → client/components/ui/v0-ai-chat.tsx
+- ExpandableChat → client/components/ui/expandable-chat.tsx
+- ChatBubble → client/components/ui/chat-bubble.tsx
+- ChatMessageList → client/components/ui/chat-message-list.tsx
+- ChatInput → client/components/ui/chat-input.tsx
+
+3.2 Adaptar componentes:
+- Alterar textos e placeholders
+- Ajustar estilos (cores, tamanhos)
+- Adaptar quick actions se necessário
+
+PASSO 4: BACKEND - SERVIÇOS
+----------------------------
+
+4.1 Serviço OpenAI:
+Copiar server/src/services/openai.service.ts:
+- Adaptar system prompts ao novo contexto
+- Ajustar configurações (temperature, max_tokens)
+
+4.2 Serviço RAG (se necessário):
+Copiar server/src/services/rag.service.ts:
+- Ajustar CHUNK_SIZE e CHUNK_OVERLAP se necessário
+- Manter lógica de similaridade
+
+4.3 Processador de documentos (se necessário):
+Copiar server/src/services/document-processor.service.ts:
+- Adicionar suporte a outros tipos de ficheiro se necessário
+
+PASSO 5: BACKEND - CONTROLLERS E ROTAS
+---------------------------------------
+
+5.1 Chat Controller:
+Copiar server/src/controllers/chat.controller.ts:
+- Adaptar lógica de contexto
+- Ajustar validações
+
+5.2 Rotas:
+Copiar server/src/routes/chat.routes.ts:
+- Manter estrutura de autenticação
+
+5.3 Middleware de autenticação:
+Copiar server/src/middleware/auth.middleware.ts:
+- Ajustar lista de adminEmails se necessário
+- Manter lógica de criação de utilizador
+
+PASSO 6: FRONTEND - INTEGRAÇÃO
+-------------------------------
+
+6.1 API Client:
+Copiar client/lib/api-client.ts:
+- Adaptar endpoints se necessário
+- Manter estrutura de fetchWithAuth
+
+6.2 Componente de chat:
+Criar componente principal:
+// client/components/chat/chat-content.tsx
+export function ChatContent() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+
+  const sendMessage = async () => {
+    // Lógica similar a MySabichaoContent
+  };
+
+  return (
+    <V0AIChat
+      value={input}
+      onChange={setInput}
+      onSend={sendMessage}
+      loading={loading}
+      messages={messages}
+      placeholder="Sua mensagem aqui..."
+      title="Seu Chat"
+    />
+  );
+}
+
+6.3 Página:
+// client/app/chat/page.tsx
+import { ChatContent } from '@/components/chat/chat-content';
+
+export default function ChatPage() {
+  return <ChatContent />;
+}
+
+PASSO 7: MODELOS DE DADOS
+-------------------------
+
+7.1 Copiar modelos:
+- ChatModel → server/src/models/chat.model.ts
+- DocumentModel → server/src/models/document.model.ts (se necessário)
+- DocumentChunkModel → server/src/models/document-chunk.model.ts (se necessário)
+
+7.2 Adaptar tipos:
+Copiar server/src/types/index.ts e adaptar:
+- Remover tipos não utilizados
+- Adicionar tipos específicos do novo projeto
+
+PASSO 8: CONFIGURAÇÃO DO SERVIDOR
+---------------------------------
+
+8.1 index.ts:
+Copiar estrutura de server/src/index.ts:
+- Ajustar rotas
+- Manter middlewares de segurança
+- Ajustar inicialização do banco
+
+PASSO 9: TESTES E VALIDAÇÃO
+----------------------------
+
+9.1 Testar fluxo completo:
+1. Autenticação: login com Clerk
+2. Enviar mensagem: verificar resposta da IA
+3. Histórico: verificar persistência
+4. RAG (se aplicável): upload documento e testar busca
+
+9.2 Ajustes finais:
+- Ajustar system prompts
+- Personalizar UI
+- Configurar variáveis de ambiente de produção
+
+O QUE PODE SER REAPROVEITADO SEM ALTERAÇÕES
+--------------------------------------------
+
+1. Componentes UI base:
+   - V0AIChat
+   - ExpandableChat
+   - ChatBubble
+   - ChatMessageList
+   - ChatInput
+
+2. Serviços backend:
+   - openai.service.ts (apenas ajustar prompts)
+   - rag.service.ts (lógica de embeddings)
+   - document-processor.service.ts
+
+3. Middleware:
+   - auth.middleware.ts (apenas ajustar adminEmails)
+   - Rate limiting
+   - CORS
+
+4. Utilitários:
+   - api-client.ts (estrutura)
+   - utils.ts (cn function)
+
+O QUE DEVE SER CONFIGURÁVEL
+---------------------------
+
+1. System prompts:
+   - Personalizar para o contexto do novo projeto
+   - Ajustar tom e foco
+
+2. Nomes e textos:
+   - Títulos, placeholders, mensagens
+   - Quick actions
+
+3. Configurações de IA:
+   - Modelo (gpt-4o-mini, gpt-4, etc.)
+   - Temperature
+   - Max tokens
+
+4. Estrutura de dados:
+   - Campos adicionais nos modelos
+   - Validações específicas
+
+5. Autenticação:
+   - Lista de adminEmails
+   - Regras de role
+
+================================================================================
+1️⃣1️⃣  BOAS PRÁTICAS E RECOMENDAÇÕES
+================================================================================
+
+MELHORIAS ARQUITETURAIS
+-----------------------
+
+1. Abstração do serviço de IA:
+   interface AIService {
+     generateResponse(...): Promise<string>;
+     generateEmbedding(...): Promise<number[]>;
+   }
+   Facilita trocar OpenAI por outro provedor.
+
+2. Cache de embeddings:
+   - Evitar recalcular embeddings idênticos
+   - Redis ou MongoDB para cache
+
+3. Queue para processamento:
+   - Bull/BullMQ para processar documentos
+   - Retry automático em caso de falha
+
+4. Streaming de respostas:
+   - Respostas em tempo real
+   - Melhor UX
+
+5. Testes:
+   - Unit tests para serviços
+   - Integration tests para fluxos críticos
+   - E2E tests para fluxos principais
+
+PONTOS DE ATENÇÃO AO REPLICAR
+------------------------------
+
+1. Variáveis de ambiente:
+   - Não commitar .env
+   - Documentar variáveis obrigatórias
+   - Validação na inicialização
+
+2. Autenticação:
+   - Verificar token em todas as rotas protegidas
+   - Tratar expiração de token
+   - Logout adequado
+
+3. Rate limiting:
+   - Configurar limites adequados
+   - Mensagens de erro claras
+   - Retry-After header
+
+4. Processamento assíncrono:
+   - Não bloquear resposta do upload
+   - Tratar erros em background
+   - Status de processamento visível
+
+5. Segurança de ficheiros:
+   - Validação de tipo no frontend e backend
+   - Sanitização de nomes de ficheiro
+   - Limite de tamanho
+   - Scan de vírus (opcional)
+
+ERROS COMUNS A EVITAR
+---------------------
+
+1. Não validar input:
+   - Sempre validar no frontend e backend
+   - Usar Zod para validação
+
+2. Expor tokens:
+   - Nunca expor tokens no frontend
+   - Usar API proxy para adicionar token
+
+3. Não tratar erros:
+   - Try/catch em todas as operações assíncronas
+   - Mensagens de erro claras
+   - Logs adequados
+
+4. Performance:
+   - Índices MongoDB
+   - Limitar resultados de queries
+   - Paginação quando necessário
+
+5. Estado inconsistente:
+   - Transações para operações críticas
+   - Validação antes de salvar
+   - Rollback em caso de erro
+
+ESCALABILIDADE E MANUTENIBILIDADE
+----------------------------------
+
+Escalabilidade:
+
+1. Base de dados:
+   - Índices adequados
+   - Sharding se necessário
+   - Replicação para leitura
+
+2. Cache:
+   - Redis para cache de embeddings
+   - Cache de respostas frequentes
+
+3. Processamento:
+   - Queue para tarefas pesadas
+   - Workers para processamento paralelo
+
+4. API:
+   - Rate limiting por utilizador
+   - Throttling
+   - Circuit breaker para serviços externos
+
+Manutenibilidade:
+
+1. Código:
+   - TypeScript strict mode
+   - ESLint + Prettier
+   - Documentação de funções complexas
+
+2. Estrutura:
+   - Separação clara de responsabilidades
+   - Services reutilizáveis
+   - Componentes modulares
+
+3. Logs:
+   - Logs estruturados
+   - Níveis de log (debug, info, error)
+   - Contexto nos logs
+
+4. Monitorização:
+   - Health checks
+   - Métricas de performance
+   - Alertas para erros críticos
+
+================================================================================
+📌  RESUMO EXECUTIVO
+================================================================================
+
+COMPONENTES PRINCIPAIS PARA REPLICAR
+-------------------------------------
+
+1. Frontend:
+   - V0AIChat (interface de chat)
+   - ExpandableChat (chat expansível)
+   - apiClient (cliente API)
+   - Componentes UI base
+
+2. Backend:
+   - ChatController (lógica de chat)
+   - OpenAIService (integração IA)
+   - RAGService (busca semântica)
+   - AuthMiddleware (autenticação)
+
+3. Infraestrutura:
+   - MongoDB (persistência)
+   - Clerk (autenticação)
+   - OpenAI (IA)
+
+FLUXO CRÍTICO REPLICÁVEL
+-----------------------
+
+Utilizador → Frontend → API Proxy → Backend → OpenAI → MongoDB → Resposta
+
+CONFIGURAÇÕES ESSENCIAIS
+------------------------
+
+- Variáveis de ambiente (Clerk, OpenAI, MongoDB)
+- System prompts personalizados
+- Rate limiting adequado
+- Validações de segurança
+
+================================================================================
+FIM DA DOCUMENTAÇÃO
+================================================================================
+
+Esta documentação cobre todos os aspetos principais do projeto MySabichão.
+Use como referência para replicar a solução em novos projetos, adaptando
+conforme necessário ao contexto específico.

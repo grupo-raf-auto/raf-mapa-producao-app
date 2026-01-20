@@ -11,23 +11,23 @@ export type ChatSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 const chatConfig = {
   dimensions: {
     sm: 'sm:max-w-sm sm:max-h-[500px]',
-    md: 'sm:max-w-md sm:max-h-[600px]',
-    lg: 'sm:max-w-lg sm:max-h-[700px]',
-    xl: 'sm:max-w-xl sm:max-h-[800px]',
+    md: 'sm:max-w-md sm:max-h-[550px]',
+    lg: 'sm:max-w-lg sm:max-h-[650px]',
+    xl: 'sm:max-w-xl sm:max-h-[750px]',
     full: 'sm:w-full sm:h-full',
   },
   positions: {
-    'bottom-right': 'bottom-12 right-12',
-    'bottom-left': 'bottom-12 left-12',
+    'bottom-right': 'bottom-6 right-6',
+    'bottom-left': 'bottom-6 left-6',
   },
   chatPositions: {
-    'bottom-right': 'sm:bottom-[calc(100%+10px)] sm:right-0',
-    'bottom-left': 'sm:bottom-[calc(100%+10px)] sm:left-0',
+    'bottom-right': 'sm:bottom-[calc(100%+12px)] sm:right-0',
+    'bottom-left': 'sm:bottom-[calc(100%+12px)] sm:left-0',
   },
   states: {
     open: 'pointer-events-auto opacity-100 visible scale-100 translate-y-0',
     closed:
-      'pointer-events-none opacity-0 invisible scale-100 sm:translate-y-5',
+      'pointer-events-none opacity-0 invisible scale-100 sm:translate-y-3',
   },
 };
 
@@ -58,7 +58,7 @@ const ExpandableChat: React.FC<ExpandableChatProps> = ({
       <div
         ref={chatRef}
         className={cn(
-          'flex flex-col bg-background border sm:rounded-lg shadow-md overflow-hidden transition-all duration-250 ease-out sm:absolute sm:w-[90vw] sm:h-[80vh] fixed inset-0 w-full h-full sm:inset-auto',
+          'flex flex-col bg-card border border-border sm:rounded-xl shadow-lg overflow-hidden transition-all duration-200 ease-out sm:absolute sm:w-[90vw] sm:h-[80vh] fixed inset-0 w-full h-full sm:inset-auto',
           chatConfig.chatPositions[position],
           chatConfig.dimensions[size],
           isOpen ? chatConfig.states.open : chatConfig.states.closed,
@@ -69,10 +69,10 @@ const ExpandableChat: React.FC<ExpandableChatProps> = ({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 sm:hidden"
+          className="absolute top-3 right-3 sm:hidden text-muted-foreground hover:text-foreground"
           onClick={toggleChat}
         >
-          <X className="h-4 w-4" />
+          <X className="h-5 w-5" />
         </Button>
       </div>
       <ExpandableChatToggle
@@ -91,7 +91,7 @@ const ExpandableChatHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => (
   <div
-    className={cn('flex items-center justify-between p-4 border-b', className)}
+    className={cn('flex items-center justify-between p-4 border-b border-border/50 bg-card', className)}
     {...props}
   />
 );
@@ -101,14 +101,14 @@ ExpandableChatHeader.displayName = 'ExpandableChatHeader';
 const ExpandableChatBody: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,
   ...props
-}) => <div className={cn('grow overflow-y-auto', className)} {...props} />;
+}) => <div className={cn('grow overflow-y-auto bg-background', className)} {...props} />;
 
 ExpandableChatBody.displayName = 'ExpandableChatBody';
 
 const ExpandableChatFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,
   ...props
-}) => <div className={cn('border-t p-4', className)} {...props} />;
+}) => <div className={cn('border-t border-border/50 p-3 bg-card', className)} {...props} />;
 
 ExpandableChatFooter.displayName = 'ExpandableChatFooter';
 
@@ -130,15 +130,15 @@ const ExpandableChatToggle: React.FC<ExpandableChatToggleProps> = ({
     variant="default"
     onClick={toggleChat}
     className={cn(
-      'w-14 h-14 rounded-full shadow-md flex items-center justify-center hover:shadow-lg hover:shadow-black/30 transition-all duration-300',
+      'w-12 h-12 rounded-xl shadow-md flex items-center justify-center hover:shadow-lg transition-all duration-200 bg-primary hover:bg-primary/90',
       className
     )}
     {...props}
   >
     {isOpen ? (
-      <X className="h-6 w-6" />
+      <X className="h-5 w-5" />
     ) : (
-      icon || <MessageCircle className="h-6 w-6" />
+      icon || <MessageCircle className="h-5 w-5" />
     )}
   </Button>
 );

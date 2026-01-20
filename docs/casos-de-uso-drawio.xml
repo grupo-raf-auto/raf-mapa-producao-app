@@ -1,0 +1,434 @@
+<mxfile host="app.diagrams.net" modified="2024-01-15T00:00:00.000Z" agent="draw.io" version="21.0.0" etag="casos-de-uso-raf-mapa" type="device">
+  <diagram id="casos-de-uso" name="Casos de Uso - RAF Mapa Produção">
+    <mxGraphModel dx="3000" dy="2000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="5000" pageHeight="3500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Título -->
+        <mxCell id="title" value="Diagrama de Casos de Uso - RAF Mapa Produção App" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1200" y="30" width="800" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Atores -->
+        <mxCell id="actor-usuario" value="Usuário" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="200" y="150" width="80" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor-admin" value="Administrador" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="150" width="80" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor-clerk" value="Sistema&#xa;Clerk" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="600" y="150" width="80" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor-ia" value="Sistema IA&#xa;(OpenAI)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="800" y="150" width="80" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- Package: Autenticação -->
+        <mxCell id="pkg-auth" value="Autenticação e Autorização" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="100" y="350" width="300" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-001" value="UC-001: Login" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-auth">
+          <mxGeometry x="20" y="50" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-002" value="UC-002: Registro" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-auth">
+          <mxGeometry x="20" y="90" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-003" value="UC-003: Logout" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-auth">
+          <mxGeometry x="20" y="130" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-004" value="UC-004: Verificar Sessão" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-auth">
+          <mxGeometry x="20" y="170" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-005" value="UC-005: Visualizar Perfil" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-auth">
+          <mxGeometry x="20" y="210" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-007" value="UC-007: Sincronizar Usuário (Webhook)" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-auth">
+          <mxGeometry x="20" y="250" width="260" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Package: Dashboard -->
+        <mxCell id="pkg-dashboard" value="Dashboard e Análises" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=16;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="500" y="350" width="300" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-008" value="UC-008: Visualizar KPIs" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-dashboard">
+          <mxGeometry x="20" y="50" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-009" value="UC-009: Visualizar Estatísticas" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-dashboard">
+          <mxGeometry x="20" y="90" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-010" value="UC-010: Filtrar por Período" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-dashboard">
+          <mxGeometry x="20" y="130" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-011" value="UC-011: Gráfico de Atividade" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-dashboard">
+          <mxGeometry x="20" y="170" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-012" value="UC-012: Gráfico de Perguntas" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-dashboard">
+          <mxGeometry x="20" y="210" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-013" value="UC-013: Vendas por Banco" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-dashboard">
+          <mxGeometry x="20" y="250" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-014" value="UC-014: Vendas por Distrito" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-dashboard">
+          <mxGeometry x="20" y="290" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-015" value="UC-015: Vendas por Seguradora" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-dashboard">
+          <mxGeometry x="20" y="330" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-016" value="UC-016: Timeline de Vendas" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-dashboard">
+          <mxGeometry x="20" y="370" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-017" value="UC-017: Top Bancos (Pizza)" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-dashboard">
+          <mxGeometry x="20" y="410" width="260" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Package: Templates -->
+        <mxCell id="pkg-templates" value="Gestão de Templates" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="900" y="350" width="300" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-018" value="UC-018: Listar Templates" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-templates">
+          <mxGeometry x="20" y="50" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-019" value="UC-019: Visualizar Template" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-templates">
+          <mxGeometry x="20" y="90" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-020" value="UC-020: Criar Template" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-templates">
+          <mxGeometry x="20" y="130" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-021" value="UC-021: Atualizar Template" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-templates">
+          <mxGeometry x="20" y="170" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-022" value="UC-022: Deletar Template" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-templates">
+          <mxGeometry x="20" y="210" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-023" value="UC-023: Visualizar Lista (Interface)" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-templates">
+          <mxGeometry x="20" y="250" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-024" value="UC-024: Criar via Diálogo" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-templates">
+          <mxGeometry x="20" y="290" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-025" value="UC-025: Editar Template" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-templates">
+          <mxGeometry x="20" y="330" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-026" value="UC-026: Deletar Template (Interface)" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-templates">
+          <mxGeometry x="20" y="370" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-027" value="UC-027: Seed Templates Padrão" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-templates">
+          <mxGeometry x="20" y="410" width="260" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Package: Formulários -->
+        <mxCell id="pkg-formularios" value="Gestão de Formulários" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=16;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="350" width="300" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-028" value="UC-028: Listar Templates Disponíveis" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="50" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-029" value="UC-029: Selecionar Template" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="90" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-030" value="UC-030: Preencher Formulário" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="130" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-031" value="UC-031: Submeter Formulário" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="170" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-032" value="UC-032: Listar Submissões" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="210" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-033" value="UC-033: Visualizar Submissão" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="250" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-034" value="UC-034: Filtrar por Template" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="290" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-035" value="UC-035: Pesquisar Submissões" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="330" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-036" value="UC-036: Filtrar por Banco" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="370" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-037" value="UC-037: Filtrar por Seguradora" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="410" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-038" value="UC-038: Filtrar por Valor" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="450" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-039" value="UC-039: Editar Submissão" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="490" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-040" value="UC-040: Deletar Submissão" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="530" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-041" value="UC-041: Visualizar Detalhes" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-formularios">
+          <mxGeometry x="20" y="570" width="260" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Package: Perguntas e Categorias -->
+        <mxCell id="pkg-perguntas" value="Gestão de Perguntas e Categorias" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=16;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="100" y="700" width="300" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-042" value="UC-042: Listar Perguntas" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-perguntas">
+          <mxGeometry x="20" y="50" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-043" value="UC-043: Visualizar Pergunta" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-perguntas">
+          <mxGeometry x="20" y="90" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-044" value="UC-044: Criar Pergunta" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-perguntas">
+          <mxGeometry x="20" y="130" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-045" value="UC-045: Atualizar Pergunta" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-perguntas">
+          <mxGeometry x="20" y="170" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-046" value="UC-046: Deletar Pergunta" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-perguntas">
+          <mxGeometry x="20" y="210" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-047" value="UC-047: Listar Categorias" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-perguntas">
+          <mxGeometry x="20" y="250" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-048" value="UC-048: Visualizar Categoria" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-perguntas">
+          <mxGeometry x="20" y="290" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-049" value="UC-049: Criar Categoria" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-perguntas">
+          <mxGeometry x="20" y="330" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-050" value="UC-050: Atualizar Categoria" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-perguntas">
+          <mxGeometry x="20" y="370" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-051" value="UC-051: Deletar Categoria" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-perguntas">
+          <mxGeometry x="20" y="410" width="260" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Package: MySabichão -->
+        <mxCell id="pkg-sabichao" value="MySabichão - Chat com IA" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="500" y="700" width="300" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-052" value="UC-052: Enviar Mensagem" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="50" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-053" value="UC-053: Receber Resposta com RAG" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="90" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-054" value="UC-054: Visualizar Histórico" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="130" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-055" value="UC-055: Manter Contexto" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="170" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-056" value="UC-056: Ações Rápidas" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="210" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-057" value="UC-057: Upload Documento" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="250" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-058" value="UC-058: Listar Documentos" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="290" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-059" value="UC-059: Visualizar Documento" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="330" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-060" value="UC-060: Deletar Documento" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="370" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-061" value="UC-061: Processar Documento (Assíncrono)" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="410" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-062" value="UC-062: Buscar Chunks Relevantes (RAG)" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">
+          <mxGeometry x="20" y="450" width="260" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Package: Admin -->
+        <mxCell id="pkg-admin" value="Painel Administrativo" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=16;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="900" y="700" width="300" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-063" value="UC-063: Listar Usuários" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="50" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-064" value="UC-064: Visualizar Usuário" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="90" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-065" value="UC-065: Criar Usuário" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="130" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-066" value="UC-066: Atualizar Usuário" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="170" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-067" value="UC-067: Deletar Usuário" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="210" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-068" value="UC-068: Estatísticas Usuários" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="250" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-069" value="UC-069: Desempenho Usuários" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="290" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-070" value="UC-070: Estatísticas Sistema" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="330" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-071" value="UC-071: Gerenciar Usuários (Interface)" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="370" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-072" value="UC-072: Configurações" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="410" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-073" value="UC-073: Gerenciar Templates (Admin)" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="450" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-074" value="UC-074: Verificar Permissões" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="490" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-075" value="UC-075: Restringir Acesso" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="530" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-076" value="UC-076: Ver Todas Submissões" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-admin">
+          <mxGeometry x="20" y="570" width="260" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Relações: Usuário para Casos de Uso -->
+        <mxCell id="rel-user-001" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-001">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-002" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-002">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-003" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-003">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-005" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-005">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-008" value="" style="endArrow=classic;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-008">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-009" value="" style="endArrow=classic;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-009">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-010" value="" style="endArrow=classic;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-010">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-018" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-018">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-019" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-019">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-028" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-028">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-029" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-029">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-030" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-030">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-031" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-031">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-032" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-032">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-052" value="" style="endArrow=classic;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-052">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-053" value="" style="endArrow=classic;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-053">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-user-057" value="" style="endArrow=classic;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-usuario" target="uc-057">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relações: Admin para Casos de Uso (principais) -->
+        <mxCell id="rel-admin-020" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-020">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-admin-021" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-021">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-admin-022" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-022">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-admin-063" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-063">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-admin-065" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-065">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-admin-044" value="" style="endArrow=classic;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-044">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-admin-049" value="" style="endArrow=classic;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-049">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relações: Clerk -->
+        <mxCell id="rel-clerk-001" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d6b656;" edge="1" parent="1" source="actor-clerk" target="uc-001">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-clerk-002" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d6b656;" edge="1" parent="1" source="actor-clerk" target="uc-002">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-clerk-007" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d6b656;" edge="1" parent="1" source="actor-clerk" target="uc-007">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relações: IA -->
+        <mxCell id="rel-ia-053" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#b85450;" edge="1" parent="1" source="actor-ia" target="uc-053">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-ia-062" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#b85450;" edge="1" parent="1" source="actor-ia" target="uc-062">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relações: Extends (seta traceada com <<extends>>) -->
+        <mxCell id="ext-031-030" value="&lt;&lt;extends&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d79b00;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-031" target="uc-030">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-020-024" value="&lt;&lt;extends&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-020" target="uc-024">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-021-025" value="&lt;&lt;extends&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-021" target="uc-025">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-022-026" value="&lt;&lt;extends&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-022" target="uc-026">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-032-034" value="&lt;&lt;extends&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d79b00;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-032" target="uc-034">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-032-035" value="&lt;&lt;extends&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d79b00;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-032" target="uc-035">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-032-036" value="&lt;&lt;extends&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d79b00;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-032" target="uc-036">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-032-037" value="&lt;&lt;extends&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d79b00;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-032" target="uc-037">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-032-038" value="&lt;&lt;extends&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d79b00;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-032" target="uc-038">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-076-032" value="&lt;&lt;extends&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#b85450;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-076" target="uc-032">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relações: Includes (seta traceada com <<includes>>) -->
+        <mxCell id="inc-053-062" value="&lt;&lt;includes&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#9673a6;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-053" target="uc-062">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="inc-052-055" value="&lt;&lt;includes&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#9673a6;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-052" target="uc-055">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="inc-061-062" value="&lt;&lt;includes&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#9673a6;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-061" target="uc-062">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="inc-007-005" value="&lt;&lt;includes&gt;&gt;" style="endArrow=open;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#9673a6;fontSize=10;fontStyle=1" edge="1" parent="1" source="uc-007" target="uc-005">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

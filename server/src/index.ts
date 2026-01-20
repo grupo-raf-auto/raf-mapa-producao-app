@@ -1,6 +1,15 @@
+import path from 'path';
+import dotenv from 'dotenv';
+
+// Load .env: raiz do projeto e depois server/ (o server pode ser executado de server/ ou da raiz)
+const root = path.resolve(process.cwd(), '..');
+dotenv.config({ path: path.join(root, '.env') });
+dotenv.config({ path: path.join(root, '.env.local') });
+dotenv.config({ path: path.join(process.cwd(), '.env') });
+dotenv.config({ path: path.join(process.cwd(), '.env.local') });
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import questionRoutes from './routes/question.routes';
@@ -9,17 +18,12 @@ import templateRoutes from './routes/template.routes';
 import submissionRoutes from './routes/submission.routes';
 import userRoutes from './routes/user.routes';
 import chatRoutes from './routes/chat.routes';
-import webhookRoutes from './routes/webhook.routes';
+import documentRoutes from './routes/document.routes';
 import { seedTemplates } from './scripts/seed-templates';
 import { authenticateUser } from './middleware/auth.middleware';
-import { UserModel } from './models/user.model';
-import { ChatModel } from './models/chat.model';
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3005;
 
 // Security middleware
 app.use(helmet());
@@ -35,7 +39,7 @@ app.use('/api/', limiter);
 // Middleware
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: process.env.CLIENT_URL || 'http://localhost:3004',
     credentials: true,
   })
 );
@@ -47,9 +51,6 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
-// Webhook routes (sem autenticação normal, usa assinatura)
-app.use('/api/webhooks', webhookRoutes);
-
 // API Routes (protegidas)
 app.use('/api/questions', authenticateUser, questionRoutes);
 app.use('/api/categories', authenticateUser, categoryRoutes);
@@ -57,6 +58,7 @@ app.use('/api/templates', authenticateUser, templateRoutes);
 app.use('/api/submissions', authenticateUser, submissionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/documents', authenticateUser, documentRoutes);
 
 // Error handling middleware
 app.use(
@@ -71,24 +73,8 @@ app.use(
   }
 );
 
-// Initialize database indexes and default templates on server start
 async function initializeServer() {
   try {
-    // Criar índices únicos para prevenir duplicatas
-    await UserModel.createIndexes();
-  } catch (error) {
-    console.error('Error creating database indexes:', error);
-  }
-
-  try {
-    // Criar índices para chat messages
-    await ChatModel.createIndexes();
-  } catch (error) {
-    console.error('Error creating chat indexes:', error);
-  }
-
-  try {
-    // Initialize default templates
     await seedTemplates();
   } catch (error) {
     console.error('Error seeding templates:', error);

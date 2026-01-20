@@ -12,12 +12,10 @@ import {
 export function QuestionActions({ questionId }: { questionId: string }) {
   const handleEdit = () => {
     // TODO: Implement edit
-    console.log('Edit', questionId);
   };
 
   const handleDelete = () => {
     // TODO: Implement delete
-    console.log('Delete', questionId);
   };
 
   return (

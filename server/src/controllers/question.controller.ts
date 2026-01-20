@@ -1,18 +1,23 @@
 import { Request, Response } from 'express';
-import { QuestionModel } from '../models/question.model';
-import { Question } from '../types';
+import { prisma } from '../lib/prisma';
 
 export class QuestionController {
   static async getAll(req: Request, res: Response) {
     try {
       const { status, search } = req.query;
-
-      const questions = await QuestionModel.findAll({
-        status: status as any,
-        search: search as string,
+      const where: { status?: string; OR?: { title?: { contains: string; mode: 'insensitive' }; description?: { contains: string; mode: 'insensitive' } }[] } = {};
+      if (status && typeof status === 'string') where.status = status;
+      if (search && typeof search === 'string') {
+        where.OR = [
+          { title: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+        ];
+      }
+      const questions = await prisma.question.findMany({
+        where: Object.keys(where).length ? where : undefined,
+        orderBy: { createdAt: 'desc' },
       });
-
-      res.json(questions);
+      res.json(questions.map((q) => ({ ...q, _id: q.id })));
     } catch (error) {
       console.error('Error fetching questions:', error);
       res.status(500).json({ error: 'Failed to fetch questions' });
@@ -22,13 +27,11 @@ export class QuestionController {
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const question = await QuestionModel.findById(id);
-
+      const question = await prisma.question.findUnique({ where: { id } });
       if (!question) {
         return res.status(404).json({ error: 'Question not found' });
       }
-
-      res.json(question);
+      res.json({ ...question, _id: question.id });
     } catch (error) {
       console.error('Error fetching question:', error);
       res.status(500).json({ error: 'Failed to fetch question' });
@@ -37,21 +40,19 @@ export class QuestionController {
 
   static async create(req: Request, res: Response) {
     try {
-      if (!req.user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-
-      const questionData: Omit<Question, '_id' | 'createdAt' | 'updatedAt'> = {
-        title: req.body.title,
-        description: req.body.description,
-        status: req.body.status,
-        inputType: req.body.inputType,
-        options: req.body.options,
-        createdBy: req.user.clerkId,
-      };
-
-      const id = await QuestionModel.create(questionData);
-      res.status(201).json({ id });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+      const { title, description, status, inputType, options } = req.body;
+      const question = await prisma.question.create({
+        data: {
+          title,
+          description,
+          status: status || 'active',
+          inputType,
+          options: options || [],
+          createdBy: req.user.id,
+        },
+      });
+      res.status(201).json({ id: question.id });
     } catch (error) {
       console.error('Error creating question:', error);
       res.status(500).json({ error: 'Failed to create question' });
@@ -61,7 +62,17 @@ export class QuestionController {
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      await QuestionModel.update(id, req.body);
+      const { title, description, status, inputType, options } = req.body;
+      const data: Record<string, unknown> = {};
+      if (title !== undefined) data.title = title;
+      if (description !== undefined) data.description = description;
+      if (status !== undefined) data.status = status;
+      if (inputType !== undefined) data.inputType = inputType;
+      if (options !== undefined) data.options = options;
+      await prisma.question.update({
+        where: { id },
+        data: data as Parameters<typeof prisma.question.update>[0]['data'],
+      });
       res.json({ success: true });
     } catch (error) {
       console.error('Error updating question:', error);
@@ -71,23 +82,14 @@ export class QuestionController {
 
   static async delete(req: Request, res: Response) {
     try {
-      if (!req.user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
       const { id } = req.params;
-      const question = await QuestionModel.findById(id);
-
-      if (!question) {
-        return res.status(404).json({ error: 'Question not found' });
-      }
-
-      // Users só podem deletar suas próprias questões, admins podem deletar qualquer
-      if (req.user.role !== 'admin' && question.createdBy !== req.user.clerkId) {
+      const question = await prisma.question.findUnique({ where: { id } });
+      if (!question) return res.status(404).json({ error: 'Question not found' });
+      if (req.user.role !== 'admin' && question.createdBy !== req.user.id) {
         return res.status(403).json({ error: 'Forbidden: You can only delete your own questions' });
       }
-
-      await QuestionModel.delete(id);
+      await prisma.question.delete({ where: { id } });
       res.json({ success: true });
     } catch (error) {
       console.error('Error deleting question:', error);

@@ -1,0 +1,179 @@
+// Prisma schema - PostgreSQL (Neon) + Better Auth
+// https://www.prisma.io/docs | https://www.better-auth.com
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ Better Auth ============
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  // Campos adicionais para a aplicação
+  firstName     String?
+  lastName      String?
+  role          String    @default("user") // admin | user
+  isActive      Boolean   @default(true)
+
+  sessions Session[]
+  accounts Account[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("session")
+}
+
+model Account {
+  id                   String    @id @default(cuid())
+  accountId            String
+  providerId           String
+  password             String?   // hash para provider "credential" (email/password)
+  accessToken          String?
+  refreshToken         String?
+  idToken              String?
+  accessTokenExpiresAt DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+// ============ Aplicação RAF ============
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  color       String?
+
+  createdAt DateTime @default(now())
+
+  @@map("category")
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      String   // active | inactive
+  inputType   String?  // text | date | select | email | tel | number | radio
+  options     String[] // para select/radio
+
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("question")
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  questions   String[] // IDs das questões
+  isDefault   Boolean  @default(false)
+  isPublic    Boolean  @default(false)
+
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("template")
+}
+
+model FormSubmission {
+  id         String   @id @default(cuid())
+  templateId String
+  answers    Json     // [{ questionId, answer }]
+  submittedBy String
+
+  submittedAt DateTime @default(now())
+
+  @@map("submission")
+}
+
+model Document {
+  id           String    @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  uploadedBy   String
+  uploadedAt   DateTime  @default(now())
+  processedAt  DateTime?
+  vectorIds    String[]  @default([]) // IDs dos chunks (legado, chunks usam documentId)
+  isActive     Boolean   @default(true)
+
+  chunks DocumentChunk[]
+
+  @@map("document")
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  chunkIndex Int
+  content    String
+  embedding  Json?    // array de números (1536 dims)
+  metadata   Json?
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("document_chunk")
+}
+
+model ChatMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String   // user | assistant
+  content        String
+  userId         String
+
+  createdAt DateTime @default(now())
+
+  @@map("chat_message")
+}

@@ -1,52 +1,96 @@
 'use client';
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 
 interface SalesByBancoChartProps {
   data: { name: string; count: number; totalValue: number }[];
 }
 
 export function SalesByBancoChart({ data }: SalesByBancoChartProps) {
-  const chartData = data.map(item => ({
+  const chartData = data.map((item) => ({
     name: item.name || 'Não especificado',
     'Número de Vendas': item.count,
     'Valor Total (€)': Math.round(item.totalValue),
   }));
 
+  const totalVendas = data.reduce((sum, item) => sum + item.count, 0);
+  const totalValor = data.reduce((sum, item) => sum + item.totalValue, 0);
+  const topBanco = data[0];
+
   return (
-    <ResponsiveContainer width="100%" height={400}>
-      <BarChart data={chartData} margin={{ top: 30, right: 40, left: 30, bottom: 80 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-        <XAxis
-          dataKey="name"
-          stroke="#6B7280"
-          style={{ fontSize: '12px' }}
-          angle={-45}
-          textAnchor="end"
-          height={100}
-        />
-        <YAxis
-          stroke="#6B7280"
-          style={{ fontSize: '12px' }}
-          domain={[0, 'dataMax + dataMax * 0.2']}
-        />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E7EB',
-            borderRadius: '8px',
-          }}
-          formatter={(value: number, name: string) => {
-            if (name === 'Valor Total (€)') {
-              return `${value.toLocaleString('pt-PT')} €`;
-            }
-            return value;
-          }}
-        />
-        <Legend />
-        <Bar dataKey="Número de Vendas" fill="#5347CE" radius={[4, 4, 0, 0]} barSize={30} />
-        <Bar dataKey="Valor Total (€)" fill="#16CBC7" radius={[4, 4, 0, 0]} barSize={30} />
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="space-y-4">
+      <div className="flex items-baseline justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">Total de Vendas</p>
+          <p className="text-2xl font-bold text-foreground">
+            {totalValor.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {totalVendas} vendas
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-muted-foreground">Top Banco</p>
+          <p className="text-sm font-medium text-foreground">
+            {topBanco?.name || 'N/A'}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {topBanco?.totalValue.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }) || 'N/A'}
+          </p>
+        </div>
+      </div>
+
+      <ResponsiveContainer width="100%" height={200}>
+        <BarChart
+          data={chartData.slice(0, 6)}
+          margin={{ top: 10, right: 10, left: 0, bottom: 40 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+          <XAxis
+            dataKey="name"
+            stroke="#6B7280"
+            style={{ fontSize: '11px' }}
+            angle={-45}
+            textAnchor="end"
+            height={60}
+          />
+          <YAxis
+            stroke="#6B7280"
+            style={{ fontSize: '11px' }}
+            tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+          />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '12px' }}
+            formatter={(value, name) => {
+              if (value == null) return '-';
+              if (name === 'Valor Total (€)') {
+                return `${Number(value).toLocaleString('pt-PT')} €`;
+              }
+              return value;
+            }}
+          />
+          <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="square" />
+          <Bar
+            dataKey="Número de Vendas"
+            fill="#5347CE"
+            radius={[4, 4, 0, 0]}
+          />
+          <Bar
+            dataKey="Valor Total (€)"
+            fill="#16CBC7"
+            radius={[4, 4, 0, 0]}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

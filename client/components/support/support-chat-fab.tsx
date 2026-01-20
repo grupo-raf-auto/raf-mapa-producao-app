@@ -69,18 +69,18 @@ export function SupportChatFab() {
     <ExpandableChat
       size="md"
       position="bottom-right"
-      icon={<MessageCircle className="h-6 w-6" />}
+      icon={<MessageCircle className="h-5 w-5" />}
     >
-      <ExpandableChatHeader className="flex-col text-center justify-center">
-        <div className="flex items-center gap-3 justify-center mb-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
-            <MessageCircle className="w-5 h-5 text-primary-foreground" />
+      <ExpandableChatHeader className="gap-3">
+        <div className="flex items-center gap-3 flex-1">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+            <MessageCircle className="w-4 h-4 text-primary-foreground" />
           </div>
-          <h1 className="text-xl font-semibold">Ajuda</h1>
+          <div>
+            <h1 className="text-sm font-semibold text-foreground">Ajuda</h1>
+            <p className="text-xs text-muted-foreground">Suporte do sistema</p>
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Precisa de ajuda? Pergunte sobre processos e funcionalidades do sistema.
-        </p>
       </ExpandableChatHeader>
 
       <ExpandableChatBody>

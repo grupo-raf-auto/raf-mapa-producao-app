@@ -1,26 +1,17 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
-import { ShineBorder } from "./shine-border"
 
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <ShineBorder
-      borderRadius={12}
-      borderWidth={1.5}
-      duration={14}
-      color={["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--primary))"]}
-      className="h-full"
-    >
-      <div
-        data-slot="card"
-        className={cn(
-          "bg-card/80 backdrop-blur-sm text-card-foreground flex flex-col gap-4 rounded-xl py-5 shadow-sm h-full w-full",
-          className
-        )}
-        {...props}
-      />
-    </ShineBorder>
+    <div
+      data-slot="card"
+      className={cn(
+        "bg-card text-card-foreground flex flex-col gap-4 rounded-xl py-5 h-full w-full border border-border/40 shadow-sm",
+        className
+      )}
+      {...props}
+    />
   )
 }
 
@@ -41,7 +32,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
+      className={cn("leading-none font-semibold text-foreground", className)}
       {...props}
     />
   )

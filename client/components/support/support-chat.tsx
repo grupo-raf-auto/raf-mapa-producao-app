@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent } from 'react';
-import { CornerDownLeft } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   ChatBubble,
@@ -27,19 +27,20 @@ export function SupportChat({ messages, loading }: SupportChatProps) {
   return (
     <div className="flex flex-col h-full">
       <ChatMessageList>
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-full py-8 text-center px-4">
+            <p className="text-sm text-muted-foreground">
+              Inicia uma conversa para obter ajuda sobre o sistema.
+            </p>
+          </div>
+        )}
         {messages.map((message) => (
           <ChatBubble
             key={message.id}
             variant={message.role === 'user' ? 'sent' : 'received'}
           >
             <ChatBubbleAvatar
-              className="h-8 w-8 shrink-0"
-              src={
-                message.role === 'user'
-                  ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop'
-                  : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&crop=faces&fit=crop'
-              }
-              fallback={message.role === 'user' ? 'US' : 'AI'}
+              variant={message.role === 'user' ? 'sent' : 'received'}
             />
             <ChatBubbleMessage
               variant={message.role === 'user' ? 'sent' : 'received'}
@@ -51,12 +52,8 @@ export function SupportChat({ messages, loading }: SupportChatProps) {
 
         {loading && (
           <ChatBubble variant="received">
-            <ChatBubbleAvatar
-              className="h-8 w-8 shrink-0"
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&crop=faces&fit=crop"
-              fallback="AI"
-            />
-            <ChatBubbleMessage isLoading />
+            <ChatBubbleAvatar variant="received" />
+            <ChatBubbleMessage isLoading variant="received" />
           </ChatBubble>
         )}
       </ChatMessageList>
@@ -75,23 +72,22 @@ export function SupportChatFooter({ input, setInput, onSubmit, loading }: Suppor
   return (
     <form
       onSubmit={onSubmit}
-      className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1"
+      className="relative flex items-center gap-2"
     >
       <ChatInput
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Digite sua mensagem..."
-        className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
+        placeholder="Escreve a tua mensagem..."
+        className="flex-1 min-h-10 resize-none rounded-lg bg-muted/50 border border-border px-3 py-2.5 text-sm focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50"
       />
-      <div className="flex items-center p-3 pt-0 justify-between">
-        <div className="flex">
-          {/* Espaço para botões futuros se necessário */}
-        </div>
-        <Button type="submit" size="sm" className="ml-auto gap-1.5" disabled={loading}>
-          Enviar
-          <CornerDownLeft className="size-3.5" />
-        </Button>
-      </div>
+      <Button
+        type="submit"
+        size="icon"
+        className="h-10 w-10 rounded-lg shrink-0"
+        disabled={loading || !input.trim()}
+      >
+        <Send className="h-4 w-4" />
+      </Button>
     </form>
   );
 }

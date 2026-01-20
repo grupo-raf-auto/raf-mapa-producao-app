@@ -71,6 +71,11 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -96,65 +101,82 @@
 
 :root {
   --radius: 0.75rem;
-  /* Apple Design System Colors - Light Mode */
-  --background: #f5f5f7;
-  --foreground: #1d1d1f;
+  /* MyCredit Design System - Light Mode */
+  --background: #F5F7FA;
+  --foreground: #1E293B;
   --card: #ffffff;
-  --card-foreground: #1d1d1f;
+  --card-foreground: #1E293B;
   --popover: #ffffff;
-  --popover-foreground: #1d1d1f;
-  --primary: #007aff;
+  --popover-foreground: #1E293B;
+  /* Navy Blue - Primary actions */
+  --primary: #1E3A5F;
   --primary-foreground: #ffffff;
-  --secondary: #8e8e93;
+  /* Gold/Amber - Premium accent (Admin) */
+  --secondary: #C9A861;
   --secondary-foreground: #ffffff;
-  --muted: #f5f5f7;
-  --muted-foreground: #8e8e93;
-  --accent: #e5e5ea;
-  --accent-foreground: #1d1d1f;
-  --destructive: #ff3b30;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  /* Light accent for hover states */
+  --accent: #E8EDF4;
+  --accent-foreground: #1E3A5F;
+  /* Destructive red */
+  --destructive: #EF4444;
   --destructive-foreground: #ffffff;
-  --border: #d1d1d6;
-  --input: #d1d1d6;
-  --ring: #007aff;
-  --success: #34c759;
-  --chart-1: #007aff;
-  --chart-2: #5856d6;
-  --chart-3: #ff9500;
-  --chart-4: #ff2d55;
-  --chart-5: #34c759;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #1E3A5F;
+  /* Success green */
+  --success: #10B981;
+  --success-foreground: #ffffff;
+  /* Warning amber */
+  --warning: #F59E0B;
+  --warning-foreground: #ffffff;
+  /* Chart colors - MyCredit palette */
+  --chart-1: #1E3A5F;
+  --chart-2: #C9A861;
+  --chart-3: #10B981;
+  --chart-4: #6366F1;
+  --chart-5: #EC4899;
+  /* Sidebar */
   --sidebar: #ffffff;
-  --sidebar-foreground: #1d1d1f;
-  --sidebar-primary: #007aff;
+  --sidebar-foreground: #1E293B;
+  --sidebar-primary: #1E3A5F;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f5f7;
-  --sidebar-accent-foreground: #1d1d1f;
-  --sidebar-border: #d1d1d6;
-  --sidebar-ring: #007aff;
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #1E293B;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #1E3A5F;
   --color-background: var(--background);
   --color-text: var(--foreground);
 }
 
 .dark {
-  --background: #111827;
-  --foreground: #f6f7f9;
-  --card: #1f2937;
-  --card-foreground: #f6f7f9;
-  --popover: #1f2937;
-  --popover-foreground: #f6f7f9;
-  --primary: #887cfd;
+  /* MyCredit Design System - Dark Mode */
+  --background: #0F172A;
+  --foreground: #F1F5F9;
+  --card: #1E293B;
+  --card-foreground: #F1F5F9;
+  --popover: #1E293B;
+  --popover-foreground: #F1F5F9;
+  /* Navy Blue lighter for dark mode */
+  --primary: #3B82F6;
   --primary-foreground: #ffffff;
-  --secondary: #4896fe;
-  --secondary-foreground: #ffffff;
-  --muted: #374151;
-  --muted-foreground: #9ca3af;
-  --accent: #16cbc7;
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
+  /* Gold/Amber - Premium accent */
+  --secondary: #D4AF37;
+  --secondary-foreground: #1E293B;
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  --accent: #334155;
+  --accent-foreground: #F1F5F9;
+  --destructive: #F87171;
   --destructive-foreground: #ffffff;
-  --border: #374151;
-  --input: #374151;
-  --ring: #887cfd;
-  --success: #16a34a;
+  --border: #334155;
+  --input: #334155;
+  --ring: #3B82F6;
+  --success: #34D399;
+  --success-foreground: #ffffff;
+  --warning: #FBBF24;
+  --warning-foreground: #1E293B;
   --color-background: var(--background);
   --color-text: var(--foreground);
 }
@@ -166,27 +188,97 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
-  
+
   /* Fonte Montserrat para títulos - suporta maiúsculas e minúsculas */
   .font-title {
     font-family: var(--font-title), var(--font-geist-sans), sans-serif;
   }
-  
+
   /* Aplicar Montserrat em títulos principais */
   h1 {
     font-family: var(--font-title), var(--font-geist-sans), sans-serif;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
-  
+
   h2 {
     font-family: var(--font-title), var(--font-geist-sans), sans-serif;
     font-weight: 600;
     letter-spacing: -0.01em;
   }
-  
+
   h3 {
     font-family: var(--font-title), var(--font-geist-sans), sans-serif;
     font-weight: 500;
   }
+}
+
+/* Glassmorphism Effects */
+.glass-sidebar {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass-sidebar {
+  background: rgba(15, 23, 42, 0.7);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+:root .glass-sidebar {
+  background: rgba(255, 255, 255, 0.85);
+  border-right: 1px solid rgba(30, 58, 95, 0.1);
+}
+
+/* Sidebar nav link active state */
+.sidebar-nav-link {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.sidebar-nav-link.active {
+  background: linear-gradient(135deg, var(--primary) 0%, rgba(30, 58, 95, 0.9) 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(30, 58, 95, 0.3);
+}
+
+.sidebar-nav-link.admin-active {
+  background: linear-gradient(135deg, var(--secondary) 0%, rgba(201, 168, 97, 0.9) 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(201, 168, 97, 0.3);
+}
+
+.sidebar-nav-link:not(.active):not(.admin-active):hover {
+  background: rgba(30, 58, 95, 0.08);
+}
+
+.dark .sidebar-nav-link:not(.active):not(.admin-active):hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Decorative shapes for glassmorphism background */
+.glass-shape {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.glass-shape-1 {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, rgba(30, 58, 95, 0.4) 0%, rgba(59, 130, 246, 0.3) 100%);
+  top: -100px;
+  left: -100px;
+}
+
+.glass-shape-2 {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, rgba(201, 168, 97, 0.3) 0%, rgba(212, 175, 55, 0.2) 100%);
+  bottom: -50px;
+  left: 100px;
 }

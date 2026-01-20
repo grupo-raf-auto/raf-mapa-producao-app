@@ -1,15 +1,20 @@
-import { getAuthHeadersServer } from './auth';
+import { headers } from 'next/headers';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const APP_URL = process.env.NEXTAUTH_URL || process.env.CLIENT_URL || 'http://localhost:3004';
 
 // Helper para fazer requisições autenticadas em Server Components
-async function fetchWithAuth(url: string, options: RequestInit = {}) {
+// Usa o proxy /api/proxy e reenvia o Cookie para o Better Auth obter a sessão
+async function fetchWithAuth(path: string, options: RequestInit = {}) {
   try {
-    const headers = await getAuthHeadersServer();
+    const h = await headers();
+    const cookie = h.get('cookie') || '';
+    const url = `${APP_URL}/api/proxy/${path}`;
     const res = await fetch(url, {
       ...options,
+      cache: 'no-store',
       headers: {
-        ...headers,
+        'Content-Type': 'application/json',
+        Cookie: cookie,
         ...options.headers,
       },
     });
@@ -75,152 +80,59 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 export const api = {
   questions: {
     getAll: async (params?: { status?: string; search?: string }) => {
-      const queryParams = new URLSearchParams();
-      if (params?.status) queryParams.append('status', params.status);
-      if (params?.search) queryParams.append('search', params.search);
-
-      const url = `${API_URL}/api/questions${queryParams.toString() ? `?${queryParams}` : ''}`;
-      return fetchWithAuth(url);
+      const q = new URLSearchParams();
+      if (params?.status) q.append('status', params.status);
+      if (params?.search) q.append('search', params.search);
+      const path = `questions${q.toString() ? `?${q}` : ''}`;
+      return fetchWithAuth(path);
     },
-    getById: async (id: string) => {
-      return fetchWithAuth(`${API_URL}/api/questions/${id}`);
-    },
-    create: async (data: any) => {
-      return fetchWithAuth(`${API_URL}/api/questions`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-    },
-    update: async (id: string, data: any) => {
-      return fetchWithAuth(`${API_URL}/api/questions/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      });
-    },
-    delete: async (id: string) => {
-      return fetchWithAuth(`${API_URL}/api/questions/${id}`, {
-        method: 'DELETE',
-      });
-    },
+    getById: async (id: string) => fetchWithAuth(`questions/${id}`),
+    create: async (data: any) => fetchWithAuth('questions', { method: 'POST', body: JSON.stringify(data) }),
+    update: async (id: string, data: any) => fetchWithAuth(`questions/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: async (id: string) => fetchWithAuth(`questions/${id}`, { method: 'DELETE' }),
   },
   categories: {
-    getAll: async () => {
-      return fetchWithAuth(`${API_URL}/api/categories`);
-    },
-    getById: async (id: string) => {
-      return fetchWithAuth(`${API_URL}/api/categories/${id}`);
-    },
-    create: async (data: any) => {
-      return fetchWithAuth(`${API_URL}/api/categories`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-    },
-    update: async (id: string, data: any) => {
-      return fetchWithAuth(`${API_URL}/api/categories/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      });
-    },
-    delete: async (id: string) => {
-      return fetchWithAuth(`${API_URL}/api/categories/${id}`, {
-        method: 'DELETE',
-      });
-    },
+    getAll: async () => fetchWithAuth('categories'),
+    getById: async (id: string) => fetchWithAuth(`categories/${id}`),
+    create: async (data: any) => fetchWithAuth('categories', { method: 'POST', body: JSON.stringify(data) }),
+    update: async (id: string, data: any) => fetchWithAuth(`categories/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: async (id: string) => fetchWithAuth(`categories/${id}`, { method: 'DELETE' }),
   },
   templates: {
-    getAll: async () => {
-      return fetchWithAuth(`${API_URL}/api/templates`);
-    },
-    getById: async (id: string) => {
-      return fetchWithAuth(`${API_URL}/api/templates/${id}`);
-    },
-    create: async (data: any) => {
-      return fetchWithAuth(`${API_URL}/api/templates`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-    },
-    update: async (id: string, data: any) => {
-      return fetchWithAuth(`${API_URL}/api/templates/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      });
-    },
-    delete: async (id: string) => {
-      return fetchWithAuth(`${API_URL}/api/templates/${id}`, {
-        method: 'DELETE',
-      });
-    },
+    getAll: async () => fetchWithAuth('templates'),
+    getById: async (id: string) => fetchWithAuth(`templates/${id}`),
+    create: async (data: any) => fetchWithAuth('templates', { method: 'POST', body: JSON.stringify(data) }),
+    update: async (id: string, data: any) => fetchWithAuth(`templates/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: async (id: string) => fetchWithAuth(`templates/${id}`, { method: 'DELETE' }),
   },
   submissions: {
     getAll: async (params?: { templateId?: string }) => {
-      const queryParams = new URLSearchParams();
-      if (params?.templateId) queryParams.append('templateId', params.templateId);
-
-      const url = `${API_URL}/api/submissions${queryParams.toString() ? `?${queryParams}` : ''}`;
-      return fetchWithAuth(url);
+      const q = new URLSearchParams();
+      if (params?.templateId) q.append('templateId', params.templateId);
+      return fetchWithAuth(`submissions${q.toString() ? `?${q}` : ''}`);
     },
-    getById: async (id: string) => {
-      return fetchWithAuth(`${API_URL}/api/submissions/${id}`);
-    },
-    create: async (data: { templateId: string; answers: { questionId: string; answer: string }[] }) => {
-      return fetchWithAuth(`${API_URL}/api/submissions`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-    },
-    delete: async (id: string) => {
-      return fetchWithAuth(`${API_URL}/api/submissions/${id}`, {
-        method: 'DELETE',
-      });
-    },
+    getById: async (id: string) => fetchWithAuth(`submissions/${id}`),
+    create: async (data: { templateId: string; answers: { questionId: string; answer: string }[] }) =>
+      fetchWithAuth('submissions', { method: 'POST', body: JSON.stringify(data) }),
+    delete: async (id: string) => fetchWithAuth(`submissions/${id}`, { method: 'DELETE' }),
     getStats: async (params?: { templateId?: string; detailed?: boolean }) => {
-      const queryParams = new URLSearchParams();
-      if (params?.templateId) queryParams.append('templateId', params.templateId);
-      if (params?.detailed) queryParams.append('detailed', 'true');
-
-      const url = `${API_URL}/api/submissions/stats${queryParams.toString() ? `?${queryParams}` : ''}`;
-      return fetchWithAuth(url);
+      const q = new URLSearchParams();
+      if (params?.templateId) q.append('templateId', params.templateId);
+      if (params?.detailed) q.append('detailed', 'true');
+      return fetchWithAuth(`submissions/stats${q.toString() ? `?${q}` : ''}`);
     },
   },
   users: {
-    getAll: async () => {
-      return fetchWithAuth(`${API_URL}/api/users`);
-    },
-    getById: async (id: string) => {
-      return fetchWithAuth(`${API_URL}/api/users/${id}`);
-    },
-    getCurrent: async () => {
-      return fetchWithAuth(`${API_URL}/api/users/me`);
-    },
-    create: async (data: any) => {
-      return fetchWithAuth(`${API_URL}/api/users`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-    },
-    update: async (id: string, data: any) => {
-      return fetchWithAuth(`${API_URL}/api/users/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      });
-    },
-    delete: async (id: string) => {
-      return fetchWithAuth(`${API_URL}/api/users/${id}`, {
-        method: 'DELETE',
-      });
-    },
+    getAll: async () => fetchWithAuth('users'),
+    getById: async (id: string) => fetchWithAuth(`users/${id}`),
+    getCurrent: async () => fetchWithAuth('users/me'),
+    create: async (data: any) => fetchWithAuth('users', { method: 'POST', body: JSON.stringify(data) }),
+    update: async (id: string, data: any) => fetchWithAuth(`users/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: async (id: string) => fetchWithAuth(`users/${id}`, { method: 'DELETE' }),
   },
   chat: {
-    sendMessage: async (message: string, conversationId?: string) => {
-      return fetchWithAuth(`${API_URL}/api/chat/message`, {
-        method: 'POST',
-        body: JSON.stringify({ message, conversationId }),
-      });
-    },
-    getConversation: async (conversationId: string) => {
-      return fetchWithAuth(`${API_URL}/api/chat/conversation/${conversationId}`);
-    },
+    sendMessage: async (message: string, conversationId?: string) =>
+      fetchWithAuth('chat/message', { method: 'POST', body: JSON.stringify({ message, conversationId }) }),
+    getConversation: async (conversationId: string) => fetchWithAuth(`chat/conversation/${conversationId}`),
   },
 };

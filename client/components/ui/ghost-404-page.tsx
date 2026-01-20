@@ -106,7 +106,7 @@ export function NotFound() {
       <AnimatePresence mode="wait">
         <motion.div 
           className="text-center"
-          variants={containerVariants}
+          variants={containerVariants as any}
           initial="hidden"
           animate="visible"
           exit="hidden"
@@ -114,13 +114,13 @@ export function NotFound() {
           <div className="flex items-center justify-center gap-4 md:gap-6 mb-8 md:mb-12">
             <motion.span 
               className="text-[80px] md:text-[120px] font-bold text-foreground opacity-70 select-none"
-              variants={numberVariants}
+              variants={numberVariants as any}
               custom={-1}
             >
               4
             </motion.span>
             <motion.div
-              variants={ghostVariants}
+              variants={ghostVariants as any}
               whileHover="hover"
               animate={["visible", "floating"]}
             >
@@ -136,7 +136,7 @@ export function NotFound() {
             </motion.div>
             <motion.span 
               className="text-[80px] md:text-[120px] font-bold text-foreground opacity-70 select-none"
-              variants={numberVariants}
+              variants={numberVariants as any}
               custom={1}
             >
               4
@@ -145,20 +145,20 @@ export function NotFound() {
           
           <motion.h1 
             className="text-3xl md:text-5xl font-bold text-foreground mb-4 md:mb-6 opacity-70 select-none"
-            variants={itemVariants}
+            variants={itemVariants as any}
           >
             Boo! Página não encontrada!
           </motion.h1>
           
           <motion.p 
             className="text-lg md:text-xl text-foreground mb-8 md:mb-12 opacity-50 select-none"
-            variants={itemVariants}
+            variants={itemVariants as any}
           >
             Oops! Esta página deve ser um fantasma - ela não está aqui!
           </motion.p>
 
           <motion.div 
-            variants={itemVariants}
+            variants={itemVariants as any}
             whileHover={{ 
               scale: 1.05,
               transition: {
@@ -177,7 +177,7 @@ export function NotFound() {
 
           <motion.div 
             className="mt-12"
-            variants={itemVariants}
+            variants={itemVariants as any}
           >
             <Link
               href="#"

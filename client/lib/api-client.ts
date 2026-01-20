@@ -3,12 +3,55 @@
 
 const API_PROXY = '/api/proxy';
 
+// Simple in-memory cache with TTL
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 30000; // 30 seconds
+
+function getCacheKey(path: string, options?: RequestInit): string {
+  return `${path}-${JSON.stringify(options?.body || '')}`;
+}
+
+function getCachedData(key: string): any | null {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  if (cached) {
+    cache.delete(key);
+  }
+  return null;
+}
+
+function setCachedData(key: string, data: any): void {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
+function invalidateCache(pathPrefix: string): void {
+  for (const key of cache.keys()) {
+    if (key.startsWith(pathPrefix)) {
+      cache.delete(key);
+    }
+  }
+}
+
 // Helper para fazer requisições autenticadas em Client Components
 // Usa a API route proxy que adiciona o token automaticamente
 async function fetchWithAuth(path: string, options: RequestInit = {}) {
+  const method = options.method || 'GET';
+  const cacheKey = getCacheKey(path, options);
+
+  // Use cache for GET requests
+  if (method === 'GET') {
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+  }
+
   const url = `${API_PROXY}/${path}`;
   const res = await fetch(url, {
     ...options,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -52,9 +95,10 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
   const contentType = res.headers.get('content-type');
   const isJson = contentType?.includes('application/json');
   
+  let result;
   if (isJson) {
     try {
-      return await res.json();
+      result = await res.json();
     } catch (parseError) {
       // Se falhar ao fazer parse, tentar ler como texto
       const text = await res.text();
@@ -62,8 +106,15 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
     }
   } else {
     // Se não for JSON, retornar como texto
-    return await res.text();
+    result = await res.text();
   }
+
+  // Cache successful GET responses
+  if (method === 'GET') {
+    setCachedData(cacheKey, result);
+  }
+
+  return result;
 }
 
 export const apiClient = {
@@ -80,21 +131,27 @@ export const apiClient = {
       return fetchWithAuth(`questions/${id}`);
     },
     create: async (data: any) => {
-      return fetchWithAuth('questions', {
+      const result = await fetchWithAuth('questions', {
         method: 'POST',
         body: JSON.stringify(data),
       });
+      invalidateCache('questions');
+      return result;
     },
     update: async (id: string, data: any) => {
-      return fetchWithAuth(`questions/${id}`, {
+      const result = await fetchWithAuth(`questions/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       });
+      invalidateCache('questions');
+      return result;
     },
     delete: async (id: string) => {
-      return fetchWithAuth(`questions/${id}`, {
+      const result = await fetchWithAuth(`questions/${id}`, {
         method: 'DELETE',
       });
+      invalidateCache('questions');
+      return result;
     },
   },
   categories: {
@@ -105,21 +162,27 @@ export const apiClient = {
       return fetchWithAuth(`categories/${id}`);
     },
     create: async (data: any) => {
-      return fetchWithAuth('categories', {
+      const result = await fetchWithAuth('categories', {
         method: 'POST',
         body: JSON.stringify(data),
       });
+      invalidateCache('categories');
+      return result;
     },
     update: async (id: string, data: any) => {
-      return fetchWithAuth(`categories/${id}`, {
+      const result = await fetchWithAuth(`categories/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       });
+      invalidateCache('categories');
+      return result;
     },
     delete: async (id: string) => {
-      return fetchWithAuth(`categories/${id}`, {
+      const result = await fetchWithAuth(`categories/${id}`, {
         method: 'DELETE',
       });
+      invalidateCache('categories');
+      return result;
     },
   },
   templates: {
@@ -130,21 +193,27 @@ export const apiClient = {
       return fetchWithAuth(`templates/${id}`);
     },
     create: async (data: any) => {
-      return fetchWithAuth('templates', {
+      const result = await fetchWithAuth('templates', {
         method: 'POST',
         body: JSON.stringify(data),
       });
+      invalidateCache('templates');
+      return result;
     },
     update: async (id: string, data: any) => {
-      return fetchWithAuth(`templates/${id}`, {
+      const result = await fetchWithAuth(`templates/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       });
+      invalidateCache('templates');
+      return result;
     },
     delete: async (id: string) => {
-      return fetchWithAuth(`templates/${id}`, {
+      const result = await fetchWithAuth(`templates/${id}`, {
         method: 'DELETE',
       });
+      invalidateCache('templates');
+      return result;
     },
   },
   submissions: {
@@ -159,21 +228,27 @@ export const apiClient = {
       return fetchWithAuth(`submissions/${id}`);
     },
     create: async (data: { templateId: string; answers: { questionId: string; answer: string }[] }) => {
-      return fetchWithAuth('submissions', {
+      const result = await fetchWithAuth('submissions', {
         method: 'POST',
         body: JSON.stringify(data),
       });
+      invalidateCache('submissions');
+      return result;
     },
     update: async (id: string, data: { answers: { questionId: string; answer: string }[] }) => {
-      return fetchWithAuth(`submissions/${id}`, {
+      const result = await fetchWithAuth(`submissions/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       });
+      invalidateCache('submissions');
+      return result;
     },
     delete: async (id: string) => {
-      return fetchWithAuth(`submissions/${id}`, {
+      const result = await fetchWithAuth(`submissions/${id}`, {
         method: 'DELETE',
       });
+      invalidateCache('submissions');
+      return result;
     },
     getStats: async (params?: { templateId?: string }) => {
       const queryParams = new URLSearchParams();
@@ -197,21 +272,27 @@ export const apiClient = {
       return fetchWithAuth('users/me');
     },
     create: async (data: any) => {
-      return fetchWithAuth('users', {
+      const result = await fetchWithAuth('users', {
         method: 'POST',
         body: JSON.stringify(data),
       });
+      invalidateCache('users');
+      return result;
     },
     update: async (id: string, data: any) => {
-      return fetchWithAuth(`users/${id}`, {
+      const result = await fetchWithAuth(`users/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       });
+      invalidateCache('users');
+      return result;
     },
     delete: async (id: string) => {
-      return fetchWithAuth(`users/${id}`, {
+      const result = await fetchWithAuth(`users/${id}`, {
         method: 'DELETE',
       });
+      invalidateCache('users');
+      return result;
     },
   },
   chat: {
@@ -223,6 +304,38 @@ export const apiClient = {
     },
     getConversation: async (conversationId: string) => {
       return fetchWithAuth(`chat/conversation/${conversationId}`);
+    },
+  },
+  documents: {
+    upload: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/documents/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Erro ao fazer upload');
+      }
+
+      return res.json();
+    },
+    getAll: async () => {
+      return fetchWithAuth('documents');
+    },
+    getById: async (id: string) => {
+      return fetchWithAuth(`documents/${id}`);
+    },
+    delete: async (id: string) => {
+      const result = await fetchWithAuth(`documents/${id}`, {
+        method: 'DELETE',
+      });
+      invalidateCache('documents');
+      return result;
     },
   },
 };

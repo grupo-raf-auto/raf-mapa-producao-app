@@ -82,13 +82,13 @@ interface Submission {
   submittedAt: Date | string;
   submittedBy: string;
   valorQuestionId?: string;
-  valorAnswer?: string;
+  valorAnswer?: string | null;
   nomeClienteQuestionId?: string;
-  nomeClienteAnswer?: string;
+  nomeClienteAnswer?: string | null;
   bancoQuestionId?: string;
-  bancoAnswer?: string;
+  bancoAnswer?: string | null;
   seguradoraQuestionId?: string;
-  seguradoraAnswer?: string;
+  seguradoraAnswer?: string | null;
 }
 
 interface ConsultasDataTableProps {
@@ -328,7 +328,6 @@ export function ConsultasDataTable({
             {row.getValue('templateTitle') || 'Template não encontrado'}
           </div>
         ),
-        size: 250,
       },
       {
         header: 'Nome do Cliente',
@@ -337,7 +336,6 @@ export function ConsultasDataTable({
           const value = row.getValue('nomeClienteAnswer') as string;
           return value || <span className="text-muted-foreground">-</span>;
         },
-        size: 200,
       },
       {
         header: 'Banco',
@@ -346,7 +344,6 @@ export function ConsultasDataTable({
           const value = row.getValue('bancoAnswer') as string;
           return value || <span className="text-muted-foreground">-</span>;
         },
-        size: 150,
       },
       {
         header: 'Seguradora',
@@ -355,7 +352,6 @@ export function ConsultasDataTable({
           const value = row.getValue('seguradoraAnswer') as string;
           return value || <span className="text-muted-foreground">-</span>;
         },
-        size: 150,
       },
       {
         header: 'Valor',
@@ -376,7 +372,6 @@ export function ConsultasDataTable({
           }
           return <span className="text-muted-foreground">-</span>;
         },
-        size: 150,
       },
       {
         header: 'Submetido em',
@@ -387,7 +382,6 @@ export function ConsultasDataTable({
             locale: ptBR,
           });
         },
-        size: 180,
       },
       {
         header: 'Ações',
@@ -417,7 +411,6 @@ export function ConsultasDataTable({
             </div>
           );
         },
-        size: 120,
         enableSorting: false,
       },
     ],
@@ -446,18 +439,17 @@ export function ConsultasDataTable({
   });
 
   return (
-    <div className="space-y-4">
-      <div className="overflow-hidden rounded-lg border border-border bg-background">
-        <Table className="table-fixed">
-          <TableHeader>
+    <div className="space-y-6">
+      <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+              <TableRow key={headerGroup.id} className="hover:bg-transparent border-b border-border/50">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
-                      style={{ width: `${header.getSize()}px` }}
-                      className="h-11"
+                      className="h-12 px-4 text-left align-middle font-semibold text-foreground"
                     >
                       {header.isPlaceholder ? null : header.column.getCanSort() ? (
                         <div
@@ -518,9 +510,10 @@ export function ConsultasDataTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  className="hover:bg-muted/30 transition-colors border-b border-border/50"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="px-4 py-3 align-middle">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -533,7 +526,7 @@ export function ConsultasDataTable({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 text-center text-muted-foreground"
                 >
                   Nenhum formulário encontrado com os filtros aplicados
                 </TableCell>
@@ -544,16 +537,16 @@ export function ConsultasDataTable({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between gap-3 max-sm:flex-col">
+      <div className="flex items-center justify-between gap-4 max-sm:flex-col max-sm:gap-3">
         <p
           className="flex-1 whitespace-nowrap text-sm text-muted-foreground"
           aria-live="polite"
         >
           Página{' '}
-          <span className="text-foreground">
+          <span className="font-medium text-foreground">
             {table.getState().pagination.pageIndex + 1}
           </span>{' '}
-          de <span className="text-foreground">{table.getPageCount()}</span>
+          de <span className="font-medium text-foreground">{table.getPageCount()}</span>
         </p>
 
         <div className="grow">
@@ -627,14 +620,14 @@ export function ConsultasDataTable({
           >
             <SelectTrigger
               id="results-per-page"
-              className="w-fit whitespace-nowrap"
+              className="w-fit whitespace-nowrap bg-background border-border"
             >
               <SelectValue placeholder="Selecionar número de resultados" />
             </SelectTrigger>
             <SelectContent>
               {[5, 10, 25, 50].map((pageSize) => (
                 <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize} / página
+                  {pageSize} por página
                 </SelectItem>
               ))}
             </SelectContent>

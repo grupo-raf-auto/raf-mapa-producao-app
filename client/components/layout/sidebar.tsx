@@ -2,147 +2,163 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, Search, FileStack, Brain } from 'lucide-react';
-import { SidebarBody, SidebarLink, useSidebar } from '@/components/ui/sidebar';
+import {
+  LayoutDashboard,
+  Search,
+  FileStack,
+  Brain,
+  LogOut,
+  Layers,
+} from 'lucide-react';
+import { SidebarBody } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
-import { useUser } from '@clerk/nextjs';
+import { useSession, authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
-const baseNavigation = [
+// Navegação principal - visível para todos
+const mainNavigation = [
   {
     label: 'Dashboard',
     href: '/',
-    icon: (
-      <LayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-6 w-6 shrink-0" />
-    ),
+    icon: LayoutDashboard,
+    description: 'Métricas e visão geral',
   },
   {
     label: 'Consultas',
     href: '/consultas',
-    icon: (
-      <Search className="text-neutral-700 dark:text-neutral-200 h-6 w-6 shrink-0" />
-    ),
+    icon: Search,
+    description: 'Pesquisar dados',
   },
   {
     label: 'Formulários',
     href: '/formularios',
-    icon: (
-      <FileStack className="text-neutral-700 dark:text-neutral-200 h-6 w-6 shrink-0" />
-    ),
+    icon: FileStack,
+    description: 'Gestão de formulários',
   },
   {
     label: 'MySabichão',
     href: '/mysabichao',
-    icon: (
-      <Brain className="text-neutral-700 dark:text-neutral-200 h-6 w-6 shrink-0" />
-    ),
+    icon: Brain,
+    description: 'Assistente IA',
   },
 ];
 
-const Logo = () => {
-  const { open } = useSidebar();
 
-  return (
-    <Link
-      href="/"
-      className="font-normal flex space-x-2 items-start text-sm text-black dark:text-white py-1 relative z-20 w-full"
-    >
-      <div className="ml-3 h-7 w-8 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm shrink-0 mt-0.5" />
-      <div className="font-medium w-[200px] h-14 flex flex-col justify-start">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{
-            opacity: open ? 1 : 0,
-          }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="font-title font-bold leading-tight text-xl"
-          style={{ visibility: open ? 'visible' : 'hidden' }}
-        >
-          <div className="text-black dark:text-white block">
-            Mapa de Produção
-          </div>
-          <div className="text-gray-500 dark:text-gray-400 block">
-            Grupo RAF
-          </div>
-        </motion.div>
-      </div>
-    </Link>
-  );
-};
-
-const LogoIcon = () => {
-  return (
-    <Link
-      href="/"
-      className="font-normal flex space-x-2 items-center text-sm text-black dark:text-white py-1 relative z-20"
-    >
-      <div className="h-7 w-8 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm shrink-0" />
-    </Link>
-  );
-};
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { open } = useSidebar();
-  const { user } = useUser();
+  const { data: session } = useSession();
+  const user = session?.user;
+  const router = useRouter();
+
+  const displayName =
+    user?.name ||
+    (user as { firstName?: string })?.firstName ||
+    user?.email?.split('@')[0] ||
+    'Utilizador';
+  const initial = (displayName as string)?.[0]?.toUpperCase() || 'U';
+  const userEmail = user?.email || '';
+
+  const handleSignOut = async () => {
+    try {
+      await authClient.signOut();
+      toast.success('Sessão terminada com sucesso');
+      router.push('/sign-in');
+    } catch {
+      toast.error('Erro ao terminar sessão');
+    }
+  };
 
   return (
-    <SidebarBody className="justify-between gap-10">
-      <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-        <div
-          className={cn(
-            'mt-4 mb-12 flex items-start',
-            open ? 'justify-start' : 'justify-center'
-          )}
-        >
-          <Logo />
+    <SidebarBody className="glass-sidebar">
+      {/* Decorative glass shapes */}
+      <div className="glass-shape glass-shape-1" />
+      <div className="glass-shape glass-shape-2" />
+
+      <div className="flex flex-col h-full relative z-10">
+        {/* Logo Header */}
+        <div className="h-20 flex items-center px-5 justify-start border-b border-white/10">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="shrink-0 h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/30 transition-all">
+              <Layers className="text-white w-5 h-5" />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-title font-bold text-lg text-primary tracking-tight">
+                MYCREDIT
+              </span>
+              <span className="text-[10px] text-muted-foreground tracking-wider uppercase truncate">
+                Intermediários de Crédito
+              </span>
+            </div>
+          </Link>
         </div>
-        <div className={cn('flex flex-col mt-42', open ? 'gap-4' : 'gap-4')}>
-          {baseNavigation.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <SidebarLink
-                key={item.label}
-                link={item}
-                className={cn(
-                  'rounded-lg py-2.5 flex items-center justify-center md:justify-start group transition-colors hover:bg-neutral-300 dark:hover:bg-neutral-800',
-                  open ? 'px-4' : 'px-4',
-                  isActive && ' text-primary font-medium'
-                )}
-              />
-            );
-          })}
-        </div>
-      </div>
-      <div className="pb-4">
-        {user && (
-          <SidebarLink
-            link={{
-              label:
-                user.firstName ||
-                user.emailAddresses[0]?.emailAddress ||
-                'Usuário',
-              href: '#',
-              icon: (
-                <div
+
+        {/* Navigation */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-6">
+          {/* Main Navigation */}
+          <nav className="space-y-1 px-3">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-3">
+              Menu
+            </p>
+            {mainNavigation.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                pathname === item.href ||
+                (item.href !== '/' && pathname.startsWith(item.href));
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  title={item.description}
                   className={cn(
-                    'h-7 w-7 shrink-0 rounded-full bg-neutral-400 dark:bg-neutral-500 flex items-center justify-center text-white font-semibold text-xs',
-                    !open && 'mx-auto'
+                    'sidebar-nav-link flex items-center gap-3 rounded-xl font-medium px-4 py-3',
+                    isActive
+                      ? 'active text-white'
+                      : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
-                  <span className="leading-none flex items-center justify-center w-full h-full">
-                    {user.firstName?.[0]?.toUpperCase() ||
-                      user.emailAddresses[0]?.emailAddress?.[0]?.toUpperCase() ||
-                      'U'}
+                  <Icon className="shrink-0 h-5 w-5 transition-all" />
+                  <span className="text-sm whitespace-nowrap overflow-hidden">
+                    {item.label}
                   </span>
-                </div>
-              ),
-            }}
-            className={cn(
-              'rounded-lg py-2.5 flex items-center group transition-colors hover:bg-neutral-300 dark:hover:bg-neutral-800',
-              open ? 'justify-start px-3' : 'justify-center px-0'
-            )}
-          />
+                </Link>
+              );
+            })}
+          </nav>
+
+
+        </div>
+
+        {/* User Profile */}
+        {user && (
+          <div className="mt-auto border-t border-white/10 p-4">
+            <div className="flex items-center gap-3">
+              {/* Avatar */}
+              <div className="shrink-0 h-10 w-10 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-semibold shadow-lg shadow-primary/20 text-sm">
+                {initial}
+              </div>
+
+              {/* User Info */}
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm text-foreground truncate">
+                  {displayName}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {userEmail}
+                </p>
+              </div>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleSignOut}
+                className="p-2 hover:bg-destructive/10 hover:text-destructive rounded-lg text-muted-foreground transition-colors"
+                title="Terminar sessão"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </SidebarBody>

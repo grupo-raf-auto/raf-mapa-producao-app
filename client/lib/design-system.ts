@@ -15,15 +15,15 @@ export const colors = {
 
 // Design System Spacing
 export const spacing = {
-  pagePadding: 'px-6 py-6',
-  sectionGap: 'space-y-8',
-  cardPadding: 'p-5',
-  gridGap: 'gap-6',
+  pagePadding: 'px-8 md:px-12 lg:px-16 xl:px-20 py-6',
+  sectionGap: 'space-y-6',
+  cardPadding: 'p-4',
+  gridGap: 'gap-4',
 } as const;
 
 // Design System Radius
 export const radius = {
-  card: 'rounded-xl',
+  card: 'rounded-lg',
   button: 'rounded-lg',
   input: 'rounded-md',
 } as const;

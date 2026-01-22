@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt" suppressHydrationWarning>
-      <body className={`${inter.variable} ${montserrat.variable} antialiased`}>
+      <body className={`${inter.variable} ${montserrat.variable} antialiased`} style={{ backgroundColor: '#F4F8FE' }} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

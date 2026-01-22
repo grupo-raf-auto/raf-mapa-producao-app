@@ -2,19 +2,15 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   LayoutDashboard,
   Search,
   FileStack,
   Brain,
-  LogOut,
-  Layers,
 } from 'lucide-react';
-import { SidebarBody } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import { useSession, authClient } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { useSession } from '@/lib/auth-client';
 
 // Navegação principal - visível para todos
 const mainNavigation = [
@@ -44,13 +40,10 @@ const mainNavigation = [
   },
 ];
 
-
-
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const user = session?.user;
-  const router = useRouter();
 
   const displayName =
     user?.name ||
@@ -60,36 +53,25 @@ export function Sidebar() {
   const initial = (displayName as string)?.[0]?.toUpperCase() || 'U';
   const userEmail = user?.email || '';
 
-  const handleSignOut = async () => {
-    try {
-      await authClient.signOut();
-      toast.success('Sessão terminada com sucesso');
-      router.push('/sign-in');
-    } catch {
-      toast.error('Erro ao terminar sessão');
-    }
-  };
-
   return (
-    <SidebarBody className="glass-sidebar">
+    <div className="w-[260px] flex-shrink-0 glass-sidebar flex flex-col relative overflow-hidden">
       {/* Decorative glass shapes */}
       <div className="glass-shape glass-shape-1" />
       <div className="glass-shape glass-shape-2" />
 
       <div className="flex flex-col h-full relative z-10">
         {/* Logo Header */}
-        <div className="h-20 flex items-center px-5 justify-start border-b border-white/10">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="shrink-0 h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/30 transition-all">
-              <Layers className="text-white w-5 h-5" />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="font-title font-bold text-lg text-primary tracking-tight">
-                MYCREDIT
-              </span>
-              <span className="text-[10px] text-muted-foreground tracking-wider uppercase truncate">
-                Intermediários de Crédito
-              </span>
+        <div className="h-20 flex items-center justify-center border-b border-white/10">
+          <Link href="/" className="flex items-center">
+            <div className="relative h-14 w-auto">
+              <Image
+                src="/logo-mycredit.png"
+                alt="MYCREDIT - Intermediários de Crédito"
+                width={160}
+                height={56}
+                className="h-14 w-auto object-contain"
+                priority
+              />
             </div>
           </Link>
         </div>
@@ -126,8 +108,6 @@ export function Sidebar() {
               );
             })}
           </nav>
-
-
         </div>
 
         {/* User Profile */}
@@ -149,18 +129,10 @@ export function Sidebar() {
                 </p>
               </div>
 
-              {/* Logout Button */}
-              <button
-                onClick={handleSignOut}
-                className="p-2 hover:bg-destructive/10 hover:text-destructive rounded-lg text-muted-foreground transition-colors"
-                title="Terminar sessão"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
             </div>
           </div>
         )}
       </div>
-    </SidebarBody>
+    </div>
   );
 }

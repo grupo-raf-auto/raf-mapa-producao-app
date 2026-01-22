@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const NetworkPattern = () => (
   <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -106,15 +107,17 @@ const SignInCard = () => {
             <NetworkPattern />
           </div>
           <div className="relative z-10 flex flex-col items-center justify-center w-full p-8">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-blue-700 flex items-center justify-center shadow-lg mb-6">
-              <span className="text-white font-bold text-4xl">M</span>
+            <div className="relative mb-8">
+              <Image
+                src="/logo-mycredit.png"
+                alt="MYCREDIT - Intermediários de Crédito"
+                width={200}
+                height={80}
+                className="h-auto w-auto max-w-[200px] object-contain"
+                priority
+              />
             </div>
-            <div className="text-center">
-              <h2 className="font-title text-2xl font-bold text-primary tracking-tight">MYCREDIT</h2>
-              <p className="text-xs text-muted-foreground tracking-widest uppercase mt-1">Intermediários de Crédito</p>
-              <p className="text-sm text-muted-foreground/80 mt-1">Portinsurance</p>
-            </div>
-            <p className="text-center text-sm text-muted-foreground mt-8 max-w-xs leading-relaxed">
+            <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs leading-relaxed">
               Inicia sessão para aceder ao <span className="text-primary font-medium">MySabi</span><span className="text-secondary font-medium">chão</span>, o teu assistente de IA interno e base de conhecimento da empresa
             </p>
           </div>

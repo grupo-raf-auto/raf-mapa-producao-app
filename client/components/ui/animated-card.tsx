@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 
 interface AnimatedCardProps {
   children: React.ReactNode;
@@ -21,21 +21,13 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
 }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
+        duration: 0.3,
         delay: animationDelay,
       }}
-      whileHover={{
-        y: -4,
-        scale: 1.01,
-        boxShadow: "0 25px 50px -12px rgb(0 0 0 / 0.25), 0 0 0 1px rgb(0 0 0 / 0.1)",
-        transition: { duration: 0.2 },
-      }}
-      className={cn("h-full shadow-[0_8px_16px_-4px_rgb(0_0_0_/_0.15),0_4px_8px_-2px_rgb(0_0_0_/_0.1)] dark:shadow-[0_8px_16px_-4px_rgb(0_0_0_/_0.4),0_4px_8px_-2px_rgb(0_0_0_/_0.3)]", className)}
+      className={cn("h-full", className)}
     >
       {children}
     </motion.div>
@@ -61,17 +53,19 @@ export const AnimatedChartCard: React.FC<AnimatedChartCardProps> = ({
   animationDelay = 0,
 }) => {
   return (
-    <AnimatedCard animationDelay={animationDelay} className={className}>
-      <Card className="h-full transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="text-lg font-medium flex items-center gap-2">
-            {icon}
-            {title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {children}
-        </CardContent>
+    <AnimatedCard animationDelay={animationDelay} className={cn("w-full h-full", className)}>
+      <Card className="h-full">
+        <div className="h-full flex flex-col p-5">
+          <div className="mb-4">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              {icon && <span className="text-muted-foreground">{icon}</span>}
+              {title}
+            </h3>
+          </div>
+          <div className="flex-1 min-h-0">
+            {children}
+          </div>
+        </div>
       </Card>
     </AnimatedCard>
   );

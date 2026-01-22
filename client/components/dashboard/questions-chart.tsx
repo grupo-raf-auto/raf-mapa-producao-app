@@ -9,7 +9,14 @@ import {
   Tooltip,
 } from 'recharts';
 
-const COLORS = ['#5347CE', '#887CFD', '#4896FE', '#16CBC7', '#16A34A'];
+// Paleta simplificada: 1 cor principal + tons neutros
+const COLORS = [
+  '#5347CE', // Primary
+  '#4896FE', // Secondary
+  '#10B981', // Success
+  '#F59E0B', // Warning
+  '#E5E7EB', // Muted
+];
 
 const data = [
   { name: 'Finance', value: 35 },
@@ -26,24 +33,18 @@ export function QuestionsChart() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-baseline justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">Total de Questões</p>
-          <p className="text-2xl font-bold text-foreground">
-            {total}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground">Top Categoria</p>
-          <p className="text-sm font-medium text-foreground">
-            {topCategory.name}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {topPercentage}%
-          </p>
-        </div>
+      {/* KPI Principal */}
+      <div className="text-center">
+        <p className="text-xs text-muted-foreground mb-1">Total de Questões</p>
+        <p className="text-3xl font-semibold text-foreground tracking-tight">
+          {total}
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {topCategory.name} ({topPercentage}%)
+        </p>
       </div>
 
+      {/* Pie Chart Simplificado */}
       <ResponsiveContainer width="100%" height={200}>
         <PieChart>
           <Pie
@@ -59,8 +60,19 @@ export function QuestionsChart() {
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip />
-          <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="square" />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #E5E7EB',
+              borderRadius: '6px',
+              fontSize: '12px',
+              padding: '8px 12px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+            }}
+            formatter={(value, name) => {
+              return [`${value}`, name];
+            }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

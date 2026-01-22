@@ -13,15 +13,13 @@ interface TopBancosPieChartProps {
   data: { name: string; count: number; totalValue: number }[];
 }
 
+// Paleta simplificada: 1 cor principal + tons neutros
 const COLORS = [
-  '#5347CE',
-  '#887CFD',
-  '#4896FE',
-  '#16CBC7',
-  '#16A34A',
-  '#F59E0B',
-  '#EF4444',
-  '#8B5CF6',
+  '#5347CE', // Primary
+  '#4896FE', // Secondary
+  '#10B981', // Success
+  '#F59E0B', // Warning
+  '#E5E7EB', // Muted
 ];
 
 export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
@@ -34,7 +32,7 @@ export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
 
   if (topBancos.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+      <div className="flex items-center justify-center h-[220px] text-muted-foreground">
         Sem dados disponíveis
       </div>
     );
@@ -44,52 +42,56 @@ export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
   const topBanco = topBancos[0];
   const topPercentage = Math.round((topBanco.value / totalValue) * 100);
 
+  const totalVisits = topBancos.reduce((sum, item) => sum + item.count, 0);
+
   return (
     <div className="space-y-4">
-      <div className="flex items-baseline justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">Distribuição Top 8</p>
-          <p className="text-2xl font-bold text-foreground">
-            {totalValue.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground">Top Banco</p>
-          <p className="text-sm font-medium text-foreground">
-            {topBanco.name}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {topPercentage}%
-          </p>
-        </div>
+      {/* KPI Principal */}
+      <div className="text-center">
+        <p className="text-xs text-muted-foreground mb-1">Total de Vendas</p>
+        <p className="text-3xl font-semibold text-foreground tracking-tight">
+          {totalVisits.toLocaleString('pt-PT')}
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {topBancos.length} bancos
+        </p>
       </div>
 
-      <ResponsiveContainer width="100%" height={200}>
-        <PieChart>
-          <Pie
-            data={topBancos}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            outerRadius={70}
-            fill="#8884d8"
-            dataKey="value"
-          >
-            {topBancos.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip
-            formatter={(value, _name, props: unknown) => {
-              const v = value != null ? Number(value) : 0;
-              const p = props as { payload?: { count?: number } };
-              const count = p?.payload?.count ?? 0;
-              return [`${v.toLocaleString('pt-PT')} € (${count} vendas)`, 'Valor Total'];
-            }}
-          />
-          <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="square" />
-        </PieChart>
-      </ResponsiveContainer>
+      {/* Donut Chart Simplificado */}
+      <div className="flex flex-col items-center justify-center">
+        <ResponsiveContainer width="100%" height={200}>
+          <PieChart>
+            <Pie
+              data={topBancos.slice(0, 5)}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              innerRadius={50}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {topBancos.slice(0, 5).map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip
+              contentStyle={{
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E5E7EB',
+                borderRadius: '6px',
+                fontSize: '12px',
+                padding: '8px 12px',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              }}
+              formatter={(value) => {
+                const v = value != null ? Number(value) : 0;
+                return `${v.toLocaleString('pt-PT')} €`;
+              }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

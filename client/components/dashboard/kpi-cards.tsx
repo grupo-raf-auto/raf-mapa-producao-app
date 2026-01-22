@@ -5,14 +5,21 @@ import {
   TrendingUp,
   Euro,
   BarChart3,
+  Users,
+  ShoppingCart,
 } from 'lucide-react';
-import { DashboardMetricCard } from '@/components/ui/dashboard-metric-card';
+import { DashboardMetricCard, SparklineType, ColorVariant } from '@/components/ui/dashboard-metric-card';
 
 interface KPICardData {
   title: string;
   value: string | number;
-  iconName: 'TrendingUp' | 'Euro' | 'BarChart3' | 'FileStack';
-  description: string;
+  iconName: 'TrendingUp' | 'Euro' | 'BarChart3' | 'FileStack' | 'Users' | 'ShoppingCart';
+  description?: string;
+  trendChange?: string;
+  trendType?: 'up' | 'down' | 'neutral';
+  sparklineType?: SparklineType;
+  sparklineData?: number[];
+  colorVariant?: ColorVariant;
 }
 
 interface KPICardsProps {
@@ -24,13 +31,28 @@ const iconMap = {
   Euro,
   BarChart3,
   FileStack,
+  Users,
+  ShoppingCart,
+};
+
+// Color variants for each card position
+const colorVariants: ColorVariant[] = ['blue', 'teal', 'green', 'red'];
+
+// Default sparkline data for each card type
+const defaultSparklineData: Record<string, number[]> = {
+  'Total Revenue': [30, 45, 35, 50, 40, 55, 45, 60, 50, 65],
+  'Today\'s Sale': [20, 35, 25, 40, 30, 45, 35, 50, 40, 55],
+  'default': [25, 40, 30, 45, 35, 50, 40, 55, 45, 60],
 };
 
 export function KPICards({ cards }: KPICardsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {cards.map((kpi, index) => {
         const IconComponent = iconMap[kpi.iconName];
+        const colorVariant = kpi.colorVariant || colorVariants[index % colorVariants.length];
+        const sparklineData = kpi.sparklineData || defaultSparklineData[kpi.title] || defaultSparklineData['default'];
+
         return (
           <DashboardMetricCard
             key={kpi.title}
@@ -38,7 +60,12 @@ export function KPICards({ cards }: KPICardsProps) {
             value={kpi.value}
             icon={IconComponent}
             description={kpi.description}
-            animationDelay={index * 0.1}
+            trendChange={kpi.trendChange}
+            trendType={kpi.trendType}
+            animationDelay={index * 0.08}
+            sparklineType={kpi.sparklineType || 'bars'}
+            sparklineData={sparklineData}
+            colorVariant={colorVariant}
           />
         );
       })}

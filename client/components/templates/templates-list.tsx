@@ -107,7 +107,7 @@ export function TemplatesList() {
   if (loading) {
     return (
       <Card className="shadow-sm">
-        <CardContent className="py-12 text-center flex flex-col items-center gap-4">
+          <CardContent className="py-8 text-center flex flex-col items-center gap-3">
           <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
           <p className="text-muted-foreground">Carregando templates...</p>
         </CardContent>
@@ -149,10 +149,10 @@ export function TemplatesList() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {templates.length === 0 ? (
         <Card className="shadow-sm">
-          <CardContent className="py-12 text-center">
+          <CardContent className="py-8 text-center">
             <FileStack className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">
               Nenhum template criado ainda
@@ -163,7 +163,7 @@ export function TemplatesList() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((template) => (
             <Card
               key={template._id}

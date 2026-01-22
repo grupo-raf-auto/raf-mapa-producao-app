@@ -15,20 +15,20 @@ const categoryData = [
 
 export function AnalyticsContent() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold text-foreground">
+        <h1 className="text-3xl font-bold text-foreground">
           Analytics
         </h1>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-sm text-muted-foreground mt-1.5">
           Análise detalhada dos dados do sistema
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Distribuição por Categoria</CardTitle>
+            <CardTitle className="text-base font-medium">Distribuição por Categoria</CardTitle>
           </CardHeader>
           <CardContent>
             <QuestionsChart />
@@ -37,7 +37,7 @@ export function AnalyticsContent() {
 
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Atividade Mensal</CardTitle>
+            <CardTitle className="text-base font-medium">Atividade Mensal</CardTitle>
           </CardHeader>
           <CardContent>
             <ActivityChart />
@@ -47,7 +47,7 @@ export function AnalyticsContent() {
 
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="text-lg font-medium">Questões por Categoria (Barras)</CardTitle>
+          <CardTitle className="text-base font-medium">Questões por Categoria (Barras)</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>

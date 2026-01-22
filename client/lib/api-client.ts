@@ -34,6 +34,20 @@ function invalidateCache(pathPrefix: string): void {
   }
 }
 
+// Helper para verificar se o erro indica que o usuário não foi encontrado ou não está autenticado
+function isUnauthorizedError(errorMessage: string, status: number): boolean {
+  const lowerMessage = errorMessage.toLowerCase();
+  return (
+    status === 401 ||
+    status === 403 ||
+    lowerMessage.includes('unauthorized') ||
+    lowerMessage.includes('no user session') ||
+    lowerMessage.includes('user not found') ||
+    lowerMessage.includes('not authenticated') ||
+    lowerMessage.includes('invalid token')
+  );
+}
+
 // Helper para fazer requisições autenticadas em Client Components
 // Usa a API route proxy que adiciona o token automaticamente
 async function fetchWithAuth(path: string, options: RequestInit = {}) {
@@ -86,6 +100,15 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
         ? `Muitas requisições. Tente novamente em ${retryAfter} segundos.`
         : 'Muitas requisições. Por favor, aguarde um momento e tente novamente.';
       throw new Error(retryMessage);
+    }
+    
+    // Se o erro indicar que o usuário não foi encontrado ou não está autenticado, redirecionar para login
+    if (isUnauthorizedError(errorMessage, res.status)) {
+      // Limpar cache antes de redirecionar
+      cache.clear();
+      window.location.href = '/sign-in';
+      // Lançar erro para interromper a execução
+      throw new Error('Redirecting to login');
     }
     
     throw new Error(errorMessage);

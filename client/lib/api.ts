@@ -1,6 +1,21 @@
 import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 const APP_URL = process.env.NEXTAUTH_URL || process.env.CLIENT_URL || 'http://localhost:3004';
+
+// Helper para verificar se o erro indica que o usuário não foi encontrado ou não está autenticado
+function isUnauthorizedError(errorMessage: string, status: number): boolean {
+  const lowerMessage = errorMessage.toLowerCase();
+  return (
+    status === 401 ||
+    status === 403 ||
+    lowerMessage.includes('unauthorized') ||
+    lowerMessage.includes('no user session') ||
+    lowerMessage.includes('user not found') ||
+    lowerMessage.includes('not authenticated') ||
+    lowerMessage.includes('invalid token')
+  );
+}
 
 // Helper para fazer requisições autenticadas em Server Components
 // Usa o proxy /api/proxy e reenvia o Cookie para o Better Auth obter a sessão
@@ -47,6 +62,11 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
           ? `Muitas requisições. Tente novamente em ${retryAfter} segundos.`
           : 'Muitas requisições. Por favor, aguarde um momento e tente novamente.';
         throw new Error(retryMessage);
+      }
+      
+      // Se o erro indicar que o usuário não foi encontrado ou não está autenticado, redirecionar para login
+      if (isUnauthorizedError(errorMessage, res.status)) {
+        redirect('/sign-in');
       }
       
       throw new Error(errorMessage);

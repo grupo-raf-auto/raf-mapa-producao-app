@@ -27,43 +27,58 @@ export function ActivityChart() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-baseline justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">Atividade Atual</p>
-          <p className="text-2xl font-bold text-foreground">
-            {current.value}
+      {/* KPI Principal */}
+      <div>
+        <p className="text-xs text-muted-foreground mb-1">Atividade Atual</p>
+        <p className="text-3xl font-semibold text-foreground tracking-tight">
+          {current.value}
+        </p>
+        <div className="flex items-center gap-2 mt-1.5">
+          <p className={`text-xs font-medium ${parseFloat(change) >= 0 ? 'text-success' : 'text-destructive'}`}>
+            {parseFloat(change) >= 0 ? '↑' : '↓'} {Math.abs(parseFloat(change))}%
           </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Média: {avgValue}
-          </p>
-        </div>
-        <div className="text-right">
           <p className="text-xs text-muted-foreground">
-            {previous ? `Período anterior: ${previous.name}` : 'Sem comparação'}
-          </p>
-          <p className="text-sm font-medium text-muted-foreground">
-            {previous?.value || 'N/A'}
-          </p>
-          <p className={`text-xs font-medium ${parseFloat(change) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {parseFloat(change) >= 0 ? '+' : ''}{change}%
+            vs {previous?.name || 'anterior'}
           </p>
         </div>
       </div>
 
+      {/* Gráfico Simplificado */}
       <ResponsiveContainer width="100%" height={200}>
-        <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-          <XAxis dataKey="name" stroke="#6B7280" style={{ fontSize: '11px' }} />
-          <YAxis stroke="#6B7280" style={{ fontSize: '11px' }} />
+        <LineChart data={data} margin={{ top: 5, right: 5, left: -5, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} opacity={0.5} />
+          <XAxis
+            dataKey="name"
+            stroke="#9CA3AF"
+            style={{ fontSize: '11px' }}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            stroke="#9CA3AF"
+            style={{ fontSize: '11px' }}
+            tickLine={false}
+            axisLine={false}
+            width={35}
+          />
           <Tooltip
-            contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '12px' }}
+            contentStyle={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #E5E7EB',
+              borderRadius: '6px',
+              fontSize: '12px',
+              padding: '8px 12px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+            }}
+            labelStyle={{ fontSize: '11px', color: '#6B7280', marginBottom: '4px' }}
           />
           <Line
             type="monotone"
             dataKey="value"
             stroke="#5347CE"
             strokeWidth={2}
-            dot={{ fill: '#5347CE', r: 4 }}
+            dot={false}
+            activeDot={{ r: 4, fill: '#5347CE' }}
           />
         </LineChart>
       </ResponsiveContainer>

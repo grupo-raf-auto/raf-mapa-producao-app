@@ -18,13 +18,13 @@ export async function CategoriesList() {
   const categories = (await api.categories.getAll()) as Category[];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-foreground">
+          <h1 className="text-3xl font-bold text-foreground">
             Categorias
           </h1>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-sm text-muted-foreground mt-1.5">
             Organize questões por categorias
           </p>
         </div>
@@ -34,10 +34,10 @@ export async function CategoriesList() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.length === 0 ? (
           <Card className="col-span-full shadow-sm">
-            <CardContent className="py-12 text-center">
+            <CardContent className="py-8 text-center">
               <p className="text-muted-foreground">Nenhuma categoria criada ainda</p>
             </CardContent>
           </Card>
@@ -46,7 +46,7 @@ export async function CategoriesList() {
             <Card key={category._id} className="shadow-sm hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{category.name}</CardTitle>
+                  <CardTitle className="text-base">{category.name}</CardTitle>
                   <Badge className={categoryColors[category.name] || categoryColors.Custom}>
                     {category.name}
                   </Badge>

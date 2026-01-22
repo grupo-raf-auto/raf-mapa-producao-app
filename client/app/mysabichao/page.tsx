@@ -1,10 +1,10 @@
 import { MainLayout } from '@/components/layout/main-layout';
-import RuixenMoonChat from '@/components/ui/mysabichao-chat';
+import { MySabichaoContent } from '@/components/mysabichao/mysabichao-content';
 
 export default function MySabichaoPage() {
   return (
     <MainLayout>
-      <RuixenMoonChat />
+      <MySabichaoContent />
     </MainLayout>
   );
 }

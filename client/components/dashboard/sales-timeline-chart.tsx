@@ -26,10 +26,10 @@ export function CashFlowStackedChart({ data, timeFilter = 'month' }: SalesTimeli
     const [year, month] = item.month.split('-');
     const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     const monthName = monthNames[parseInt(month) - 1] || month;
-    
+
     const entrada = Math.round(item.totalValue * 0.65);
     const saida = Math.round(item.totalValue * 0.35);
-    
+
     return {
       date: index === data.length - 1 ? 'Hoje' : `${monthName} ${year.slice(-2)}`,
       Entrada: entrada,
@@ -129,7 +129,7 @@ export function NetVolumeChart({ data, timeFilter = 'month' }: SalesTimelineChar
     const [year, month] = item.month.split('-');
     const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     const monthName = monthNames[parseInt(month) - 1] || month;
-    
+
     return {
       date: index === data.length - 1 ? 'Hoje' : `${monthName} ${year.slice(-2)}`,
       current: Math.round(item.totalValue),
@@ -166,7 +166,7 @@ export function NetVolumeChart({ data, timeFilter = 'month' }: SalesTimelineChar
       </div>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={200}>
+        <ResponsiveContainer width="100%" height={180}>
           <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
             <XAxis dataKey="date" stroke="#6B7280" style={{ fontSize: '11px' }} />
@@ -175,7 +175,7 @@ export function NetVolumeChart({ data, timeFilter = 'month' }: SalesTimelineChar
               contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '12px' }}
               formatter={(v) => (v != null ? Number(v).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }) : '-')}
             />
-            <Line type="monotone" dataKey="current" stroke="#5347CE" strokeWidth={2} dot={{ fill: '#5347CE', r: 4 }} />
+            <Line type="monotone" dataKey="current" stroke="#4896FE" strokeWidth={3} dot={{ fill: '#4896FE', r: 5 }} activeDot={{ r: 7 }} />
             <Line type="monotone" dataKey="previous" stroke="#9CA3AF" strokeWidth={2} strokeDasharray="5 5" dot={false} opacity={0.5} />
           </LineChart>
         </ResponsiveContainer>
@@ -228,10 +228,10 @@ export function ReportsCompletionBar({ data }: { data: { month: string; count: n
     const [year, month] = item.month.split('-');
     const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     const monthName = monthNames[parseInt(month) - 1] || month;
-    
+
     const completed = Math.round(item.count * 0.96);
     const missing = item.count - completed;
-    
+
     return {
       date: index === data.length - 1 ? 'Hoje' : `${monthName} ${year.slice(-2)}`,
       completed,
@@ -275,10 +275,10 @@ export function CashFlowColumnChart({ data, timeFilter = 'month' }: SalesTimelin
     const [year, month] = item.month.split('-');
     const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     const monthName = monthNames[parseInt(month) - 1] || month;
-    
+
     const positive = Math.round(item.totalValue * 0.6);
     const negative = -Math.round(item.totalValue * 0.2);
-    
+
     return {
       date: index === data.length - 1 ? 'Hoje' : `${monthName} ${year.slice(-2)}`,
       positive,
@@ -315,7 +315,7 @@ export function SalesTimelineChart({ data, timeFilter = 'month' }: SalesTimeline
     const [year, month] = item.month.split('-');
     const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     const monthName = monthNames[parseInt(month) - 1] || month;
-    
+
     return {
       date: index === data.length - 1 ? 'Hoje' : `${monthName} ${year.slice(-2)}`,
       'Número de Vendas': item.count,
@@ -332,55 +332,68 @@ export function SalesTimelineChart({ data, timeFilter = 'month' }: SalesTimeline
 
   return (
     <div className="space-y-4">
-      <div className="flex items-baseline justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">1 {periodLabel} - Hoje</p>
-          <p className="text-2xl font-bold text-foreground">
-            {current['Valor Total (€)'].toLocaleString('pt-PT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}
+      {/* KPI Principal - Valor Total em Destaque */}
+      <div>
+        <p className="text-xs text-muted-foreground mb-1">Valor Total</p>
+        <p className="text-3xl font-semibold text-foreground tracking-tight">
+          {current['Valor Total (€)'].toLocaleString('pt-PT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}
+        </p>
+        <div className="flex items-center gap-2 mt-1.5">
+          <p className={`text-xs font-medium ${parseFloat(valueChange) >= 0 ? 'text-success' : 'text-destructive'}`}>
+            {parseFloat(valueChange) >= 0 ? '↑' : '↓'} {Math.abs(parseFloat(valueChange))}%
           </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {current['Número de Vendas']} vendas
-          </p>
-        </div>
-        <div className="text-right">
           <p className="text-xs text-muted-foreground">
-            {previous ? `1 ${prevPeriodLabel} - ${previous.date}` : 'Sem comparação'}
-          </p>
-          <p className="text-sm font-medium text-muted-foreground">
-            {previous?.['Valor Total (€)'].toLocaleString('pt-PT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }) || 'N/A'}
-          </p>
-          <p className={`text-xs font-medium ${parseFloat(valueChange) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {parseFloat(valueChange) >= 0 ? '+' : ''}{valueChange}%
+            vs período anterior
           </p>
         </div>
       </div>
 
+      {/* Gráfico Simplificado - Apenas Valor Total */}
       <div className="relative">
         <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#6B7280" style={{ fontSize: '11px' }} />
-            <YAxis stroke="#6B7280" style={{ fontSize: '11px' }} />
-            <Tooltip
-              contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '12px' }}
-              formatter={(value, name) => {
-                if (value == null) return '-';
-                if (name === 'Valor Total (€)') {
-                  return `${Number(value).toLocaleString('pt-PT')} €`;
-                }
-                return value;
-              }}
+          <LineChart data={chartData} margin={{ top: 5, right: 5, left: -5, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} opacity={0.5} />
+            <XAxis
+              dataKey="date"
+              stroke="#9CA3AF"
+              style={{ fontSize: '11px' }}
+              tickLine={false}
+              axisLine={false}
+              tickCount={6}
             />
-            <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="square" />
-            <Line type="monotone" dataKey="Número de Vendas" stroke="#5347CE" strokeWidth={2} dot={{ fill: '#5347CE', r: 4 }} />
-            <Line type="monotone" dataKey="Valor Total (€)" stroke="#16CBC7" strokeWidth={2} dot={{ fill: '#16CBC7', r: 4 }} />
+            <YAxis
+              stroke="#9CA3AF"
+              style={{ fontSize: '11px' }}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+              width={40}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E5E7EB',
+                borderRadius: '6px',
+                fontSize: '12px',
+                padding: '8px 12px',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              }}
+              formatter={(value) => {
+                if (value == null) return '-';
+                return `${Number(value).toLocaleString('pt-PT')} €`;
+              }}
+              labelStyle={{ fontSize: '11px', color: '#6B7280', marginBottom: '4px' }}
+            />
+            <Line
+              type="monotone"
+              dataKey="Valor Total (€)"
+              stroke="#5347CE"
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, fill: '#5347CE' }}
+            />
           </LineChart>
         </ResponsiveContainer>
-        {current.date === 'Hoje' && (
-          <div className="absolute top-0 right-8 bg-black text-white text-xs px-2 py-1 rounded font-medium">
-            Hoje
-          </div>
-        )}
       </div>
     </div>
   );

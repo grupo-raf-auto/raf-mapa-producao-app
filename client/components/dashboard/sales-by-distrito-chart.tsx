@@ -28,65 +28,60 @@ export function SalesByDistritoChart({ data }: SalesByDistritoChartProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-baseline justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">Total de Vendas</p>
-          <p className="text-2xl font-bold text-foreground">
-            {totalValor.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {totalVendas} vendas
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground">Top Distrito</p>
-          <p className="text-sm font-medium text-foreground">
-            {topDistrito?.name || 'N/A'}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {topDistrito?.totalValue.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }) || 'N/A'}
-          </p>
-        </div>
+      {/* KPI Principal */}
+      <div>
+        <p className="text-xs text-muted-foreground mb-1">Total de Vendas</p>
+        <p className="text-3xl font-semibold text-foreground tracking-tight">
+          {totalValor.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {topDistrito?.name || 'N/A'}
+        </p>
       </div>
 
+      {/* Gráfico Simplificado - Apenas Valor Total */}
       <ResponsiveContainer width="100%" height={200}>
         <BarChart
-          data={chartData.slice(0, 6)}
-          margin={{ top: 10, right: 10, left: 0, bottom: 40 }}
+          data={chartData.slice(0, 5)}
+          margin={{ top: 5, right: 5, left: -5, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} opacity={0.5} />
           <XAxis
             dataKey="name"
-            stroke="#6B7280"
+            stroke="#9CA3AF"
             style={{ fontSize: '11px' }}
-            angle={-45}
+            tickLine={false}
+            axisLine={false}
+            angle={-30}
             textAnchor="end"
-            height={60}
+            height={50}
           />
           <YAxis
-            stroke="#6B7280"
+            stroke="#9CA3AF"
             style={{ fontSize: '11px' }}
             tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+            tickLine={false}
+            axisLine={false}
+            width={35}
           />
           <Tooltip
-            contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '12px' }}
-            formatter={(value, name) => {
-              if (value == null) return '-';
-              if (name === 'Valor Total (€)') {
-                return `${Number(value).toLocaleString('pt-PT')} €`;
-              }
-              return value;
+            contentStyle={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #E5E7EB',
+              borderRadius: '6px',
+              fontSize: '12px',
+              padding: '8px 12px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
             }}
-          />
-          <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="square" />
-          <Bar
-            dataKey="Número de Vendas"
-            fill="#16A34A"
-            radius={[4, 4, 0, 0]}
+            formatter={(value) => {
+              if (value == null) return '-';
+              return `${Number(value).toLocaleString('pt-PT')} €`;
+            }}
+            labelStyle={{ fontSize: '11px', color: '#6B7280', marginBottom: '4px' }}
           />
           <Bar
             dataKey="Valor Total (€)"
-            fill="#16CBC7"
+            fill="#5347CE"
             radius={[4, 4, 0, 0]}
           />
         </BarChart>

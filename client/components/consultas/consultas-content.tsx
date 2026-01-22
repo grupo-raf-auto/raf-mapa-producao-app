@@ -37,15 +37,15 @@ export function ConsultasContent() {
 
   if (loading) {
     return (
-      <div className="space-y-10">
+      <div className="space-y-6">
         <div>
-          <h1 className="text-4xl font-bold text-foreground">Consultas</h1>
-          <p className="text-sm text-muted-foreground mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Consultas</h1>
+          <p className="text-sm text-muted-foreground mt-1.5">
             Visualize os seus formulários registados
           </p>
         </div>
         <Card>
-          <CardContent className="py-12 text-center flex flex-col items-center gap-4">
+          <CardContent className="py-8 text-center flex flex-col items-center gap-3">
             <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
             <p className="text-muted-foreground">Carregando formulários...</p>
           </CardContent>
@@ -56,15 +56,15 @@ export function ConsultasContent() {
 
   if (error) {
     return (
-      <div className="space-y-10">
+      <div className="space-y-6">
         <div>
-          <h1 className="text-4xl font-bold text-foreground">Consultas</h1>
-          <p className="text-sm text-muted-foreground mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Consultas</h1>
+          <p className="text-sm text-muted-foreground mt-1.5">
             Visualize os seus formulários registados
           </p>
         </div>
         <Card>
-          <CardContent className="py-12 text-center">
+          <CardContent className="py-8 text-center">
             <p className="text-destructive font-medium mb-2">Erro ao carregar formulários</p>
             <p className="text-sm text-muted-foreground">{error}</p>
           </CardContent>
@@ -74,10 +74,10 @@ export function ConsultasContent() {
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold text-foreground">Consultas</h1>
-        <p className="text-sm text-muted-foreground mt-2">
+        <h1 className="text-3xl font-bold text-foreground">Consultas</h1>
+        <p className="text-sm text-muted-foreground mt-1.5">
           Visualize os seus formulários registados
         </p>
       </div>

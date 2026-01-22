@@ -1,26 +1,23 @@
-import { Request, Response } from 'express';
-import { prisma } from '../lib/prisma';
+import { Request, Response } from "express";
+import { prisma } from "../lib/prisma";
 
 export class TemplateController {
   static async getAll(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
       const templates = await prisma.template.findMany({
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
       const filtered =
-        req.user.role === 'admin'
+        req.user.role === "admin"
           ? templates
           : templates.filter(
-              (t) =>
-                t.isPublic ||
-                t.isDefault ||
-                t.createdBy === req.user?.id
+              (t) => t.isPublic || t.isDefault || t.createdBy === req.user?.id,
             );
       res.json(filtered.map((t) => ({ ...t, _id: t.id })));
     } catch (error) {
-      console.error('Error fetching templates:', error);
-      res.status(500).json({ error: 'Failed to fetch templates' });
+      console.error("Error fetching templates:", error);
+      res.status(500).json({ error: "Failed to fetch templates" });
     }
   }
 
@@ -29,18 +26,18 @@ export class TemplateController {
       const { id } = req.params;
       const template = await prisma.template.findUnique({ where: { id } });
       if (!template) {
-        return res.status(404).json({ error: 'Template not found' });
+        return res.status(404).json({ error: "Template not found" });
       }
       res.json({ ...template, _id: template.id });
     } catch (error) {
-      console.error('Error fetching template:', error);
-      res.status(500).json({ error: 'Failed to fetch template' });
+      console.error("Error fetching template:", error);
+      res.status(500).json({ error: "Failed to fetch template" });
     }
   }
 
   static async create(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
       const { title, description, questions, isPublic } = req.body;
       const template = await prisma.template.create({
         data: {
@@ -53,8 +50,8 @@ export class TemplateController {
       });
       res.status(201).json({ id: template.id });
     } catch (error) {
-      console.error('Error creating template:', error);
-      res.status(500).json({ error: 'Failed to create template' });
+      console.error("Error creating template:", error);
+      res.status(500).json({ error: "Failed to create template" });
     }
   }
 
@@ -69,32 +66,37 @@ export class TemplateController {
       if (isPublic !== undefined) data.isPublic = isPublic;
       await prisma.template.update({
         where: { id },
-        data: data as Parameters<typeof prisma.template.update>[0]['data'],
+        data: data as Parameters<typeof prisma.template.update>[0]["data"],
       });
       res.json({ success: true });
     } catch (error) {
-      console.error('Error updating template:', error);
-      res.status(500).json({ error: 'Failed to update template' });
+      console.error("Error updating template:", error);
+      res.status(500).json({ error: "Failed to update template" });
     }
   }
 
   static async delete(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
       const { id } = req.params;
       const template = await prisma.template.findUnique({ where: { id } });
-      if (!template) return res.status(404).json({ error: 'Template not found' });
+      if (!template)
+        return res.status(404).json({ error: "Template not found" });
       if (template.isDefault) {
-        return res.status(400).json({ error: 'Não é possível excluir templates padrão do sistema' });
+        return res.status(400).json({
+          error: "Não é possível excluir templates padrão do sistema",
+        });
       }
-      if (req.user.role !== 'admin' && template.createdBy !== req.user.id) {
-        return res.status(403).json({ error: 'Forbidden: You can only delete your own templates' });
+      if (req.user.role !== "admin" && template.createdBy !== req.user.id) {
+        return res
+          .status(403)
+          .json({ error: "Forbidden: You can only delete your own templates" });
       }
       await prisma.template.delete({ where: { id } });
       res.json({ success: true });
     } catch (error) {
-      console.error('Error deleting template:', error);
-      res.status(500).json({ error: 'Failed to delete template' });
+      console.error("Error deleting template:", error);
+      res.status(500).json({ error: "Failed to delete template" });
     }
   }
 }

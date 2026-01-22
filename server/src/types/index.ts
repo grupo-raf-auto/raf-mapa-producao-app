@@ -1,8 +1,15 @@
-export type QuestionStatus = 'active' | 'inactive';
+export type QuestionStatus = "active" | "inactive";
 
-export type QuestionInputType = 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
+export type QuestionInputType =
+  | "text"
+  | "date"
+  | "select"
+  | "email"
+  | "tel"
+  | "number"
+  | "radio";
 
-export type UserRole = 'admin' | 'user';
+export type UserRole = "admin" | "user";
 
 export interface Question {
   _id?: string;
@@ -24,7 +31,12 @@ export interface Category {
   createdAt: Date;
 }
 
-export type QuestionCategory = 'Finance' | 'Marketing' | 'HR' | 'Tech' | 'Custom';
+export type QuestionCategory =
+  | "Finance"
+  | "Marketing"
+  | "HR"
+  | "Tech"
+  | "Custom";
 
 export interface Template {
   _id?: string;
@@ -92,7 +104,7 @@ export interface DocumentChunk {
 export interface ChatMessage {
   _id?: string;
   conversationId: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   createdAt: Date;
   userId: string; // Clerk ID

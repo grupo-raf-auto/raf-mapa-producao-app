@@ -1,5 +1,5 @@
-import OpenAI from 'openai';
-import dotenv from 'dotenv';
+import OpenAI from "openai";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -9,7 +9,7 @@ const openai = new OpenAI({
 });
 
 export interface ChatMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
@@ -18,19 +18,22 @@ export interface ChatMessage {
  */
 export async function generateChatResponse(
   messages: ChatMessage[],
-  systemPrompt?: string
+  systemPrompt?: string,
 ): Promise<string> {
   if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY não configurada. Configure a variável de ambiente OPENAI_API_KEY.');
+    throw new Error(
+      "OPENAI_API_KEY não configurada. Configure a variável de ambiente OPENAI_API_KEY.",
+    );
   }
 
   try {
-    const messagesToSend: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
+    const messagesToSend: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
+      [];
 
     // Adicionar system prompt se fornecido
     if (systemPrompt) {
       messagesToSend.push({
-        role: 'system',
+        role: "system",
         content: systemPrompt,
       });
     }
@@ -39,7 +42,7 @@ export async function generateChatResponse(
     messagesToSend.push(...messages);
 
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
       messages: messagesToSend,
       temperature: 0.7,
       max_tokens: 1000,
@@ -48,27 +51,31 @@ export async function generateChatResponse(
     const response = completion.choices[0]?.message?.content;
 
     if (!response) {
-      throw new Error('Resposta vazia da OpenAI');
+      throw new Error("Resposta vazia da OpenAI");
     }
 
     return response;
   } catch (error: any) {
-    console.error('Erro ao chamar OpenAI:', error);
-    
+    console.error("Erro ao chamar OpenAI:", error);
+
     // Tratamento de erros específicos
     if (error.status === 401) {
-      throw new Error('API key da OpenAI inválida. Verifique OPENAI_API_KEY.');
+      throw new Error("API key da OpenAI inválida. Verifique OPENAI_API_KEY.");
     } else if (error.status === 429) {
-      throw new Error('Limite de requisições da OpenAI excedido. Tente novamente mais tarde.');
+      throw new Error(
+        "Limite de requisições da OpenAI excedido. Tente novamente mais tarde.",
+      );
     } else if (error.status === 500) {
-      throw new Error('Erro interno da OpenAI. Tente novamente mais tarde.');
+      throw new Error("Erro interno da OpenAI. Tente novamente mais tarde.");
     }
-    
-    throw new Error(`Erro ao processar mensagem: ${error.message || 'Erro desconhecido'}`);
+
+    throw new Error(
+      `Erro ao processar mensagem: ${error.message || "Erro desconhecido"}`,
+    );
   }
 }
 
-export type ChatContext = 'sabichao' | 'support';
+export type ChatContext = "sabichao" | "support";
 
 /**
  * Gera system prompt padrão para o MySabichão (base de dados da empresa)
@@ -135,8 +142,8 @@ Responda sempre em português brasileiro.`;
 /**
  * Retorna o system prompt baseado no contexto
  */
-export function getSystemPrompt(context: ChatContext = 'sabichao'): string {
-  if (context === 'support') {
+export function getSystemPrompt(context: ChatContext = "sabichao"): string {
+  if (context === "support") {
     return getSupportSystemPrompt();
   }
   return getSabichaoSystemPrompt();

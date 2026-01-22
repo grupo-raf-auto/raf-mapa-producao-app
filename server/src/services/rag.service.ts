@@ -1,7 +1,7 @@
-import OpenAI from 'openai';
-import { Prisma } from '@prisma/client';
-import { prisma } from '../lib/prisma';
-import dotenv from 'dotenv';
+import OpenAI from "openai";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../lib/prisma";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -22,9 +22,10 @@ export function splitTextIntoChunks(text: string): string[] {
 }
 
 export async function generateEmbedding(text: string): Promise<number[]> {
-  if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY não configurada');
+  if (!process.env.OPENAI_API_KEY)
+    throw new Error("OPENAI_API_KEY não configurada");
   const response = await openai.embeddings.create({
-    model: 'text-embedding-3-small',
+    model: "text-embedding-3-small",
     input: text,
   });
   return response.data[0].embedding;
@@ -32,7 +33,9 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
 function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length) return 0;
-  let dot = 0, nA = 0, nB = 0;
+  let dot = 0,
+    nA = 0,
+    nB = 0;
   for (let i = 0; i < a.length; i++) {
     dot += a[i] * b[i];
     nA += a[i] * a[i];
@@ -43,13 +46,19 @@ function cosineSimilarity(a: number[], b: number[]): number {
 }
 
 export interface DocChunkWithSimilarity {
-  chunk: { id: string; documentId: string; chunkIndex: number; content: string; embedding: unknown };
+  chunk: {
+    id: string;
+    documentId: string;
+    chunkIndex: number;
+    content: string;
+    embedding: unknown;
+  };
   similarity: number;
 }
 
 export async function searchRelevantChunks(
   query: string,
-  limit: number = 5
+  limit: number = 5,
 ): Promise<DocChunkWithSimilarity[]> {
   const queryEmbedding = await generateEmbedding(query);
 
@@ -63,7 +72,10 @@ export async function searchRelevantChunks(
       if (!emb || emb.length === 0) return null;
       return { chunk: c, similarity: cosineSimilarity(queryEmbedding, emb) };
     })
-    .filter((x): x is { chunk: typeof allChunks[0]; similarity: number } => x !== null)
+    .filter(
+      (x): x is { chunk: (typeof allChunks)[0]; similarity: number } =>
+        x !== null,
+    )
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, limit);
 
@@ -79,7 +91,10 @@ export async function searchRelevantChunks(
   }));
 }
 
-export async function processDocumentChunks(documentId: string, text: string): Promise<string[]> {
+export async function processDocumentChunks(
+  documentId: string,
+  text: string,
+): Promise<string[]> {
   const textChunks = splitTextIntoChunks(text);
   const chunkIds: string[] = [];
 

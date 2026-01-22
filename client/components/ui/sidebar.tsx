@@ -5,6 +5,7 @@ import Link, { LinkProps } from 'next/link';
 import React, { useState, createContext, useContext, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
+import Image from 'next/image';
 
 interface Links {
   label: string;
@@ -69,11 +70,11 @@ export const Sidebar = ({
   );
 };
 
-export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
+export const SidebarBody = (props: React.ComponentProps<'div'>) => {
   return (
     <>
       <DesktopSidebar {...props} />
-      <MobileSidebar {...(props as React.ComponentProps<'div'>)} />
+      <MobileSidebar {...props} />
     </>
   );
 };
@@ -112,16 +113,22 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          'h-16 px-4 flex flex-row md:hidden items-center justify-between glass-sidebar w-full fixed top-0 left-0 z-40'
+          'h-16 px-4 flex flex-row md:hidden items-center justify-between bg-sidebar border-b border-border w-full fixed top-0 left-0 z-40'
         )}
         {...props}
       >
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/30">
-            <span className="text-white font-bold text-sm">M</span>
+        <Link href="/" className="flex items-center gap-2">
+          <div className="relative h-8 w-auto">
+            <Image
+              src="/logo-mycredit.png"
+              alt="MYCREDIT - Intermediários de Crédito"
+              width={100}
+              height={32}
+              className="h-8 w-auto object-contain"
+              priority
+            />
           </div>
-          <span className="font-title font-bold text-lg text-primary">MYCREDIT</span>
-        </div>
+        </Link>
         <button
           onClick={() => setOpen(!open)}
           className="p-2.5 hover:bg-primary/10 rounded-xl transition-colors"
@@ -148,7 +155,7 @@ export const MobileSidebar = ({
               exit={{ x: '-100%' }}
               transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
               className={cn(
-                'fixed left-0 top-0 h-full w-[280px] glass-sidebar z-50 flex flex-col md:hidden shadow-2xl',
+                'fixed left-0 top-0 h-full w-[280px] bg-sidebar border-r border-border z-50 flex flex-col md:hidden shadow-lg',
                 className
               )}
             >

@@ -1,12 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { apiClient as api } from '@/lib/api-client';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, FileText, Trash2, Loader2, CheckCircle2, XCircle } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from "react";
+import { apiClient as api } from "@/lib/api-client";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Upload,
+  FileText,
+  Trash2,
+  Loader2,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +23,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 
 interface Document {
   _id: string;
@@ -43,7 +50,7 @@ export function DocumentsManager() {
       const docs = await api.documents.getAll();
       setDocuments(docs);
     } catch (error: any) {
-      toast.error('Erro ao carregar documentos: ' + error.message);
+      toast.error("Erro ao carregar documentos: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -53,38 +60,42 @@ export function DocumentsManager() {
     loadDocuments();
   }, []);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     // Validar tipo de ficheiro
     const allowedTypes = [
-      'application/pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain',
-      'text/markdown',
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "text/plain",
+      "text/markdown",
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Tipo de ficheiro não suportado. Use PDF, DOCX, TXT ou MD.');
+      toast.error("Tipo de ficheiro não suportado. Use PDF, DOCX, TXT ou MD.");
       return;
     }
 
     // Validar tamanho (10MB)
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('Ficheiro muito grande. Tamanho máximo: 10MB');
+      toast.error("Ficheiro muito grande. Tamanho máximo: 10MB");
       return;
     }
 
     try {
       setUploading(true);
       const result = await api.documents.upload(file);
-      toast.success('Documento enviado com sucesso! Processamento em andamento...');
+      toast.success(
+        "Documento enviado com sucesso! Processamento em andamento...",
+      );
       await loadDocuments();
       // Resetar input
-      event.target.value = '';
+      event.target.value = "";
     } catch (error: any) {
-      toast.error('Erro ao fazer upload: ' + error.message);
+      toast.error("Erro ao fazer upload: " + error.message);
     } finally {
       setUploading(false);
     }
@@ -95,26 +106,26 @@ export function DocumentsManager() {
 
     try {
       await api.documents.delete(documentToDelete);
-      toast.success('Documento deletado com sucesso');
+      toast.success("Documento deletado com sucesso");
       await loadDocuments();
       setDeleteDialogOpen(false);
       setDocumentToDelete(null);
     } catch (error: any) {
-      toast.error('Erro ao deletar documento: ' + error.message);
+      toast.error("Erro ao deletar documento: " + error.message);
     }
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
   const getFileIcon = (mimeType: string) => {
-    if (mimeType === 'application/pdf') return '📄';
-    if (mimeType.includes('wordprocessingml')) return '📝';
-    if (mimeType.includes('text')) return '📃';
-    return '📎';
+    if (mimeType === "application/pdf") return "📄";
+    if (mimeType.includes("wordprocessingml")) return "📝";
+    if (mimeType.includes("text")) return "📃";
+    return "📎";
   };
 
   return (
@@ -144,11 +155,7 @@ export function DocumentsManager() {
                   className="hidden"
                   id="file-upload"
                 />
-                <Button
-                  asChild
-                  variant="outline"
-                  disabled={uploading}
-                >
+                <Button asChild variant="outline" disabled={uploading}>
                   <label htmlFor="file-upload" className="cursor-pointer">
                     {uploading ? (
                       <>
@@ -186,9 +193,13 @@ export function DocumentsManager() {
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <span className="text-2xl">{getFileIcon(doc.mimeType)}</span>
+                      <span className="text-2xl">
+                        {getFileIcon(doc.mimeType)}
+                      </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{doc.originalName}</p>
+                        <p className="text-sm font-medium truncate">
+                          {doc.originalName}
+                        </p>
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span>{formatFileSize(doc.size)}</span>
                           <span>
@@ -235,7 +246,8 @@ export function DocumentsManager() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja deletar este documento? Esta ação não pode ser desfeita e todos os chunks associados serão removidos.
+              Tem certeza que deseja deletar este documento? Esta ação não pode
+              ser desfeita e todos os chunks associados serão removidos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

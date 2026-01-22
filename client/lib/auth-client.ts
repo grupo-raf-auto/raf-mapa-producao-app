@@ -14,7 +14,9 @@ import type { auth } from "./auth";
 const baseURL =
   typeof window !== "undefined"
     ? undefined
-    : process.env.NEXTAUTH_URL || process.env.CLIENT_URL || "http://localhost:3004";
+    : process.env.NEXTAUTH_URL ||
+      process.env.CLIENT_URL ||
+      "http://localhost:3004";
 
 export const authClient = createAuthClient({
   baseURL,
@@ -82,11 +84,18 @@ export async function resetPassword(params: {
     }),
     credentials: "include",
   });
-  const data = (await res.json().catch(() => ({}))) as { status?: boolean; error?: string; message?: string };
+  const data = (await res.json().catch(() => ({}))) as {
+    status?: boolean;
+    error?: string;
+    message?: string;
+  };
   if (!res.ok) {
     return {
       error: {
-        message: data.error || data.message || "Erro ao redefinir a senha. O link pode ter expirado.",
+        message:
+          data.error ||
+          data.message ||
+          "Erro ao redefinir a senha. O link pode ter expirado.",
       },
     };
   }

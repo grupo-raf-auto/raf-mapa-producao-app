@@ -20,7 +20,8 @@ import { createAppToken } from "./jwt";
 import { sendResetPasswordEmail } from "./email-reset";
 
 const ALLOWED_DOMAIN = process.env.ALLOWED_EMAIL_DOMAIN; // ex: "gruporaf.pt" – se vazio, qualquer email
-const BASE_URL = process.env.NEXTAUTH_URL || process.env.CLIENT_URL || "http://localhost:3004";
+const BASE_URL =
+  process.env.NEXTAUTH_URL || process.env.CLIENT_URL || "http://localhost:3004";
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
@@ -38,7 +39,10 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
 
     sendResetPassword: async ({ user, token }, _request) => {
-      const base = process.env.NEXTAUTH_URL || process.env.CLIENT_URL || "http://localhost:3004";
+      const base =
+        process.env.NEXTAUTH_URL ||
+        process.env.CLIENT_URL ||
+        "http://localhost:3004";
       const callbackURL = encodeURIComponent("/reset-password");
       const resetUrl = `${base}/api/auth/reset-password/${token}?callbackURL=${callbackURL}`;
       await sendResetPasswordEmail({
@@ -60,8 +64,18 @@ export const auth = betterAuth({
     additionalFields: {
       firstName: { type: "string", required: false, input: true },
       lastName: { type: "string", required: false, input: true },
-      role: { type: "string", required: false, defaultValue: "user", input: false },
-      isActive: { type: "boolean", required: false, defaultValue: true, input: false },
+      role: {
+        type: "string",
+        required: false,
+        defaultValue: "user",
+        input: false,
+      },
+      isActive: {
+        type: "boolean",
+        required: false,
+        defaultValue: true,
+        input: false,
+      },
     },
   },
 
@@ -72,7 +86,8 @@ export const auth = betterAuth({
           if (!ALLOWED_DOMAIN) return;
           const email = (user.email ?? "").toLowerCase();
           const domain = email.split("@")[1];
-          if (!domain) throw new APIError("BAD_REQUEST", { message: "Email inválido." });
+          if (!domain)
+            throw new APIError("BAD_REQUEST", { message: "Email inválido." });
           if (domain !== ALLOWED_DOMAIN) {
             throw new APIError("UNPROCESSABLE_ENTITY", {
               message: `Apenas emails @${ALLOWED_DOMAIN} podem registar-se.`,
@@ -97,7 +112,9 @@ export const auth = betterAuth({
     },
   },
 
-  trustedOrigins: [BASE_URL, process.env.CLIENT_URL].filter((x): x is string => Boolean(x)),
+  trustedOrigins: [BASE_URL, process.env.CLIENT_URL].filter((x): x is string =>
+    Boolean(x),
+  ),
 });
 
 // --- Helpers para integração com o backend Express (JWT) ---

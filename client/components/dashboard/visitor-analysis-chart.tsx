@@ -1,31 +1,32 @@
-'use client';
+"use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 interface VisitorAnalysisChartProps {
   data: { name: string; count: number; totalValue: number }[];
 }
 
 // Color palette matching DATASOFT design
-const COLORS = ['#2563EB', '#14B8A6', '#F97316', '#8B5CF6', '#64748B'];
+const COLORS = ["#2563EB", "#14B8A6", "#F97316", "#8B5CF6", "#64748B"];
 
 const defaultData = [
-  { name: 'Lisboa', value: 35, color: COLORS[0] },
-  { name: 'Porto', value: 25, color: COLORS[1] },
-  { name: 'Braga', value: 18, color: COLORS[2] },
-  { name: 'Setúbal', value: 12, color: COLORS[3] },
-  { name: 'Outros', value: 10, color: COLORS[4] },
+  { name: "Lisboa", value: 35, color: COLORS[0] },
+  { name: "Porto", value: 25, color: COLORS[1] },
+  { name: "Braga", value: 18, color: COLORS[2] },
+  { name: "Setúbal", value: 12, color: COLORS[3] },
+  { name: "Outros", value: 10, color: COLORS[4] },
 ];
 
 export function VisitorAnalysisChart({ data }: VisitorAnalysisChartProps) {
   // Transform data or use default
-  const chartData = data.length > 0
-    ? data.slice(0, 5).map((item, index) => ({
-        name: item.name || 'Unknown',
-        value: item.count,
-        color: COLORS[index % COLORS.length],
-      }))
-    : defaultData;
+  const chartData =
+    data.length > 0
+      ? data.slice(0, 5).map((item, index) => ({
+          name: item.name || "Unknown",
+          value: item.count,
+          color: COLORS[index % COLORS.length],
+        }))
+      : defaultData;
 
   const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
@@ -55,7 +56,7 @@ export function VisitorAnalysisChart({ data }: VisitorAnalysisChartProps) {
         {/* Center Text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-2xl font-bold text-foreground">
-            {total.toLocaleString('pt-PT')}
+            {total.toLocaleString("pt-PT")}
           </span>
           <span className="text-xs text-muted-foreground">Submissões</span>
         </div>
@@ -64,7 +65,10 @@ export function VisitorAnalysisChart({ data }: VisitorAnalysisChartProps) {
       {/* Legend */}
       <div className="w-full mt-4 space-y-2">
         {chartData.map((item, index) => (
-          <div key={index} className="flex items-center justify-between text-sm">
+          <div
+            key={index}
+            className="flex items-center justify-between text-sm"
+          >
             <div className="flex items-center gap-2">
               <span
                 className="w-2.5 h-2.5 rounded-full"

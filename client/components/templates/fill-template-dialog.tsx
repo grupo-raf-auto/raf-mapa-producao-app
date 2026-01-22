@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -9,8 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -18,16 +18,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { apiClient as api } from '@/lib/api-client';
-import { QuestionInput } from '@/components/questions/question-input';
-import { Spinner } from '@/components/ui/spinner';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { toast } from 'sonner';
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { apiClient as api } from "@/lib/api-client";
+import { QuestionInput } from "@/components/questions/question-input";
+import { Spinner } from "@/components/ui/spinner";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 interface Template {
   _id?: string;
@@ -41,7 +41,7 @@ interface Question {
   title: string;
   description?: string;
   status: string;
-  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
+  inputType?: "text" | "date" | "select" | "email" | "tel" | "number" | "radio";
   options?: string[];
 }
 
@@ -56,27 +56,27 @@ function generateSchema(questions: Question[]) {
   const schemaFields: Record<string, z.ZodTypeAny> = {};
 
   questions.forEach((question) => {
-    const fieldId = question._id || '';
+    const fieldId = question._id || "";
 
-    if (question.inputType === 'number') {
+    if (question.inputType === "number") {
       schemaFields[fieldId] = z.coerce
         .number()
-        .min(0, 'Valor deve ser positivo')
+        .min(0, "Valor deve ser positivo")
         .optional()
-        .or(z.literal(''));
-    } else if (question.inputType === 'email') {
+        .or(z.literal(""));
+    } else if (question.inputType === "email") {
       schemaFields[fieldId] = z
         .string()
-        .email('Email inválido')
+        .email("Email inválido")
         .optional()
-        .or(z.literal(''));
-    } else if (question.inputType === 'date') {
-      schemaFields[fieldId] = z.string().min(1, 'Data é obrigatória');
+        .or(z.literal(""));
+    } else if (question.inputType === "date") {
+      schemaFields[fieldId] = z.string().min(1, "Data é obrigatória");
     } else if (
-      question.inputType === 'select' ||
-      question.inputType === 'radio'
+      question.inputType === "select" ||
+      question.inputType === "radio"
     ) {
-      schemaFields[fieldId] = z.string().min(1, 'Selecione uma opção');
+      schemaFields[fieldId] = z.string().min(1, "Selecione uma opção");
     } else {
       schemaFields[fieldId] = z
         .string()
@@ -115,9 +115,9 @@ export function FillTemplateDialog({
             console.error(`Error loading question ${id}:`, err);
             return null;
           }
-        })
+        }),
       );
-      
+
       // Filtrar questões válidas, ordenar pela ordem do template
       // Mostrar todas as questões válidas (não apenas ativas) para debug
       const validQuestions = questionsData
@@ -125,27 +125,31 @@ export function FillTemplateDialog({
           return q !== null && q !== undefined;
         })
         .sort((a, b) => {
-          const indexA = template.questions.indexOf(a._id || '');
-          const indexB = template.questions.indexOf(b._id || '');
+          const indexA = template.questions.indexOf(a._id || "");
+          const indexB = template.questions.indexOf(b._id || "");
           return indexA - indexB;
         });
-      
+
       setQuestions(validQuestions);
-      
+
       if (validQuestions.length === 0) {
-        const hasLoadedQuestions = questionsData.some(q => q !== null);
+        const hasLoadedQuestions = questionsData.some((q) => q !== null);
         if (hasLoadedQuestions) {
-          toast.warning('Nenhuma questão válida encontrada neste template');
+          toast.warning("Nenhuma questão válida encontrada neste template");
         } else {
-          toast.error('Erro ao carregar questões do template. Verifique se o servidor está rodando.');
+          toast.error(
+            "Erro ao carregar questões do template. Verifique se o servidor está rodando.",
+          );
         }
       } else {
         // Log para debug - remover depois
-        console.log(`Loaded ${validQuestions.length} questions for template ${template._id}`);
+        console.log(
+          `Loaded ${validQuestions.length} questions for template ${template._id}`,
+        );
       }
     } catch (error) {
-      console.error('Error loading questions:', error);
-      toast.error('Erro ao carregar questões. Tente novamente.');
+      console.error("Error loading questions:", error);
+      toast.error("Erro ao carregar questões. Tente novamente.");
       setQuestions([]);
     } finally {
       setLoading(false);
@@ -175,7 +179,7 @@ export function FillTemplateDialog({
     if (questions.length > 0) {
       const defaultValues: Record<string, string> = {};
       questions.forEach((q) => {
-        defaultValues[q._id || ''] = '';
+        defaultValues[q._id || ""] = "";
       });
       form.reset(defaultValues);
     }
@@ -189,7 +193,7 @@ export function FillTemplateDialog({
       // Transformar dados para FormSubmission
       const answers = Object.entries(data)
         .filter(
-          ([, value]) => value !== '' && value !== undefined && value !== null
+          ([, value]) => value !== "" && value !== undefined && value !== null,
         )
         .map(([questionId, answer]) => ({
           questionId,
@@ -197,7 +201,7 @@ export function FillTemplateDialog({
         }));
 
       if (answers.length === 0) {
-        toast.error('Por favor, preencha pelo menos um campo');
+        toast.error("Por favor, preencha pelo menos um campo");
         setSubmitting(false);
         return;
       }
@@ -213,10 +217,10 @@ export function FillTemplateDialog({
       router.refresh();
 
       // Mostrar mensagem de sucesso
-      toast.success('Formulário submetido com sucesso!');
+      toast.success("Formulário submetido com sucesso!");
     } catch (error) {
-      console.error('Error submitting form:', error);
-      toast.error('Erro ao submeter formulário. Tente novamente.');
+      console.error("Error submitting form:", error);
+      toast.error("Erro ao submeter formulário. Tente novamente.");
     } finally {
       setSubmitting(false);
     }
@@ -248,8 +252,8 @@ export function FillTemplateDialog({
             <div className="text-center">
               <p className="text-muted-foreground mb-2">
                 {template.questions && template.questions.length > 0
-                  ? 'Nenhuma questão ativa encontrada neste template'
-                  : 'Este template não possui questões'}
+                  ? "Nenhuma questão ativa encontrada neste template"
+                  : "Este template não possui questões"}
               </p>
               {template.questions && template.questions.length > 0 && (
                 <p className="text-sm text-muted-foreground">
@@ -272,7 +276,7 @@ export function FillTemplateDialog({
                       <div key={question._id}>
                         <FormField
                           control={form.control}
-                          name={question._id || ''}
+                          name={question._id || ""}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-base font-medium">
@@ -320,7 +324,7 @@ export function FillTemplateDialog({
                       Submetendo...
                     </>
                   ) : (
-                    'Submeter'
+                    "Submeter"
                   )}
                 </Button>
               </DialogFooter>

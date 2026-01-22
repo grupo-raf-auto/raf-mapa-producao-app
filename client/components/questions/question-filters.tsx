@@ -1,22 +1,31 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { QuestionCategory, QuestionStatus } from '@/lib/types';
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { QuestionCategory, QuestionStatus } from "@/lib/types";
 
 export function QuestionFilters() {
-  const [category, setCategory] = useState<string>('all');
-  const [status, setStatus] = useState<string>('all');
-  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState<string>("all");
+  const [status, setStatus] = useState<string>("all");
+  const [search, setSearch] = useState("");
 
   return (
     <Card className="p-5 shadow-sm">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="search" className="text-xs text-muted-foreground mb-2 block">
+          <Label
+            htmlFor="search"
+            className="text-xs text-muted-foreground mb-2 block"
+          >
             Pesquisar
           </Label>
           <Input
@@ -27,7 +36,10 @@ export function QuestionFilters() {
           />
         </div>
         <div>
-          <Label htmlFor="category" className="text-xs text-muted-foreground mb-2 block">
+          <Label
+            htmlFor="category"
+            className="text-xs text-muted-foreground mb-2 block"
+          >
             Categoria
           </Label>
           <Select value={category} onValueChange={setCategory}>
@@ -45,7 +57,10 @@ export function QuestionFilters() {
           </Select>
         </div>
         <div>
-          <Label htmlFor="status" className="text-xs text-muted-foreground mb-2 block">
+          <Label
+            htmlFor="status"
+            className="text-xs text-muted-foreground mb-2 block"
+          >
             Status
           </Label>
           <Select value={status} onValueChange={setStatus}>

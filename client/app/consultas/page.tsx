@@ -1,5 +1,5 @@
-import { MainLayout } from '@/components/layout/main-layout';
-import { ConsultasContent } from '@/components/consultas/consultas-content';
+import { MainLayout } from "@/components/layout/main-layout";
+import { ConsultasContent } from "@/components/consultas/consultas-content";
 
 export default function ConsultasPage() {
   return (
@@ -9,4 +9,4 @@ export default function ConsultasPage() {
   );
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";

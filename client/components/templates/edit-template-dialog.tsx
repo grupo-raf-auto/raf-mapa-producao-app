@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -17,22 +17,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { apiClient as api } from '@/lib/api-client';
-import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
-import { Card, CardContent } from '@/components/ui/card';
-import { toast } from 'sonner';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { apiClient as api } from "@/lib/api-client";
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
 
 const templateSchema = z.object({
-  title: z.string().min(1, 'Título é obrigatório'),
+  title: z.string().min(1, "Título é obrigatório"),
   description: z.string().optional(),
   questions: z.array(z.string()),
 });
@@ -44,7 +44,7 @@ interface Question {
   title: string;
   description?: string;
   status: string;
-  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
+  inputType?: "text" | "date" | "select" | "email" | "tel" | "number" | "radio";
   options?: string[];
 }
 
@@ -76,7 +76,7 @@ export function EditTemplateDialog({
     resolver: zodResolver(templateSchema),
     defaultValues: {
       title: template.title,
-      description: template.description || '',
+      description: template.description || "",
       questions: template.questions || [],
     },
   });
@@ -88,7 +88,7 @@ export function EditTemplateDialog({
       // Resetar form com dados do template
       form.reset({
         title: template.title,
-        description: template.description || '',
+        description: template.description || "",
         questions: template.questions || [],
       });
     } else {
@@ -102,25 +102,25 @@ export function EditTemplateDialog({
 
   // Ordem definida para as questões
   const questionOrder = [
-    'Data',
-    'Apontador',
-    'Agente',
-    'Nome do Cliente',
-    'Data nascimento',
-    'Email cliente',
-    'Telefone cliente',
-    'Distrito cliente',
-    'Rating cliente',
-    'Seguradora',
-    'Banco',
-    'Valor',
-    'Fracionamento',
+    "Data",
+    "Apontador",
+    "Agente",
+    "Nome do Cliente",
+    "Data nascimento",
+    "Email cliente",
+    "Telefone cliente",
+    "Distrito cliente",
+    "Rating cliente",
+    "Seguradora",
+    "Banco",
+    "Valor",
+    "Fracionamento",
   ];
 
   const sortQuestions = (questions: Question[]): Question[] => {
     // Remover duplicatas baseado no título
     const uniqueQuestions = questions.filter(
-      (q, index, self) => index === self.findIndex((t) => t.title === q.title)
+      (q, index, self) => index === self.findIndex((t) => t.title === q.title),
     );
 
     // Ordenar de acordo com a ordem especificada
@@ -144,7 +144,7 @@ export function EditTemplateDialog({
   const loadQuestions = async () => {
     setLoading(true);
     try {
-      const allQuestions = await api.questions.getAll({ status: 'active' });
+      const allQuestions = await api.questions.getAll({ status: "active" });
       // Ordenar e remover duplicatas
       const sortedQuestions = sortQuestions(allQuestions);
       // Criar cópia profunda para backup
@@ -152,7 +152,7 @@ export function EditTemplateDialog({
       setOriginalQuestions(questionsCopy);
       setQuestions(sortedQuestions);
     } catch (error) {
-      console.error('Error loading questions:', error);
+      console.error("Error loading questions:", error);
     } finally {
       setLoading(false);
     }
@@ -169,14 +169,14 @@ export function EditTemplateDialog({
           };
         }
         return q;
-      })
+      }),
     );
   };
 
   const onSubmit = async (data: TemplateFormValues) => {
     try {
       if (!template._id) {
-        toast.error('ID do template não encontrado');
+        toast.error("ID do template não encontrado");
         return;
       }
 
@@ -208,14 +208,14 @@ export function EditTemplateDialog({
 
       router.refresh();
       onOpenChange(false);
-      toast.success('Template atualizado com sucesso!');
+      toast.success("Template atualizado com sucesso!");
     } catch (error) {
-      console.error('Error updating template:', error);
-      toast.error('Erro ao atualizar template. Tente novamente.');
+      console.error("Error updating template:", error);
+      toast.error("Erro ao atualizar template. Tente novamente.");
     }
   };
 
-  const selectedQuestions = form.watch('questions') || [];
+  const selectedQuestions = form.watch("questions") || [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -279,7 +279,10 @@ export function EditTemplateDialog({
                   </div>
                   {loading ? (
                     <div className="flex items-center justify-center py-8">
-                      <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
+                      <Spinner
+                        variant="bars"
+                        className="w-6 h-6 text-muted-foreground"
+                      />
                     </div>
                   ) : questions.length === 0 ? (
                     <Card className="shadow-sm">
@@ -306,7 +309,7 @@ export function EditTemplateDialog({
                                 <FormControl>
                                   <Checkbox
                                     checked={field.value?.includes(
-                                      question._id || ''
+                                      question._id || "",
                                     )}
                                     onCheckedChange={(checked) => {
                                       const currentValue = field.value || [];
@@ -317,8 +320,8 @@ export function EditTemplateDialog({
                                           ])
                                         : field.onChange(
                                             currentValue.filter(
-                                              (value) => value !== question._id
-                                            )
+                                              (value) => value !== question._id,
+                                            ),
                                           );
                                     }}
                                   />
@@ -334,15 +337,15 @@ export function EditTemplateDialog({
                                           {question.description}
                                         </p>
                                       )}
-                                      {(question.inputType === 'select' ||
-                                        question.inputType === 'radio') &&
+                                      {(question.inputType === "select" ||
+                                        question.inputType === "radio") &&
                                         question.options &&
                                         question.options.length > 0 && (
                                           <div className="mt-2 p-2 bg-muted rounded-md">
                                             <p className="text-xs font-medium text-muted-foreground mb-1">
-                                              {question.inputType === 'select'
-                                                ? 'Opções do Select:'
-                                                : 'Opções do Radio:'}
+                                              {question.inputType === "select"
+                                                ? "Opções do Select:"
+                                                : "Opções do Radio:"}
                                             </p>
                                             <div className="flex flex-wrap gap-1">
                                               {question.options.map(
@@ -361,7 +364,7 @@ export function EditTemplateDialog({
                                                         if (question._id) {
                                                           handleRemoveOption(
                                                             question._id,
-                                                            option
+                                                            option,
                                                           );
                                                         }
                                                       }}
@@ -371,7 +374,7 @@ export function EditTemplateDialog({
                                                       <X className="h-3 w-3 text-white" />
                                                     </button>
                                                   </Badge>
-                                                )
+                                                ),
                                               )}
                                             </div>
                                           </div>
@@ -382,20 +385,20 @@ export function EditTemplateDialog({
                                         variant="outline"
                                         className="text-xs"
                                       >
-                                        {question.inputType === 'date' &&
-                                          '📅 Data'}
-                                        {question.inputType === 'select' &&
-                                          '📋 Select'}
-                                        {question.inputType === 'radio' &&
-                                          '🔘 Radio'}
-                                        {question.inputType === 'email' &&
-                                          '📧 Email'}
-                                        {question.inputType === 'tel' &&
-                                          '📞 Telefone'}
-                                        {question.inputType === 'number' &&
-                                          '🔢 Número'}
-                                        {question.inputType === 'text' &&
-                                          '📝 Texto'}
+                                        {question.inputType === "date" &&
+                                          "📅 Data"}
+                                        {question.inputType === "select" &&
+                                          "📋 Select"}
+                                        {question.inputType === "radio" &&
+                                          "🔘 Radio"}
+                                        {question.inputType === "email" &&
+                                          "📧 Email"}
+                                        {question.inputType === "tel" &&
+                                          "📞 Telefone"}
+                                        {question.inputType === "number" &&
+                                          "🔢 Número"}
+                                        {question.inputType === "text" &&
+                                          "📝 Texto"}
                                       </Badge>
                                     )}
                                   </div>

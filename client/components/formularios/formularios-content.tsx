@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { apiClient as api } from '@/lib/api-client';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale/pt-BR';
-import { FileStack, Calendar } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
-import { FillTemplateDialog } from '@/components/templates/fill-template-dialog';
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { apiClient as api } from "@/lib/api-client";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale/pt-BR";
+import { FileStack, Calendar } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { FillTemplateDialog } from "@/components/templates/fill-template-dialog";
 
 interface Template {
   _id?: string;
@@ -40,7 +40,7 @@ export function FormulariosContent() {
         const templatesData = await api.templates.getAll();
         setTemplates(templatesData);
       } catch (error) {
-        console.error('Error loading templates:', error);
+        console.error("Error loading templates:", error);
       } finally {
         setLoading(false);
       }
@@ -99,9 +99,11 @@ export function FormulariosContent() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-base">{template.title}</CardTitle>
+                    <CardTitle className="text-base">
+                      {template.title}
+                    </CardTitle>
                     <CardDescription className="mt-1">
-                      {template.description || 'Sem descrição'}
+                      {template.description || "Sem descrição"}
                     </CardDescription>
                   </div>
                   <Badge variant="outline" className="ml-2">
@@ -118,8 +120,8 @@ export function FormulariosContent() {
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Calendar className="w-3 h-3" />
                     <span>
-                      Criado em{' '}
-                      {format(new Date(template.createdAt), 'dd MMM yyyy', {
+                      Criado em{" "}
+                      {format(new Date(template.createdAt), "dd MMM yyyy", {
                         locale: ptBR,
                       })}
                     </span>

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { NavBar } from '@/components/ui/tubelight-navbar';
-import { LayoutDashboard, Search, FileStack } from 'lucide-react';
+import { NavBar } from "@/components/ui/tubelight-navbar";
+import { LayoutDashboard, Search, FileStack } from "lucide-react";
 
 const navigation = [
-  { name: 'Dashboard', url: '/', icon: LayoutDashboard },
-  { name: 'Consultas', url: '/consultas', icon: Search },
-  { name: 'Templates', url: '/templates', icon: FileStack },
+  { name: "Dashboard", url: "/", icon: LayoutDashboard },
+  { name: "Consultas", url: "/consultas", icon: Search },
+  { name: "Templates", url: "/templates", icon: FileStack },
 ];
 
 export function NavbarWrapper() {

@@ -1,14 +1,28 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowUp, Minus, TrendingUp, TrendingDown } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowUp,
+  Minus,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 
-type IconType = React.ElementType | React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-export type TrendType = 'up' | 'down' | 'neutral';
-export type SparklineType = 'line' | 'bars' | 'area';
-export type ColorVariant = 'blue' | 'teal' | 'orange' | 'purple' | 'green' | 'red';
+type IconType =
+  | React.ElementType
+  | React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+export type TrendType = "up" | "down" | "neutral";
+export type SparklineType = "line" | "bars" | "area";
+export type ColorVariant =
+  | "blue"
+  | "teal"
+  | "orange"
+  | "purple"
+  | "green"
+  | "red";
 
 export interface DashboardMetricCardProps {
   value: string | number;
@@ -25,8 +39,13 @@ export interface DashboardMetricCardProps {
 }
 
 // Generate sparkline paths
-function generateSparklinePath(data: number[], type: SparklineType, width: number, height: number): string {
-  if (!data || data.length === 0) return '';
+function generateSparklinePath(
+  data: number[],
+  type: SparklineType,
+  width: number,
+  height: number,
+): string {
+  if (!data || data.length === 0) return "";
 
   const max = Math.max(...data);
   const min = Math.min(...data);
@@ -38,25 +57,25 @@ function generateSparklinePath(data: number[], type: SparklineType, width: numbe
     return { x, y };
   });
 
-  if (type === 'area') {
-    const pathData = points.map((p, i) =>
-      i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`
-    ).join(' ');
+  if (type === "area") {
+    const pathData = points
+      .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
+      .join(" ");
     return `${pathData} L ${width} ${height} L 0 ${height} Z`;
   }
 
-  return points.map((p, i) =>
-    i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`
-  ).join(' ');
+  return points
+    .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
+    .join(" ");
 }
 
 // Sparkline component
 function Sparkline({
   data,
-  type = 'line',
-  color = '#2563EB',
+  type = "line",
+  color = "#2563EB",
   width = 80,
-  height = 40
+  height = 40,
 }: {
   data: number[];
   type?: SparklineType;
@@ -73,7 +92,7 @@ function Sparkline({
   const innerWidth = width - padding * 2;
   const innerHeight = height - padding * 2;
 
-  if (type === 'bars') {
+  if (type === "bars") {
     const barWidth = (innerWidth / data.length) * 0.7;
     const gap = (innerWidth / data.length) * 0.3;
     const max = Math.max(...data);
@@ -107,11 +126,17 @@ function Sparkline({
 
   const path = generateSparklinePath(data, type, innerWidth, innerHeight);
 
-  if (type === 'area') {
+  if (type === "area") {
     return (
       <svg width={width} height={height} className="overflow-visible">
         <defs>
-          <linearGradient id={`gradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient
+            id={`gradient-${color.replace("#", "")}`}
+            x1="0%"
+            y1="0%"
+            x2="0%"
+            y2="100%"
+          >
             <stop offset="0%" stopColor={color} stopOpacity="0.3" />
             <stop offset="100%" stopColor={color} stopOpacity="0" />
           </linearGradient>
@@ -119,13 +144,13 @@ function Sparkline({
         <g transform={`translate(${padding}, ${padding})`}>
           <motion.path
             d={path}
-            fill={`url(#gradient-${color.replace('#', '')})`}
+            fill={`url(#gradient-${color.replace("#", "")})`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           />
           <motion.path
-            d={generateSparklinePath(data, 'line', innerWidth, innerHeight)}
+            d={generateSparklinePath(data, "line", innerWidth, innerHeight)}
             stroke={color}
             strokeWidth={2}
             fill="none"
@@ -157,7 +182,14 @@ function Sparkline({
         {/* End dot */}
         <motion.circle
           cx={innerWidth}
-          cy={data[data.length - 1] ? innerHeight - ((data[data.length - 1] - Math.min(...data)) / (Math.max(...data) - Math.min(...data) || 1)) * innerHeight : innerHeight / 2}
+          cy={
+            data[data.length - 1]
+              ? innerHeight -
+                ((data[data.length - 1] - Math.min(...data)) /
+                  (Math.max(...data) - Math.min(...data) || 1)) *
+                  innerHeight
+              : innerHeight / 2
+          }
           r={3}
           fill={color}
           initial={{ scale: 0 }}
@@ -170,13 +202,16 @@ function Sparkline({
 }
 
 // Color mappings
-const colorMap: Record<ColorVariant, { bg: string; text: string; icon: string }> = {
-  blue: { bg: 'rgba(37, 99, 235, 0.1)', text: '#2563EB', icon: '#2563EB' },
-  teal: { bg: 'rgba(20, 184, 166, 0.1)', text: '#14B8A6', icon: '#14B8A6' },
-  orange: { bg: 'rgba(249, 115, 22, 0.1)', text: '#F97316', icon: '#F97316' },
-  purple: { bg: 'rgba(139, 92, 246, 0.1)', text: '#8B5CF6', icon: '#8B5CF6' },
-  green: { bg: 'rgba(16, 185, 129, 0.1)', text: '#10B981', icon: '#10B981' },
-  red: { bg: 'rgba(239, 68, 68, 0.1)', text: '#EF4444', icon: '#EF4444' },
+const colorMap: Record<
+  ColorVariant,
+  { bg: string; text: string; icon: string }
+> = {
+  blue: { bg: "rgba(37, 99, 235, 0.1)", text: "#2563EB", icon: "#2563EB" },
+  teal: { bg: "rgba(20, 184, 166, 0.1)", text: "#14B8A6", icon: "#14B8A6" },
+  orange: { bg: "rgba(249, 115, 22, 0.1)", text: "#F97316", icon: "#F97316" },
+  purple: { bg: "rgba(139, 92, 246, 0.1)", text: "#8B5CF6", icon: "#8B5CF6" },
+  green: { bg: "rgba(16, 185, 129, 0.1)", text: "#10B981", icon: "#10B981" },
+  red: { bg: "rgba(239, 68, 68, 0.1)", text: "#EF4444", icon: "#EF4444" },
 };
 
 export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
@@ -185,22 +220,27 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
   icon: IconComponent,
   description,
   trendChange,
-  trendType = 'neutral',
+  trendType = "neutral",
   className,
   animationDelay = 0,
-  sparklineType = 'bars',
+  sparklineType = "bars",
   sparklineData,
-  colorVariant = 'blue',
+  colorVariant = "blue",
 }) => {
   const colors = colorMap[colorVariant];
 
-  const TrendIcon = trendType === 'up' ? TrendingUp : trendType === 'down' ? TrendingDown : Minus;
+  const TrendIcon =
+    trendType === "up"
+      ? TrendingUp
+      : trendType === "down"
+        ? TrendingDown
+        : Minus;
   const trendColorClass =
-    trendType === 'up'
+    trendType === "up"
       ? "text-emerald-500"
-      : trendType === 'down'
-      ? "text-red-500"
-      : "text-muted-foreground";
+      : trendType === "down"
+        ? "text-red-500"
+        : "text-muted-foreground";
 
   return (
     <motion.div
@@ -209,11 +249,11 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
       transition={{
         duration: 0.4,
         delay: animationDelay,
-        ease: [0.25, 0.46, 0.45, 0.94]
+        ease: [0.25, 0.46, 0.45, 0.94],
       }}
       className={cn(
         "kpi-card relative flex items-center justify-between gap-4",
-        className
+        className,
       )}
     >
       {/* Left side - Icon, Value, Title */}
@@ -239,10 +279,17 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
               className="text-xl font-bold tracking-tight"
               style={{ color: colors.text }}
             >
-              {typeof value === 'number' ? value.toLocaleString('pt-PT') : value}
+              {typeof value === "number"
+                ? value.toLocaleString("pt-PT")
+                : value}
             </span>
             {trendChange && (
-              <span className={cn("flex items-center text-xs font-medium", trendColorClass)}>
+              <span
+                className={cn(
+                  "flex items-center text-xs font-medium",
+                  trendColorClass,
+                )}
+              >
                 <TrendIcon className="h-3 w-3 mr-0.5" />
                 {trendChange}
               </span>
@@ -269,6 +316,8 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
 };
 
 // Simplified card without sparkline for other uses
-export const SimpleMetricCard: React.FC<Omit<DashboardMetricCardProps, 'sparklineType' | 'sparklineData'>> = (props) => {
+export const SimpleMetricCard: React.FC<
+  Omit<DashboardMetricCardProps, "sparklineType" | "sparklineData">
+> = (props) => {
   return <DashboardMetricCard {...props} sparklineType="line" />;
 };

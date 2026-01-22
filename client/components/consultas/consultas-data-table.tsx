@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -8,42 +8,42 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
-} from '@/components/ui/pagination';
+} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale/pt-BR';
+} from "@/components/ui/select";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale/pt-BR";
 import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
   Eye,
-} from 'lucide-react';
-import type { ConsultasFiltersState } from './consultas-filters';
+} from "lucide-react";
+import type { ConsultasFiltersState } from "./consultas-filters";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
-import { apiClient as api } from '@/lib/api-client';
-import { QuestionInput } from '@/components/questions/question-input';
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { apiClient as api } from "@/lib/api-client";
+import { QuestionInput } from "@/components/questions/question-input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,11 +53,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Edit, Save, X, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
-import { useModal } from '@/lib/contexts/modal-context';
+} from "@/components/ui/alert-dialog";
+import { Edit, Save, X, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useModal } from "@/lib/contexts/modal-context";
 import {
   ColumnDef,
   PaginationState,
@@ -67,9 +67,9 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import { usePagination } from '@/components/hooks/use-pagination';
-import { cn } from '@/lib/utils';
+} from "@tanstack/react-table";
+import { usePagination } from "@/components/hooks/use-pagination";
+import { cn } from "@/lib/utils";
 
 interface Submission {
   _id?: string;
@@ -103,7 +103,7 @@ export function ConsultasDataTable({
   onSubmissionUpdate,
 }: ConsultasDataTableProps) {
   const [viewingSubmission, setViewingSubmission] = useState<Submission | null>(
-    null
+    null,
   );
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [questionsData, setQuestionsData] = useState<any[]>([]);
@@ -111,7 +111,7 @@ export function ConsultasDataTable({
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedAnswers, setEditedAnswers] = useState<Record<string, string>>(
-    {}
+    {},
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -123,7 +123,7 @@ export function ConsultasDataTable({
 
   const [sorting, setSorting] = useState<SortingState>([
     {
-      id: 'submittedAt',
+      id: "submittedAt",
       desc: true,
     },
   ]);
@@ -156,7 +156,7 @@ export function ConsultasDataTable({
       ]);
 
       const template = templates.find(
-        (t: any) => t._id === submission.templateId
+        (t: any) => t._id === submission.templateId,
       );
       setTemplateData(template);
 
@@ -173,7 +173,7 @@ export function ConsultasDataTable({
         setEditedAnswers(initialAnswers);
       }
     } catch (error) {
-      console.error('Error loading submission details:', error);
+      console.error("Error loading submission details:", error);
     } finally {
       setLoadingDetails(false);
     }
@@ -200,7 +200,7 @@ export function ConsultasDataTable({
     setSaving(true);
     try {
       const originalAnswersMap = new Map(
-        viewingSubmission.answers.map((a) => [a.questionId, a.answer])
+        viewingSubmission.answers.map((a) => [a.questionId, a.answer]),
       );
 
       Object.entries(editedAnswers).forEach(([questionId, answer]) => {
@@ -213,17 +213,17 @@ export function ConsultasDataTable({
         ([questionId, answer]) => ({
           questionId,
           answer: String(answer),
-        })
+        }),
       );
 
       const updatedSubmission = await api.submissions.update(
         viewingSubmission._id,
-        { answers }
+        { answers },
       );
 
       if (!updatedSubmission || !updatedSubmission.answers) {
         const fetchedSubmission = await api.submissions.getById(
-          viewingSubmission._id
+          viewingSubmission._id,
         );
         setViewingSubmission(fetchedSubmission);
 
@@ -231,7 +231,7 @@ export function ConsultasDataTable({
         fetchedSubmission.answers.forEach(
           (answer: { questionId: string; answer: string }) => {
             updatedAnswers[answer.questionId] = answer.answer;
-          }
+          },
         );
         setEditedAnswers(updatedAnswers);
       } else {
@@ -241,13 +241,13 @@ export function ConsultasDataTable({
         updatedSubmission.answers.forEach(
           (answer: { questionId: string; answer: string }) => {
             updatedAnswers[answer.questionId] = answer.answer;
-          }
+          },
         );
         setEditedAnswers(updatedAnswers);
       }
 
       setIsEditing(false);
-      toast.success('Formulário atualizado com sucesso!');
+      toast.success("Formulário atualizado com sucesso!");
 
       if (onSubmissionUpdate) {
         onSubmissionUpdate();
@@ -255,9 +255,9 @@ export function ConsultasDataTable({
         router.refresh();
       }
     } catch (error: any) {
-      console.error('Error saving submission:', error);
+      console.error("Error saving submission:", error);
       toast.error(
-        error?.message || 'Erro ao salvar alterações. Tente novamente.'
+        error?.message || "Erro ao salvar alterações. Tente novamente.",
       );
     } finally {
       setSaving(false);
@@ -279,7 +279,7 @@ export function ConsultasDataTable({
   const handleDelete = async () => {
     const submission = submissionToDelete || viewingSubmission;
     if (!submission?._id) {
-      console.error('No submission ID available for deletion');
+      console.error("No submission ID available for deletion");
       return;
     }
 
@@ -300,7 +300,7 @@ export function ConsultasDataTable({
       }
 
       setSubmissionToDelete(null);
-      toast.success('Formulário removido com sucesso!');
+      toast.success("Formulário removido com sucesso!");
 
       setTimeout(() => {
         if (onSubmissionUpdate) {
@@ -310,9 +310,9 @@ export function ConsultasDataTable({
         }
       }, 200);
     } catch (error: any) {
-      console.error('Error deleting submission:', error);
+      console.error("Error deleting submission:", error);
       const errorMessage =
-        error?.message || 'Erro ao remover formulário. Tente novamente.';
+        error?.message || "Erro ao remover formulário. Tente novamente.";
       toast.error(errorMessage);
       setDeleting(false);
     }
@@ -321,49 +321,49 @@ export function ConsultasDataTable({
   const columns: ColumnDef<Submission>[] = useMemo(
     () => [
       {
-        header: 'Template',
-        accessorKey: 'templateTitle',
+        header: "Template",
+        accessorKey: "templateTitle",
         cell: ({ row }) => (
           <div className="font-medium">
-            {row.getValue('templateTitle') || 'Template não encontrado'}
+            {row.getValue("templateTitle") || "Template não encontrado"}
           </div>
         ),
       },
       {
-        header: 'Nome do Cliente',
-        accessorKey: 'nomeClienteAnswer',
+        header: "Nome do Cliente",
+        accessorKey: "nomeClienteAnswer",
         cell: ({ row }) => {
-          const value = row.getValue('nomeClienteAnswer') as string;
+          const value = row.getValue("nomeClienteAnswer") as string;
           return value || <span className="text-muted-foreground">-</span>;
         },
       },
       {
-        header: 'Banco',
-        accessorKey: 'bancoAnswer',
+        header: "Banco",
+        accessorKey: "bancoAnswer",
         cell: ({ row }) => {
-          const value = row.getValue('bancoAnswer') as string;
+          const value = row.getValue("bancoAnswer") as string;
           return value || <span className="text-muted-foreground">-</span>;
         },
       },
       {
-        header: 'Seguradora',
-        accessorKey: 'seguradoraAnswer',
+        header: "Seguradora",
+        accessorKey: "seguradoraAnswer",
         cell: ({ row }) => {
-          const value = row.getValue('seguradoraAnswer') as string;
+          const value = row.getValue("seguradoraAnswer") as string;
           return value || <span className="text-muted-foreground">-</span>;
         },
       },
       {
-        header: 'Valor',
-        accessorKey: 'valorAnswer',
+        header: "Valor",
+        accessorKey: "valorAnswer",
         cell: ({ row }) => {
-          const value = row.getValue('valorAnswer') as string;
+          const value = row.getValue("valorAnswer") as string;
           if (value) {
             return (
               <span className="font-medium">
-                {Number(value).toLocaleString('pt-PT', {
-                  style: 'currency',
-                  currency: 'EUR',
+                {Number(value).toLocaleString("pt-PT", {
+                  style: "currency",
+                  currency: "EUR",
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -374,18 +374,18 @@ export function ConsultasDataTable({
         },
       },
       {
-        header: 'Submetido em',
-        accessorKey: 'submittedAt',
+        header: "Submetido em",
+        accessorKey: "submittedAt",
         cell: ({ row }) => {
-          const date = row.getValue('submittedAt') as Date | string;
+          const date = row.getValue("submittedAt") as Date | string;
           return format(new Date(date), "dd MMM yyyy 'às' HH:mm", {
             locale: ptBR,
           });
         },
       },
       {
-        header: 'Ações',
-        id: 'actions',
+        header: "Ações",
+        id: "actions",
         cell: ({ row }) => {
           const submission = row.original;
           return (
@@ -414,7 +414,7 @@ export function ConsultasDataTable({
         enableSorting: false,
       },
     ],
-    []
+    [],
   );
 
   const table = useReactTable({
@@ -444,7 +444,10 @@ export function ConsultasDataTable({
         <Table>
           <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent border-b border-border/50">
+              <TableRow
+                key={headerGroup.id}
+                className="hover:bg-transparent border-b border-border/50"
+              >
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
@@ -455,13 +458,13 @@ export function ConsultasDataTable({
                         <div
                           className={cn(
                             header.column.getCanSort() &&
-                              'flex h-full cursor-pointer select-none items-center justify-between gap-2'
+                              "flex h-full cursor-pointer select-none items-center justify-between gap-2",
                           )}
                           onClick={header.column.getToggleSortingHandler()}
                           onKeyDown={(e) => {
                             if (
                               header.column.getCanSort() &&
-                              (e.key === 'Enter' || e.key === ' ')
+                              (e.key === "Enter" || e.key === " ")
                             ) {
                               e.preventDefault();
                               header.column.getToggleSortingHandler()?.(e);
@@ -471,7 +474,7 @@ export function ConsultasDataTable({
                         >
                           {flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                           {{
                             asc: (
@@ -495,7 +498,7 @@ export function ConsultasDataTable({
                       ) : (
                         flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )
                       )}
                     </TableHead>
@@ -509,14 +512,14 @@ export function ConsultasDataTable({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
+                  data-state={row.getIsSelected() && "selected"}
                   className="hover:bg-muted/30 transition-colors border-b border-border/50"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="px-4 py-3 align-middle">
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -542,11 +545,14 @@ export function ConsultasDataTable({
           className="flex-1 whitespace-nowrap text-sm text-muted-foreground"
           aria-live="polite"
         >
-          Página{' '}
+          Página{" "}
           <span className="font-medium text-foreground">
             {table.getState().pagination.pageIndex + 1}
-          </span>{' '}
-          de <span className="font-medium text-foreground">{table.getPageCount()}</span>
+          </span>{" "}
+          de{" "}
+          <span className="font-medium text-foreground">
+            {table.getPageCount()}
+          </span>
         </p>
 
         <div className="grow">
@@ -578,9 +584,9 @@ export function ConsultasDataTable({
                   <PaginationItem key={page}>
                     <Button
                       size="icon"
-                      variant={isActive ? 'outline' : 'ghost'}
+                      variant={isActive ? "outline" : "ghost"}
                       onClick={() => table.setPageIndex(page - 1)}
-                      aria-current={isActive ? 'page' : undefined}
+                      aria-current={isActive ? "page" : undefined}
                     >
                       {page}
                     </Button>
@@ -655,17 +661,17 @@ export function ConsultasDataTable({
             <div className="px-6 pt-6 pb-4 shrink-0 border-b">
               <DialogHeader>
                 <DialogTitle className="text-2xl">
-                  {templateData?.title || 'Formulário'}
+                  {templateData?.title || "Formulário"}
                 </DialogTitle>
                 <DialogDescription>
-                  {templateData?.description || 'Sem descrição'}
+                  {templateData?.description || "Sem descrição"}
                 </DialogDescription>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Submetido em{' '}
+                  Submetido em{" "}
                   {format(
                     new Date(viewingSubmission.submittedAt),
                     "dd 'de' MMMM 'de' yyyy 'às' HH:mm",
-                    { locale: ptBR }
+                    { locale: ptBR },
                   )}
                 </p>
               </DialogHeader>
@@ -700,58 +706,58 @@ export function ConsultasDataTable({
                       {(() => {
                         // Agrupar questões por seções lógicas
                         const clientSection = questionsData.filter((q) => {
-                          const title = q.title?.toLowerCase() || '';
+                          const title = q.title?.toLowerCase() || "";
                           return (
-                            title.includes('cliente') ||
-                            title.includes('nome') ||
-                            title.includes('email') ||
-                            title.includes('telefone') ||
-                            title.includes('nascimento') ||
-                            title.includes('distrito')
+                            title.includes("cliente") ||
+                            title.includes("nome") ||
+                            title.includes("email") ||
+                            title.includes("telefone") ||
+                            title.includes("nascimento") ||
+                            title.includes("distrito")
                           );
                         });
 
                         const financialSection = questionsData.filter((q) => {
-                          const title = q.title?.toLowerCase() || '';
+                          const title = q.title?.toLowerCase() || "";
                           return (
-                            title.includes('valor') ||
-                            title.includes('banco') ||
-                            title.includes('seguradora') ||
-                            title.includes('fracionamento')
+                            title.includes("valor") ||
+                            title.includes("banco") ||
+                            title.includes("seguradora") ||
+                            title.includes("fracionamento")
                           );
                         });
 
                         const generalSection = questionsData.filter((q) => {
-                          const title = q.title?.toLowerCase() || '';
+                          const title = q.title?.toLowerCase() || "";
                           return (
-                            !title.includes('cliente') &&
-                            !title.includes('nome') &&
-                            !title.includes('email') &&
-                            !title.includes('telefone') &&
-                            !title.includes('nascimento') &&
-                            !title.includes('distrito') &&
-                            !title.includes('valor') &&
-                            !title.includes('banco') &&
-                            !title.includes('seguradora') &&
-                            !title.includes('fracionamento')
+                            !title.includes("cliente") &&
+                            !title.includes("nome") &&
+                            !title.includes("email") &&
+                            !title.includes("telefone") &&
+                            !title.includes("nascimento") &&
+                            !title.includes("distrito") &&
+                            !title.includes("valor") &&
+                            !title.includes("banco") &&
+                            !title.includes("seguradora") &&
+                            !title.includes("fracionamento")
                           );
                         });
 
                         const sections = [
                           {
-                            title: 'Informações do Cliente',
+                            title: "Informações do Cliente",
                             description:
-                              'Dados pessoais e de contacto do cliente',
+                              "Dados pessoais e de contacto do cliente",
                             questions: clientSection,
                           },
                           {
-                            title: 'Informações Financeiras',
-                            description: 'Detalhes financeiros e bancários',
+                            title: "Informações Financeiras",
+                            description: "Detalhes financeiros e bancários",
                             questions: financialSection,
                           },
                           {
-                            title: 'Informações Gerais',
-                            description: 'Outras informações relevantes',
+                            title: "Informações Gerais",
+                            description: "Outras informações relevantes",
                             questions: generalSection,
                           },
                         ].filter((section) => section.questions.length > 0);
@@ -769,9 +775,9 @@ export function ConsultasDataTable({
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                               {section.questions.map((question, index) => {
                                 const answer = isEditing
-                                  ? editedAnswers[question._id || '']
+                                  ? editedAnswers[question._id || ""]
                                   : viewingSubmission.answers.find(
-                                      (a) => a.questionId === question._id
+                                      (a) => a.questionId === question._id,
                                     )?.answer;
 
                                 if (!question._id) return null;
@@ -796,11 +802,11 @@ export function ConsultasDataTable({
                                       <div className="mt-2">
                                         <QuestionInput
                                           question={question}
-                                          value={answer || ''}
+                                          value={answer || ""}
                                           onChange={(value) =>
                                             handleAnswerChange(
-                                              question._id || '',
-                                              value
+                                              question._id || "",
+                                              value,
                                             )
                                           }
                                         />
@@ -907,7 +913,7 @@ export function ConsultasDataTable({
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? 'Removendo...' : 'Remover'}
+              {deleting ? "Removendo..." : "Remover"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

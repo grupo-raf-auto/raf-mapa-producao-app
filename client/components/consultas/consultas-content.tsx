@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { apiClient as api } from '@/lib/api-client';
-import { ConsultasWrapper } from './consultas-wrapper';
-import { Spinner } from '@/components/ui/spinner';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState, useEffect } from "react";
+import { apiClient as api } from "@/lib/api-client";
+import { ConsultasWrapper } from "./consultas-wrapper";
+import { Spinner } from "@/components/ui/spinner";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function ConsultasContent() {
   const [submissions, setSubmissions] = useState<any[]>([]);
@@ -24,8 +24,8 @@ export function ConsultasContent() {
       setSubmissions(submissionsData || []);
       setTemplates(templatesData || []);
     } catch (error: any) {
-      console.error('Error loading data:', error);
-      setError(error.message || 'Erro ao carregar dados. Tente novamente.');
+      console.error("Error loading data:", error);
+      setError(error.message || "Erro ao carregar dados. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,9 @@ export function ConsultasContent() {
         </div>
         <Card>
           <CardContent className="py-8 text-center">
-            <p className="text-destructive font-medium mb-2">Erro ao carregar formulários</p>
+            <p className="text-destructive font-medium mb-2">
+              Erro ao carregar formulários
+            </p>
             <p className="text-sm text-muted-foreground">{error}</p>
           </CardContent>
         </Card>
@@ -82,8 +84,8 @@ export function ConsultasContent() {
         </p>
       </div>
 
-      <ConsultasWrapper 
-        submissions={submissions} 
+      <ConsultasWrapper
+        submissions={submissions}
         templates={templates}
         onSubmissionUpdate={loadData}
       />

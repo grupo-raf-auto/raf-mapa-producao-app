@@ -1,6 +1,6 @@
-'use client';
-import { type JSX, useEffect, useState, useRef } from 'react';
-import { motion, MotionProps } from 'framer-motion';
+"use client";
+import { type JSX, useEffect, useState, useRef } from "react";
+import { motion, MotionProps } from "framer-motion";
 
 type TextScrambleProps = {
   children: string;
@@ -14,7 +14,7 @@ type TextScrambleProps = {
 } & MotionProps;
 
 const defaultChars =
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 export function TextScramble({
   children,
@@ -22,13 +22,13 @@ export function TextScramble({
   speed = 0.04,
   characterSet = defaultChars,
   className,
-  as: Component = 'p',
+  as: Component = "p",
   trigger = true,
   onScrambleComplete,
   ...props
 }: TextScrambleProps) {
   const MotionComponent = motion.create(
-    Component as keyof JSX.IntrinsicElements
+    Component as keyof JSX.IntrinsicElements,
   );
   const [displayText, setDisplayText] = useState(children);
   const isAnimatingRef = useRef(false);
@@ -51,10 +51,10 @@ export function TextScramble({
     // Prevent multiple animations
     if (isAnimatingRef.current) return;
     isAnimatingRef.current = true;
-    
+
     // Mostra o texto imediatamente para evitar lag visual
     setDisplayText(text);
-    
+
     const steps = Math.ceil(duration / speed);
     let step = 0;
     let interval: NodeJS.Timeout | null = null;
@@ -63,19 +63,19 @@ export function TextScramble({
     // Pequeno delay antes de começar o scramble para o texto aparecer primeiro
     const scrambleStartDelay = setTimeout(() => {
       if (cancelled) return;
-      setDisplayText(''); // Reset para começar o scramble
-      
+      setDisplayText(""); // Reset para começar o scramble
+
       interval = setInterval(() => {
         if (cancelled) {
           if (interval) clearInterval(interval);
           return;
         }
-        
-        let scrambled = '';
+
+        let scrambled = "";
         const progress = step / steps;
 
         for (let i = 0; i < text.length; i++) {
-          if (text[i] === ' ' || text[i] === '\n') {
+          if (text[i] === " " || text[i] === "\n") {
             scrambled += text[i];
             continue;
           }
@@ -110,9 +110,9 @@ export function TextScramble({
   }, [trigger, text]);
 
   return (
-    <MotionComponent 
-      className={className} 
-      style={{ whiteSpace: 'pre-line' }}
+    <MotionComponent
+      className={className}
+      style={{ whiteSpace: "pre-line" }}
       {...props}
     >
       {displayText}

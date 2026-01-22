@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,20 +10,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { apiClient as api } from '@/lib/api-client';
-import { toast } from 'sonner';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale/pt-BR';
-import { Spinner } from '@/components/ui/spinner';
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { apiClient as api } from "@/lib/api-client";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale/pt-BR";
+import { Spinner } from "@/components/ui/spinner";
 
 interface User {
   _id: string;
   email: string;
   firstName?: string;
   lastName?: string;
-  role: 'admin' | 'user';
+  role: "admin" | "user";
   isActive: boolean;
   createdAt: Date;
 }
@@ -42,7 +42,7 @@ export function UsersManagement() {
       const data = await api.users.getAll();
       setUsers(data);
     } catch (error: any) {
-      toast.error('Erro ao carregar usuários: ' + error.message);
+      toast.error("Erro ao carregar usuários: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -51,20 +51,22 @@ export function UsersManagement() {
   const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
     try {
       await api.users.update(userId, { isActive: !currentStatus });
-      toast.success(`Usuário ${!currentStatus ? 'ativado' : 'desativado'} com sucesso`);
+      toast.success(
+        `Usuário ${!currentStatus ? "ativado" : "desativado"} com sucesso`,
+      );
       loadUsers();
     } catch (error: any) {
-      toast.error('Erro ao atualizar usuário: ' + error.message);
+      toast.error("Erro ao atualizar usuário: " + error.message);
     }
   };
 
-  const changeRole = async (userId: string, newRole: 'admin' | 'user') => {
+  const changeRole = async (userId: string, newRole: "admin" | "user") => {
     try {
       await api.users.update(userId, { role: newRole });
-      toast.success('Role atualizado com sucesso');
+      toast.success("Role atualizado com sucesso");
       loadUsers();
     } catch (error: any) {
-      toast.error('Erro ao atualizar role: ' + error.message);
+      toast.error("Erro ao atualizar role: " + error.message);
     }
   };
 
@@ -98,7 +100,10 @@ export function UsersManagement() {
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-8 text-muted-foreground"
+                >
                   Nenhum usuário encontrado
                 </TableCell>
               </TableRow>
@@ -107,22 +112,26 @@ export function UsersManagement() {
                 <TableRow key={user._id}>
                   <TableCell>
                     {user.firstName || user.lastName
-                      ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
-                      : '-'}
+                      ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+                      : "-"}
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                      {user.role === 'admin' ? 'Admin' : 'User'}
+                    <Badge
+                      variant={user.role === "admin" ? "default" : "secondary"}
+                    >
+                      {user.role === "admin" ? "Admin" : "User"}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={user.isActive ? 'default' : 'destructive'}>
-                      {user.isActive ? 'Ativo' : 'Inativo'}
+                    <Badge variant={user.isActive ? "default" : "destructive"}>
+                      {user.isActive ? "Ativo" : "Inativo"}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {format(new Date(user.createdAt), 'dd/MM/yyyy', { locale: ptBR })}
+                    {format(new Date(user.createdAt), "dd/MM/yyyy", {
+                      locale: ptBR,
+                    })}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -130,17 +139,22 @@ export function UsersManagement() {
                         variant="outline"
                         size="sm"
                         onClick={() =>
-                          changeRole(user._id, user.role === 'admin' ? 'user' : 'admin')
+                          changeRole(
+                            user._id,
+                            user.role === "admin" ? "user" : "admin",
+                          )
                         }
                       >
-                        {user.role === 'admin' ? 'Tornar User' : 'Tornar Admin'}
+                        {user.role === "admin" ? "Tornar User" : "Tornar Admin"}
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => toggleUserStatus(user._id, user.isActive)}
+                        onClick={() =>
+                          toggleUserStatus(user._id, user.isActive)
+                        }
                       >
-                        {user.isActive ? 'Desativar' : 'Ativar'}
+                        {user.isActive ? "Desativar" : "Ativar"}
                       </Button>
                     </div>
                   </TableCell>

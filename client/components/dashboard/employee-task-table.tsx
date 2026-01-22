@@ -1,13 +1,17 @@
-'use client';
+"use client";
 
-import { Eye } from 'lucide-react';
-import Link from 'next/link';
+import { Eye } from "lucide-react";
+import Link from "next/link";
 
 interface Submission {
   id: string;
   templateId: string;
   template?: { name: string };
-  answers: { questionId: string; question?: { text: string }; answer: string }[];
+  answers: {
+    questionId: string;
+    question?: { text: string };
+    answer: string;
+  }[];
   createdAt: string;
   user?: { name: string; email: string };
 }
@@ -17,20 +21,23 @@ interface EmployeeTaskTableProps {
 }
 
 // Helper para extrair valor de uma resposta
-function getAnswerValue(answers: Submission['answers'], questionText: string): string {
-  const answer = answers.find(a =>
-    a.question?.text?.toLowerCase().includes(questionText.toLowerCase())
+function getAnswerValue(
+  answers: Submission["answers"],
+  questionText: string,
+): string {
+  const answer = answers.find((a) =>
+    a.question?.text?.toLowerCase().includes(questionText.toLowerCase()),
   );
-  return answer?.answer || '-';
+  return answer?.answer || "-";
 }
 
 // Helper para formatar valor monetário
 function formatCurrency(value: string): string {
   const num = parseFloat(value);
   if (isNaN(num)) return value;
-  return num.toLocaleString('pt-PT', {
-    style: 'currency',
-    currency: 'EUR',
+  return num.toLocaleString("pt-PT", {
+    style: "currency",
+    currency: "EUR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
@@ -39,14 +46,16 @@ function formatCurrency(value: string): string {
 // Helper para formatar data
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString('pt-PT', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
+  return date.toLocaleDateString("pt-PT", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   });
 }
 
-export function EmployeeTaskTable({ submissions = [] }: EmployeeTaskTableProps) {
+export function EmployeeTaskTable({
+  submissions = [],
+}: EmployeeTaskTableProps) {
   const hasSubmissions = submissions.length > 0;
 
   return (
@@ -56,10 +65,7 @@ export function EmployeeTaskTable({ submissions = [] }: EmployeeTaskTableProps) 
         <h3 className="data-table-title">Últimas Submissões</h3>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/consultas"
-            className="btn btn-primary text-sm"
-          >
+          <Link href="/consultas" className="btn btn-primary text-sm">
             Ver Todas
           </Link>
         </div>
@@ -81,19 +87,22 @@ export function EmployeeTaskTable({ submissions = [] }: EmployeeTaskTableProps) 
           <tbody>
             {hasSubmissions ? (
               submissions.map((submission) => {
-                const banco = getAnswerValue(submission.answers, 'banco');
-                const seguradora = getAnswerValue(submission.answers, 'seguradora');
-                const valor = getAnswerValue(submission.answers, 'valor');
+                const banco = getAnswerValue(submission.answers, "banco");
+                const seguradora = getAnswerValue(
+                  submission.answers,
+                  "seguradora",
+                );
+                const valor = getAnswerValue(submission.answers, "valor");
 
                 return (
                   <tr key={submission.id}>
                     <td className="font-medium">
-                      {submission.template?.name || 'Formulário'}
+                      {submission.template?.name || "Formulário"}
                     </td>
                     <td className="text-muted-foreground">{banco}</td>
                     <td className="text-muted-foreground">{seguradora}</td>
                     <td className="font-medium text-primary">
-                      {valor !== '-' ? formatCurrency(valor) : '-'}
+                      {valor !== "-" ? formatCurrency(valor) : "-"}
                     </td>
                     <td className="text-muted-foreground">
                       {formatDate(submission.createdAt)}
@@ -113,10 +122,16 @@ export function EmployeeTaskTable({ submissions = [] }: EmployeeTaskTableProps) 
               })
             ) : (
               <tr>
-                <td colSpan={6} className="text-center text-muted-foreground py-8">
+                <td
+                  colSpan={6}
+                  className="text-center text-muted-foreground py-8"
+                >
                   Ainda não existem submissões.
                   <br />
-                  <Link href="/formularios" className="text-primary hover:underline">
+                  <Link
+                    href="/formularios"
+                    className="text-primary hover:underline"
+                  >
                     Preencher formulário
                   </Link>
                 </td>

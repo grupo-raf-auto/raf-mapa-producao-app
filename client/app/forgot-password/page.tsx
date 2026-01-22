@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { toast } from 'sonner';
-import { forgetPassword } from '@/lib/auth-client';
-import { ArrowRight } from 'lucide-react';
+import { useState } from "react";
+import Link from "next/link";
+import { toast } from "sonner";
+import { forgetPassword } from "@/lib/auth-client";
+import { ArrowRight } from "lucide-react";
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) {
-      toast.error('Indique o seu email');
+      toast.error("Indique o seu email");
       return;
     }
     setLoading(true);
@@ -22,16 +22,20 @@ export default function ForgotPasswordPage() {
     try {
       const { error } = await forgetPassword({
         email: email.trim(),
-        redirectTo: '/reset-password',
+        redirectTo: "/reset-password",
       });
       if (error) {
         toast.error(error.message);
         return;
       }
       setSent(true);
-      toast.success('Se o email existir, receberá as instruções em breve.');
+      toast.success("Se o email existir, receberá as instruções em breve.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Erro ao solicitar recuperação de senha');
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Erro ao solicitar recuperação de senha",
+      );
     } finally {
       setLoading(false);
     }
@@ -40,17 +44,21 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
-        <h1 className="text-2xl font-bold text-gray-800 mb-1">Recuperar senha</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-1">
+          Recuperar senha
+        </h1>
         <p className="text-gray-500 mb-6">
           {sent
-            ? 'Se existir uma conta com esse email, enviámos as instruções para redefinir a senha.'
-            : 'Indique o email da sua conta. Enviaremos um link para redefinir a senha.'}
+            ? "Se existir uma conta com esse email, enviámos as instruções para redefinir a senha."
+            : "Indique o email da sua conta. Enviaremos um link para redefinir a senha."}
         </p>
 
         {!sent ? (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email *
+              </label>
               <input
                 type="email"
                 value={email}
@@ -66,12 +74,13 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-sm font-medium text-white hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50"
             >
-              {loading ? 'A enviar...' : 'Enviar link de recuperação'} <ArrowRight className="h-4 w-4" />
+              {loading ? "A enviar..." : "Enviar link de recuperação"}{" "}
+              <ArrowRight className="h-4 w-4" />
             </button>
           </form>
         ) : (
           <p className="text-sm text-gray-600">
-            O link expira em 1 hora. Não recebeu? Verifique o spam ou{' '}
+            O link expira em 1 hora. Não recebeu? Verifique o spam ou{" "}
             <button
               type="button"
               onClick={() => setSent(false)}

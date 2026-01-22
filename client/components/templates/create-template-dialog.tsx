@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -9,8 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -18,20 +18,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { apiClient as api } from '@/lib/api-client';
-import { Badge } from '@/components/ui/badge';
-import { Spinner } from '@/components/ui/spinner';
-import { Card, CardContent } from '@/components/ui/card';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { apiClient as api } from "@/lib/api-client";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { Card, CardContent } from "@/components/ui/card";
 
 const templateSchema = z.object({
-  title: z.string().min(1, 'Título é obrigatório'),
+  title: z.string().min(1, "Título é obrigatório"),
   description: z.string().optional(),
   questions: z.array(z.string()),
 });
@@ -43,11 +43,15 @@ interface Question {
   title: string;
   description?: string;
   status: string;
-  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
+  inputType?: "text" | "date" | "select" | "email" | "tel" | "number" | "radio";
   options?: string[];
 }
 
-export function CreateTemplateDialog({ children }: { children: React.ReactNode }) {
+export function CreateTemplateDialog({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
@@ -56,8 +60,8 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
   const form = useForm<TemplateFormValues>({
     resolver: zodResolver(templateSchema),
     defaultValues: {
-      title: '',
-      description: '',
+      title: "",
+      description: "",
       questions: [],
     },
   });
@@ -72,26 +76,25 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
 
   // Ordem definida para as questões
   const questionOrder = [
-    'Data',
-    'Apontador',
-    'Agente',
-    'Nome do Cliente',
-    'Data nascimento',
-    'Email cliente',
-    'Telefone cliente',
-    'Distrito cliente',
-    'Rating cliente',
-    'Seguradora',
-    'Banco',
-    'Valor',
-    'Fracionamento',
+    "Data",
+    "Apontador",
+    "Agente",
+    "Nome do Cliente",
+    "Data nascimento",
+    "Email cliente",
+    "Telefone cliente",
+    "Distrito cliente",
+    "Rating cliente",
+    "Seguradora",
+    "Banco",
+    "Valor",
+    "Fracionamento",
   ];
 
   const sortQuestions = (questions: Question[]): Question[] => {
     // Remover duplicatas baseado no título
     const uniqueQuestions = questions.filter(
-      (q, index, self) =>
-        index === self.findIndex((t) => t.title === q.title)
+      (q, index, self) => index === self.findIndex((t) => t.title === q.title),
     );
 
     // Ordenar de acordo com a ordem especificada
@@ -115,12 +118,12 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
   const loadQuestions = async () => {
     setLoading(true);
     try {
-      const allQuestions = await api.questions.getAll({ status: 'active' });
+      const allQuestions = await api.questions.getAll({ status: "active" });
       // Ordenar e remover duplicatas
       const sortedQuestions = sortQuestions(allQuestions);
       setQuestions(sortedQuestions);
     } catch (error) {
-      console.error('Error loading questions:', error);
+      console.error("Error loading questions:", error);
     } finally {
       setLoading(false);
     }
@@ -137,13 +140,12 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
       setOpen(false);
       form.reset();
     } catch (error) {
-      console.error('Error creating template:', error);
-      alert('Erro ao criar template. Tente novamente.');
+      console.error("Error creating template:", error);
+      alert("Erro ao criar template. Tente novamente.");
     }
   };
 
-  const selectedQuestions = form.watch('questions') || [];
-
+  const selectedQuestions = form.watch("questions") || [];
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -164,7 +166,10 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
                 <FormItem>
                   <FormLabel>Título do Template</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite o título do template" {...field} />
+                    <Input
+                      placeholder="Digite o título do template"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -205,13 +210,17 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
                   </div>
                   {loading ? (
                     <div className="flex items-center justify-center py-8">
-                      <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
+                      <Spinner
+                        variant="bars"
+                        className="w-6 h-6 text-muted-foreground"
+                      />
                     </div>
                   ) : questions.length === 0 ? (
                     <Card className="shadow-sm">
                       <CardContent className="py-8 text-center">
                         <p className="text-muted-foreground">
-                          Nenhuma questão ativa disponível. Crie questões primeiro.
+                          Nenhuma questão ativa disponível. Crie questões
+                          primeiro.
                         </p>
                       </CardContent>
                     </Card>
@@ -230,15 +239,20 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
                               >
                                 <FormControl>
                                   <Checkbox
-                                    checked={field.value?.includes(question._id || '')}
+                                    checked={field.value?.includes(
+                                      question._id || "",
+                                    )}
                                     onCheckedChange={(checked) => {
                                       const currentValue = field.value || [];
                                       return checked
-                                        ? field.onChange([...currentValue, question._id])
+                                        ? field.onChange([
+                                            ...currentValue,
+                                            question._id,
+                                          ])
                                         : field.onChange(
                                             currentValue.filter(
-                                              (value) => value !== question._id
-                                            )
+                                              (value) => value !== question._id,
+                                            ),
                                           );
                                     }}
                                   />
@@ -254,34 +268,51 @@ export function CreateTemplateDialog({ children }: { children: React.ReactNode }
                                           {question.description}
                                         </p>
                                       )}
-                                      {((question.inputType === 'select' || question.inputType === 'radio') && question.options && question.options.length > 0) && (
-                                        <div className="mt-2 p-2 bg-muted rounded-md">
-                                          <p className="text-xs font-medium text-muted-foreground mb-1">
-                                            {question.inputType === 'select' ? 'Opções do Select:' : 'Opções do Radio:'}
-                                          </p>
-                                          <div className="flex flex-wrap gap-1">
-                                            {question.options.map((option, idx) => (
-                                              <Badge
-                                                key={idx}
-                                                variant="secondary"
-                                                className="text-xs"
-                                              >
-                                                {option}
-                                              </Badge>
-                                            ))}
+                                      {(question.inputType === "select" ||
+                                        question.inputType === "radio") &&
+                                        question.options &&
+                                        question.options.length > 0 && (
+                                          <div className="mt-2 p-2 bg-muted rounded-md">
+                                            <p className="text-xs font-medium text-muted-foreground mb-1">
+                                              {question.inputType === "select"
+                                                ? "Opções do Select:"
+                                                : "Opções do Radio:"}
+                                            </p>
+                                            <div className="flex flex-wrap gap-1">
+                                              {question.options.map(
+                                                (option, idx) => (
+                                                  <Badge
+                                                    key={idx}
+                                                    variant="secondary"
+                                                    className="text-xs"
+                                                  >
+                                                    {option}
+                                                  </Badge>
+                                                ),
+                                              )}
+                                            </div>
                                           </div>
-                                        </div>
-                                      )}
+                                        )}
                                     </div>
                                     {question.inputType && (
-                                      <Badge variant="outline" className="text-xs">
-                                        {question.inputType === 'date' && '📅 Data'}
-                                        {question.inputType === 'select' && '📋 Select'}
-                                        {question.inputType === 'radio' && '🔘 Radio'}
-                                        {question.inputType === 'email' && '📧 Email'}
-                                        {question.inputType === 'tel' && '📞 Telefone'}
-                                        {question.inputType === 'number' && '🔢 Número'}
-                                        {question.inputType === 'text' && '📝 Texto'}
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs"
+                                      >
+                                        {question.inputType === "date" &&
+                                          "📅 Data"}
+                                        {question.inputType === "select" &&
+                                          "📋 Select"}
+                                        {question.inputType === "radio" &&
+                                          "🔘 Radio"}
+                                        {question.inputType === "email" &&
+                                          "📧 Email"}
+                                        {question.inputType === "tel" &&
+                                          "📞 Telefone"}
+                                        {question.inputType === "number" &&
+                                          "🔢 Número"}
+                                        {question.inputType === "text" &&
+                                          "📝 Texto"}
                                       </Badge>
                                     )}
                                   </div>

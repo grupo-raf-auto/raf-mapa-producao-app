@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useMemo, useState, useEffect } from 'react';
-import { ConsultasDataTable } from './consultas-data-table';
-import type { ConsultasFiltersState } from './consultas-filters';
-import { apiClient as api } from '@/lib/api-client';
+import { useMemo, useState, useEffect } from "react";
+import { ConsultasDataTable } from "./consultas-data-table";
+import type { ConsultasFiltersState } from "./consultas-filters";
+import { apiClient as api } from "@/lib/api-client";
 
 interface Submission {
   _id?: string;
@@ -47,7 +47,9 @@ export function ConsultasList({
   onBancosChange,
   onSeguradorasChange,
 }: ConsultasListProps) {
-  const [submissionsWithDetails, setSubmissionsWithDetails] = useState<SubmissionWithDetails[]>([]);
+  const [submissionsWithDetails, setSubmissionsWithDetails] = useState<
+    SubmissionWithDetails[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,55 +58,65 @@ export function ConsultasList({
         setLoading(true);
         // Buscar questões para encontrar "Valor", "Nome do Cliente", "Banco" e "Seguradora"
         const allQuestions = await api.questions.getAll().catch(() => []);
-        const valorQuestion = allQuestions.find((q: any) => q.title === 'Valor');
-        const nomeClienteQuestion = allQuestions.find((q: any) => q.title === 'Nome do Cliente');
-        const bancoQuestion = allQuestions.find((q: any) => q.title === 'Banco');
-        const seguradoraQuestion = allQuestions.find((q: any) => q.title === 'Seguradora');
-        
+        const valorQuestion = allQuestions.find(
+          (q: any) => q.title === "Valor",
+        );
+        const nomeClienteQuestion = allQuestions.find(
+          (q: any) => q.title === "Nome do Cliente",
+        );
+        const bancoQuestion = allQuestions.find(
+          (q: any) => q.title === "Banco",
+        );
+        const seguradoraQuestion = allQuestions.find(
+          (q: any) => q.title === "Seguradora",
+        );
+
         // Enriquecer submissões com informações do template, valor, nome do cliente, banco e seguradora
         const enriched = submissions.map((submission) => {
-          const template = templates.find((t) => t._id === submission.templateId);
-          
+          const template = templates.find(
+            (t) => t._id === submission.templateId,
+          );
+
           // Encontrar resposta da questão "Valor"
           let valorAnswer = null;
           if (valorQuestion?._id) {
             const valorAnswerObj = submission.answers.find(
-              (a) => a.questionId === valorQuestion._id
+              (a) => a.questionId === valorQuestion._id,
             );
             valorAnswer = valorAnswerObj?.answer || null;
           }
-          
+
           // Encontrar resposta da questão "Nome do Cliente"
           let nomeClienteAnswer = null;
           if (nomeClienteQuestion?._id) {
             const nomeClienteAnswerObj = submission.answers.find(
-              (a) => a.questionId === nomeClienteQuestion._id
+              (a) => a.questionId === nomeClienteQuestion._id,
             );
             nomeClienteAnswer = nomeClienteAnswerObj?.answer || null;
           }
-          
+
           // Encontrar resposta da questão "Banco"
           let bancoAnswer = null;
           if (bancoQuestion?._id) {
             const bancoAnswerObj = submission.answers.find(
-              (a) => a.questionId === bancoQuestion._id
+              (a) => a.questionId === bancoQuestion._id,
             );
             bancoAnswer = bancoAnswerObj?.answer || null;
           }
-          
+
           // Encontrar resposta da questão "Seguradora"
           let seguradoraAnswer = null;
           if (seguradoraQuestion?._id) {
             const seguradoraAnswerObj = submission.answers.find(
-              (a) => a.questionId === seguradoraQuestion._id
+              (a) => a.questionId === seguradoraQuestion._id,
             );
             seguradoraAnswer = seguradoraAnswerObj?.answer || null;
           }
-          
+
           return {
             ...submission,
             template,
-            templateTitle: template?.title || 'Template não encontrado',
+            templateTitle: template?.title || "Template não encontrado",
             valorQuestionId: valorQuestion?._id,
             valorAnswer: valorAnswer,
             nomeClienteQuestionId: nomeClienteQuestion?._id,
@@ -117,8 +129,10 @@ export function ConsultasList({
         });
         setSubmissionsWithDetails(enriched);
       } catch (error) {
-        console.error('Error enriching submissions:', error);
-        setSubmissionsWithDetails(submissions.map(s => ({ ...s, templateTitle: 'Desconhecido' })));
+        console.error("Error enriching submissions:", error);
+        setSubmissionsWithDetails(
+          submissions.map((s) => ({ ...s, templateTitle: "Desconhecido" })),
+        );
       } finally {
         setLoading(false);
       }
@@ -138,7 +152,7 @@ export function ConsultasList({
 
     return submissionsWithDetails.filter((submission) => {
       // Filtro de template
-      if (filters.templateId !== 'all') {
+      if (filters.templateId !== "all") {
         if (submission.templateId !== filters.templateId) {
           return false;
         }
@@ -147,9 +161,11 @@ export function ConsultasList({
       // Filtro de pesquisa
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        const matchesTemplate = submission.templateTitle?.toLowerCase().includes(searchLower);
+        const matchesTemplate = submission.templateTitle
+          ?.toLowerCase()
+          .includes(searchLower);
         const matchesAnswers = submission.answers.some((a) =>
-          a.answer.toLowerCase().includes(searchLower)
+          a.answer.toLowerCase().includes(searchLower),
         );
         if (!matchesTemplate && !matchesAnswers) {
           return false;
@@ -158,21 +174,29 @@ export function ConsultasList({
 
       // Filtro de banco (igualdade exata)
       if (filters.banco) {
-        if (!submission.bancoAnswer || submission.bancoAnswer !== filters.banco) {
+        if (
+          !submission.bancoAnswer ||
+          submission.bancoAnswer !== filters.banco
+        ) {
           return false;
         }
       }
 
       // Filtro de seguradora (igualdade exata)
       if (filters.seguradora) {
-        if (!submission.seguradoraAnswer || submission.seguradoraAnswer !== filters.seguradora) {
+        if (
+          !submission.seguradoraAnswer ||
+          submission.seguradoraAnswer !== filters.seguradora
+        ) {
           return false;
         }
       }
 
       // Filtro de valor (range)
       if (filters.valorMin || filters.valorMax) {
-        const valor = submission.valorAnswer ? Number(submission.valorAnswer) : null;
+        const valor = submission.valorAnswer
+          ? Number(submission.valorAnswer)
+          : null;
         if (valor === null) {
           return false;
         }
@@ -198,7 +222,7 @@ export function ConsultasList({
   const bancosUnicos = useMemo(() => {
     const bancos = new Set<string>();
     submissionsWithDetails.forEach((submission) => {
-      if (submission.bancoAnswer && submission.bancoAnswer.trim() !== '') {
+      if (submission.bancoAnswer && submission.bancoAnswer.trim() !== "") {
         bancos.add(submission.bancoAnswer);
       }
     });
@@ -208,7 +232,10 @@ export function ConsultasList({
   const seguradorasUnicas = useMemo(() => {
     const seguradoras = new Set<string>();
     submissionsWithDetails.forEach((submission) => {
-      if (submission.seguradoraAnswer && submission.seguradoraAnswer.trim() !== '') {
+      if (
+        submission.seguradoraAnswer &&
+        submission.seguradoraAnswer.trim() !== ""
+      ) {
         seguradoras.add(submission.seguradoraAnswer);
       }
     });
@@ -239,14 +266,16 @@ export function ConsultasList({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">
-            {filteredSubmissions.length}{' '}
-            {filteredSubmissions.length === 1 ? 'formulário encontrado' : 'formulários encontrados'}
+            {filteredSubmissions.length}{" "}
+            {filteredSubmissions.length === 1
+              ? "formulário encontrado"
+              : "formulários encontrados"}
           </h2>
         </div>
       </div>
 
-      <ConsultasDataTable 
-        submissions={filteredSubmissions} 
+      <ConsultasDataTable
+        submissions={filteredSubmissions}
         filters={filters}
         onSubmissionUpdate={onSubmissionUpdate}
       />

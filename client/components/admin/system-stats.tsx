@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { apiClient as api } from '@/lib/api-client';
-import { Spinner } from '@/components/ui/spinner';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { apiClient as api } from "@/lib/api-client";
+import { Spinner } from "@/components/ui/spinner";
 
 export function SystemStats() {
   const [stats, setStats] = useState({
@@ -35,7 +35,7 @@ export function SystemStats() {
         totalQuestions: questions.length,
       });
     } catch (error: any) {
-      console.error('Error loading stats:', error);
+      console.error("Error loading stats:", error);
     } finally {
       setLoading(false);
     }

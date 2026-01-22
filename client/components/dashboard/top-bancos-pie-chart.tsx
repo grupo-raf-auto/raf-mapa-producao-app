@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   PieChart,
@@ -7,7 +7,7 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
-} from 'recharts';
+} from "recharts";
 
 interface TopBancosPieChartProps {
   data: { name: string; count: number; totalValue: number }[];
@@ -15,17 +15,17 @@ interface TopBancosPieChartProps {
 
 // Paleta simplificada: 1 cor principal + tons neutros
 const COLORS = [
-  '#5347CE', // Primary
-  '#4896FE', // Secondary
-  '#10B981', // Success
-  '#F59E0B', // Warning
-  '#E5E7EB', // Muted
+  "#5347CE", // Primary
+  "#4896FE", // Secondary
+  "#10B981", // Success
+  "#F59E0B", // Warning
+  "#E5E7EB", // Muted
 ];
 
 export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
   // Pegar top 8 bancos por valor
   const topBancos = data.slice(0, 8).map((item) => ({
-    name: item.name || 'Não especificado',
+    name: item.name || "Não especificado",
     value: Math.round(item.totalValue),
     count: item.count,
   }));
@@ -50,7 +50,7 @@ export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
       <div className="text-center">
         <p className="text-xs text-muted-foreground mb-1">Total de Vendas</p>
         <p className="text-3xl font-semibold text-foreground tracking-tight">
-          {totalVisits.toLocaleString('pt-PT')}
+          {totalVisits.toLocaleString("pt-PT")}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
           {topBancos.length} bancos
@@ -72,21 +72,24 @@ export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
               dataKey="value"
             >
               {topBancos.slice(0, 5).map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
               ))}
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E5E7EB',
-                borderRadius: '6px',
-                fontSize: '12px',
-                padding: '8px 12px',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                borderRadius: "6px",
+                fontSize: "12px",
+                padding: "8px 12px",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
               }}
               formatter={(value) => {
                 const v = value != null ? Number(value) : 0;
-                return `${v.toLocaleString('pt-PT')} €`;
+                return `${v.toLocaleString("pt-PT")} €`;
               }}
             />
           </PieChart>

@@ -1,5 +1,5 @@
-import { MainLayout } from '@/components/layout/main-layout';
-import { FormulariosContent } from '@/components/formularios/formularios-content';
+import { MainLayout } from "@/components/layout/main-layout";
+import { FormulariosContent } from "@/components/formularios/formularios-content";
 
 export default function FormulariosPage() {
   return (
@@ -9,4 +9,4 @@ export default function FormulariosPage() {
   );
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";

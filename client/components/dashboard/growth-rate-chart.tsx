@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   LineChart,
@@ -10,8 +10,8 @@ import {
   ReferenceLine,
   Area,
   ComposedChart,
-} from 'recharts';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+} from "recharts";
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 interface GrowthRateChartProps {
   data: {
@@ -31,13 +31,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
         <p className="font-medium mb-1">{label}</p>
-        <p className={`text-xs ${isPositive ? 'text-emerald-400' : growthRate < 0 ? 'text-red-400' : 'text-slate-400'}`}>
-          Crescimento: {isPositive ? '+' : ''}{growthRate.toFixed(1)}%
+        <p
+          className={`text-xs ${isPositive ? "text-emerald-400" : growthRate < 0 ? "text-red-400" : "text-slate-400"}`}
+        >
+          Crescimento: {isPositive ? "+" : ""}
+          {growthRate.toFixed(1)}%
         </p>
         <p className="text-xs text-slate-300">
-          Valor: {data?.currentValue?.toLocaleString('pt-PT', {
-            style: 'currency',
-            currency: 'EUR',
+          Valor:{" "}
+          {data?.currentValue?.toLocaleString("pt-PT", {
+            style: "currency",
+            currency: "EUR",
             minimumFractionDigits: 0,
           })}
         </p>
@@ -48,13 +52,15 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function GrowthRateChart({ data }: GrowthRateChartProps) {
-  const chartData = data.length > 1
-    ? data.slice(-8).map(item => ({
-        month: item.month.split('-')[1] + '/' + item.month.split('-')[0].slice(-2),
-        growthRate: Math.round(item.growthRate * 10) / 10,
-        currentValue: item.currentValue,
-      }))
-    : [];
+  const chartData =
+    data.length > 1
+      ? data.slice(-8).map((item) => ({
+          month:
+            item.month.split("-")[1] + "/" + item.month.split("-")[0].slice(-2),
+          growthRate: Math.round(item.growthRate * 10) / 10,
+          currentValue: item.currentValue,
+        }))
+      : [];
 
   if (chartData.length < 2) {
     return (
@@ -65,9 +71,11 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
   }
 
   // Calculate average growth rate
-  const avgGrowth = chartData.length > 0
-    ? chartData.reduce((sum, item) => sum + item.growthRate, 0) / chartData.length
-    : 0;
+  const avgGrowth =
+    chartData.length > 0
+      ? chartData.reduce((sum, item) => sum + item.growthRate, 0) /
+        chartData.length
+      : 0;
 
   // Get the most recent growth rate for the summary
   const latestGrowth = chartData[chartData.length - 1]?.growthRate || 0;
@@ -92,20 +100,30 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
             </div>
           )}
           <div>
-            <span className={`text-lg font-bold ${
-              isPositive ? 'text-emerald-600 dark:text-emerald-400' :
-              latestGrowth < 0 ? 'text-red-600 dark:text-red-400' :
-              'text-slate-500'
-            }`}>
-              {isPositive ? '+' : ''}{latestGrowth.toFixed(1)}%
+            <span
+              className={`text-lg font-bold ${
+                isPositive
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : latestGrowth < 0
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-slate-500"
+              }`}
+            >
+              {isPositive ? "+" : ""}
+              {latestGrowth.toFixed(1)}%
             </span>
-            <span className="text-xs text-muted-foreground ml-1">ultimo mes</span>
+            <span className="text-xs text-muted-foreground ml-1">
+              ultimo mes
+            </span>
           </div>
         </div>
         <div className="text-right">
           <span className="text-sm text-muted-foreground">Media: </span>
-          <span className={`text-sm font-medium ${avgGrowth >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-            {avgGrowth >= 0 ? '+' : ''}{avgGrowth.toFixed(1)}%
+          <span
+            className={`text-sm font-medium ${avgGrowth >= 0 ? "text-emerald-600" : "text-red-600"}`}
+          >
+            {avgGrowth >= 0 ? "+" : ""}
+            {avgGrowth.toFixed(1)}%
           </span>
         </div>
       </div>
@@ -127,13 +145,13 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
               dataKey="month"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#64748B', fontSize: 10 }}
+              tick={{ fill: "#64748B", fontSize: 10 }}
               dy={10}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#64748B', fontSize: 10 }}
+              tick={{ fill: "#64748B", fontSize: 10 }}
               tickFormatter={(value) => `${value}%`}
             />
             <Tooltip content={<CustomTooltip />} />
@@ -149,7 +167,7 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
               dataKey="growthRate"
               stroke="#10B981"
               strokeWidth={2}
-              dot={{ fill: '#10B981', strokeWidth: 0, r: 3 }}
+              dot={{ fill: "#10B981", strokeWidth: 0, r: 3 }}
               activeDot={{ r: 5, strokeWidth: 0 }}
             />
           </ComposedChart>

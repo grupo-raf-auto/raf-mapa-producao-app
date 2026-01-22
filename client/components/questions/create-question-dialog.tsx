@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -9,8 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -18,56 +18,62 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { apiClient as api } from '@/lib/api-client';
+} from "@/components/ui/select";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { apiClient as api } from "@/lib/api-client";
 
 const questionSchema = z.object({
-  title: z.string().min(1, 'Título é obrigatório'),
+  title: z.string().min(1, "Título é obrigatório"),
   description: z.string().optional(),
-  status: z.enum(['active', 'inactive']),
-  inputType: z.enum(['text', 'date', 'select', 'email', 'tel', 'number', 'radio']).optional(),
+  status: z.enum(["active", "inactive"]),
+  inputType: z
+    .enum(["text", "date", "select", "email", "tel", "number", "radio"])
+    .optional(),
   options: z.array(z.string()).optional(),
 });
 
 type QuestionFormValues = z.infer<typeof questionSchema>;
 
-export function CreateQuestionDialog({ children }: { children: React.ReactNode }) {
+export function CreateQuestionDialog({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
   const form = useForm<QuestionFormValues>({
     resolver: zodResolver(questionSchema),
     defaultValues: {
-      title: '',
-      description: '',
-      status: 'active',
-      inputType: 'text',
+      title: "",
+      description: "",
+      status: "active",
+      inputType: "text",
       options: [],
     },
   });
 
-  const inputType = form.watch('inputType');
+  const inputType = form.watch("inputType");
 
   const onSubmit = async (data: QuestionFormValues) => {
     try {
       await api.questions.create(data);
-        router.refresh();
-        setOpen(false);
-        form.reset();
+      router.refresh();
+      setOpen(false);
+      form.reset();
     } catch (error) {
-      console.error('Error creating question:', error);
+      console.error("Error creating question:", error);
     }
   };
 
@@ -90,7 +96,10 @@ export function CreateQuestionDialog({ children }: { children: React.ReactNode }
                 <FormItem>
                   <FormLabel>Título</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite o título da questão" {...field} />
+                    <Input
+                      placeholder="Digite o título da questão"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -108,38 +117,44 @@ export function CreateQuestionDialog({ children }: { children: React.ReactNode }
                       {...field}
                     />
                   </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="active">Ativo</SelectItem>
-                        <SelectItem value="inactive">Inativo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="active">Ativo</SelectItem>
+                      <SelectItem value="inactive">Inativo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="inputType"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tipo de Input</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo de input" />
@@ -159,7 +174,7 @@ export function CreateQuestionDialog({ children }: { children: React.ReactNode }
                 </FormItem>
               )}
             />
-            {(inputType === 'select' || inputType === 'radio') && (
+            {(inputType === "select" || inputType === "radio") && (
               <FormField
                 control={form.control}
                 name="options"
@@ -169,12 +184,12 @@ export function CreateQuestionDialog({ children }: { children: React.ReactNode }
                     <FormControl>
                       <Textarea
                         placeholder="Digite as opções, uma por linha"
-                        value={field.value?.join('\n') || ''}
+                        value={field.value?.join("\n") || ""}
                         onChange={(e) => {
                           const options = e.target.value
-                            .split('\n')
-                            .map(line => line.trim())
-                            .filter(line => line.length > 0);
+                            .split("\n")
+                            .map((line) => line.trim())
+                            .filter((line) => line.length > 0);
                           field.onChange(options);
                         }}
                       />

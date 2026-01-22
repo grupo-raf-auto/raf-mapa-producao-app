@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { Card } from '@/components/ui/card';
+import React from "react";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
 interface AnimatedCardProps {
   children: React.ReactNode;
@@ -53,7 +53,10 @@ export const AnimatedChartCard: React.FC<AnimatedChartCardProps> = ({
   animationDelay = 0,
 }) => {
   return (
-    <AnimatedCard animationDelay={animationDelay} className={cn("w-full h-full", className)}>
+    <AnimatedCard
+      animationDelay={animationDelay}
+      className={cn("w-full h-full", className)}
+    >
       <Card className="h-full">
         <div className="h-full flex flex-col p-5">
           <div className="mb-4">
@@ -62,9 +65,7 @@ export const AnimatedChartCard: React.FC<AnimatedChartCardProps> = ({
               {title}
             </h3>
           </div>
-          <div className="flex-1 min-h-0">
-            {children}
-          </div>
+          <div className="flex-1 min-h-0">{children}</div>
         </div>
       </Card>
     </AnimatedCard>

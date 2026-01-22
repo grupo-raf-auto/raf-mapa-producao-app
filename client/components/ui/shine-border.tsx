@@ -53,8 +53,10 @@ export function ShineBorder({
         className="absolute inset-0 rounded-xl pointer-events-none"
         style={{
           padding: `${borderWidth}px`,
-          maskImage: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-          WebkitMaskImage: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          maskImage:
+            "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          WebkitMaskImage:
+            "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
           maskComposite: "exclude",
           WebkitMaskComposite: "xor",
           backgroundImage: `radial-gradient(transparent,transparent, ${colorValue},transparent,transparent)`,
@@ -62,9 +64,7 @@ export function ShineBorder({
           animation: `shine-pulse ${duration}s infinite linear`,
         }}
       />
-      <div className="relative h-full w-full">
-        {children}
-      </div>
+      <div className="relative h-full w-full">{children}</div>
     </div>
   );
 }

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ConsultasFilters } from './consultas-filters';
-import { ConsultasList } from './consultas-list';
-import type { ConsultasFiltersState } from './consultas-filters';
+import { useState } from "react";
+import { ConsultasFilters } from "./consultas-filters";
+import { ConsultasList } from "./consultas-list";
+import type { ConsultasFiltersState } from "./consultas-filters";
 
 interface Submission {
   _id?: string;
@@ -28,27 +28,31 @@ interface ConsultasWrapperProps {
   onSubmissionUpdate?: () => void;
 }
 
-export function ConsultasWrapper({ submissions, templates, onSubmissionUpdate }: ConsultasWrapperProps) {
+export function ConsultasWrapper({
+  submissions,
+  templates,
+  onSubmissionUpdate,
+}: ConsultasWrapperProps) {
   const [filters, setFilters] = useState<ConsultasFiltersState>({
-    templateId: 'all',
-    status: 'all',
-    inputType: 'all',
-    search: '',
-    banco: '',
-    seguradora: '',
-    valorMin: '',
-    valorMax: '',
+    templateId: "all",
+    status: "all",
+    inputType: "all",
+    search: "",
+    banco: "",
+    seguradora: "",
+    valorMin: "",
+    valorMax: "",
   });
   const [bancos, setBancos] = useState<string[]>([]);
   const [seguradoras, setSeguradoras] = useState<string[]>([]);
 
   return (
     <>
-      <ConsultasFilters 
-        templates={templates} 
+      <ConsultasFilters
+        templates={templates}
         bancos={bancos}
         seguradoras={seguradoras}
-        onFilterChange={setFilters} 
+        onFilterChange={setFilters}
       />
       <ConsultasList
         submissions={submissions}

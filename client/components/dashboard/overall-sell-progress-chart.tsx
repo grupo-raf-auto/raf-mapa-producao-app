@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   BarChart,
@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-} from 'recharts';
+} from "recharts";
 
 interface OverallSellProgressChartProps {
   data: { name: string; count: number; totalValue: number }[];
@@ -24,7 +24,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         <p className="font-medium mb-1">{label}</p>
         {payload.map((entry: any, index: number) => (
           <p key={index} className="text-xs" style={{ color: entry.fill }}>
-            {entry.name}: {entry.value?.toLocaleString('pt-PT')}
+            {entry.name}: {entry.value?.toLocaleString("pt-PT")}
           </p>
         ))}
       </div>
@@ -33,21 +33,27 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function OverallSellProgressChart({ data }: OverallSellProgressChartProps) {
+export function OverallSellProgressChart({
+  data,
+}: OverallSellProgressChartProps) {
   // Transform data or use default
-  const chartData = data.length > 0
-    ? data.slice(0, 7).map((item) => ({
-        name: item.name.length > 8 ? item.name.substring(0, 8) + '...' : item.name,
-        Quantidade: item.count,
-        'Valor (k€)': Math.round(item.totalValue / 1000),
-      }))
-    : [
-        { name: 'CGD', Quantidade: 0, 'Valor (k€)': 0 },
-        { name: 'BPI', Quantidade: 0, 'Valor (k€)': 0 },
-        { name: 'Santander', Quantidade: 0, 'Valor (k€)': 0 },
-        { name: 'Millennium', Quantidade: 0, 'Valor (k€)': 0 },
-        { name: 'Novobanco', Quantidade: 0, 'Valor (k€)': 0 },
-      ];
+  const chartData =
+    data.length > 0
+      ? data.slice(0, 7).map((item) => ({
+          name:
+            item.name.length > 8
+              ? item.name.substring(0, 8) + "..."
+              : item.name,
+          Quantidade: item.count,
+          "Valor (k€)": Math.round(item.totalValue / 1000),
+        }))
+      : [
+          { name: "CGD", Quantidade: 0, "Valor (k€)": 0 },
+          { name: "BPI", Quantidade: 0, "Valor (k€)": 0 },
+          { name: "Santander", Quantidade: 0, "Valor (k€)": 0 },
+          { name: "Millennium", Quantidade: 0, "Valor (k€)": 0 },
+          { name: "Novobanco", Quantidade: 0, "Valor (k€)": 0 },
+        ];
 
   return (
     <div className="w-full h-[260px]">
@@ -61,18 +67,21 @@ export function OverallSellProgressChart({ data }: OverallSellProgressChartProps
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748B', fontSize: 10 }}
+            tick={{ fill: "#64748B", fontSize: 10 }}
             dy={10}
           />
 
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748B', fontSize: 11 }}
+            tick={{ fill: "#64748B", fontSize: 11 }}
             dx={-5}
           />
 
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }} />
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ fill: "rgba(0, 0, 0, 0.03)" }}
+          />
 
           <Bar
             dataKey="Quantidade"

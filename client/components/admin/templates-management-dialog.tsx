@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Dialog,
@@ -6,12 +6,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { CreateTemplateDialog } from '@/components/templates/create-template-dialog';
-import { TemplatesList } from '@/components/templates/templates-list';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { CreateTemplateDialog } from "@/components/templates/create-template-dialog";
+import { TemplatesList } from "@/components/templates/templates-list";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TemplatesManagementDialogProps {
   open: boolean;
@@ -24,8 +24,8 @@ export function TemplatesManagementDialog({
 }: TemplatesManagementDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className="!max-w-[80vw] !w-[80vw] h-[90vh] flex flex-col p-0 overflow-hidden !z-[200]" 
+      <DialogContent
+        className="!max-w-[80vw] !w-[80vw] h-[90vh] flex flex-col p-0 overflow-hidden !z-[200]"
         overlayClassName="!z-[150]"
       >
         <div className="px-6 pt-6 pb-4 shrink-0 border-b">

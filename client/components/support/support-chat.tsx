@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { FormEvent } from 'react';
-import { Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { FormEvent } from "react";
+import { Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   ChatBubble,
   ChatBubbleAvatar,
   ChatBubbleMessage,
-} from '@/components/ui/chat-bubble';
-import { ChatInput } from '@/components/ui/chat-input';
-import { ChatMessageList } from '@/components/ui/chat-message-list';
+} from "@/components/ui/chat-bubble";
+import { ChatInput } from "@/components/ui/chat-input";
+import { ChatMessageList } from "@/components/ui/chat-message-list";
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
@@ -37,13 +37,13 @@ export function SupportChat({ messages, loading }: SupportChatProps) {
         {messages.map((message) => (
           <ChatBubble
             key={message.id}
-            variant={message.role === 'user' ? 'sent' : 'received'}
+            variant={message.role === "user" ? "sent" : "received"}
           >
             <ChatBubbleAvatar
-              variant={message.role === 'user' ? 'sent' : 'received'}
+              variant={message.role === "user" ? "sent" : "received"}
             />
             <ChatBubbleMessage
-              variant={message.role === 'user' ? 'sent' : 'received'}
+              variant={message.role === "user" ? "sent" : "received"}
             >
               {message.content}
             </ChatBubbleMessage>
@@ -68,12 +68,14 @@ interface SupportChatFooterProps {
   loading: boolean;
 }
 
-export function SupportChatFooter({ input, setInput, onSubmit, loading }: SupportChatFooterProps) {
+export function SupportChatFooter({
+  input,
+  setInput,
+  onSubmit,
+  loading,
+}: SupportChatFooterProps) {
   return (
-    <form
-      onSubmit={onSubmit}
-      className="relative flex items-center gap-2"
-    >
+    <form onSubmit={onSubmit} className="relative flex items-center gap-2">
       <ChatInput
         value={input}
         onChange={(e) => setInput(e.target.value)}

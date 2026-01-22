@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   PieChart,
@@ -7,23 +7,23 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
-} from 'recharts';
+} from "recharts";
 
 // Paleta simplificada: 1 cor principal + tons neutros
 const COLORS = [
-  '#5347CE', // Primary
-  '#4896FE', // Secondary
-  '#10B981', // Success
-  '#F59E0B', // Warning
-  '#E5E7EB', // Muted
+  "#5347CE", // Primary
+  "#4896FE", // Secondary
+  "#10B981", // Success
+  "#F59E0B", // Warning
+  "#E5E7EB", // Muted
 ];
 
 const data = [
-  { name: 'Finance', value: 35 },
-  { name: 'Marketing', value: 28 },
-  { name: 'HR', value: 20 },
-  { name: 'Tech', value: 12 },
-  { name: 'Custom', value: 5 },
+  { name: "Finance", value: 35 },
+  { name: "Marketing", value: 28 },
+  { name: "HR", value: 20 },
+  { name: "Tech", value: 12 },
+  { name: "Custom", value: 5 },
 ];
 
 export function QuestionsChart() {
@@ -57,17 +57,20 @@ export function QuestionsChart() {
             dataKey="value"
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
             ))}
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #E5E7EB',
-              borderRadius: '6px',
-              fontSize: '12px',
-              padding: '8px 12px',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E5E7EB",
+              borderRadius: "6px",
+              fontSize: "12px",
+              padding: "8px 12px",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
             }}
             formatter={(value, name) => {
               return [`${value}`, name];

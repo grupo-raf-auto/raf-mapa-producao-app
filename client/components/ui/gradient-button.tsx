@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type { HTMLAttributes } from 'react';
-import { cn } from '@/lib/utils';
+import type { HTMLAttributes } from "react";
+import { cn } from "@/lib/utils";
 
 interface GradientButtonProps extends HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
@@ -13,16 +13,16 @@ interface GradientButtonProps extends HTMLAttributes<HTMLDivElement> {
 
 const GradientButton = ({
   children,
-  width = '600px',
-  height = '100px',
-  className = '',
+  width = "600px",
+  height = "100px",
+  className = "",
   onClick,
   disabled = false,
   ...props
 }: GradientButtonProps) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (disabled) return;
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       onClick?.();
     }
@@ -41,13 +41,15 @@ const GradientButton = ({
           "flex items-center justify-center",
           "rotatingGradient",
           disabled && "opacity-50 cursor-not-allowed",
-          className
+          className,
         )}
-        style={{
-          '--r': '0deg',
-          minWidth: width,
-          height: height
-        } as React.CSSProperties}
+        style={
+          {
+            "--r": "0deg",
+            minWidth: width,
+            height: height,
+          } as React.CSSProperties
+        }
         onClick={disabled ? undefined : onClick}
         onKeyDown={handleKeyDown}
         aria-disabled={disabled}

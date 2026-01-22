@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
-import { Sidebar } from './sidebar';
-import { SupportChatFab } from '@/components/support/support-chat-fab';
-import { PageAnimation } from '@/components/ui/page-animation';
-import { Sidebar as SidebarBase } from '@/components/ui/sidebar';
-import { Moon, Sun, Bug, Power, Shield, Users } from 'lucide-react';
-import { useSession, authClient } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { useTheme } from 'next-themes';
-import Link from 'next/link';
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { Sidebar } from "./sidebar";
+import { SupportChatFab } from "@/components/support/support-chat-fab";
+import { PageAnimation } from "@/components/ui/page-animation";
+import { Sidebar as SidebarBase } from "@/components/ui/sidebar";
+import { Moon, Sun, Bug, Power, Shield, Users } from "lucide-react";
+import { useSession, authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useTheme } from "next-themes";
+import Link from "next/link";
 
 // Top bar with search and action buttons
 function TopBar() {
@@ -23,20 +23,20 @@ function TopBar() {
   const handleSignOut = async () => {
     try {
       await authClient.signOut();
-      toast.success('Sessão terminada com sucesso');
-      router.push('/sign-in');
+      toast.success("Sessão terminada com sucesso");
+      router.push("/sign-in");
     } catch {
-      toast.error('Erro ao terminar sessão');
+      toast.error("Erro ao terminar sessão");
     }
   };
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   const handleReportBug = () => {
     // Opens a bug report - could be a modal or external link
-    toast.info('Funcionalidade de reportar bug em desenvolvimento');
+    toast.info("Funcionalidade de reportar bug em desenvolvimento");
   };
 
   return (
@@ -70,7 +70,7 @@ function TopBar() {
           className="p-2 rounded-full border border-border bg-white hover:bg-muted transition-colors"
           title="Alternar tema"
         >
-          {theme === 'dark' ? (
+          {theme === "dark" ? (
             <Sun className="w-3.5 h-3.5 text-foreground" />
           ) : (
             <Moon className="w-3.5 h-3.5 text-foreground" />
@@ -101,7 +101,13 @@ function TopBar() {
   );
 }
 
-function MainContent({ children, showSidebar }: { children: React.ReactNode; showSidebar: boolean }) {
+function MainContent({
+  children,
+  showSidebar,
+}: {
+  children: React.ReactNode;
+  showSidebar: boolean;
+}) {
   const pathname = usePathname();
 
   return (
@@ -122,7 +128,7 @@ function MainContent({ children, showSidebar }: { children: React.ReactNode; sho
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const isAdminPage = pathname === '/admin';
+  const isAdminPage = pathname === "/admin";
   const showSidebar = !isAdminPage;
 
   return (
@@ -131,7 +137,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       <div
         className="h-screen w-full p-4 md:p-6 lg:p-8 overflow-hidden"
         style={{
-          background: '#F4F8FE',
+          background: "#F4F8FE",
         }}
       >
         {/* Floating Dashboard Container */}

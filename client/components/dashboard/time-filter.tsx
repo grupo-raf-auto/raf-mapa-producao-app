@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Clock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export type TimeFilterType = 'day' | 'week' | 'month';
+export type TimeFilterType = "day" | "week" | "month";
 
 interface TimeFilterProps {
   value: TimeFilterType;
@@ -14,26 +14,26 @@ interface TimeFilterProps {
 
 export function TimeFilter({ value, onChange, className }: TimeFilterProps) {
   const options: { value: TimeFilterType; label: string }[] = [
-    { value: 'day', label: 'Dia' },
-    { value: 'week', label: 'Semana' },
-    { value: 'month', label: 'Mês' },
+    { value: "day", label: "Dia" },
+    { value: "week", label: "Semana" },
+    { value: "month", label: "Mês" },
   ];
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       <Clock className="h-4 w-4 text-muted-foreground" />
       <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border border-border/50">
         {options.map((option) => (
           <Button
             key={option.value}
-            variant={value === option.value ? 'default' : 'ghost'}
+            variant={value === option.value ? "default" : "ghost"}
             size="sm"
             onClick={() => onChange(option.value)}
             className={cn(
-              'h-8 px-3 text-xs font-medium transition-all',
+              "h-8 px-3 text-xs font-medium transition-all",
               value === option.value
-                ? 'bg-background shadow-sm border border-border/70 text-foreground'
-                : 'hover:bg-background/50 hover:text-foreground dark:hover:text-foreground'
+                ? "bg-background shadow-sm border border-border/70 text-foreground"
+                : "hover:bg-background/50 hover:text-foreground dark:hover:text-foreground",
             )}
           >
             {option.label}

@@ -38,15 +38,16 @@ function useAutoResizeTextarea({ minHeight, maxHeight }: AutoResizeProps) {
       textarea.style.height = `${minHeight}px`; // reset first
       const newHeight = Math.max(
         minHeight,
-        Math.min(textarea.scrollHeight, maxHeight ?? Infinity)
+        Math.min(textarea.scrollHeight, maxHeight ?? Infinity),
       );
       textarea.style.height = `${newHeight}px`;
     },
-    [minHeight, maxHeight]
+    [minHeight, maxHeight],
   );
 
   useEffect(() => {
-    if (textareaRef.current) textareaRef.current.style.height = `${minHeight}px`;
+    if (textareaRef.current)
+      textareaRef.current.style.height = `${minHeight}px`;
   }, [minHeight]);
 
   return { textareaRef, adjustHeight };
@@ -88,7 +89,7 @@ export default function RuixenMoonChat() {
                 "w-full resize-none border-0 bg-transparent",
                 "text-base text-foreground placeholder:text-muted-foreground",
                 "focus-visible:ring-0 focus-visible:ring-offset-0",
-                "min-h-[60px] leading-relaxed"
+                "min-h-[60px] leading-relaxed",
               )}
               style={{ overflow: "hidden" }}
             />
@@ -97,7 +98,11 @@ export default function RuixenMoonChat() {
           {/* Action Buttons */}
           <div className="flex items-center justify-between px-6 pb-6">
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <Paperclip className="w-4 h-4 mr-2" />
                 Anexar
               </Button>
@@ -115,19 +120,45 @@ export default function RuixenMoonChat() {
 
         {/* Quick Actions Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <QuickAction icon={<Code2 className="w-5 h-5" />} label="Gerar Código" />
-          <QuickAction icon={<Rocket className="w-5 h-5" />} label="Lançar App" />
-          <QuickAction icon={<Layers className="w-5 h-5" />} label="Componentes UI" />
-          <QuickAction icon={<Palette className="w-5 h-5" />} label="Ideias de Tema" />
-          <QuickAction icon={<CircleUserRound className="w-5 h-5" />} label="Painel Usuário" />
-          <QuickAction icon={<MonitorIcon className="w-5 h-5" />} label="Página Inicial" />
-          <QuickAction icon={<FileUp className="w-5 h-5" />} label="Upload Docs" />
-          <QuickAction icon={<ImageIcon className="w-5 h-5" />} label="Ativos Imagem" />
+          <QuickAction
+            icon={<Code2 className="w-5 h-5" />}
+            label="Gerar Código"
+          />
+          <QuickAction
+            icon={<Rocket className="w-5 h-5" />}
+            label="Lançar App"
+          />
+          <QuickAction
+            icon={<Layers className="w-5 h-5" />}
+            label="Componentes UI"
+          />
+          <QuickAction
+            icon={<Palette className="w-5 h-5" />}
+            label="Ideias de Tema"
+          />
+          <QuickAction
+            icon={<CircleUserRound className="w-5 h-5" />}
+            label="Painel Usuário"
+          />
+          <QuickAction
+            icon={<MonitorIcon className="w-5 h-5" />}
+            label="Página Inicial"
+          />
+          <QuickAction
+            icon={<FileUp className="w-5 h-5" />}
+            label="Upload Docs"
+          />
+          <QuickAction
+            icon={<ImageIcon className="w-5 h-5" />}
+            label="Ativos Imagem"
+          />
         </div>
 
         {/* Footer Text */}
         <div className="text-center text-sm text-muted-foreground">
-          <p>Comece digitando acima ou selecione uma ação rápida para começar</p>
+          <p>
+            Comece digitando acima ou selecione uma ação rápida para começar
+          </p>
         </div>
       </div>
     </div>
@@ -145,9 +176,7 @@ function QuickAction({ icon, label }: QuickActionProps) {
       variant="outline"
       className="h-auto p-4 flex flex-col items-center gap-3 text-center hover:bg-accent hover:border-primary/50 transition-colors"
     >
-      <div className="text-primary">
-        {icon}
-      </div>
+      <div className="text-primary">{icon}</div>
       <span className="text-sm font-medium">{label}</span>
     </Button>
   );

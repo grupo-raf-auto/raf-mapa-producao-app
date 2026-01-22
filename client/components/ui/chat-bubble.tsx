@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { MessageLoading } from "@/components/ui/message-loading";
-import { User, Bot } from "lucide-react"
+import { User, Bot } from "lucide-react";
 
 interface ChatBubbleProps {
-  variant?: "sent" | "received"
-  layout?: "default" | "ai"
-  className?: string
-  children: React.ReactNode
+  variant?: "sent" | "received";
+  layout?: "default" | "ai";
+  className?: string;
+  children: React.ReactNode;
 }
 
 export function ChatBubble({
@@ -29,14 +29,14 @@ export function ChatBubble({
     >
       {children}
     </div>
-  )
+  );
 }
 
 interface ChatBubbleMessageProps {
-  variant?: "sent" | "received"
-  isLoading?: boolean
-  className?: string
-  children?: React.ReactNode
+  variant?: "sent" | "received";
+  isLoading?: boolean;
+  className?: string;
+  children?: React.ReactNode;
 }
 
 export function ChatBubbleMessage({
@@ -52,7 +52,7 @@ export function ChatBubbleMessage({
         variant === "sent"
           ? "bg-primary text-primary-foreground"
           : "bg-muted text-foreground",
-        className
+        className,
       )}
     >
       {isLoading ? (
@@ -63,14 +63,14 @@ export function ChatBubbleMessage({
         <span className="leading-relaxed">{children}</span>
       )}
     </div>
-  )
+  );
 }
 
 interface ChatBubbleAvatarProps {
-  src?: string
-  fallback?: string
-  className?: string
-  variant?: "sent" | "received"
+  src?: string;
+  fallback?: string;
+  className?: string;
+  variant?: "sent" | "received";
 }
 
 export function ChatBubbleAvatar({
@@ -85,7 +85,7 @@ export function ChatBubbleAvatar({
         variant === "sent"
           ? "bg-primary text-primary-foreground"
           : "bg-muted text-muted-foreground",
-        className
+        className,
       )}
     >
       {variant === "sent" ? (
@@ -94,13 +94,13 @@ export function ChatBubbleAvatar({
         <Bot className="h-3.5 w-3.5" />
       )}
     </div>
-  )
+  );
 }
 
 interface ChatBubbleActionProps {
-  icon?: React.ReactNode
-  onClick?: () => void
-  className?: string
+  icon?: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
 }
 
 export function ChatBubbleAction({
@@ -117,19 +117,19 @@ export function ChatBubbleAction({
     >
       {icon}
     </Button>
-  )
+  );
 }
 
 export function ChatBubbleActionWrapper({
   className,
   children,
 }: {
-  className?: string
-  children: React.ReactNode
+  className?: string;
+  children: React.ReactNode;
 }) {
   return (
     <div className={cn("flex items-center gap-1 mt-2", className)}>
       {children}
     </div>
-  )
+  );
 }

@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import { useState, FormEvent } from 'react';
-import { MessageCircle } from 'lucide-react';
+import { useState, FormEvent } from "react";
+import { MessageCircle } from "lucide-react";
 import {
   ExpandableChat,
   ExpandableChatHeader,
   ExpandableChatBody,
   ExpandableChatFooter,
-} from '@/components/ui/expandable-chat';
-import { SupportChat, SupportChatFooter } from './support-chat';
-import { apiClient as api } from '@/lib/api-client';
-import { toast } from 'sonner';
+} from "@/components/ui/expandable-chat";
+import { SupportChat, SupportChatFooter } from "./support-chat";
+import { apiClient as api } from "@/lib/api-client";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
 
 export function SupportChatFab() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
 
@@ -32,23 +32,27 @@ export function SupportChatFab() {
     const messageToSend = input.trim();
     const userMessage: Message = {
       id: `${Date.now()}-user`,
-      role: 'user',
+      role: "user",
       content: messageToSend,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    setInput("");
     setLoading(true);
 
     try {
       // O backend adiciona o prefixo 'support-' automaticamente, então enviamos sem prefixo
-      const cleanConvId = conversationId?.replace(/^support-/, '') || undefined;
-      const response = await api.chat.sendMessage(messageToSend, cleanConvId, 'support');
+      const cleanConvId = conversationId?.replace(/^support-/, "") || undefined;
+      const response = await api.chat.sendMessage(
+        messageToSend,
+        cleanConvId,
+        "support",
+      );
 
       const assistantMessage: Message = {
         id: `${Date.now()}-assistant`,
-        role: 'assistant',
+        role: "assistant",
         content: response.response,
         timestamp: new Date(),
       };
@@ -57,7 +61,7 @@ export function SupportChatFab() {
       // O backend retorna o conversationId com o prefixo 'support-'
       setConversationId(response.conversationId);
     } catch (error: any) {
-      toast.error('Erro ao enviar mensagem: ' + error.message);
+      toast.error("Erro ao enviar mensagem: " + error.message);
       // Remover mensagem do usuário em caso de erro
       setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
     } finally {

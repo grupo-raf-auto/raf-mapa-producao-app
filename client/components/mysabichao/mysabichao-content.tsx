@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { AnimatedAIChat } from '@/components/ui/animated-ai-chat';
-import { apiClient as api } from '@/lib/api-client';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { AnimatedAIChat } from "@/components/ui/animated-ai-chat";
+import { apiClient as api } from "@/lib/api-client";
+import { toast } from "sonner";
 
 // Helper para gerar IDs únicos
 function generateId() {
@@ -12,14 +12,14 @@ function generateId() {
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
 
 export function MySabichaoContent() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
 
@@ -29,25 +29,30 @@ export function MySabichaoContent() {
 
     const userMessage: Message = {
       id: generateId(),
-      role: 'user',
+      role: "user",
       content: messageToSend,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     if (!customInput) {
-      setInput('');
+      setInput("");
     }
     setLoading(true);
 
     try {
       // O backend adiciona o prefixo 'sabichao-' automaticamente, então enviamos sem prefixo
-      const cleanConvId = conversationId?.replace(/^sabichao-/, '') || undefined;
-      const response = await api.chat.sendMessage(messageToSend, cleanConvId, 'sabichao');
+      const cleanConvId =
+        conversationId?.replace(/^sabichao-/, "") || undefined;
+      const response = await api.chat.sendMessage(
+        messageToSend,
+        cleanConvId,
+        "sabichao",
+      );
 
       const assistantMessage: Message = {
         id: generateId(),
-        role: 'assistant',
+        role: "assistant",
         content: response.response,
         timestamp: new Date(),
       };
@@ -56,7 +61,9 @@ export function MySabichaoContent() {
       // O backend retorna o conversationId com o prefixo 'sabichao-'
       setConversationId(response.conversationId);
     } catch (error: any) {
-      toast.error('Erro ao enviar mensagem: ' + (error.message || 'Erro desconhecido'));
+      toast.error(
+        "Erro ao enviar mensagem: " + (error.message || "Erro desconhecido"),
+      );
       // Remover mensagem do usuário em caso de erro
       setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
     } finally {
@@ -67,19 +74,22 @@ export function MySabichaoContent() {
   const clearHistory = () => {
     setMessages([]);
     setConversationId(null);
-    setInput('');
-    toast.success('Histórico limpo');
+    setInput("");
+    toast.success("Histórico limpo");
   };
 
   return (
-    <div 
+    <div
       className="flex flex-col h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)] max-h-[calc(100vh-8rem)] sm:max-h-[calc(100vh-10rem)] min-h-0"
-      style={{ overflow: 'hidden' }}
+      style={{ overflow: "hidden" }}
     >
       <div className="mb-3 shrink-0">
-        <h1 className="text-2xl font-bold text-foreground mb-1.5">MySabichão</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-1.5">
+          MySabichão
+        </h1>
         <p className="text-sm text-muted-foreground line-clamp-2">
-          Chatbot com IA para responder suas perguntas sobre a empresa usando RAG
+          Chatbot com IA para responder suas perguntas sobre a empresa usando
+          RAG
         </p>
       </div>
 

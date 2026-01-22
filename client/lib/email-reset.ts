@@ -43,16 +43,25 @@ export async function sendResetPasswordEmail({
 
   // Desenvolvimento ou RESEND_API_KEY ausente: apenas logar (nunca enviar para usuário)
   if (isDev) {
-    console.log("[email-reset] RESEND_API_KEY não definida. Link de reset (apenas dev):", url);
+    console.log(
+      "[email-reset] RESEND_API_KEY não definida. Link de reset (apenas dev):",
+      url,
+    );
   } else {
     console.warn(
       "[email-reset] RESEND_API_KEY não definida em produção. Configure um provedor de email. Link (NÃO enviado ao usuário):",
-      url
+      url,
     );
   }
 }
 
-function getResetEmailHtml({ url, userName }: { url: string; userName?: string | null }): string {
+function getResetEmailHtml({
+  url,
+  userName,
+}: {
+  url: string;
+  userName?: string | null;
+}): string {
   const cumprimento = userName ? `Olá, ${userName}` : "Olá";
   return `
 <!DOCTYPE html>

@@ -1,42 +1,37 @@
-'use client';
+"use client";
 
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import {
-  LayoutDashboard,
-  Search,
-  FileStack,
-  Brain,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useSession } from '@/lib/auth-client';
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { LayoutDashboard, Search, FileStack, Brain } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useSession } from "@/lib/auth-client";
 
 // Navegação principal - visível para todos
 const mainNavigation = [
   {
-    label: 'Dashboard',
-    href: '/',
+    label: "Dashboard",
+    href: "/",
     icon: LayoutDashboard,
-    description: 'Métricas e visão geral',
+    description: "Métricas e visão geral",
   },
   {
-    label: 'Consultas',
-    href: '/consultas',
+    label: "Consultas",
+    href: "/consultas",
     icon: Search,
-    description: 'Pesquisar dados',
+    description: "Pesquisar dados",
   },
   {
-    label: 'Formulários',
-    href: '/formularios',
+    label: "Formulários",
+    href: "/formularios",
     icon: FileStack,
-    description: 'Gestão de formulários',
+    description: "Gestão de formulários",
   },
   {
-    label: 'MySabichão',
-    href: '/mysabichao',
+    label: "MySabichão",
+    href: "/mysabichao",
     icon: Brain,
-    description: 'Assistente IA',
+    description: "Assistente IA",
   },
 ];
 
@@ -48,10 +43,10 @@ export function Sidebar() {
   const displayName =
     user?.name ||
     (user as { firstName?: string })?.firstName ||
-    user?.email?.split('@')[0] ||
-    'Utilizador';
-  const initial = (displayName as string)?.[0]?.toUpperCase() || 'U';
-  const userEmail = user?.email || '';
+    user?.email?.split("@")[0] ||
+    "Utilizador";
+  const initial = (displayName as string)?.[0]?.toUpperCase() || "U";
+  const userEmail = user?.email || "";
 
   return (
     <div className="w-[260px] flex-shrink-0 glass-sidebar flex flex-col relative overflow-hidden">
@@ -87,17 +82,17 @@ export function Sidebar() {
               const Icon = item.icon;
               const isActive =
                 pathname === item.href ||
-                (item.href !== '/' && pathname.startsWith(item.href));
+                (item.href !== "/" && pathname.startsWith(item.href));
               return (
                 <Link
                   key={item.label}
                   href={item.href}
                   title={item.description}
                   className={cn(
-                    'sidebar-nav-link flex items-center gap-3 rounded-xl font-medium px-4 py-3',
+                    "sidebar-nav-link flex items-center gap-3 rounded-xl font-medium px-4 py-3",
                     isActive
-                      ? 'active text-white'
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? "active text-white"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   <Icon className="shrink-0 h-5 w-5 transition-all" />
@@ -128,7 +123,6 @@ export function Sidebar() {
                   {userEmail}
                 </p>
               </div>
-
             </div>
           </div>
         )}

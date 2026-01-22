@@ -16,11 +16,11 @@ export function PageAnimation({ children, className }: PageAnimationProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.5,
-        ease: [0.22, 1, 0.36, 1]
+        ease: [0.22, 1, 0.36, 1],
       }}
-      style={{ 
+      style={{
         x: 0,
-        willChange: 'transform, opacity'
+        willChange: "transform, opacity",
       }}
     >
       {children}

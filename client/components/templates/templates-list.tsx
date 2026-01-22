@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { apiClient as api } from '@/lib/api-client';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale/pt-BR';
-import { FileStack, Calendar, Trash2, Edit } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { apiClient as api } from "@/lib/api-client";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale/pt-BR";
+import { FileStack, Calendar, Trash2, Edit } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,9 +26,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { EditTemplateDialog } from './edit-template-dialog';
-import { FillTemplateDialog } from './fill-template-dialog';
+} from "@/components/ui/alert-dialog";
+import { EditTemplateDialog } from "./edit-template-dialog";
+import { FillTemplateDialog } from "./fill-template-dialog";
 
 interface Template {
   _id?: string;
@@ -58,8 +58,10 @@ export function TemplatesList() {
         const templatesData = await api.templates.getAll();
         setTemplates(templatesData);
       } catch (error: any) {
-        console.error('Error loading templates:', error);
-        setError(error.message || 'Erro ao carregar templates. Tente novamente.');
+        console.error("Error loading templates:", error);
+        setError(
+          error.message || "Erro ao carregar templates. Tente novamente.",
+        );
       } finally {
         setLoading(false);
       }
@@ -75,8 +77,8 @@ export function TemplatesList() {
       setTemplates((prev) => prev.filter((t) => t._id !== id));
       router.refresh();
     } catch (error) {
-      console.error('Error deleting template:', error);
-      alert('Erro ao excluir template. Tente novamente.');
+      console.error("Error deleting template:", error);
+      alert("Erro ao excluir template. Tente novamente.");
     }
   };
 
@@ -96,8 +98,10 @@ export function TemplatesList() {
           const templatesData = await api.templates.getAll();
           setTemplates(templatesData);
         } catch (error: any) {
-          console.error('Error loading templates:', error);
-          setError(error.message || 'Erro ao carregar templates. Tente novamente.');
+          console.error("Error loading templates:", error);
+          setError(
+            error.message || "Erro ao carregar templates. Tente novamente.",
+          );
         }
       };
       loadTemplates();
@@ -107,7 +111,7 @@ export function TemplatesList() {
   if (loading) {
     return (
       <Card className="shadow-sm">
-          <CardContent className="py-8 text-center flex flex-col items-center gap-3">
+        <CardContent className="py-8 text-center flex flex-col items-center gap-3">
           <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
           <p className="text-muted-foreground">Carregando templates...</p>
         </CardContent>
@@ -120,7 +124,9 @@ export function TemplatesList() {
       <Card className="shadow-sm">
         <CardContent className="py-12 text-center">
           <FileStack className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-destructive font-medium mb-2">Erro ao carregar templates</p>
+          <p className="text-destructive font-medium mb-2">
+            Erro ao carregar templates
+          </p>
           <p className="text-sm text-muted-foreground">{error}</p>
           <Button
             variant="outline"
@@ -133,7 +139,10 @@ export function TemplatesList() {
                   const templatesData = await api.templates.getAll();
                   setTemplates(templatesData);
                 } catch (error: any) {
-                  setError(error.message || 'Erro ao carregar templates. Tente novamente.');
+                  setError(
+                    error.message ||
+                      "Erro ao carregar templates. Tente novamente.",
+                  );
                 } finally {
                   setLoading(false);
                 }
@@ -174,7 +183,7 @@ export function TemplatesList() {
                   <div className="flex-1">
                     <CardTitle className="text-lg">{template.title}</CardTitle>
                     <CardDescription className="mt-1">
-                      {template.description || 'Sem descrição'}
+                      {template.description || "Sem descrição"}
                     </CardDescription>
                   </div>
                   <Badge variant="outline" className="ml-2">
@@ -191,8 +200,8 @@ export function TemplatesList() {
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Calendar className="w-3 h-3" />
                     <span>
-                      Criado em{' '}
-                      {format(new Date(template.createdAt), 'dd MMM yyyy', {
+                      Criado em{" "}
+                      {format(new Date(template.createdAt), "dd MMM yyyy", {
                         locale: ptBR,
                       })}
                     </span>

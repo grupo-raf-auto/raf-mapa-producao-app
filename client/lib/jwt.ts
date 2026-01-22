@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
-const SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
-const EXPIRES_IN = '15m';
+const SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
+const EXPIRES_IN = "15m";
 
 export type JwtPayload = {
   sub: string;
@@ -17,6 +17,6 @@ export function createAppToken(payload: JwtPayload): string {
       name: payload.name ?? null,
     },
     SECRET,
-    { expiresIn: EXPIRES_IN }
+    { expiresIn: EXPIRES_IN },
   );
 }

@@ -1,23 +1,27 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { TimeFilter, TimeFilterType } from './time-filter';
-import { DashboardStatusChart } from './dashboard-status-chart';
-import { OverallSellProgressChart } from './overall-sell-progress-chart';
-import { VisitorAnalysisChart } from './visitor-analysis-chart';
-import { EmployeeTaskTable } from './employee-task-table';
-import { SeguradoraChart } from './seguradora-chart';
-import { TicketMedioChart } from './ticket-medio-chart';
-import { ColaboradorPerformanceChart } from './colaborador-performance-chart';
-import { ValueDistributionChart } from './value-distribution-chart';
-import { GrowthRateChart } from './growth-rate-chart';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { TimeFilter, TimeFilterType } from "./time-filter";
+import { DashboardStatusChart } from "./dashboard-status-chart";
+import { OverallSellProgressChart } from "./overall-sell-progress-chart";
+import { VisitorAnalysisChart } from "./visitor-analysis-chart";
+import { EmployeeTaskTable } from "./employee-task-table";
+import { SeguradoraChart } from "./seguradora-chart";
+import { TicketMedioChart } from "./ticket-medio-chart";
+import { ColaboradorPerformanceChart } from "./colaborador-performance-chart";
+import { ValueDistributionChart } from "./value-distribution-chart";
+import { GrowthRateChart } from "./growth-rate-chart";
 
 interface Submission {
   id: string;
   templateId: string;
   template?: { name: string };
-  answers: { questionId: string; question?: { text: string }; answer: string }[];
+  answers: {
+    questionId: string;
+    question?: { text: string };
+    answer: string;
+  }[];
   createdAt: string;
   user?: { name: string; email: string };
 }
@@ -25,12 +29,33 @@ interface Submission {
 interface DashboardChartsWrapperProps {
   salesStats: {
     byMonth?: { month: string; count: number; totalValue: number }[];
-    byBanco?: { name: string; count: number; totalValue: number; averageValue?: number }[];
-    bySeguradora?: { name: string; count: number; totalValue: number; averageValue?: number }[];
+    byBanco?: {
+      name: string;
+      count: number;
+      totalValue: number;
+      averageValue?: number;
+    }[];
+    bySeguradora?: {
+      name: string;
+      count: number;
+      totalValue: number;
+      averageValue?: number;
+    }[];
     byDistrito?: { name: string; count: number; totalValue: number }[];
-    byUser?: { userId: string; name: string; count: number; totalValue: number; averageValue?: number }[];
+    byUser?: {
+      userId: string;
+      name: string;
+      count: number;
+      totalValue: number;
+      averageValue?: number;
+    }[];
     valueRanges?: { range: string; count: number }[];
-    growthRates?: { month: string; growthRate: number; previousValue: number; currentValue: number }[];
+    growthRates?: {
+      month: string;
+      growthRate: number;
+      previousValue: number;
+      currentValue: number;
+    }[];
     averageValue?: number;
   } | null;
   recentSubmissions?: Submission[];
@@ -39,27 +64,27 @@ interface DashboardChartsWrapperProps {
 // Filter data by time period
 function filterDataByPeriod(
   data: { month: string; count: number; totalValue: number }[],
-  period: TimeFilterType
+  period: TimeFilterType,
 ): { month: string; count: number; totalValue: number }[] {
   if (!data || data.length === 0) return [];
 
   let monthsToShow: number;
   switch (period) {
-    case 'day':
+    case "day":
       monthsToShow = 1;
       break;
-    case 'week':
+    case "week":
       monthsToShow = 3;
       break;
-    case 'month':
+    case "month":
       return data;
     default:
       return data;
   }
 
   const sortedData = [...data].sort((a, b) => {
-    const [yearA, monthA] = a.month.split('-').map(Number);
-    const [yearB, monthB] = b.month.split('-').map(Number);
+    const [yearA, monthA] = a.month.split("-").map(Number);
+    const [yearB, monthB] = b.month.split("-").map(Number);
     const dateA = new Date(yearA, monthA - 1);
     const dateB = new Date(yearB, monthB - 1);
     return dateB.getTime() - dateA.getTime();
@@ -69,7 +94,15 @@ function filterDataByPeriod(
 }
 
 // Animation component wrapper
-function AnimatedSection({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+function AnimatedSection({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
   return (
     <motion.div
       className={className}
@@ -78,7 +111,7 @@ function AnimatedSection({ children, delay = 0, className = '' }: { children: Re
       transition={{
         delay,
         duration: 0.4,
-        ease: 'easeOut',
+        ease: "easeOut",
       }}
     >
       {children}
@@ -86,8 +119,11 @@ function AnimatedSection({ children, delay = 0, className = '' }: { children: Re
   );
 }
 
-export function DashboardChartsWrapper({ salesStats, recentSubmissions = [] }: DashboardChartsWrapperProps) {
-  const [timeFilter, setTimeFilter] = useState<TimeFilterType>('month');
+export function DashboardChartsWrapper({
+  salesStats,
+  recentSubmissions = [],
+}: DashboardChartsWrapperProps) {
+  const [timeFilter, setTimeFilter] = useState<TimeFilterType>("month");
 
   const filteredTimelineData = salesStats?.byMonth
     ? filterDataByPeriod(salesStats.byMonth, timeFilter)
@@ -105,18 +141,27 @@ export function DashboardChartsWrapper({ salesStats, recentSubmissions = [] }: D
                 <h3 className="chart-card-title">Evolução da Produção</h3>
                 <div className="chart-legend mt-2">
                   <span className="chart-legend-item">
-                    <span className="chart-legend-dot" style={{ backgroundColor: '#2563EB' }} />
+                    <span
+                      className="chart-legend-dot"
+                      style={{ backgroundColor: "#2563EB" }}
+                    />
                     Submissões
                   </span>
                   <span className="chart-legend-item">
-                    <span className="chart-legend-dot" style={{ backgroundColor: '#F97316' }} />
+                    <span
+                      className="chart-legend-dot"
+                      style={{ backgroundColor: "#F97316" }}
+                    />
                     Valor Total
                   </span>
                 </div>
               </div>
               <TimeFilter value={timeFilter} onChange={setTimeFilter} />
             </div>
-            <DashboardStatusChart data={filteredTimelineData} timeFilter={timeFilter} />
+            <DashboardStatusChart
+              data={filteredTimelineData}
+              timeFilter={timeFilter}
+            />
           </div>
         </AnimatedSection>
 
@@ -127,11 +172,17 @@ export function DashboardChartsWrapper({ salesStats, recentSubmissions = [] }: D
               <h3 className="chart-card-title">Produção por Banco</h3>
               <div className="chart-legend">
                 <span className="chart-legend-item">
-                  <span className="chart-legend-dot" style={{ backgroundColor: '#2563EB' }} />
+                  <span
+                    className="chart-legend-dot"
+                    style={{ backgroundColor: "#2563EB" }}
+                  />
                   Quantidade
                 </span>
                 <span className="chart-legend-item">
-                  <span className="chart-legend-dot" style={{ backgroundColor: '#14B8A6' }} />
+                  <span
+                    className="chart-legend-dot"
+                    style={{ backgroundColor: "#14B8A6" }}
+                  />
                   Valor
                 </span>
               </div>
@@ -150,7 +201,10 @@ export function DashboardChartsWrapper({ salesStats, recentSubmissions = [] }: D
               <h3 className="chart-card-title">Produção por Seguradora</h3>
               <div className="chart-legend">
                 <span className="chart-legend-item">
-                  <span className="chart-legend-dot" style={{ backgroundColor: '#8B5CF6' }} />
+                  <span
+                    className="chart-legend-dot"
+                    style={{ backgroundColor: "#8B5CF6" }}
+                  />
                   Operações
                 </span>
               </div>
@@ -166,7 +220,10 @@ export function DashboardChartsWrapper({ salesStats, recentSubmissions = [] }: D
               <h3 className="chart-card-title">Ticket Médio por Banco</h3>
               <div className="chart-legend">
                 <span className="chart-legend-item">
-                  <span className="chart-legend-dot" style={{ backgroundColor: '#F97316' }} />
+                  <span
+                    className="chart-legend-dot"
+                    style={{ backgroundColor: "#F97316" }}
+                  />
                   Média
                 </span>
               </div>
@@ -211,7 +268,10 @@ export function DashboardChartsWrapper({ salesStats, recentSubmissions = [] }: D
               <h3 className="chart-card-title">Distribuição de Valores</h3>
               <div className="chart-legend">
                 <span className="chart-legend-item">
-                  <span className="chart-legend-dot" style={{ backgroundColor: '#10B981' }} />
+                  <span
+                    className="chart-legend-dot"
+                    style={{ backgroundColor: "#10B981" }}
+                  />
                   Operações
                 </span>
               </div>

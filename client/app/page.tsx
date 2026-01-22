@@ -1,7 +1,7 @@
-import { MainLayout } from '@/components/layout/main-layout';
-import { DashboardContent } from '@/components/dashboard/dashboard-content';
+import { MainLayout } from "@/components/layout/main-layout";
+import { DashboardContent } from "@/components/dashboard/dashboard-content";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (

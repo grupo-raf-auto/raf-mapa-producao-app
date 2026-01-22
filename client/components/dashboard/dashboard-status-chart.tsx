@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AreaChart,
@@ -9,15 +9,28 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
-} from 'recharts';
-import { TimeFilterType } from './time-filter';
+} from "recharts";
+import { TimeFilterType } from "./time-filter";
 
 interface DashboardStatusChartProps {
   data: { month: string; count: number; totalValue: number }[];
   timeFilter?: TimeFilterType;
 }
 
-const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const monthNames = [
+  "Jan",
+  "Fev",
+  "Mar",
+  "Abr",
+  "Mai",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Set",
+  "Out",
+  "Nov",
+  "Dez",
+];
 
 // Custom tooltip
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -27,7 +40,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         <p className="font-medium mb-1">{label}</p>
         {payload.map((entry: any, index: number) => (
           <p key={index} className="text-xs" style={{ color: entry.color }}>
-            {entry.name}: {entry.value?.toLocaleString('pt-PT')}
+            {entry.name}: {entry.value?.toLocaleString("pt-PT")}
           </p>
         ))}
       </div>
@@ -36,32 +49,39 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function DashboardStatusChart({ data, timeFilter = 'month' }: DashboardStatusChartProps) {
+export function DashboardStatusChart({
+  data,
+  timeFilter = "month",
+}: DashboardStatusChartProps) {
   // Transform data for the chart
-  const chartData = data.length > 0
-    ? data.map((item, index) => {
-        const [year, month] = item.month.split('-');
-        const monthName = monthNames[parseInt(month) - 1] || month;
+  const chartData =
+    data.length > 0
+      ? data.map((item, index) => {
+          const [year, month] = item.month.split("-");
+          const monthName = monthNames[parseInt(month) - 1] || month;
 
-        return {
-          month: monthName,
-          'Submissões': item.count,
-          'Valor (€)': Math.round(item.totalValue / 100),
-        };
-      })
-    : monthNames.slice(0, 6).map((month) => ({
-        month,
-        'Submissões': 0,
-        'Valor (€)': 0,
-      }));
+          return {
+            month: monthName,
+            Submissões: item.count,
+            "Valor (€)": Math.round(item.totalValue / 100),
+          };
+        })
+      : monthNames.slice(0, 6).map((month) => ({
+          month,
+          Submissões: 0,
+          "Valor (€)": 0,
+        }));
 
   // Find the max point for annotation
-  const maxPoint = chartData.reduce((max, item, index) => {
-    if (item['Submissões'] > (max.value || 0)) {
-      return { value: item['Submissões'], month: item.month, index };
-    }
-    return max;
-  }, { value: 0, month: '', index: 0 });
+  const maxPoint = chartData.reduce(
+    (max, item, index) => {
+      if (item["Submissões"] > (max.value || 0)) {
+        return { value: item["Submissões"], month: item.month, index };
+      }
+      return max;
+    },
+    { value: 0, month: "", index: 0 },
+  );
 
   return (
     <div className="w-full h-[280px] relative">
@@ -91,14 +111,14 @@ export function DashboardStatusChart({ data, timeFilter = 'month' }: DashboardSt
             dataKey="month"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748B', fontSize: 12 }}
+            tick={{ fill: "#64748B", fontSize: 12 }}
             dy={10}
           />
 
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748B', fontSize: 12 }}
+            tick={{ fill: "#64748B", fontSize: 12 }}
             dx={-10}
           />
 
@@ -112,7 +132,7 @@ export function DashboardStatusChart({ data, timeFilter = 'month' }: DashboardSt
             strokeWidth={2}
             fill="url(#colorOverallSell)"
             dot={false}
-            activeDot={{ r: 4, fill: '#F97316' }}
+            activeDot={{ r: 4, fill: "#F97316" }}
           />
 
           {/* Submissões Area - Blue (front) */}
@@ -123,7 +143,7 @@ export function DashboardStatusChart({ data, timeFilter = 'month' }: DashboardSt
             strokeWidth={2.5}
             fill="url(#colorDataSheet)"
             dot={false}
-            activeDot={{ r: 5, fill: '#2563EB' }}
+            activeDot={{ r: 5, fill: "#2563EB" }}
           />
         </AreaChart>
       </ResponsiveContainer>
@@ -133,9 +153,9 @@ export function DashboardStatusChart({ data, timeFilter = 'month' }: DashboardSt
         <div
           className="absolute bg-primary text-white text-xs px-2 py-1 rounded shadow-md"
           style={{
-            top: '30%',
+            top: "30%",
             left: `${(maxPoint.index / Math.max(chartData.length - 1, 1)) * 70 + 15}%`,
-            transform: 'translateX(-50%)',
+            transform: "translateX(-50%)",
           }}
         >
           {maxPoint.value} submissões

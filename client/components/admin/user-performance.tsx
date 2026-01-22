@@ -1,12 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { apiClient as api } from '@/lib/api-client';
-import { TrendingUp, FileStack, HelpCircle } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { format, subDays, parseISO } from 'date-fns';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { apiClient as api } from "@/lib/api-client";
+import { TrendingUp, FileStack, HelpCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
+import { format, subDays, parseISO } from "date-fns";
 
 interface UserStats {
   userId: string;
@@ -49,7 +59,7 @@ export function UserPerformance() {
       const statsData = await api.users.getStats();
       setData(statsData);
     } catch (error: any) {
-      console.error('Error loading user stats:', error);
+      console.error("Error loading user stats:", error);
     } finally {
       setLoading(false);
     }
@@ -78,15 +88,15 @@ export function UserPerformance() {
   // Preparar dados para gráfico de linha (últimos 30 dias)
   const last30Days = Array.from({ length: 30 }, (_, i) => {
     const date = subDays(new Date(), 29 - i);
-    return format(date, 'yyyy-MM-dd');
+    return format(date, "yyyy-MM-dd");
   });
 
-  const chartData = last30Days.map(date => {
+  const chartData = last30Days.map((date) => {
     const total = data.users.reduce((sum, user) => {
       return sum + (user.submissionsByDay[date] || 0);
     }, 0);
     return {
-      date: format(parseISO(date), 'dd/MM'),
+      date: format(parseISO(date), "dd/MM"),
       submissions: total,
     };
   });
@@ -121,9 +131,17 @@ export function UserPerformance() {
             <FileStack className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.stats.totalSubmissions}</div>
+            <div className="text-2xl font-bold">
+              {data.stats.totalSubmissions}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Média: {data.stats.totalUsers > 0 ? Math.round(data.stats.totalSubmissions / data.stats.totalUsers) : 0} por usuário
+              Média:{" "}
+              {data.stats.totalUsers > 0
+                ? Math.round(
+                    data.stats.totalSubmissions / data.stats.totalUsers,
+                  )
+                : 0}{" "}
+              por usuário
             </p>
           </CardContent>
         </Card>
@@ -136,9 +154,12 @@ export function UserPerformance() {
             <FileStack className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.stats.totalTemplates}</div>
+            <div className="text-2xl font-bold">
+              {data.stats.totalTemplates}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {data.users.filter(u => u.totalTemplates > 0).length} usuários criaram templates
+              {data.users.filter((u) => u.totalTemplates > 0).length} usuários
+              criaram templates
             </p>
           </CardContent>
         </Card>
@@ -151,9 +172,12 @@ export function UserPerformance() {
             <HelpCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.stats.totalQuestions}</div>
+            <div className="text-2xl font-bold">
+              {data.stats.totalQuestions}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {data.users.filter(u => u.totalQuestions > 0).length} usuários criaram questões
+              {data.users.filter((u) => u.totalQuestions > 0).length} usuários
+              criaram questões
             </p>
           </CardContent>
         </Card>
@@ -171,31 +195,28 @@ export function UserPerformance() {
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 stroke="#6B7280"
-                style={{ fontSize: '12px' }}
+                style={{ fontSize: "12px" }}
                 angle={-45}
                 textAnchor="end"
                 height={60}
               />
-              <YAxis 
-                stroke="#6B7280"
-                style={{ fontSize: '12px' }}
-              />
+              <YAxis stroke="#6B7280" style={{ fontSize: "12px" }} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #E5E7EB',
-                  borderRadius: '8px',
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: "8px",
                 }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="submissions" 
-                stroke="#007AFF" 
+              <Line
+                type="monotone"
+                dataKey="submissions"
+                stroke="#007AFF"
                 strokeWidth={2}
-                dot={{ fill: '#007AFF', r: 4 }}
+                dot={{ fill: "#007AFF", r: 4 }}
                 activeDot={{ r: 6 }}
               />
             </LineChart>
@@ -236,15 +257,21 @@ export function UserPerformance() {
                 <div className="flex items-center gap-6">
                   <div className="text-right">
                     <div className="font-semibold">{user.totalSubmissions}</div>
-                    <div className="text-xs text-muted-foreground">Submissões</div>
+                    <div className="text-xs text-muted-foreground">
+                      Submissões
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="font-semibold">{user.activeDaysLast30}</div>
-                    <div className="text-xs text-muted-foreground">Dias ativos</div>
+                    <div className="text-xs text-muted-foreground">
+                      Dias ativos
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="font-semibold">{user.totalTemplates}</div>
-                    <div className="text-xs text-muted-foreground">Templates</div>
+                    <div className="text-xs text-muted-foreground">
+                      Templates
+                    </div>
                   </div>
                 </div>
               </div>
@@ -262,26 +289,27 @@ export function UserPerformance() {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={topUsers.slice(0, 5)}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis 
+              <XAxis
                 dataKey="email"
                 stroke="#6B7280"
-                style={{ fontSize: '12px' }}
+                style={{ fontSize: "12px" }}
                 angle={-45}
                 textAnchor="end"
                 height={80}
               />
-              <YAxis 
-                stroke="#6B7280"
-                style={{ fontSize: '12px' }}
-              />
+              <YAxis stroke="#6B7280" style={{ fontSize: "12px" }} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #E5E7EB',
-                  borderRadius: '8px',
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: "8px",
                 }}
               />
-              <Bar dataKey="totalSubmissions" fill="#007AFF" radius={[8, 8, 0, 0]} />
+              <Bar
+                dataKey="totalSubmissions"
+                fill="#007AFF"
+                radius={[8, 8, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

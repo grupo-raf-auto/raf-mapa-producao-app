@@ -1,5 +1,5 @@
-import { MainLayout } from '@/components/layout/main-layout';
-import { MySabichaoContent } from '@/components/mysabichao/mysabichao-content';
+import { MainLayout } from "@/components/layout/main-layout";
+import { MySabichaoContent } from "@/components/mysabichao/mysabichao-content";
 
 export default function MySabichaoPage() {
   return (
@@ -9,4 +9,4 @@ export default function MySabichaoPage() {
   );
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";

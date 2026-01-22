@@ -24,6 +24,12 @@ async function getSalesStats(filters: { templateId?: string; submittedBy?: strin
   const seguradoraQuestionId = seguradoraQuestion?.id;
   const distritoQuestionId = distritoQuestion?.id;
 
+  // Buscar informações dos utilizadores para performance por colaborador
+  const users = await prisma.user.findMany({
+    select: { id: true, name: true, email: true },
+  });
+  const userMap = new Map(users.map(u => [u.id, u.name || u.email || 'Desconhecido']));
+
   const stats = {
     total: submissions.length,
     totalValue: 0,
@@ -32,6 +38,15 @@ async function getSalesStats(filters: { templateId?: string; submittedBy?: strin
     bySeguradora: {} as Record<string, { count: number; totalValue: number }>,
     byDistrito: {} as Record<string, { count: number; totalValue: number }>,
     byMonth: {} as Record<string, { count: number; totalValue: number }>,
+    byUser: {} as Record<string, { count: number; totalValue: number; userName: string }>,
+    valueRanges: {
+      '0-50k': 0,
+      '50k-100k': 0,
+      '100k-200k': 0,
+      '200k-500k': 0,
+      '500k+': 0,
+    } as Record<string, number>,
+    allValues: [] as number[],
   };
 
   let validValuesCount = 0;
@@ -85,26 +100,77 @@ async function getSalesStats(filters: { templateId?: string; submittedBy?: strin
       stats.byMonth[monthKey].count++;
       stats.byMonth[monthKey].totalValue += valor;
     }
+
+    // Agregação por colaborador
+    if (submission.submittedBy) {
+      const userId = submission.submittedBy;
+      const userName = userMap.get(userId) || 'Desconhecido';
+      if (!stats.byUser[userId]) stats.byUser[userId] = { count: 0, totalValue: 0, userName };
+      stats.byUser[userId].count++;
+      stats.byUser[userId].totalValue += valor;
+    }
+
+    // Distribuição de valores por faixa
+    if (valor > 0) {
+      stats.allValues.push(valor);
+      if (valor < 50000) stats.valueRanges['0-50k']++;
+      else if (valor < 100000) stats.valueRanges['50k-100k']++;
+      else if (valor < 200000) stats.valueRanges['100k-200k']++;
+      else if (valor < 500000) stats.valueRanges['200k-500k']++;
+      else stats.valueRanges['500k+']++;
+    }
   }
 
   stats.averageValue = validValuesCount > 0 ? stats.totalValue / validValuesCount : 0;
+
+  // Calcular taxa de crescimento mês a mês
+  const monthlyData = Object.entries(stats.byMonth)
+    .map(([month, data]) => ({ month, count: data.count, totalValue: data.totalValue }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+
+  const growthRates = monthlyData.map((item, index) => {
+    if (index === 0) return { month: item.month, growthRate: 0, previousValue: 0, currentValue: item.totalValue };
+    const previousValue = monthlyData[index - 1].totalValue;
+    const growthRate = previousValue > 0 ? ((item.totalValue - previousValue) / previousValue) * 100 : 0;
+    return { month: item.month, growthRate, previousValue, currentValue: item.totalValue };
+  });
 
   return {
     total: stats.total,
     totalValue: stats.totalValue,
     averageValue: stats.averageValue,
     byBanco: Object.entries(stats.byBanco)
-      .map(([name, data]) => ({ name, count: data.count, totalValue: data.totalValue }))
+      .map(([name, data]) => ({
+        name,
+        count: data.count,
+        totalValue: data.totalValue,
+        averageValue: data.count > 0 ? data.totalValue / data.count : 0,
+      }))
       .sort((a, b) => b.totalValue - a.totalValue),
     bySeguradora: Object.entries(stats.bySeguradora)
-      .map(([name, data]) => ({ name, count: data.count, totalValue: data.totalValue }))
+      .map(([name, data]) => ({
+        name,
+        count: data.count,
+        totalValue: data.totalValue,
+        averageValue: data.count > 0 ? data.totalValue / data.count : 0,
+      }))
       .sort((a, b) => b.totalValue - a.totalValue),
     byDistrito: Object.entries(stats.byDistrito)
       .map(([name, data]) => ({ name, count: data.count, totalValue: data.totalValue }))
       .sort((a, b) => b.totalValue - a.totalValue),
-    byMonth: Object.entries(stats.byMonth)
-      .map(([month, data]) => ({ month, count: data.count, totalValue: data.totalValue }))
-      .sort((a, b) => a.month.localeCompare(b.month)),
+    byMonth: monthlyData,
+    byUser: Object.entries(stats.byUser)
+      .map(([userId, data]) => ({
+        userId,
+        name: data.userName,
+        count: data.count,
+        totalValue: data.totalValue,
+        averageValue: data.count > 0 ? data.totalValue / data.count : 0,
+      }))
+      .sort((a, b) => b.totalValue - a.totalValue),
+    valueRanges: Object.entries(stats.valueRanges)
+      .map(([range, count]) => ({ range, count })),
+    growthRates,
   };
 }
 

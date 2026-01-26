@@ -72,7 +72,7 @@ function ResetPasswordForm() {
           </p>
           <Link
             href="/forgot-password"
-            className="text-blue-600 hover:underline"
+            className="text-red-600 hover:underline"
           >
             Solicitar novo link
           </Link>
@@ -104,7 +104,7 @@ function ResetPasswordForm() {
                 minLength={8}
                 maxLength={128}
                 disabled={loading}
-                className="flex h-10 w-full rounded-md border bg-background px-3 py-2 pr-10 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60"
+                className="flex h-10 w-full rounded-md border bg-background px-3 py-2 pr-10 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-60"
               />
               <button
                 type="button"
@@ -127,13 +127,13 @@ function ResetPasswordForm() {
               required
               minLength={8}
               disabled={loading}
-              className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60"
+              className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-60"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-sm font-medium text-white hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-sm font-medium text-white hover:from-red-600 hover:to-red-700 disabled:opacity-50"
           >
             {loading ? "A guardar..." : "Redefinir senha"}{" "}
             <ArrowRight className="h-4 w-4" />
@@ -141,7 +141,7 @@ function ResetPasswordForm() {
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-500">
-          <Link href="/sign-in" className="text-blue-600 hover:underline">
+          <Link href="/sign-in" className="text-red-600 hover:underline">
             Voltar ao início de sessão
           </Link>
         </p>

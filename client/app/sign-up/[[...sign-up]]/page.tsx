@@ -103,7 +103,7 @@ export default function SignUpPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nome completo"
-              className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             />
           </div>
           <div>
@@ -116,7 +116,7 @@ export default function SignUpPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="seu.email@exemplo.pt"
               required
-              className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             />
           </div>
           <div>
@@ -132,7 +132,7 @@ export default function SignUpPage() {
                 required
                 minLength={8}
                 maxLength={128}
-                className="flex h-10 w-full rounded-md border bg-background px-3 py-2 pr-10 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="flex h-10 w-full rounded-md border bg-background px-3 py-2 pr-10 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
               />
               <button
                 type="button"
@@ -154,13 +154,13 @@ export default function SignUpPage() {
               placeholder="Repita a senha"
               required
               minLength={8}
-              className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-sm font-medium text-white hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-red-500 to-red-600 px-4 py-2 text-sm font-medium text-white hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50"
           >
             {loading ? "A criar conta..." : "Criar conta"}{" "}
             <ArrowRight className="h-4 w-4" />
@@ -169,7 +169,7 @@ export default function SignUpPage() {
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Já tem conta?{" "}
-          <Link href="/sign-in" className="text-blue-600 hover:underline">
+          <Link href="/sign-in" className="text-red-600 hover:underline">
             Entrar
           </Link>
         </p>

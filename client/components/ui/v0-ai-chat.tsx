@@ -212,7 +212,7 @@ export function V0AIChat({
               <button
                 key={index}
                 onClick={() => onQuickAction?.(action.action)}
-                className="flex flex-col items-start gap-2 sm:gap-2.5 p-3 sm:p-4 rounded-lg border border-border/60 bg-card hover:bg-muted/40 hover:border-primary/40 transition-all text-left group shadow-sm hover:shadow-md"
+                className="flex flex-col items-start gap-2 sm:gap-2.5 p-3 sm:p-4 rounded-lg border border-border/60 bg-card hover:bg-muted/40 hover:border-primary/40 transition-all text-left group shadow-sm hover:shadow-md cursor-pointer"
               >
                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-md bg-primary/8 flex items-center justify-center text-primary shrink-0 group-hover:bg-primary/12 transition-colors">
                   {action.icon}
@@ -335,7 +335,7 @@ export function V0AIChat({
               className={cn(
                 'absolute right-2 sm:right-3 bottom-2 sm:bottom-3',
                 'w-9 h-9 sm:w-10 sm:h-10',
-                'rounded-lg transition-all duration-200',
+                'rounded-lg transition-all duration-200 cursor-pointer',
                 'flex items-center justify-center',
                 'shadow-sm',
                 value.trim() && !loading

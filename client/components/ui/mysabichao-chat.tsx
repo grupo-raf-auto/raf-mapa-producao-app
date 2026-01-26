@@ -138,7 +138,7 @@ export default function RuixenMoonChat() {
           />
           <QuickAction
             icon={<CircleUserRound className="w-5 h-5" />}
-            label="Painel Usuário"
+            label="Painel Utilizador"
           />
           <QuickAction
             icon={<MonitorIcon className="w-5 h-5" />}
@@ -174,7 +174,7 @@ function QuickAction({ icon, label }: QuickActionProps) {
   return (
     <Button
       variant="outline"
-      className="h-auto p-4 flex flex-col items-center gap-3 text-center hover:bg-accent hover:border-primary/50 transition-colors"
+      className="h-auto p-4 flex flex-col items-center gap-3 text-center hover:bg-muted transition-colors"
     >
       <div className="text-primary">{icon}</div>
       <span className="text-sm font-medium">{label}</span>

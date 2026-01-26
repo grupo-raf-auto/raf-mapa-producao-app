@@ -150,13 +150,13 @@
   --popover: #ffffff;
   --popover-foreground: #1f2937;
 
-  /* Primary - Deep Blue */
-  --primary: #2563eb;
+  /* Primary - Company Red */
+  --primary: #E14840;
   --primary-foreground: #ffffff;
 
-  /* Secondary - Light Blue */
-  --secondary: #e0f2fe;
-  --secondary-foreground: #0369a1;
+  /* Secondary - Light Red */
+  --secondary: #FEE2E2;
+  --secondary-foreground: #991B1B;
 
   /* Muted */
   --muted: #f8fafc;
@@ -177,10 +177,10 @@
   /* Borders & Inputs */
   --border: #e2e8f0;
   --input: #e2e8f0;
-  --ring: #2563eb;
+  --ring: #E14840;
 
   /* Chart Colors - Vibrant Palette */
-  --chart-1: #2563eb;
+  --chart-1: #E14840;
   --chart-2: #14b8a6;
   --chart-3: #f59e0b;
   --chart-4: #8b5cf6;
@@ -189,12 +189,12 @@
   /* Sidebar - Clean White */
   --sidebar: #ffffff;
   --sidebar-foreground: #374151;
-  --sidebar-primary: #2563eb;
+  --sidebar-primary: #E14840;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #1f2937;
+  --sidebar-accent: #FEE2E2;
+  --sidebar-accent-foreground: #991B1B;
   --sidebar-border: #e2e8f0;
-  --sidebar-ring: #2563eb;
+  --sidebar-ring: #E14840;
 
   /* Dashboard Specific */
   --dashboard-bg: #ffffff;
@@ -202,7 +202,7 @@
     0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02);
 
   /* KPI Card Colors */
-  --kpi-blue: #2563eb;
+  --kpi-red: #E14840;
   --kpi-teal: #14b8a6;
   --kpi-orange: #f97316;
   --kpi-purple: #8b5cf6;
@@ -232,7 +232,7 @@
   --popover: #1e293b;
   --popover-foreground: #f1f5f9;
 
-  --primary: #3b82f6;
+  --primary: #E14840;
   --primary-foreground: #ffffff;
 
   --secondary: #334155;
@@ -253,16 +253,16 @@
 
   --border: #334155;
   --input: #334155;
-  --ring: #3b82f6;
+  --ring: #E14840;
 
   --sidebar: #1e293b;
   --sidebar-foreground: #e2e8f0;
-  --sidebar-primary: #3b82f6;
+  --sidebar-primary: #E14840;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #334155;
-  --sidebar-accent-foreground: #f1f5f9;
+  --sidebar-accent: #7F1D1D;
+  --sidebar-accent-foreground: #FEE2E2;
   --sidebar-border: #334155;
-  --sidebar-ring: #3b82f6;
+  --sidebar-ring: #E14840;
 
   --dashboard-bg: #1e293b;
   --dashboard-shadow:
@@ -412,9 +412,9 @@
   justify-content: center;
 }
 
-.kpi-card-icon.blue {
-  background: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
+.kpi-card-icon.red {
+  background: rgba(225, 72, 64, 0.1);
+  color: #E14840;
 }
 .kpi-card-icon.teal {
   background: rgba(20, 184, 166, 0.1);
@@ -568,8 +568,8 @@
 }
 
 .status-badge.running {
-  background: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
+  background: rgba(225, 72, 64, 0.1);
+  color: #E14840;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

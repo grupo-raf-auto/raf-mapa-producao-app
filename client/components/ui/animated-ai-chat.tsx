@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useCallback } from "react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef, useCallback } from 'react';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
 import {
   FileText,
   HelpCircle,
@@ -11,15 +11,15 @@ import {
   Paperclip,
   SendIcon,
   XIcon,
-  LoaderIcon,
   Command,
   Bot,
   User,
   Trash2,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import * as React from "react";
-import { useSession } from "@/lib/auth-client";
+} from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
+import { motion, AnimatePresence } from 'framer-motion';
+import * as React from 'react';
+import { useSession } from '@/lib/auth-client';
 
 interface UseAutoResizeTextareaProps {
   minHeight: number;
@@ -62,14 +62,14 @@ function useAutoResizeTextarea({
 
   useEffect(() => {
     const handleResize = () => adjustHeight();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [adjustHeight]);
 
   return { textareaRef, adjustHeight };
 }
 
-interface CommandSuggestion {
+export interface CommandSuggestion {
   icon: React.ReactNode;
   label: string;
   description: string;
@@ -77,41 +77,41 @@ interface CommandSuggestion {
   action: string;
 }
 
-const COMMAND_SUGGESTIONS: CommandSuggestion[] = [
+const DEFAULT_COMMAND_SUGGESTIONS: CommandSuggestion[] = [
   {
     icon: <FileText className="w-4 h-4" />,
-    label: "CRM e Processos",
-    description: "Aprende a usar o sistema",
-    prefix: "/crm",
-    action: "Como funciona o CRM?",
+    label: 'CRM e Processos',
+    description: 'Aprende a usar o sistema',
+    prefix: '/crm',
+    action: 'Como funciona o CRM?',
   },
   {
     icon: <HelpCircle className="w-4 h-4" />,
-    label: "Contactos",
-    description: "Departamentos e equipas",
-    prefix: "/contactos",
-    action: "Quais são os contactos da MyCredit?",
+    label: 'Contactos',
+    description: 'Departamentos e equipas',
+    prefix: '/contactos',
+    action: 'Quais são os contactos da MyCredit?',
   },
   {
     icon: <Zap className="w-4 h-4" />,
-    label: "Onboarding",
-    description: "Novos clientes e gestores",
-    prefix: "/onboarding",
-    action: "Como fazer onboarding de um cliente?",
+    label: 'Onboarding',
+    description: 'Novos clientes e gestores',
+    prefix: '/onboarding',
+    action: 'Como fazer onboarding de um cliente?',
   },
   {
     icon: <MonitorIcon className="w-4 h-4" />,
-    label: "Sobre o Website",
-    description: "Funcionalidades e navegação",
-    prefix: "/website",
+    label: 'Sobre o Website',
+    description: 'Funcionalidades e navegação',
+    prefix: '/website',
     action:
-      "Como funciona o website? Quais são as principais funcionalidades disponíveis?",
+      'Como funciona o website? Quais são as principais funcionalidades disponíveis?',
   },
 ];
 
 interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
 }
@@ -125,6 +125,7 @@ interface AnimatedAIChatProps {
   placeholder?: string;
   onQuickAction?: (action: string) => void;
   onClearHistory?: () => void;
+  suggestions?: CommandSuggestion[];
 }
 
 export function AnimatedAIChat({
@@ -133,9 +134,10 @@ export function AnimatedAIChat({
   onSend,
   loading = false,
   messages = [],
-  placeholder = "Pergunta sobre os documentos...",
+  placeholder = 'Pergunta sobre os documentos...',
   onQuickAction,
   onClearHistory,
+  suggestions = DEFAULT_COMMAND_SUGGESTIONS,
 }: AnimatedAIChatProps) {
   const [attachments, setAttachments] = useState<string[]>([]);
   const [activeSuggestion, setActiveSuggestion] = useState<number>(-1);
@@ -149,35 +151,35 @@ export function AnimatedAIChat({
   const userName =
     session?.user?.name ||
     (session?.user as { firstName?: string })?.firstName ||
-    "Utilizador";
+    'Utilizador';
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll para última mensagem
   useEffect(() => {
     if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, loading]);
 
   // Command palette logic
   useEffect(() => {
-    if (value.startsWith("/") && !value.includes(" ")) {
+    if (value.startsWith('/') && !value.includes(' ')) {
       setShowCommandPalette(true);
-      const matchingIndex = COMMAND_SUGGESTIONS.findIndex((cmd) =>
+      const matchingIndex = suggestions.findIndex((cmd) =>
         cmd.prefix.startsWith(value),
       );
       setActiveSuggestion(matchingIndex >= 0 ? matchingIndex : -1);
     } else {
       setShowCommandPalette(false);
     }
-  }, [value]);
+  }, [value, suggestions]);
 
   // Click outside to close command palette
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      const commandButton = document.querySelector("[data-command-button]");
+      const commandButton = document.querySelector('[data-command-button]');
 
       if (
         commandPaletteRef.current &&
@@ -188,8 +190,8 @@ export function AnimatedAIChat({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Prevenir scroll ao focar - Solução simplificada e eficaz
@@ -204,7 +206,7 @@ export function AnimatedAIChat({
       // Usar requestAnimationFrame para garantir que o scroll seja prevenido
       requestAnimationFrame(() => {
         if (Math.abs(window.scrollY - savedScrollY) > 1) {
-          window.scrollTo({ top: savedScrollY, behavior: "instant" });
+          window.scrollTo({ top: savedScrollY, behavior: 'instant' });
         }
       });
     };
@@ -220,39 +222,39 @@ export function AnimatedAIChat({
       savedScrollY = window.scrollY;
     };
 
-    textarea.addEventListener("focus", handleFocus);
-    textarea.addEventListener("mousedown", handleMouseDown);
+    textarea.addEventListener('focus', handleFocus);
+    textarea.addEventListener('mousedown', handleMouseDown);
 
     return () => {
-      textarea.removeEventListener("focus", handleFocus);
-      textarea.removeEventListener("mousedown", handleMouseDown);
+      textarea.removeEventListener('focus', handleFocus);
+      textarea.removeEventListener('mousedown', handleMouseDown);
     };
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (showCommandPalette) {
-      if (e.key === "ArrowDown") {
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
         setActiveSuggestion((prev) =>
-          prev < COMMAND_SUGGESTIONS.length - 1 ? prev + 1 : 0,
+          prev < suggestions.length - 1 ? prev + 1 : 0,
         );
-      } else if (e.key === "ArrowUp") {
+      } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         setActiveSuggestion((prev) =>
-          prev > 0 ? prev - 1 : COMMAND_SUGGESTIONS.length - 1,
+          prev > 0 ? prev - 1 : suggestions.length - 1,
         );
-      } else if (e.key === "Tab" || e.key === "Enter") {
+      } else if (e.key === 'Tab' || e.key === 'Enter') {
         e.preventDefault();
         if (activeSuggestion >= 0) {
-          const selected = COMMAND_SUGGESTIONS[activeSuggestion];
-          onChange(selected.prefix + " ");
+          const selected = suggestions[activeSuggestion];
+          onChange(selected.prefix + ' ');
           setShowCommandPalette(false);
         }
-      } else if (e.key === "Escape") {
+      } else if (e.key === 'Escape') {
         e.preventDefault();
         setShowCommandPalette(false);
       }
-    } else if (e.key === "Enter" && !e.shiftKey) {
+    } else if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (value.trim() && !loading) {
         onSend();
@@ -278,8 +280,8 @@ export function AnimatedAIChat({
   };
 
   const selectCommandSuggestion = (index: number) => {
-    const selected = COMMAND_SUGGESTIONS[index];
-    onChange(selected.prefix + " ");
+    const selected = suggestions[index];
+    onChange(selected.prefix + ' ');
     setShowCommandPalette(false);
   };
 
@@ -298,43 +300,47 @@ export function AnimatedAIChat({
       {/* Messages Area */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto overscroll-contain px-4 py-6 min-h-0"
+        className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-8 min-h-0 bg-gradient-to-b from-background via-background to-background/80"
       >
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-6 max-w-2xl mx-auto">
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-8 max-w-2xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="space-y-3"
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="space-y-4"
             >
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
-                Olá, {userName}
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+                Olá,{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">
+                  {userName}
+                </span>
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-base text-muted-foreground/80 font-medium">
                 Como posso ajudar-te hoje?
               </p>
             </motion.div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
-              {COMMAND_SUGGESTIONS.map((suggestion, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full pt-6">
+              {suggestions.map((suggestion, index) => (
                 <motion.button
                   key={suggestion.prefix}
                   onClick={() => handleQuickAction(suggestion.action)}
-                  className="flex flex-col items-start gap-2 p-4 rounded-lg border border-border/60 bg-card hover:bg-muted/40 hover:border-primary/40 transition-all text-left group"
-                  initial={{ opacity: 0, y: 10 }}
+                  className="flex flex-col items-start gap-3 p-5 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm hover:bg-card/80 hover:border-red-400/50 transition-all duration-300 text-left group shadow-sm hover:shadow-md"
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: index * 0.06, ease: 'easeOut' }}
+                  whileHover={{ y: -2 }}
                 >
-                  <div className="w-10 h-10 rounded-md bg-primary/8 flex items-center justify-center text-primary group-hover:bg-primary/12 transition-colors">
+                  <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-red-500/15 to-red-400/10 flex items-center justify-center text-red-600 group-hover:from-red-500/25 group-hover:to-red-400/15 transition-all duration-300">
                     {suggestion.icon}
                   </div>
                   <div className="w-full">
-                    <p className="font-medium text-sm text-foreground mb-1">
+                    <p className="font-semibold text-sm text-foreground">
                       {suggestion.label}
                     </p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
+                    <p className="text-xs text-muted-foreground/70 leading-relaxed mt-1">
                       {suggestion.description}
                     </p>
                   </div>
@@ -343,7 +349,7 @@ export function AnimatedAIChat({
             </div>
           </div>
         ) : (
-          <div className="max-w-3xl mx-auto space-y-4">
+          <div className="max-w-3xl mx-auto space-y-6">
             {/* Clear Button - Inline with messages */}
             {onClearHistory && (
               <div className="flex justify-end">
@@ -361,23 +367,27 @@ export function AnimatedAIChat({
               <motion.div
                 key={message.id}
                 className={cn(
-                  "flex gap-3",
-                  message.role === "user" ? "flex-row-reverse" : "flex-row",
+                  'flex gap-3.5',
+                  message.role === 'user' ? 'flex-row-reverse' : 'flex-row',
                 )}
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, delay: index * 0.03 }}
+                transition={{
+                  duration: 0.25,
+                  delay: index * 0.04,
+                  ease: 'easeOut',
+                }}
               >
                 {/* Avatar */}
                 <div
                   className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border",
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground border-primary/20"
-                      : "bg-muted text-muted-foreground border-border/50",
+                    'w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border font-semibold text-sm',
+                    message.role === 'user'
+                      ? 'bg-gradient-to-br from-red-600 to-red-700 text-white border-red-500/30 shadow-sm'
+                      : 'bg-gradient-to-br from-slate-100 to-slate-50 text-slate-600 border-slate-200/60 shadow-xs',
                   )}
                 >
-                  {message.role === "user" ? (
+                  {message.role === 'user' ? (
                     <User className="w-4 h-4" />
                   ) : (
                     <Bot className="w-4 h-4" />
@@ -387,13 +397,13 @@ export function AnimatedAIChat({
                 {/* Message */}
                 <div
                   className={cn(
-                    "max-w-[80%] sm:max-w-[75%] rounded-lg px-4 py-2.5",
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted/60 text-foreground border border-border/50",
+                    'max-w-[80%] sm:max-w-[72%] rounded-xl px-5 py-3.5',
+                    message.role === 'user'
+                      ? 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-md'
+                      : 'bg-slate-50 text-foreground border border-slate-200/80 shadow-sm',
                   )}
                 >
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed font-medium">
                     {message.content}
                   </p>
                 </div>
@@ -420,29 +430,29 @@ export function AnimatedAIChat({
       </div>
 
       {/* Input Area - Clean Professional Design */}
-      <div className="shrink-0 border-t border-border/40 bg-background/95 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 py-4">
+      <div className="shrink-0 border-t border-slate-200/40 bg-gradient-to-t from-slate-50/50 to-background/80 backdrop-blur-md">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5">
           <div className="relative">
             {/* Command Palette */}
             <AnimatePresence>
               {showCommandPalette && (
                 <motion.div
                   ref={commandPaletteRef}
-                  className="absolute left-0 right-0 bottom-full mb-2 bg-card rounded-lg z-50 shadow-lg border border-border overflow-hidden"
-                  initial={{ opacity: 0, y: 4 }}
+                  className="absolute left-0 right-0 bottom-full mb-3 bg-white rounded-xl z-50 shadow-lg border border-slate-200/80 overflow-hidden"
+                  initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  transition={{ duration: 0.15 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.18 }}
                 >
                   <div className="py-1">
-                    {COMMAND_SUGGESTIONS.map((suggestion, index) => (
+                    {suggestions.map((suggestion, index) => (
                       <div
                         key={suggestion.prefix}
                         className={cn(
-                          "flex items-center gap-2 px-3 py-2 text-xs transition-colors cursor-pointer",
+                          'flex items-center gap-2 px-3 py-2 text-xs transition-colors cursor-pointer',
                           activeSuggestion === index
-                            ? "bg-primary/10 text-foreground"
-                            : "text-muted-foreground hover:bg-muted/50",
+                            ? 'bg-primary/10 text-foreground'
+                            : 'text-muted-foreground hover:bg-muted/50',
                         )}
                         onClick={() => selectCommandSuggestion(index)}
                       >
@@ -478,25 +488,25 @@ export function AnimatedAIChat({
                     e.target.focus({ preventScroll: true });
                     requestAnimationFrame(() => {
                       if (window.scrollY !== scrollY) {
-                        window.scrollTo({ top: scrollY, behavior: "instant" });
+                        window.scrollTo({ top: scrollY, behavior: 'instant' });
                       }
                     });
                   }}
                   placeholder={placeholder}
                   disabled={loading}
                   className={cn(
-                    "w-full px-0 py-0",
-                    "resize-none",
-                    "bg-transparent",
-                    "border-none",
-                    "text-foreground text-sm",
-                    "focus:outline-none",
-                    "focus-visible:ring-0",
-                    "placeholder:text-muted-foreground/60",
-                    "min-h-[56px] leading-relaxed",
+                    'w-full px-0 py-0',
+                    'resize-none',
+                    'bg-transparent',
+                    'border-none',
+                    'text-foreground text-sm',
+                    'focus:outline-none',
+                    'focus-visible:ring-0',
+                    'placeholder:text-muted-foreground/60',
+                    'min-h-[56px] leading-relaxed',
                   )}
                   style={{
-                    overflow: "hidden",
+                    overflow: 'hidden',
                     scrollMargin: 0,
                   }}
                 />
@@ -508,7 +518,7 @@ export function AnimatedAIChat({
                   <motion.div
                     className="px-4 pb-3 flex gap-2 flex-wrap"
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
+                    animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                   >
                     {attachments.map((file, index) => (
@@ -551,8 +561,8 @@ export function AnimatedAIChat({
                       setShowCommandPalette((prev) => !prev);
                     }}
                     className={cn(
-                      "p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors",
-                      showCommandPalette && "bg-primary/10 text-foreground",
+                      'p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors',
+                      showCommandPalette && 'bg-primary/10 text-foreground',
                     )}
                     title="Comandos"
                   >
@@ -565,16 +575,16 @@ export function AnimatedAIChat({
                   onClick={handleSendMessage}
                   disabled={loading || !value.trim()}
                   className={cn(
-                    "px-4 py-2 rounded-md text-sm font-medium transition-all",
-                    "flex items-center gap-2",
-                    "disabled:opacity-50 disabled:cursor-not-allowed",
+                    'px-4 py-2 rounded-md text-sm font-medium transition-all',
+                    'flex items-center gap-2',
+                    'disabled:opacity-50 disabled:cursor-not-allowed',
                     value.trim() && !loading
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
-                      : "bg-muted text-muted-foreground",
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
+                      : 'bg-muted text-muted-foreground',
                   )}
                 >
                   {loading ? (
-                    <LoaderIcon className="w-4 h-4 animate-spin" />
+                    <Spinner variant="bars" className="w-4 h-4" />
                   ) : (
                     <SendIcon className="w-4 h-4" />
                   )}
@@ -604,7 +614,7 @@ function TypingDots() {
             duration: 1.2,
             repeat: Infinity,
             delay: dot * 0.2,
-            ease: "easeInOut",
+            ease: 'easeInOut',
           }}
         />
       ))}

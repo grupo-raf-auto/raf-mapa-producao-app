@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useCallback } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef, useCallback } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import {
   Send,
   Trash2,
@@ -13,9 +13,9 @@ import {
   Bot,
   User,
   MonitorIcon,
-} from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
-import { useSession } from "@/lib/auth-client";
+} from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
+import { useSession } from '@/lib/auth-client';
 
 interface UseAutoResizeTextareaProps {
   minHeight: number;
@@ -59,8 +59,8 @@ function useAutoResizeTextarea({
 
   useEffect(() => {
     const handleResize = () => adjustHeight();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [adjustHeight]);
 
   return { textareaRef, adjustHeight };
@@ -68,7 +68,7 @@ function useAutoResizeTextarea({
 
 interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
 }
@@ -95,28 +95,28 @@ interface V0AIChatProps {
 const defaultQuickActions: QuickAction[] = [
   {
     icon: <FileText className="w-4 h-4" />,
-    title: "CRM e Processos",
-    description: "Aprende a usar o sistema",
-    action: "Como funciona o CRM?",
+    title: 'CRM e Processos',
+    description: 'Aprende a usar o sistema',
+    action: 'Como funciona o CRM?',
   },
   {
     icon: <HelpCircle className="w-4 h-4" />,
-    title: "Contactos",
-    description: "Departamentos e equipas",
-    action: "Quais são os contactos da MyCredit?",
+    title: 'Contactos',
+    description: 'Departamentos e equipas',
+    action: 'Quais são os contactos da MyCredit?',
   },
   {
     icon: <Zap className="w-4 h-4" />,
-    title: "Onboarding",
-    description: "Novos clientes e gestores",
-    action: "Como fazer onboarding de um cliente?",
+    title: 'Onboarding',
+    description: 'Novos clientes e gestores',
+    action: 'Como fazer onboarding de um cliente?',
   },
   {
     icon: <MonitorIcon className="w-4 h-4" />,
-    title: "Sobre o Website",
-    description: "Funcionalidades e navegação",
+    title: 'Sobre o Website',
+    description: 'Funcionalidades e navegação',
     action:
-      "Como funciona o website? Quais são as principais funcionalidades disponíveis?",
+      'Como funciona o website? Quais são as principais funcionalidades disponíveis?',
   },
 ];
 
@@ -126,8 +126,8 @@ export function V0AIChat({
   onSend,
   loading = false,
   messages = [],
-  placeholder = "Pergunta sobre os documentos...",
-  title = "MySabichão",
+  placeholder = 'Pergunta sobre os documentos...',
+  title = 'MySabichão',
   onQuickAction,
   onClearHistory,
 }: V0AIChatProps) {
@@ -141,10 +141,10 @@ export function V0AIChat({
   const userName =
     session?.user?.name ||
     (session?.user as { firstName?: string })?.firstName ||
-    "Utilizador";
+    'Utilizador';
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -152,7 +152,7 @@ export function V0AIChat({
   }, [messages]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (value.trim() && !loading) {
         onSend();
@@ -243,21 +243,21 @@ export function V0AIChat({
             <div
               key={message.id}
               className={cn(
-                "flex gap-2.5 sm:gap-3.5 animate-in fade-in slide-in-from-bottom-2 duration-300",
-                message.role === "user" ? "flex-row-reverse" : "flex-row",
+                'flex gap-2.5 sm:gap-3.5 animate-in fade-in slide-in-from-bottom-2 duration-300',
+                message.role === 'user' ? 'flex-row-reverse' : 'flex-row',
               )}
               style={{ animationDelay: `${index * 50}ms` }}
             >
               {/* Avatar */}
               <div
                 className={cn(
-                  "w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 border",
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground border-primary/20"
-                    : "bg-muted/80 text-muted-foreground border-border",
+                  'w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 border',
+                  message.role === 'user'
+                    ? 'bg-primary text-primary-foreground border-primary/20'
+                    : 'bg-muted/80 text-muted-foreground border-border',
                 )}
               >
-                {message.role === "user" ? (
+                {message.role === 'user' ? (
                   <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 ) : (
                   <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -266,10 +266,10 @@ export function V0AIChat({
               {/* Message bubble */}
               <div
                 className={cn(
-                  "max-w-[80%] sm:max-w-[78%] rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm",
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted/60 text-foreground border border-border/50",
+                  'max-w-[80%] sm:max-w-[78%] rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm',
+                  message.role === 'user'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted/60 text-foreground border border-border/50',
                 )}
               >
                 <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">
@@ -311,19 +311,19 @@ export function V0AIChat({
               placeholder={placeholder}
               disabled={loading}
               className={cn(
-                "w-full px-4 sm:px-5 py-3.5 sm:py-4 pr-11 sm:pr-14",
-                "resize-none",
-                "bg-transparent",
-                "border-none",
-                "text-foreground text-sm sm:text-base",
-                "focus:outline-none",
-                "focus-visible:ring-0 focus-visible:ring-offset-0",
-                "placeholder:text-muted-foreground/60 placeholder:text-sm sm:placeholder:text-base",
-                "min-h-[56px] sm:min-h-[60px] leading-relaxed",
-                "transition-all duration-200",
+                'w-full px-4 sm:px-5 py-3.5 sm:py-4 pr-11 sm:pr-14',
+                'resize-none',
+                'bg-transparent',
+                'border-none',
+                'text-foreground text-sm sm:text-base',
+                'focus:outline-none',
+                'focus-visible:ring-0 focus-visible:ring-offset-0',
+                'placeholder:text-muted-foreground/60 placeholder:text-sm sm:placeholder:text-base',
+                'min-h-[56px] sm:min-h-[60px] leading-relaxed',
+                'transition-all duration-200',
               )}
               style={{
-                overflow: "hidden",
+                overflow: 'hidden',
               }}
             />
 
@@ -333,14 +333,14 @@ export function V0AIChat({
               onClick={onSend}
               disabled={!value.trim() || loading}
               className={cn(
-                "absolute right-2 sm:right-3 bottom-2 sm:bottom-3",
-                "w-9 h-9 sm:w-10 sm:h-10",
-                "rounded-lg transition-all duration-200",
-                "flex items-center justify-center",
-                "shadow-sm",
+                'absolute right-2 sm:right-3 bottom-2 sm:bottom-3',
+                'w-9 h-9 sm:w-10 sm:h-10',
+                'rounded-lg transition-all duration-200',
+                'flex items-center justify-center',
+                'shadow-sm',
                 value.trim() && !loading
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md hover:scale-105 active:scale-95"
-                  : "bg-muted/60 text-muted-foreground cursor-not-allowed opacity-50",
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md hover:scale-105 active:scale-95'
+                  : 'bg-muted/60 text-muted-foreground cursor-not-allowed opacity-50',
               )}
               aria-label="Enviar mensagem"
             >

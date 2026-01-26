@@ -2,9 +2,9 @@
 export const colors = {
   background: "#F6F7F9",
   surface: "#FFFFFF",
-  primary: "#5347CE",
-  primarySoft: "#887CFD",
-  secondary: "#4896FE",
+  primary: "#E14840",
+  primarySoft: "#F87171",
+  secondary: "#FEE2E2",
   accent: "#16CBC7",
   textPrimary: "#111827",
   textSecondary: "#6B7280",

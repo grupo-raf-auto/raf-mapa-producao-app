@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import Link, { LinkProps } from "next/link";
-import React, { useState, createContext, useContext, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import Image from "next/image";
+import { cn } from '@/lib/utils';
+import Link, { LinkProps } from 'next/link';
+import React, { useState, createContext, useContext, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
+import Image from 'next/image';
 
 interface Links {
   label: string;
@@ -26,7 +26,7 @@ const SidebarContext = createContext<SidebarContextProps | undefined>(
 export const useSidebar = () => {
   const context = useContext(SidebarContext);
   if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider");
+    throw new Error('useSidebar must be used within a SidebarProvider');
   }
   return context;
 };
@@ -72,7 +72,7 @@ export const Sidebar = ({
   );
 };
 
-export const SidebarBody = (props: React.ComponentProps<"div">) => {
+export const SidebarBody = (props: React.ComponentProps<'div'>) => {
   return (
     <>
       <DesktopSidebar {...props} />
@@ -89,11 +89,11 @@ export const DesktopSidebar = ({
   className,
   children,
   ...props
-}: React.ComponentProps<"div">) => {
+}: React.ComponentProps<'div'>) => {
   return (
     <div
       className={cn(
-        "h-screen hidden md:flex md:flex-col fixed left-0 top-0 z-40 overflow-hidden",
+        'h-screen hidden md:flex md:flex-col fixed left-0 top-0 z-40 overflow-hidden',
         className,
       )}
       style={{ width: SIDEBAR_WIDTH_OPEN }}
@@ -108,21 +108,21 @@ export const MobileSidebar = ({
   className,
   children,
   ...props
-}: React.ComponentProps<"div">) => {
+}: React.ComponentProps<'div'>) => {
   const { open, setOpen } = useSidebar();
 
   return (
     <>
       <div
         className={cn(
-          "h-16 px-4 flex flex-row md:hidden items-center justify-between bg-sidebar border-b border-border w-full fixed top-0 left-0 z-40",
+          'h-16 px-4 flex flex-row md:hidden items-center justify-between bg-sidebar border-b border-border w-full fixed top-0 left-0 z-40',
         )}
         {...props}
       >
         <Link href="/" className="flex items-center gap-2">
           <div className="relative h-8 w-auto">
             <Image
-              src="/logo-mycredit.png"
+              src="/logo-raf.png"
               alt="MYCREDIT - Intermediários de Crédito"
               width={100}
               height={32}
@@ -152,12 +152,12 @@ export const MobileSidebar = ({
               onClick={() => setOpen(false)}
             />
             <motion.div
-              initial={{ x: "-100%" }}
+              initial={{ x: '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
+              exit={{ x: '-100%' }}
               transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
               className={cn(
-                "fixed left-0 top-0 h-full w-[280px] bg-sidebar border-r border-border z-50 flex flex-col md:hidden shadow-lg",
+                'fixed left-0 top-0 h-full w-[280px] bg-sidebar border-r border-border z-50 flex flex-col md:hidden shadow-lg',
                 className,
               )}
             >
@@ -190,7 +190,7 @@ export const SidebarLink = ({
   return (
     <Link
       href={link.href}
-      className={cn("flex items-center gap-3 transition-colors", className)}
+      className={cn('flex items-center gap-3 transition-colors', className)}
       {...props}
     >
       <span className="shrink-0">{link.icon}</span>
@@ -198,7 +198,7 @@ export const SidebarLink = ({
         {(open || !animate) && (
           <motion.span
             initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: "auto" }}
+            animate={{ opacity: 1, width: 'auto' }}
             exit={{ opacity: 0, width: 0 }}
             transition={{ duration: 0.15 }}
             className="text-sm whitespace-nowrap overflow-hidden"

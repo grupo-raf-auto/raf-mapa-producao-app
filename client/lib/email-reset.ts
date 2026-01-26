@@ -41,7 +41,7 @@ export async function sendResetPasswordEmail({
     return;
   }
 
-  // Desenvolvimento ou RESEND_API_KEY ausente: apenas logar (nunca enviar para usuário)
+  // Desenvolvimento ou RESEND_API_KEY ausente: apenas logar (nunca enviar para utilizador)
   if (isDev) {
     console.log(
       "[email-reset] RESEND_API_KEY não definida. Link de reset (apenas dev):",
@@ -49,7 +49,7 @@ export async function sendResetPasswordEmail({
     );
   } else {
     console.warn(
-      "[email-reset] RESEND_API_KEY não definida em produção. Configure um provedor de email. Link (NÃO enviado ao usuário):",
+      "[email-reset] RESEND_API_KEY não definida em produção. Configure um provedor de email. Link (NÃO enviado ao utilizador):",
       url,
     );
   }

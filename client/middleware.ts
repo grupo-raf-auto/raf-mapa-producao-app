@@ -10,6 +10,7 @@ const publicPaths = [
   "/api/webhooks",
   "/not-found",
 ];
+
 const SESSION_COOKIE = "better-auth.session_token";
 const SESSION_COOKIE_SECURE = "__Secure-better-auth.session_token";
 
@@ -24,10 +25,13 @@ function hasSessionCookie(cookies: NextRequest["cookies"]): boolean {
 }
 
 export function middleware(request: NextRequest) {
+  // Permitir rotas públicas sem verificação
   if (isPublic(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
 
+  // Verificar presença do cookie de sessão (Edge Runtime compatible)
+  // A validação completa da sessão é feita nas páginas (Node.js Runtime)
   if (!hasSessionCookie(request.cookies)) {
     const signIn = new URL("/sign-in", request.url);
     signIn.searchParams.set("callbackUrl", request.nextUrl.pathname);

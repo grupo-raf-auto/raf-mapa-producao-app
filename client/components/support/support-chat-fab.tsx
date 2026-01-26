@@ -62,7 +62,7 @@ export function SupportChatFab() {
       setConversationId(response.conversationId);
     } catch (error: any) {
       toast.error("Erro ao enviar mensagem: " + error.message);
-      // Remover mensagem do usuário em caso de erro
+      // Remover mensagem do utilizador em caso de erro
       setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
     } finally {
       setLoading(false);

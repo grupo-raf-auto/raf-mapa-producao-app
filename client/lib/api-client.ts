@@ -34,7 +34,7 @@ function invalidateCache(pathPrefix: string): void {
   }
 }
 
-// Helper para verificar se o erro indica que o usuário não foi encontrado ou não está autenticado
+// Helper para verificar se o erro indica que o utilizador não foi encontrado ou não está autenticado
 function isUnauthorizedError(errorMessage: string, status: number): boolean {
   const lowerMessage = errorMessage.toLowerCase();
   return (
@@ -105,7 +105,7 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
       throw new Error(retryMessage);
     }
 
-    // Se o erro indicar que o usuário não foi encontrado ou não está autenticado, redirecionar para login
+    // Se o erro indicar que o utilizador não foi encontrado ou não está autenticado, redirecionar para login
     if (isUnauthorizedError(errorMessage, res.status)) {
       // Limpar cache antes de redirecionar
       cache.clear();

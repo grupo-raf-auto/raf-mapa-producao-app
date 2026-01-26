@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { QuestionActions } from "./question-actions";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
+import { pt } from "date-fns/locale/pt";
 
 type Question = {
   _id?: string;
@@ -86,7 +86,7 @@ export async function QuestionsTable() {
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {format(new Date(question.createdAt), "dd MMM yyyy", {
-                    locale: ptBR,
+                    locale: pt,
                   })}
                 </TableCell>
                 <TableCell className="text-right">

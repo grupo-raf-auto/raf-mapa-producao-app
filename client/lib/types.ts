@@ -42,5 +42,5 @@ export interface FormSubmission {
     answer: string;
   }[];
   submittedAt: Date;
-  submittedBy?: string; // ID do usuário que submeteu (quando implementar login)
+  submittedBy?: string; // ID do utilizador que submeteu (quando implementar login)
 }

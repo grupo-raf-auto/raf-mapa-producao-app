@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiClient as api } from "@/lib/api-client";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
+import { pt } from "date-fns/locale/pt";
 import { FileStack, Calendar, FileEdit } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { FillTemplateDialog } from "@/components/templates/fill-template-dialog";
@@ -127,15 +127,14 @@ export function FormulariosContent() {
                     <span>
                       Criado em{" "}
                       {format(new Date(template.createdAt), "dd MMM yyyy", {
-                        locale: ptBR,
+                        locale: pt,
                       })}
                     </span>
                   </div>
                   <div className="pt-3">
                     <Button
-                      variant="default"
                       size="sm"
-                      className="w-full bg-foreground text-background hover:bg-foreground/90"
+                      className="w-full"
                       onClick={() => {
                         setFillingTemplate(template);
                         setIsFillDialogOpen(true);

@@ -111,7 +111,7 @@ export function EmployeeTaskTable({
                       <div className="flex items-center justify-end gap-1">
                         <Link
                           href={`/consultas?id=${submission.id}`}
-                          className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                          className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
                         >
                           <Eye className="w-4 h-4" />
                         </Link>

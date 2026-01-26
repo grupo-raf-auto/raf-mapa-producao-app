@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
+import { pt } from "date-fns/locale/pt";
 import { cn } from "@/lib/utils";
 
 interface QuestionInputProps {
@@ -69,7 +69,7 @@ export function QuestionInput({
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {dateValue ? (
-              format(dateValue, "PPP", { locale: ptBR })
+              format(dateValue, "PPP", { locale: pt })
             ) : (
               <span>Selecione uma data</span>
             )}
@@ -85,7 +85,7 @@ export function QuestionInput({
               }
             }}
             initialFocus
-            locale={ptBR}
+            locale={pt}
           />
         </PopoverContent>
       </Popover>

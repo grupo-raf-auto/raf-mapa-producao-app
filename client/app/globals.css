@@ -1000,3 +1000,78 @@ input:focus {
   background-size: 300% 300%;
   animation: gradient-shift 3s ease infinite;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REUSABLE MODAL CLASSES
+   Standardized dimensions and styling for dialogs/modals
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Modal size variants */
+.modal-sm {
+  max-width: calc(100% - 2rem);
+}
+
+@media (min-width: 640px) {
+  .modal-sm {
+    max-width: 28rem; /* sm: 448px */
+  }
+}
+
+.modal-md {
+  max-width: calc(100% - 2rem);
+}
+
+@media (min-width: 768px) {
+  .modal-md {
+    max-width: 42rem; /* md: 672px */
+  }
+}
+
+.modal-lg {
+  max-width: calc(100% - 2rem);
+}
+
+@media (min-width: 1024px) {
+  .modal-lg {
+    max-width: 56rem; /* lg: 896px */
+  }
+}
+
+.modal-xl {
+  max-width: calc(100% - 2rem);
+}
+
+@media (min-width: 1280px) {
+  .modal-xl {
+    max-width: 80vw;
+    max-width: 1024px;
+  }
+}
+
+.modal-2xl {
+  max-width: calc(100% - 2rem);
+}
+
+@media (min-width: 1536px) {
+  .modal-2xl {
+    max-width: 1400px;
+  }
+}
+
+/* Modal height variants */
+.modal-h-screen {
+  height: 90vh;
+  max-height: 90vh;
+}
+
+.modal-h-auto {
+  height: auto;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Modal scroll area */
+.modal-scrollable {
+  overflow-y: auto;
+  max-height: 70vh;
+}

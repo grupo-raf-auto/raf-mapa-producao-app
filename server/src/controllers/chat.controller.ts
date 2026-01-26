@@ -1,70 +1,107 @@
-import { Request, Response } from "express";
-import { randomUUID } from "crypto";
-import { prisma } from "../lib/prisma";
+import { Request, Response } from 'express';
+import { randomUUID } from 'crypto';
+import { prisma } from '../lib/prisma';
 import {
   generateChatResponse,
   getSystemPrompt,
   ChatContext,
-} from "../services/openai.service";
-import { searchRelevantChunks } from "../services/rag.service";
+} from '../services/openai.service';
+import { searchRelevantChunks } from '../services/rag.service';
 
 export class ChatController {
   static async sendMessage(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
       const { message, conversationId, context } = req.body;
       const userId = req.user.id;
 
-      if (!message || typeof message !== "string") {
-        return res.status(400).json({ error: "Message is required" });
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Message is required' });
       }
 
       const chatContext: ChatContext =
-        context === "support" ? "support" : "sabichao";
+        context === 'support' ? 'support' : 'sabichao';
       const baseConvId = conversationId || randomUUID();
       const convId = `${chatContext}-${baseConvId}`;
 
       const history = await prisma.chatMessage.findMany({
         where: { conversationId: convId },
-        orderBy: { createdAt: "asc" },
+        orderBy: { createdAt: 'asc' },
       });
 
       const messagesForOpenAI = history.map((msg) => ({
-        role: msg.role as "user" | "assistant",
+        role: msg.role as 'user' | 'assistant',
         content: msg.content,
       }));
-      messagesForOpenAI.push({ role: "user", content: message });
+      messagesForOpenAI.push({ role: 'user', content: message });
 
       await prisma.chatMessage.create({
         data: {
           conversationId: convId,
-          role: "user",
+          role: 'user',
           content: message,
           userId,
         },
       });
 
-      let relevantContext = "";
-      if (chatContext === "sabichao") {
+      let relevantContext = '';
+      if (chatContext === 'sabichao') {
         try {
-          const relevantChunks = await searchRelevantChunks(message, 3);
+          const relevantChunks = await searchRelevantChunks(message, 8); // Top-8 conforme especificação
           if (relevantChunks.length > 0) {
-            relevantContext =
-              "\n\n=== Contexto Relevante dos Documentos da Empresa ===\n";
-            relevantChunks.forEach((item, i) => {
-              relevantContext += `\n[Documento ${i + 1} - Similaridade: ${(item.similarity * 100).toFixed(1)}%]:\n${item.chunk.content}\n`;
+            // Agrupar chunks por documento para melhor organização
+            const chunksByDocument = new Map<
+              string,
+              Array<{
+                content: string;
+                similarity: number;
+                pageNumber?: number;
+              }>
+            >();
+
+            relevantChunks.forEach((item) => {
+              const docName =
+                item.document?.originalName || `Documento-${item.chunk.documentId}`;
+              if (!chunksByDocument.has(docName)) {
+                chunksByDocument.set(docName, []);
+              }
+              chunksByDocument.get(docName)!.push({
+                content: item.chunk.content,
+                similarity: item.similarity,
+                pageNumber: item.metadata?.pageNumber,
+              });
             });
-            relevantContext += "\n=== Fim do Contexto ===\n";
+
+            // Formatar contexto conforme especificação do prompt (formato do exemplo)
+            chunksByDocument.forEach((chunks, docName) => {
+              relevantContext += `## 📄 Documento: ${docName}\n\n`;
+              chunks.forEach((chunk) => {
+                const pageInfo = chunk.pageNumber
+                  ? `Página ${chunk.pageNumber}`
+                  : 'Página N/A';
+                const relevance = (chunk.similarity * 100).toFixed(0);
+                relevantContext += `### ${pageInfo} (${relevance}% relevância)\n`;
+                relevantContext += `\`\`\`\n${chunk.content}\n\`\`\`\n\n`;
+              });
+              relevantContext += '---\n\n';
+            });
           }
         } catch (err) {
-          console.error("Erro ao buscar contexto RAG:", err);
+          console.error('Erro ao buscar contexto RAG:', err);
         }
       }
 
       const baseSystemPrompt = getSystemPrompt(chatContext);
+      // Substituir placeholder {CONTEXT_WILL_BE_INSERTED_HERE} se houver contexto
       const enhancedSystemPrompt = relevantContext
-        ? `${baseSystemPrompt}\n\n${relevantContext}\n\nIMPORTANTE: Use o contexto acima dos documentos da empresa para responder perguntas. Se a informação não estiver no contexto fornecido, seja honesto e diga que não tem essa informação específica nos documentos disponíveis, mas pode tentar ajudar com outras informações relacionadas.`
-        : baseSystemPrompt;
+        ? baseSystemPrompt.replace(
+            '{CONTEXT_WILL_BE_INSERTED_HERE}',
+            relevantContext,
+          )
+        : baseSystemPrompt.replace(
+            '{CONTEXT_WILL_BE_INSERTED_HERE}',
+            '\n[Nenhum contexto relevante encontrado nos documentos disponíveis.]\n',
+          );
 
       const aiResponse = await generateChatResponse(
         messagesForOpenAI,
@@ -74,7 +111,7 @@ export class ChatController {
       await prisma.chatMessage.create({
         data: {
           conversationId: convId,
-          role: "assistant",
+          role: 'assistant',
           content: aiResponse,
           userId,
         },
@@ -86,30 +123,30 @@ export class ChatController {
         timestamp: new Date().toISOString(),
       });
     } catch (error: unknown) {
-      console.error("Error processing chat message:", error);
+      console.error('Error processing chat message:', error);
       const msg =
         error instanceof Error
           ? error.message
-          : "Failed to process chat message";
+          : 'Failed to process chat message';
       res.status(500).json({ error: msg });
     }
   }
 
   static async getConversationHistory(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
       const { conversationId } = req.params;
       const userId = req.user.id;
 
       const messages = await prisma.chatMessage.findMany({
         where: { conversationId },
-        orderBy: { createdAt: "asc" },
+        orderBy: { createdAt: 'asc' },
       });
 
       const userMessages = messages.filter((m) => m.userId === userId);
       if (messages.length > 0 && userMessages.length === 0) {
         return res.status(403).json({
-          error: "Forbidden: You do not have access to this conversation",
+          error: 'Forbidden: You do not have access to this conversation',
         });
       }
 
@@ -124,8 +161,8 @@ export class ChatController {
         })),
       });
     } catch (error) {
-      console.error("Error fetching conversation history:", error);
-      res.status(500).json({ error: "Failed to fetch conversation history" });
+      console.error('Error fetching conversation history:', error);
+      res.status(500).json({ error: 'Failed to fetch conversation history' });
     }
   }
 }

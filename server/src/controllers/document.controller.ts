@@ -34,7 +34,7 @@ const storage = multer.diskStorage({
 
 export const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const allowed = [
       "application/pdf",
@@ -127,9 +127,18 @@ export class DocumentController {
       if (!req.user) return res.status(401).json({ error: "Unauthorized" });
       const list = await prisma.document.findMany({
         where: { isActive: true },
+        include: {
+          chunks: true,
+        },
         orderBy: { uploadedAt: "desc" },
       });
-      res.json(list.map((d) => ({ ...d, _id: d.id })));
+      res.json(
+        list.map((d) => ({
+          ...d,
+          _id: d.id,
+          chunksCount: d.chunks.length,
+        })),
+      );
     } catch (error: unknown) {
       console.error("Erro ao listar documentos:", error);
       res.status(500).json({ error: "Erro ao listar documentos" });

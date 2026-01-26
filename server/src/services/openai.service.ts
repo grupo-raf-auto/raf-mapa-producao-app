@@ -1,5 +1,5 @@
-import OpenAI from "openai";
-import dotenv from "dotenv";
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -9,7 +9,7 @@ const openai = new OpenAI({
 });
 
 export interface ChatMessage {
-  role: "system" | "user" | "assistant";
+  role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
@@ -22,7 +22,7 @@ export async function generateChatResponse(
 ): Promise<string> {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error(
-      "OPENAI_API_KEY não configurada. Configure a variável de ambiente OPENAI_API_KEY.",
+      'OPENAI_API_KEY não configurada. Configure a variável de ambiente OPENAI_API_KEY.',
     );
   }
 
@@ -33,7 +33,7 @@ export async function generateChatResponse(
     // Adicionar system prompt se fornecido
     if (systemPrompt) {
       messagesToSend.push({
-        role: "system",
+        role: 'system',
         content: systemPrompt,
       });
     }
@@ -42,7 +42,7 @@ export async function generateChatResponse(
     messagesToSend.push(...messages);
 
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages: messagesToSend,
       temperature: 0.7,
       max_tokens: 1000,
@@ -51,62 +51,79 @@ export async function generateChatResponse(
     const response = completion.choices[0]?.message?.content;
 
     if (!response) {
-      throw new Error("Resposta vazia da OpenAI");
+      throw new Error('Resposta vazia da OpenAI');
     }
 
     return response;
   } catch (error: any) {
-    console.error("Erro ao chamar OpenAI:", error);
+    console.error('Erro ao chamar OpenAI:', error);
 
     // Tratamento de erros específicos
     if (error.status === 401) {
-      throw new Error("API key da OpenAI inválida. Verifique OPENAI_API_KEY.");
+      throw new Error('API key da OpenAI inválida. Verifique OPENAI_API_KEY.');
     } else if (error.status === 429) {
       throw new Error(
-        "Limite de requisições da OpenAI excedido. Tente novamente mais tarde.",
+        'Limite de requisições da OpenAI excedido. Tente novamente mais tarde.',
       );
     } else if (error.status === 500) {
-      throw new Error("Erro interno da OpenAI. Tente novamente mais tarde.");
+      throw new Error('Erro interno da OpenAI. Tente novamente mais tarde.');
     }
 
     throw new Error(
-      `Erro ao processar mensagem: ${error.message || "Erro desconhecido"}`,
+      `Erro ao processar mensagem: ${error.message || 'Erro desconhecido'}`,
     );
   }
 }
 
-export type ChatContext = "sabichao" | "support";
+export type ChatContext = 'sabichao' | 'support';
 
 /**
  * Gera system prompt padrão para o MySabichão (base de dados da empresa)
  */
 export function getSabichaoSystemPrompt(): string {
-  return `Você é o MySabichão, um assistente virtual inteligente e amigável especializado em base de dados da empresa, usando RAG (Retrieval Augmented Generation) para acessar documentos da empresa.
+  return `[ROLE BASE]
+Você é o MySabichão, assistente especializado e confiável da empresa.
+Responde de forma profissional, clara e amigável.
 
-Seu papel é ajudar os usuários com:
-- Consultas sobre dados e informações da empresa
-- Análise de dados e relatórios
-- Perguntas sobre informações armazenadas no sistema
-- Dúvidas sobre templates e formulários
-- Orientação sobre dados históricos e estatísticas
-- Informações extraídas de documentos da empresa (PDFs, DOCX, TXT) que foram processados e indexados
+[FONTE DE VERDADE]
+Suas respostas devem basear-se EXCLUSIVAMENTE no CONTEXTO fornecido abaixo.
+Este contexto contém excertos de documentos internos da empresa.
 
-IMPORTANTE SOBRE DOCUMENTOS RAG:
-- Quando você receber contexto de documentos da empresa, use essas informações para responder perguntas
-- Cite a fonte quando usar informações dos documentos
-- Se a informação não estiver nos documentos fornecidos, seja honesto sobre isso
-- Combine informações dos documentos com conhecimento geral quando apropriado
+[FORMATO DE RESPOSTA OBRIGATÓRIO]
 
-Seja sempre:
-- Claro e objetivo nas respostas
-- Amigável e profissional
-- Útil e prático
-- Conciso quando possível, mas completo quando necessário
-- Focado em dados e informações da empresa
+### 📝 Resposta
+[Resposta principal clara e direta à pergunta, em linguagem natural e profissional]
 
-Se não souber algo, seja honesto e sugira alternativas ou onde o usuário pode encontrar a informação.
+### 📄 Fontes Consultadas
+Para cada documento relevante, usar este formato:
+**📄 [Nome do Documento]** — Página [X]
+> "[Trecho exato extraído do documento que suporta a resposta]"
 
-Responda sempre em português brasileiro.`;
+### 💡 Resumo
+[Breve síntese da resposta em 1-2 frases]
+
+### 🔍 Sugestões Relacionadas
+- [Pergunta de follow-up relevante 1]
+- [Pergunta de follow-up relevante 2]
+
+[REGRAS DE FORMATAÇÃO]
+1. Use Markdown para formatar (negrito, itálico, listas, citações)
+2. Citações em bloco (>) para trechos extraídos dos documentos
+3. Negrito para destacar termos importantes
+4. Listas numeradas ou com bullet points para enumerar passos
+5. Linguagem natural - escreva como um assistente profissional
+6. Português (PT-PT) ou English conforme necessário
+
+[INSTRUÇÕES ESPECIAIS]
+- Se a informação não estiver nos documentos, responda: "Não existe orientação definida nos documentos disponíveis."
+- Cite SEMPRE o nome do ficheiro e página quando disponível
+- Os trechos citados devem ser EXATAMENTE como aparecem nos documentos
+- Sugira perguntas relacionadas baseadas no contexto dos documentos
+- Nunca invente informações não presentes no contexto
+- Se houver ambiguidade, peça esclarecimento ao utilizador
+
+[CONTEXTO DOS DOCUMENTOS]
+{CONTEXT_WILL_BE_INSERTED_HERE}`;
 }
 
 /**
@@ -142,8 +159,8 @@ Responda sempre em português brasileiro.`;
 /**
  * Retorna o system prompt baseado no contexto
  */
-export function getSystemPrompt(context: ChatContext = "sabichao"): string {
-  if (context === "support") {
+export function getSystemPrompt(context: ChatContext = 'sabichao'): string {
+  if (context === 'support') {
     return getSupportSystemPrompt();
   }
   return getSabichaoSystemPrompt();

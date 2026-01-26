@@ -29,6 +29,20 @@ async function getSalesStats(filters: {
   const seguradoraQuestionId = seguradoraQuestion?.id;
   const distritoQuestionId = distritoQuestion?.id;
 
+  // Buscar templates para mapear templateId → title
+  const allTemplates = await prisma.template.findMany({
+    select: { id: true, title: true },
+  });
+  const templateMap = new Map(allTemplates.map((t) => [t.id, t.title]));
+
+  // Buscar questão "Agente"
+  const agenteQuestion = allQuestions.find((q) => q.title === "Agente");
+  const agenteQuestionId = agenteQuestion?.id;
+
+  // Buscar questão "Rating cliente"
+  const ratingQuestion = allQuestions.find((q) => q.title === "Rating cliente");
+  const ratingQuestionId = ratingQuestion?.id;
+
   // Buscar informações dos utilizadores para performance por colaborador
   const users = await prisma.user.findMany({
     select: { id: true, name: true, email: true },
@@ -49,6 +63,9 @@ async function getSalesStats(filters: {
       string,
       { count: number; totalValue: number; userName: string }
     >,
+    byTemplate: {} as Record<string, { count: number; totalValue: number }>,
+    byAgente: {} as Record<string, { count: number; totalValue: number }>,
+    byRating: {} as Record<string, { count: number; totalValue: number }>,
     valueRanges: {
       "0-50k": 0,
       "50k-100k": 0,
@@ -125,6 +142,40 @@ async function getSalesStats(filters: {
         stats.byUser[userId] = { count: 0, totalValue: 0, userName };
       stats.byUser[userId].count++;
       stats.byUser[userId].totalValue += valor;
+    }
+
+    // Agregação por Template
+    const templateTitle = templateMap.get(submission.templateId) || "Desconhecido";
+    if (!stats.byTemplate[templateTitle]) {
+      stats.byTemplate[templateTitle] = { count: 0, totalValue: 0 };
+    }
+    stats.byTemplate[templateTitle].count++;
+    stats.byTemplate[templateTitle].totalValue += valor;
+
+    // Agregação por Agente (campo do formulário)
+    if (agenteQuestionId) {
+      const a = answers.find((x) => x.questionId === agenteQuestionId);
+      if (a?.answer) {
+        const agentName = a.answer.trim();
+        if (!stats.byAgente[agentName]) {
+          stats.byAgente[agentName] = { count: 0, totalValue: 0 };
+        }
+        stats.byAgente[agentName].count++;
+        stats.byAgente[agentName].totalValue += valor;
+      }
+    }
+
+    // Agregação por Rating
+    if (ratingQuestionId) {
+      const r = answers.find((x) => x.questionId === ratingQuestionId);
+      if (r?.answer) {
+        const rating = r.answer.trim();
+        if (!stats.byRating[rating]) {
+          stats.byRating[rating] = { count: 0, totalValue: 0 };
+        }
+        stats.byRating[rating].count++;
+        stats.byRating[rating].totalValue += valor;
+      }
     }
 
     // Distribuição de valores por faixa
@@ -208,6 +259,28 @@ async function getSalesStats(filters: {
         averageValue: data.count > 0 ? data.totalValue / data.count : 0,
       }))
       .sort((a, b) => b.totalValue - a.totalValue),
+    byTemplate: Object.entries(stats.byTemplate)
+      .map(([name, data]) => ({
+        name,
+        count: data.count,
+        totalValue: data.totalValue,
+      }))
+      .sort((a, b) => b.totalValue - a.totalValue),
+    byAgente: Object.entries(stats.byAgente)
+      .map(([name, data]) => ({
+        name,
+        count: data.count,
+        totalValue: data.totalValue,
+        averageValue: data.count > 0 ? data.totalValue / data.count : 0,
+      }))
+      .sort((a, b) => b.totalValue - a.totalValue),
+    byRating: Object.entries(stats.byRating)
+      .map(([rating, data]) => ({
+        rating,
+        count: data.count,
+        totalValue: data.totalValue,
+      }))
+      .sort((a, b) => b.count - a.count),
     valueRanges: Object.entries(stats.valueRanges).map(([range, count]) => ({
       range,
       count,

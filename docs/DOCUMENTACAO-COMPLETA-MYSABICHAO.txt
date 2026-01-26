@@ -639,13 +639,13 @@ System Prompts:
    - Foco: dados e documentos da empresa
    - RAG: usa contexto dos documentos
    - Tom: profissional e objetivo
-   - Idioma: português brasileiro
+   - Idioma: português de Portugal (PT-PT)
 
 2. Suporte (support):
    - Foco: processos e uso do sistema
    - Sem RAG
    - Tom: passo-a-passo e claro
-   - Idioma: português brasileiro
+   - Idioma: português de Portugal (PT-PT)
 
 Construção do prompt:
 - Base prompt: getSystemPrompt(chatContext)

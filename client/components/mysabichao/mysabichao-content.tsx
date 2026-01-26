@@ -107,7 +107,7 @@ export function MySabichaoContent() {
       toast.error(
         'Erro ao enviar mensagem: ' + (error.message || 'Erro desconhecido'),
       );
-      // Remover mensagem do usuário em caso de erro
+      // Remover mensagem do utilizador em caso de erro
       setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
     } finally {
       setLoading(false);

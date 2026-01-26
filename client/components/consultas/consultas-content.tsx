@@ -18,7 +18,7 @@ export function ConsultasContent() {
     try {
       setError(null);
       setLoading(true);
-      // A API já filtra automaticamente para mostrar apenas as submissões do usuário logado
+      // A API já filtra automaticamente para mostrar apenas as submissões do utilizador logado
       const [submissionsData, templatesData] = await Promise.all([
         api.submissions.getAll().catch(() => []),
         api.templates.getAll().catch(() => []),

@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
+import { pt } from "date-fns/locale/pt";
 import { Spinner } from "@/components/ui/spinner";
 import {
   ChevronDown,
@@ -380,7 +380,7 @@ export function ConsultasDataTable({
         cell: ({ row }) => {
           const date = row.getValue("submittedAt") as Date | string;
           return format(new Date(date), "dd MMM yyyy 'às' HH:mm", {
-            locale: ptBR,
+            locale: pt,
           });
         },
       },
@@ -672,7 +672,7 @@ export function ConsultasDataTable({
                   {format(
                     new Date(viewingSubmission.submittedAt),
                     "dd 'de' MMMM 'de' yyyy 'às' HH:mm",
-                    { locale: ptBR },
+                    { locale: pt },
                   )}
                 </p>
               </DialogHeader>

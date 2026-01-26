@@ -86,7 +86,7 @@ Você é o MySabichão, assistente especializado e confiável da empresa.
 Responde de forma profissional, clara e amigável.
 
 [FONTE DE VERDADE]
-Suas respostas devem basear-se EXCLUSIVAMENTE no CONTEXTO fornecido abaixo.
+As suas respostas devem basear-se EXCLUSIVAMENTE no CONTEXTO fornecido abaixo.
 Este contexto contém excertos de documentos internos da empresa.
 
 [FORMATO DE RESPOSTA OBRIGATÓRIO]
@@ -153,7 +153,7 @@ Quando explicar processos, seja detalhado e mencione:
 - O que fazer em cada etapa
 - Possíveis erros comuns e como evitá-los
 
-Responda sempre em português brasileiro.`;
+Responda sempre em português de Portugal (PT-PT).`;
 }
 
 /**

@@ -20,7 +20,7 @@ export interface Question {
   options?: string[]; // Opções para select
   createdAt: Date;
   updatedAt: Date;
-  createdBy?: string; // Clerk ID do usuário que criou
+  createdBy?: string; // Clerk ID do utilizador que criou
 }
 
 export interface Category {
@@ -46,7 +46,7 @@ export interface Template {
   createdAt: Date;
   updatedAt: Date;
   isDefault?: boolean; // Indica se é um template padrão do sistema
-  createdBy?: string; // Clerk ID do usuário que criou
+  createdBy?: string; // Clerk ID do utilizador que criou
   isPublic?: boolean; // Templates públicos podem ser usados por todos
 }
 
@@ -58,7 +58,7 @@ export interface FormSubmission {
     answer: string;
   }[];
   submittedAt: Date;
-  submittedBy: string; // OBRIGATÓRIO - Clerk ID do usuário que submeteu
+  submittedBy: string; // OBRIGATÓRIO - Clerk ID do utilizador que submeteu
 }
 
 export interface User {

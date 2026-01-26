@@ -8,7 +8,7 @@ const router = Router();
 // Todas as rotas requerem autenticação
 router.use(authenticateUser);
 
-// Obter usuário atual
+// Obter utilizador atual
 router.get("/me", UserController.getCurrentUser);
 
 // Rotas de admin

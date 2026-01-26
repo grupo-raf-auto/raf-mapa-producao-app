@@ -40,7 +40,7 @@ function TopBar() {
   };
 
   return (
-    <div className="h-14 flex items-center justify-between px-6 border-b border-border bg-white/50 backdrop-blur-sm">
+    <div className="h-14 flex items-center justify-between px-6 border-b border-border bg-card/50 backdrop-blur-sm dark:bg-card/40">
       {/* Spacer */}
       <div />
 
@@ -67,7 +67,7 @@ function TopBar() {
         {/* Dark mode toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-full border border-border bg-white hover:bg-muted transition-colors"
+          className="p-2 rounded-full border border-border bg-card hover:bg-muted transition-colors dark:bg-card/80 dark:hover:bg-muted/80"
           title="Alternar tema"
         >
           {theme === 'dark' ? (
@@ -80,7 +80,7 @@ function TopBar() {
         {/* Reportar Bug button */}
         <button
           onClick={handleReportBug}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-amber-50 text-amber-700 text-xs font-medium hover:bg-amber-100 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-warning/10 text-warning text-xs font-medium hover:bg-warning/20 transition-colors dark:bg-warning/15 dark:text-warning dark:hover:bg-warning/25"
         >
           <Bug className="w-3.5 h-3.5" />
           Reportar Bug
@@ -90,7 +90,7 @@ function TopBar() {
         {user && (
           <button
             onClick={handleSignOut}
-            className="p-2 rounded-full border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+            className="p-2 rounded-full border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors dark:bg-destructive/15 dark:hover:bg-destructive/25"
             title="Sair"
           >
             <Power className="w-3.5 h-3.5" />
@@ -135,10 +135,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     <SidebarBase open={sidebarOpen} setOpen={setSidebarOpen}>
       {/* Background */}
       <div
-        className="h-screen w-full p-4 md:p-6 lg:p-8 overflow-hidden"
-        style={{
-          background: '#F4F8FE',
-        }}
+        className="h-screen w-full p-4 md:p-6 lg:p-8 overflow-hidden bg-background"
       >
         {/* Floating Dashboard Container */}
         <div className="floating-dashboard h-[calc(100vh-2rem)] md:h-[calc(100vh-3rem)] lg:h-[calc(100vh-4rem)] flex overflow-hidden">

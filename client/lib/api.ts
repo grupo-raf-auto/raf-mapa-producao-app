@@ -93,6 +93,12 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
       return await res.text();
     }
   } catch (error) {
+    // Capturar erros de rede/conexão
+    if (error instanceof TypeError && error.message.includes("fetch failed")) {
+      throw new Error(
+        "Erro de conexão: Não foi possível conectar ao servidor. Verifique se o backend está rodando.",
+      );
+    }
     // Re-throw with more context if it's not already an Error
     if (error instanceof Error) {
       throw error;

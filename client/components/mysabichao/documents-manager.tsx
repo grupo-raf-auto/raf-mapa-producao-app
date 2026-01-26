@@ -4,15 +4,15 @@ import { useState, useEffect } from "react";
 import { apiClient as api } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Upload,
   FileText,
   Trash2,
-  Loader2,
   CheckCircle2,
-  XCircle,
+  CheckCircle,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
@@ -24,6 +24,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 interface Document {
   _id: string;
@@ -35,6 +44,7 @@ interface Document {
   processedAt?: string;
   vectorIds?: string[];
   isActive: boolean;
+  chunksCount?: number;
 }
 
 export function DocumentsManager() {
@@ -56,9 +66,27 @@ export function DocumentsManager() {
     }
   };
 
+  // Carregar documentos inicialmente
   useEffect(() => {
     loadDocuments();
   }, []);
+
+  // Polling automático para documentos em processamento
+  useEffect(() => {
+    const hasProcessingDocuments = documents.some((doc) => !doc.processedAt);
+    
+    if (!hasProcessingDocuments) {
+      return; // Não há documentos processando, não precisa de polling
+    }
+
+    // Polling a cada 3 segundos enquanto houver documentos processando
+    const intervalId = setInterval(() => {
+      loadDocuments();
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documents]);
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -79,9 +107,9 @@ export function DocumentsManager() {
       return;
     }
 
-    // Validar tamanho (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Ficheiro muito grande. Tamanho máximo: 10MB");
+    // Validar tamanho (50MB)
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("Ficheiro muito grande. Tamanho máximo: 50MB");
       return;
     }
 
@@ -121,122 +149,220 @@ export function DocumentsManager() {
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType === "application/pdf") return "📄";
-    if (mimeType.includes("wordprocessingml")) return "📝";
-    if (mimeType.includes("text")) return "📃";
-    return "📎";
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    return `${day}/${month}, ${hours}:${minutes}`;
   };
 
+  const getFileExtension = (filename: string) => {
+    return filename.split(".").pop()?.toLowerCase() || "";
+  };
+
+  // Calcular estatísticas
+  const totalDocuments = documents.length;
+  const indexedDocuments = documents.filter((d) => d.processedAt).length;
+  const totalSections = documents.reduce(
+    (sum, d) => sum + (d.chunksCount || 0),
+    0,
+  );
+
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Gestão de Documentos RAG
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Upload Section */}
-          <div className="border-2 border-dashed border-border rounded-lg p-6">
-            <div className="flex flex-col items-center justify-center gap-4">
-              <Upload className="w-8 h-8 text-muted-foreground" />
-              <div className="text-center">
-                <p className="text-sm font-medium mb-1">Enviar Documento</p>
-                <p className="text-xs text-muted-foreground mb-4">
-                  Suporta PDF, DOCX, TXT, MD (máx. 10MB)
-                </p>
-                <Input
-                  type="file"
-                  accept=".pdf,.docx,.txt,.md"
-                  onChange={handleFileUpload}
-                  disabled={uploading}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <Button asChild variant="outline" disabled={uploading}>
-                  <label htmlFor="file-upload" className="cursor-pointer">
-                    {uploading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Enviando...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4 mr-2" />
-                        Selecionar Ficheiro
-                      </>
-                    )}
-                  </label>
-                </Button>
+    <div className="space-y-6">
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                <FileText className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <div className="text-2xl font-semibold">{totalDocuments}</div>
+                <div className="text-sm text-muted-foreground">Documentos</div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <div className="text-2xl font-semibold">
+                  {indexedDocuments}
+                </div>
+                <div className="text-sm text-muted-foreground">Indexados</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                <FileText className="w-6 h-6 text-gray-600" />
+              </div>
+              <div>
+                <div className="text-2xl font-semibold">{totalSections}</div>
+                <div className="text-sm text-muted-foreground">Secções</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Upload Section */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold mb-1">
+                Upload de ficheiros
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Formatos: PDF, DOCX, TXT (até 50MB) | Ou copia para
+                backend/uploads/
+              </p>
+            </div>
+            <div>
+              <Input
+                type="file"
+                accept=".pdf,.docx,.txt,.md"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                className="hidden"
+                id="file-upload"
+              />
+              <Button
+                variant="outline"
+                disabled={uploading}
+                onClick={() => document.getElementById("file-upload")?.click()}
+                className={uploading ? "opacity-75 cursor-not-allowed" : ""}
+              >
+                {uploading ? (
+                  <>
+                    <Spinner variant="bars" className="w-4 h-4 mr-2" />
+                    Carregando...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Carregar
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Documents Table */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold mb-1">
+              Documentos Indexados
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Ficheiros disponíveis para pesquisa
+            </p>
           </div>
 
-          {/* Documents List */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">Documentos Enviados</h3>
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : documents.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Nenhum documento enviado ainda
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {documents.map((doc) => (
-                  <div
-                    key={doc._id}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <span className="text-2xl">
-                        {getFileIcon(doc.mimeType)}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {doc.originalName}
-                        </p>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span>{formatFileSize(doc.size)}</span>
-                          <span>
-                            {doc.processedAt ? (
-                              <span className="flex items-center gap-1 text-green-600">
-                                <CheckCircle2 className="w-3 h-3" />
-                                Processado
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1 text-amber-600">
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                                Processando...
-                              </span>
-                            )}
-                          </span>
-                          {doc.vectorIds && doc.vectorIds.length > 0 && (
-                            <span>{doc.vectorIds.length} chunks</span>
-                          )}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
+            </div>
+          ) : documents.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-12">
+              Nenhum documento indexado ainda
+            </p>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>FICHEIRO</TableHead>
+                    <TableHead>TAMANHO</TableHead>
+                    <TableHead>SECÇÕES</TableHead>
+                    <TableHead>ESTADO</TableHead>
+                    <TableHead>DATA</TableHead>
+                    <TableHead>AÇÕES</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {documents.map((doc) => (
+                    <TableRow key={doc._id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-5 h-5 text-muted-foreground" />
+                          <div>
+                            <div className="font-medium">
+                              {doc.originalName.length > 40
+                                ? `${doc.originalName.substring(0, 40)}...`
+                                : doc.originalName}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              .{getFileExtension(doc.originalName)}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        setDocumentToDelete(doc._id);
-                        setDeleteDialogOpen(true);
-                      }}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                      </TableCell>
+                      <TableCell>{formatFileSize(doc.size)}</TableCell>
+                      <TableCell>
+                        {doc.chunksCount || 0}{" "}
+                        {doc.chunksCount === 1 ? "secção" : "secções"}
+                      </TableCell>
+                      <TableCell>
+                        {doc.processedAt ? (
+                          <Badge
+                            variant="outline"
+                            className="bg-green-50 text-green-700 border-green-200"
+                          >
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Indexado
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="bg-amber-50 text-amber-700 border-amber-200"
+                          >
+                            <Spinner variant="bars" className="w-3 h-3 mr-1" />
+                            Processando
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(
+                          doc.processedAt || doc.uploadedAt,
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setDocumentToDelete(doc._id);
+                            setDeleteDialogOpen(true);
+                          }}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 

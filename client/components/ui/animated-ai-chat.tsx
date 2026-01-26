@@ -288,7 +288,7 @@ export function AnimatedAIChat({
   const handleQuickAction = (action: string) => {
     // Preencher o input com a ação ao invés de enviar automaticamente
     onChange(action);
-    // Focar no textarea para que o usuário possa editar
+    // Focar no textarea para que o utilizador possa editar
     setTimeout(() => {
       textareaRef.current?.focus();
       adjustHeight();
@@ -327,7 +327,7 @@ export function AnimatedAIChat({
                 <motion.button
                   key={suggestion.prefix}
                   onClick={() => handleQuickAction(suggestion.action)}
-                  className="flex flex-col items-start gap-3 p-5 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm hover:bg-card/80 hover:border-red-400/50 transition-all duration-300 text-left group shadow-sm hover:shadow-md"
+                  className="flex flex-col items-start gap-3 p-5 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm hover:bg-card/80 hover:border-red-400/50 transition-all duration-300 text-left group shadow-sm hover:shadow-md cursor-pointer"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.06, ease: 'easeOut' }}
@@ -356,7 +356,7 @@ export function AnimatedAIChat({
                 <button
                   type="button"
                   onClick={onClearHistory}
-                  className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                  className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors cursor-pointer"
                   title="Limpar histórico"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -430,7 +430,7 @@ export function AnimatedAIChat({
       </div>
 
       {/* Input Area - Clean Professional Design */}
-      <div className="shrink-0 border-t border-slate-200/40 bg-gradient-to-t from-slate-50/50 to-background/80 backdrop-blur-md">
+      <div className="shrink-0 bg-gradient-to-t from-slate-50/50 to-background/80 backdrop-blur-md">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5">
           <div className="relative">
             {/* Command Palette */}
@@ -575,7 +575,7 @@ export function AnimatedAIChat({
                   onClick={handleSendMessage}
                   disabled={loading || !value.trim()}
                   className={cn(
-                    'px-4 py-2 rounded-md text-sm font-medium transition-all',
+                    'px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer',
                     'flex items-center gap-2',
                     'disabled:opacity-50 disabled:cursor-not-allowed',
                     value.trim() && !loading

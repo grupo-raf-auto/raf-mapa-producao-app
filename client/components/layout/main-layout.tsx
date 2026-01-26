@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './sidebar';
 import { SupportChatFab } from '@/components/support/support-chat-fab';
@@ -19,6 +19,11 @@ function TopBar() {
   const user = session?.user;
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -70,7 +75,7 @@ function TopBar() {
           className="p-2 rounded-full border border-border bg-card hover:bg-muted transition-colors dark:bg-card/80 dark:hover:bg-muted/80"
           title="Alternar tema"
         >
-          {theme === 'dark' ? (
+          {mounted && theme === 'dark' ? (
             <Sun className="w-3.5 h-3.5 text-foreground" />
           ) : (
             <Moon className="w-3.5 h-3.5 text-foreground" />
@@ -103,10 +108,8 @@ function TopBar() {
 
 function MainContent({
   children,
-  showSidebar,
 }: {
   children: React.ReactNode;
-  showSidebar: boolean;
 }) {
   const pathname = usePathname();
 
@@ -138,16 +141,18 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         className="h-screen w-full p-4 md:p-6 lg:p-8 overflow-hidden bg-background"
       >
         {/* Floating Dashboard Container */}
-        <div className="floating-dashboard h-[calc(100vh-2rem)] md:h-[calc(100vh-3rem)] lg:h-[calc(100vh-4rem)] flex overflow-hidden">
+        <div className="floating-dashboard h-[calc(100vh-2rem)] md:h-[calc(100vh-3rem)] lg:h-[calc(100vh-4rem)] flex overflow-hidden relative">
           {/* Sidebar */}
           {showSidebar && <Sidebar />}
 
           {/* Main Content */}
-          <MainContent showSidebar={showSidebar}>{children}</MainContent>
-        </div>
+          <MainContent>{children}</MainContent>
 
-        {/* Support Chat FAB */}
-        <SupportChatFab />
+          {/* Support Chat FAB */}
+          <div className="absolute bottom-6 right-6">
+            <SupportChatFab />
+          </div>
+        </div>
       </div>
     </SidebarBase>
   );

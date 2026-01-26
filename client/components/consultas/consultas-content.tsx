@@ -5,6 +5,8 @@ import { apiClient as api } from "@/lib/api-client";
 import { ConsultasWrapper } from "./consultas-wrapper";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { Search, FileSearch } from "lucide-react";
 
 export function ConsultasContent() {
   const [submissions, setSubmissions] = useState<any[]>([]);
@@ -38,12 +40,14 @@ export function ConsultasContent() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Consultas</h1>
-          <p className="text-sm text-muted-foreground mt-1.5">
-            Visualize os seus formulários registados
-          </p>
-        </div>
+        <PageHeader
+          title="Consultas"
+          description="Visualize os seus formulários registados e acompanhe o histórico de submissões."
+          icon={Search}
+          iconGradient="from-red-600 via-red-500 to-red-700"
+          decoratorIcon={<FileSearch className="w-5 h-5" />}
+          decoratorColor="text-red-500"
+        />
         <Card>
           <CardContent className="py-8 text-center flex flex-col items-center gap-3">
             <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
@@ -57,12 +61,14 @@ export function ConsultasContent() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Consultas</h1>
-          <p className="text-sm text-muted-foreground mt-1.5">
-            Visualize os seus formulários registados
-          </p>
-        </div>
+        <PageHeader
+          title="Consultas"
+          description="Visualize os seus formulários registados e acompanhe o histórico de submissões."
+          icon={Search}
+          iconGradient="from-red-600 via-red-500 to-red-700"
+          decoratorIcon={<FileSearch className="w-5 h-5" />}
+          decoratorColor="text-red-500"
+        />
         <Card>
           <CardContent className="py-8 text-center">
             <p className="text-destructive font-medium mb-2">
@@ -77,12 +83,14 @@ export function ConsultasContent() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Consultas</h1>
-        <p className="text-sm text-muted-foreground mt-1.5">
-          Visualize os seus formulários registados
-        </p>
-      </div>
+      <PageHeader
+        title="Consultas"
+        description="Visualize os seus formulários registados e acompanhe o histórico de submissões."
+        icon={Search}
+        iconGradient="from-red-600 via-red-500 to-red-700"
+        decoratorIcon={<FileSearch className="w-5 h-5" />}
+        decoratorColor="text-red-500"
+      />
 
       <ConsultasWrapper
         submissions={submissions}

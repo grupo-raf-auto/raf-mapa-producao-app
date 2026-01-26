@@ -13,9 +13,10 @@ import { Button } from "@/components/ui/button";
 import { apiClient as api } from "@/lib/api-client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
-import { FileStack, Calendar } from "lucide-react";
+import { FileStack, Calendar, FileEdit } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { FillTemplateDialog } from "@/components/templates/fill-template-dialog";
+import { PageHeader } from "@/components/ui/page-header";
 
 interface Template {
   _id?: string;
@@ -52,12 +53,14 @@ export function FormulariosContent() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Formulários</h1>
-          <p className="text-sm text-muted-foreground mt-1.5">
-            Escolha um template para preencher e submeter
-          </p>
-        </div>
+        <PageHeader
+          title="Formulários"
+          description="Escolha um template para preencher e submeter. Preencha os campos necessários e envie para processamento."
+          icon={FileStack}
+          iconGradient="from-red-600 via-red-500 to-red-700"
+          decoratorIcon={<FileEdit className="w-5 h-5" />}
+          decoratorColor="text-red-500"
+        />
         <Card className="shadow-sm">
           <CardContent className="py-8 text-center flex flex-col items-center gap-3">
             <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
@@ -70,12 +73,14 @@ export function FormulariosContent() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Formulários</h1>
-        <p className="text-sm text-muted-foreground mt-1.5">
-          Escolha um template para preencher e submeter
-        </p>
-      </div>
+      <PageHeader
+        title="Formulários"
+        description="Escolha um template para preencher e submeter. Preencha os campos necessários e envie para processamento."
+        icon={FileStack}
+        iconGradient="from-red-600 via-red-500 to-red-700"
+        decoratorIcon={<FileEdit className="w-5 h-5" />}
+        decoratorColor="text-red-500"
+      />
 
       {templates.length === 0 ? (
         <Card className="shadow-sm">
@@ -112,7 +117,7 @@ export function FormulariosContent() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <FileStack className="w-4 h-4" />
                     <span>{template.questions.length} questão(ões)</span>
@@ -126,7 +131,7 @@ export function FormulariosContent() {
                       })}
                     </span>
                   </div>
-                  <div className="pt-2">
+                  <div className="pt-3">
                     <Button
                       variant="default"
                       size="sm"

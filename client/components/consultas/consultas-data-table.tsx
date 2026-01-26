@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
+import { Spinner } from "@/components/ui/spinner";
 import {
   ChevronDown,
   ChevronLeft,
@@ -691,7 +692,8 @@ export function ConsultasDataTable({
             </div>
 
             {loadingDetails ? (
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex-1 flex items-center justify-center gap-3">
+                <Spinner variant="bars" className="w-5 h-5 text-muted-foreground" />
                 <p className="text-muted-foreground">Carregando detalhes...</p>
               </div>
             ) : (

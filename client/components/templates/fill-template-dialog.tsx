@@ -230,7 +230,7 @@ export function FillTemplateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl h-[90vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 overflow-hidden">
         <div className="px-6 pt-6 pb-4 shrink-0 border-b">
           <DialogHeader>
             <DialogTitle>{template.title}</DialogTitle>
@@ -305,7 +305,7 @@ export function FillTemplateDialog({
                 </ScrollArea>
               </div>
 
-              <DialogFooter className="px-6 pb-6 pt-4 border-t shrink-0">
+              <DialogFooter className="px-6 py-6 border-t shrink-0 gap-3">
                 <Button
                   type="button"
                   variant="outline"

@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { apiClient as api } from "@/lib/api-client";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
+import { pt } from "date-fns/locale/pt";
 import { Spinner } from "@/components/ui/spinner";
 
 interface User {
@@ -42,7 +42,7 @@ export function UsersManagement() {
       const data = await api.users.getAll();
       setUsers(data);
     } catch (error: any) {
-      toast.error("Erro ao carregar usuários: " + error.message);
+      toast.error("Erro ao carregar utilizadores: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -52,11 +52,11 @@ export function UsersManagement() {
     try {
       await api.users.update(userId, { isActive: !currentStatus });
       toast.success(
-        `Usuário ${!currentStatus ? "ativado" : "desativado"} com sucesso`,
+        `Utilizador ${!currentStatus ? "ativado" : "desativado"} com sucesso`,
       );
       loadUsers();
     } catch (error: any) {
-      toast.error("Erro ao atualizar usuário: " + error.message);
+      toast.error("Erro ao atualizar utilizador: " + error.message);
     }
   };
 
@@ -83,7 +83,7 @@ export function UsersManagement() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Gestão de Usuários</CardTitle>
+        <CardTitle>Gestão de Utilizadores</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
@@ -104,7 +104,7 @@ export function UsersManagement() {
                   colSpan={6}
                   className="text-center py-8 text-muted-foreground"
                 >
-                  Nenhum usuário encontrado
+                  Nenhum utilizador encontrado
                 </TableCell>
               </TableRow>
             ) : (
@@ -130,7 +130,7 @@ export function UsersManagement() {
                   </TableCell>
                   <TableCell>
                     {format(new Date(user.createdAt), "dd/MM/yyyy", {
-                      locale: ptBR,
+                      locale: pt,
                     })}
                   </TableCell>
                   <TableCell className="text-right">

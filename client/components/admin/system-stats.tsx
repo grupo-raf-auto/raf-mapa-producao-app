@@ -56,7 +56,7 @@ export function SystemStats() {
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Total de Usuários
+            Total de Utilizadores
           </CardTitle>
         </CardHeader>
         <CardContent>

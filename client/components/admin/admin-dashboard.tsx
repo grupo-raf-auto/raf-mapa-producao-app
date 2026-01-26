@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { UsersManagement } from "./users-management";
-import { UserPerformance } from "./user-performance";
-import { SettingsPanel } from "./settings-panel";
-import { TemplatesManagement } from "./templates-management";
-import { DocumentsManager } from "@/components/mysabichao/documents-manager";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { UsersManagement } from './users-management';
+import { UserPerformance } from './user-performance';
+import { AdminConsultasContent } from './admin-consultas-content';
+import { TemplatesManagement } from './templates-management';
+import { DocumentsManager } from '@/components/mysabichao/documents-manager';
 import {
   Users,
-  Settings,
+  Search,
   TrendingUp,
   ArrowLeft,
   FileStack,
   Shield,
   FileText,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export function AdminDashboard() {
   const router = useRouter();
@@ -27,7 +27,7 @@ export function AdminDashboard() {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <Button
-            onClick={() => router.push("/")}
+            onClick={() => router.push('/')}
             variant="ghost"
             size="icon"
             className="shrink-0"
@@ -61,6 +61,13 @@ export function AdminDashboard() {
             <span className="hidden sm:inline">Utilizadores</span>
           </TabsTrigger>
           <TabsTrigger
+            value="consultas"
+            className="gap-2 data-[state=active]:bg-card"
+          >
+            <Search className="w-4 h-4" />
+            <span className="hidden sm:inline">Consultas</span>
+          </TabsTrigger>
+          <TabsTrigger
             value="performance"
             className="gap-2 data-[state=active]:bg-card"
           >
@@ -81,17 +88,14 @@ export function AdminDashboard() {
             <FileText className="w-4 h-4" />
             <span className="hidden sm:inline">Documentos</span>
           </TabsTrigger>
-          <TabsTrigger
-            value="settings"
-            className="gap-2 data-[state=active]:bg-card"
-          >
-            <Settings className="w-4 h-4" />
-            <span className="hidden sm:inline">Configurações</span>
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="mt-4">
           <UsersManagement />
+        </TabsContent>
+
+        <TabsContent value="consultas" className="mt-4">
+          <AdminConsultasContent />
         </TabsContent>
 
         <TabsContent value="performance" className="mt-4">
@@ -104,10 +108,6 @@ export function AdminDashboard() {
 
         <TabsContent value="documents" className="mt-4">
           <DocumentsManager />
-        </TabsContent>
-
-        <TabsContent value="settings" className="mt-4">
-          <SettingsPanel />
         </TabsContent>
       </Tabs>
     </div>

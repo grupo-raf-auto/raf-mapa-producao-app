@@ -6,8 +6,8 @@ interface VisitorAnalysisChartProps {
   data: { name: string; count: number; totalValue: number }[];
 }
 
-// Color palette matching DATASOFT design
-const COLORS = ["#2563EB", "#14B8A6", "#F97316", "#8B5CF6", "#64748B"];
+// Paleta avermelhada baseada em #E14840
+const COLORS = ["#E14840", "#C43A32", "#F06B63", "#A72C25", "#F58E87"];
 
 const defaultData = [
   { name: "Lisboa", value: 35, color: COLORS[0] },

@@ -14,7 +14,7 @@ interface ValueDistributionChartProps {
   data: { range: string; count: number }[];
 }
 
-const COLORS = ["#10B981", "#34D399", "#6EE7B7", "#A7F3D0", "#D1FAE5"];
+const COLORS = ["#E14840", "#C43A32", "#F06B63", "#F58E87", "#A72C25"];
 
 const RANGE_LABELS: Record<string, string> = {
   "0-50k": "0-50k",

@@ -4,7 +4,7 @@ import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export type TimeFilterType = "day" | "week" | "month";
+export type TimeFilterType = "monthly" | "quarterly" | "yearly" | "last12months";
 
 interface TimeFilterProps {
   value: TimeFilterType;
@@ -14,9 +14,10 @@ interface TimeFilterProps {
 
 export function TimeFilter({ value, onChange, className }: TimeFilterProps) {
   const options: { value: TimeFilterType; label: string }[] = [
-    { value: "day", label: "Dia" },
-    { value: "week", label: "Semana" },
-    { value: "month", label: "Mês" },
+    { value: "monthly", label: "Mensal" },
+    { value: "quarterly", label: "Trimestral" },
+    { value: "yearly", label: "Anual" },
+    { value: "last12months", label: "Últimos 12 meses" },
   ];
 
   return (

@@ -78,7 +78,7 @@ export function AnalyticsContent() {
                   borderRadius: "8px",
                 }}
               />
-              <Bar dataKey="value" fill="#5347CE" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="value" fill="#E14840" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

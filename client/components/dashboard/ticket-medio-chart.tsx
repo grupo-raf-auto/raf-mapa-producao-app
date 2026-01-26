@@ -21,7 +21,7 @@ interface TicketMedioChartProps {
   globalAverage?: number;
 }
 
-const COLORS = ["#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE"];
+const COLORS = ["#E14840", "#C43A32", "#F06B63", "#F58E87", "#A72C25"];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -29,7 +29,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
         <p className="font-medium mb-1">{label}</p>
-        <p className="text-xs text-blue-300">
+        <p className="text-xs text-red-300">
           Ticket Medio:{" "}
           {avgValue.toLocaleString("pt-PT", {
             style: "currency",
@@ -37,7 +37,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             minimumFractionDigits: 0,
           })}
         </p>
-        <p className="text-xs text-blue-200">
+        <p className="text-xs text-red-200">
           Operacoes: {payload[0]?.payload?.count?.toLocaleString("pt-PT")}
         </p>
       </div>
@@ -103,13 +103,13 @@ export function TicketMedioChart({
           {avgLine > 0 && (
             <ReferenceLine
               y={avgLine}
-              stroke="#F97316"
+              stroke="#E14840"
               strokeDasharray="5 5"
               strokeWidth={2}
               label={{
                 value: `Media: ${(avgLine / 1000).toFixed(0)}k`,
                 position: "right",
-                fill: "#F97316",
+                fill: "#E14840",
                 fontSize: 10,
               }}
             />

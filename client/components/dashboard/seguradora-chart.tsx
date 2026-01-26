@@ -19,7 +19,7 @@ interface SeguradoraChartProps {
   }[];
 }
 
-const COLORS = ["#8B5CF6", "#A78BFA", "#C4B5FD", "#DDD6FE", "#EDE9FE"];
+const COLORS = ["#E14840", "#C43A32", "#F06B63", "#F58E87", "#A72C25"];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {

@@ -137,8 +137,8 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
           >
             <defs>
               <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                <stop offset="5%" stopColor="#E14840" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#E14840" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -165,9 +165,9 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
             <Line
               type="monotone"
               dataKey="growthRate"
-              stroke="#10B981"
+              stroke="#E14840"
               strokeWidth={2}
-              dot={{ fill: "#10B981", strokeWidth: 0, r: 3 }}
+              dot={{ fill: "#E14840", strokeWidth: 0, r: 3 }}
               activeDot={{ r: 5, strokeWidth: 0 }}
             />
           </ComposedChart>

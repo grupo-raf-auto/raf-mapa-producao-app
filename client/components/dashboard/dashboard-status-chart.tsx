@@ -92,12 +92,12 @@ export function DashboardStatusChart({
         >
           <defs>
             <linearGradient id="colorDataSheet" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#2563EB" stopOpacity={0.1} />
-              <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
+              <stop offset="5%" stopColor="#E14840" stopOpacity={0.1} />
+              <stop offset="95%" stopColor="#E14840" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="colorOverallSell" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#F97316" stopOpacity={0.1} />
-              <stop offset="95%" stopColor="#F97316" stopOpacity={0} />
+              <stop offset="5%" stopColor="#C43A32" stopOpacity={0.1} />
+              <stop offset="95%" stopColor="#C43A32" stopOpacity={0} />
             </linearGradient>
           </defs>
 
@@ -124,26 +124,26 @@ export function DashboardStatusChart({
 
           <Tooltip content={<CustomTooltip />} />
 
-          {/* Valor Area - Orange (behind) */}
+          {/* Valor Area - Darker red (behind) */}
           <Area
             type="monotone"
             dataKey="Valor (€)"
-            stroke="#F97316"
+            stroke="#C43A32"
             strokeWidth={2}
             fill="url(#colorOverallSell)"
             dot={false}
-            activeDot={{ r: 4, fill: "#F97316" }}
+            activeDot={{ r: 4, fill: "#C43A32" }}
           />
 
-          {/* Submissões Area - Blue (front) */}
+          {/* Submissões Area - Primary red (front) */}
           <Area
             type="monotone"
             dataKey="Submissões"
-            stroke="#2563EB"
+            stroke="#E14840"
             strokeWidth={2.5}
             fill="url(#colorDataSheet)"
             dot={false}
-            activeDot={{ r: 5, fill: "#2563EB" }}
+            activeDot={{ r: 5, fill: "#E14840" }}
           />
         </AreaChart>
       </ResponsiveContainer>

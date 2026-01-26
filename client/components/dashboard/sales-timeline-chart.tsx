@@ -146,13 +146,13 @@ export function CashFlowStackedChart({
           <Bar
             dataKey="Entrada"
             stackId="a"
-            fill="#5347CE"
+            fill="#E14840"
             radius={[0, 0, 0, 0]}
           />
           <Bar
             dataKey="Saída"
             stackId="a"
-            fill="#16CBC7"
+            fill="#C43A32"
             radius={[4, 4, 0, 0]}
           />
         </BarChart>
@@ -195,11 +195,11 @@ export function ProfitLossChart({
             style={{ width: `${(costs / maxValue) * 100}%` }}
           />
           <div
-            className="absolute top-0 h-full w-0.5 bg-blue-900 z-10"
+            className="absolute top-0 h-full w-0.5 bg-red-900 z-10"
             style={{ left: `${profitPercentage}%` }}
           >
             <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
-              <div className="bg-blue-900 text-white text-xs px-2 py-0.5 rounded font-medium">
+              <div className="bg-red-900 text-white text-xs px-2 py-0.5 rounded font-medium">
                 PROFIT
               </div>
             </div>
@@ -341,9 +341,9 @@ export function NetVolumeChart({
             <Line
               type="monotone"
               dataKey="current"
-              stroke="#4896FE"
+              stroke="#E14840"
               strokeWidth={3}
-              dot={{ fill: "#4896FE", r: 5 }}
+              dot={{ fill: "#E14840", r: 5 }}
               activeDot={{ r: 7 }}
             />
             <Line
@@ -391,7 +391,7 @@ export function ReportsCompletionRadial({
             cx="50"
             cy="50"
             r="40"
-            stroke="#5347CE"
+            stroke="#E14840"
             strokeWidth="8"
             fill="none"
             strokeDasharray={`${percentage * 2.51} 251`}
@@ -493,7 +493,7 @@ export function ReportsCompletionBar({
           <Bar
             dataKey="completed"
             stackId="a"
-            fill="#5347CE"
+            fill="#E14840"
             radius={[0, 0, 0, 0]}
           />
           <Bar
@@ -573,7 +573,7 @@ export function CashFlowColumnChart({
                 : "-"
             }
           />
-          <Bar dataKey="positive" fill="#5347CE" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="positive" fill="#E14840" radius={[4, 4, 0, 0]} />
           <Bar dataKey="negative" fill="#1F2937" radius={[0, 0, 4, 4]} />
         </ComposedChart>
       </ResponsiveContainer>
@@ -711,10 +711,10 @@ export function SalesTimelineChart({
             <Line
               type="monotone"
               dataKey="Valor Total (€)"
-              stroke="#5347CE"
+              stroke="#E14840"
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: "#5347CE" }}
+              activeDot={{ r: 4, fill: "#E14840" }}
             />
           </LineChart>
         </ResponsiveContainer>

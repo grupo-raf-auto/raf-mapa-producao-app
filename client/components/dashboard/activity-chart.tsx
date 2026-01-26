@@ -94,10 +94,10 @@ export function ActivityChart() {
           <Line
             type="monotone"
             dataKey="value"
-            stroke="#5347CE"
+            stroke="#E14840"
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 4, fill: "#5347CE" }}
+            activeDot={{ r: 4, fill: "#E14840" }}
           />
         </LineChart>
       </ResponsiveContainer>

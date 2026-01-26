@@ -92,7 +92,7 @@ export function SalesBySeguradoraChart({ data }: SalesBySeguradoraChartProps) {
               marginBottom: "4px",
             }}
           />
-          <Bar dataKey="Valor Total (€)" fill="#5347CE" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="Valor Total (€)" fill="#E14840" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

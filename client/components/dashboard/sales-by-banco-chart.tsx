@@ -93,7 +93,7 @@ export function SalesByBancoChart({ data }: SalesByBancoChartProps) {
               marginBottom: "4px",
             }}
           />
-          <Bar dataKey="Valor Total (€)" fill="#5347CE" radius={[0, 4, 4, 0]} />
+          <Bar dataKey="Valor Total (€)" fill="#E14840" radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -85,14 +85,14 @@ export function OverallSellProgressChart({
 
           <Bar
             dataKey="Quantidade"
-            fill="#2563EB"
+            fill="#E14840"
             radius={[4, 4, 0, 0]}
             maxBarSize={20}
           />
 
           <Bar
             dataKey="Valor (k€)"
-            fill="#14B8A6"
+            fill="#C43A32"
             radius={[4, 4, 0, 0]}
             maxBarSize={20}
           />

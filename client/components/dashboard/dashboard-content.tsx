@@ -1,6 +1,7 @@
 import { KPICards } from "./kpi-cards";
 import { DashboardChartsWrapper } from "./dashboard-charts-wrapper";
 import { api } from "@/lib/api";
+import { DashboardHeader } from "@/components/ui/dashboard-header";
 
 export async function DashboardContent() {
   let templates = [];
@@ -124,6 +125,9 @@ export async function DashboardContent() {
 
   return (
     <div className="space-y-6">
+      {/* Professional Header */}
+      <DashboardHeader />
+
       {/* KPI Cards Row */}
       <KPICards cards={kpiCards} />
 

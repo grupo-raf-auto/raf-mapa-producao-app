@@ -9,13 +9,13 @@ import {
   Tooltip,
 } from "recharts";
 
-// Paleta simplificada: 1 cor principal + tons neutros
+// Paleta avermelhada baseada em #E14840
 const COLORS = [
-  "#5347CE", // Primary
-  "#4896FE", // Secondary
-  "#10B981", // Success
-  "#F59E0B", // Warning
-  "#E5E7EB", // Muted
+  "#E14840", // Primary
+  "#C43A32", // Darker red
+  "#F06B63", // Lighter red
+  "#A72C25", // Dark red
+  "#F58E87", // Light red
 ];
 
 const data = [

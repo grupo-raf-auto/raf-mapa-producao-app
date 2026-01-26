@@ -218,72 +218,72 @@
    Sophisticated dark theme with premium feel
    ═══════════════════════════════════════════════════════════════════════════ */
 .dark {
-  --gradient-start: #0d1117;
-  --gradient-middle: #0d1117;
-  --gradient-end: #0d1117;
+  --gradient-start: #0f172a;
+  --gradient-middle: #1a2332;
+  --gradient-end: #0f172a;
 
-  /* Clean, solid background - premium feel without distracting gradients */
-  --background: #0d1117;
-  --background-solid: #0d1117;
+  /* Premium subtle gradient - elegant background */
+  --background: linear-gradient(135deg, #0f172a 0%, #1a2332 50%, #0f172a 100%);
+  --background-solid: #0f172a;
 
   /* Refined text colors with better readability */
-  --foreground: #e6edf3;
+  --foreground: #e0e6ed;
 
   /* Card elevation - distinct from background for clear hierarchy */
-  --card: #161b22;
-  --card-foreground: #e6edf3;
+  --card: #1a2332;
+  --card-foreground: #e0e6ed;
 
-  --popover: #161b22;
-  --popover-foreground: #e6edf3;
+  --popover: #1a2332;
+  --popover-foreground: #e0e6ed;
 
-  /* Brand colors - consistent across theme */
-  --primary: #E14840;
-  --primary-foreground: #ffffff;
+  /* Brand colors - refined for dark mode visibility */
+  --primary: #ff6b5b;
+  --primary-foreground: #0f172a;
 
   /* Secondary - refined for dark mode */
-  --secondary: #21262d;
+  --secondary: #2a3441;
   --secondary-foreground: #c9d1d9;
 
   /* Muted tones - subtle hierarchy */
-  --muted: #21262d;
-  --muted-foreground: #8b949e;
+  --muted: #2a3441;
+  --muted-foreground: #9ca3af;
 
-  /* Accent - teal, slightly adjusted for dark backgrounds */
-  --accent: #1f6feb;
+  /* Accent - refined blue for dark mode */
+  --accent: #3b82f6;
   --accent-foreground: #ffffff;
 
   /* Status colors - optimized for dark mode contrast */
-  --destructive: #ff7b72;
-  --destructive-foreground: #0d1117;
-  --success: #3fb950;
-  --success-foreground: #0d1117;
-  --warning: #d29922;
-  --warning-foreground: #0d1117;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --success: #22c55e;
+  --success-foreground: #ffffff;
+  --warning: #eab308;
+  --warning-foreground: #0f172a;
 
   /* Borders and inputs - subtle but visible */
-  --border: #21262d;
-  --input: #0d1117;
-  --ring: #E14840;
+  --border: #2a3441;
+  --input: #2a3441;
+  --ring: #ff6b5b;
 
   /* Sidebar - integrated with dark theme */
-  --sidebar: #161b22;
-  --sidebar-foreground: #c9d1d9;
-  --sidebar-primary: #E14840;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #da3633;
-  --sidebar-accent-foreground: #f85149;
-  --sidebar-border: #21262d;
-  --sidebar-ring: #E14840;
+  --sidebar: #1a2332;
+  --sidebar-foreground: #d1d5db;
+  --sidebar-primary: #ff6b5b;
+  --sidebar-primary-foreground: #0f172a;
+  --sidebar-accent: #dc2626;
+  --sidebar-accent-foreground: #fca5a5;
+  --sidebar-border: #2a3441;
+  --sidebar-ring: #ff6b5b;
 
   /* Dashboard - premium shadows and surfaces */
-  --dashboard-bg: #161b22;
+  --dashboard-bg: #1a2332;
   --dashboard-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05);
 
   /* Table styling */
-  --table-header: #0d1117;
-  --table-row-hover: #161b22;
-  --table-border: #21262d;
+  --table-header: #0f172a;
+  --table-row-hover: #1a2332;
+  --table-border: #2a3441;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -440,7 +440,7 @@
 
 .dark .kpi-card:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  border-color: var(--primary);
+  border-color: #ff6b5b;
   transform: translateY(-2px);
 }
 
@@ -454,23 +454,23 @@
 }
 
 .kpi-card-icon.red {
-  background: rgba(225, 72, 64, 0.12);
-  color: #ff7b72;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
 }
 
 .dark .kpi-card-icon.red {
-  background: rgba(225, 72, 64, 0.15);
-  color: #ff7b72;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
 }
 
 .kpi-card-icon.teal {
-  background: rgba(20, 184, 166, 0.12);
-  color: #14b8a6;
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
 }
 
 .dark .kpi-card-icon.teal {
-  background: rgba(31, 110, 140, 0.15);
-  color: #3fb950;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
 }
 
 .kpi-card-icon.orange {
@@ -479,8 +479,8 @@
 }
 
 .dark .kpi-card-icon.orange {
-  background: rgba(210, 153, 34, 0.15);
-  color: #d29922;
+  background: rgba(249, 115, 22, 0.15);
+  color: #fb923c;
 }
 
 .kpi-card-icon.purple {
@@ -489,18 +489,18 @@
 }
 
 .dark .kpi-card-icon.purple {
-  background: rgba(88, 166, 255, 0.15);
-  color: #58a6ff;
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
 }
 
 .kpi-card-icon.green {
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
 }
 
 .dark .kpi-card-icon.green {
-  background: rgba(63, 185, 80, 0.15);
-  color: #3fb950;
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
 }
 
 .kpi-sparkline {
@@ -535,7 +535,7 @@
 
 .dark .chart-card:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  border-color: rgba(225, 72, 64, 0.3);
+  border-color: rgba(255, 107, 91, 0.3);
 }
 
 .chart-card-header {
@@ -658,33 +658,33 @@
 }
 
 .status-badge.completed {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
 }
 
 .dark .status-badge.completed {
-  background: rgba(63, 185, 80, 0.15);
-  color: #3fb950;
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
 }
 
 .status-badge.pending {
-  background: rgba(249, 115, 22, 0.15);
-  color: #f97316;
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
 }
 
 .dark .status-badge.pending {
-  background: rgba(210, 153, 34, 0.15);
-  color: #d29922;
+  background: rgba(234, 179, 8, 0.15);
+  color: #facc15;
 }
 
 .status-badge.running {
-  background: rgba(225, 72, 64, 0.15);
-  color: #E14840;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
 .dark .status-badge.running {
-  background: rgba(255, 123, 114, 0.15);
-  color: #ff7b72;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -816,8 +816,8 @@
 
 .dark .search-input:focus {
   background: var(--muted);
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(225, 72, 64, 0.1);
+  border-color: #ff6b5b;
+  box-shadow: 0 0 0 2px rgba(255, 107, 91, 0.1);
 }
 
 .search-input::placeholder {

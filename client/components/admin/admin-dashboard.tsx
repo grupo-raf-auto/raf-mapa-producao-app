@@ -1,17 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { UsersManagement } from "./users-management";
-import { SystemStats } from "./system-stats";
 import { UserPerformance } from "./user-performance";
 import { SettingsPanel } from "./settings-panel";
-import { TemplatesManagementDialog } from "./templates-management-dialog";
+import { TemplatesManagement } from "./templates-management";
 import { DocumentsManager } from "@/components/mysabichao/documents-manager";
 import {
   Users,
-  BarChart3,
   Settings,
   TrendingUp,
   ArrowLeft,
@@ -23,7 +20,6 @@ import { useRouter } from "next/navigation";
 
 export function AdminDashboard() {
   const router = useRouter();
-  const [templatesDialogOpen, setTemplatesDialogOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -52,14 +48,6 @@ export function AdminDashboard() {
             </div>
           </div>
         </div>
-        <Button
-          onClick={() => setTemplatesDialogOpen(true)}
-          variant="outline"
-          className="gap-2"
-        >
-          <FileStack className="w-4 h-4" />
-          <span className="hidden sm:inline">Gerir Templates</span>
-        </Button>
       </div>
 
       {/* Tabs */}
@@ -80,11 +68,11 @@ export function AdminDashboard() {
             <span className="hidden sm:inline">Desempenho</span>
           </TabsTrigger>
           <TabsTrigger
-            value="stats"
+            value="templates"
             className="gap-2 data-[state=active]:bg-card"
           >
-            <BarChart3 className="w-4 h-4" />
-            <span className="hidden sm:inline">Estatísticas</span>
+            <FileStack className="w-4 h-4" />
+            <span className="hidden sm:inline">Templates</span>
           </TabsTrigger>
           <TabsTrigger
             value="documents"
@@ -110,8 +98,8 @@ export function AdminDashboard() {
           <UserPerformance />
         </TabsContent>
 
-        <TabsContent value="stats" className="mt-4">
-          <SystemStats />
+        <TabsContent value="templates" className="mt-4">
+          <TemplatesManagement />
         </TabsContent>
 
         <TabsContent value="documents" className="mt-4">
@@ -122,11 +110,6 @@ export function AdminDashboard() {
           <SettingsPanel />
         </TabsContent>
       </Tabs>
-
-      <TemplatesManagementDialog
-        open={templatesDialogOpen}
-        onOpenChange={setTemplatesDialogOpen}
-      />
     </div>
   );
 }

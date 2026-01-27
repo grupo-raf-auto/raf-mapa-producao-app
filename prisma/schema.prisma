@@ -25,6 +25,7 @@ model User {
 
   sessions Session[]
   accounts Account[]
+  documentScans DocumentScan[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -164,6 +165,40 @@ model DocumentChunk {
   createdAt DateTime @default(now())
 
   @@map("document_chunk")
+}
+
+model DocumentScan {
+  id        String   @id @default(cuid())
+
+  // File metadata
+  fileName     String
+  fileType     String   // "pdf" | "image"
+  fileSize     Int
+
+  // Scores
+  scoreTotal      Int      // 0-100
+  technicalScore  Int      // 0-100
+  iaScore         Int      // 0-100
+  riskLevel       String   // "ALTO_RISCO" | "MEDIO_ALTO" | "MEDIO" | "BAIXO"
+  recommendation  String   // "REJEITAR" | "REJEITAR_COM_REVISAO" | "VALIDAR_EXTRA" | "ACEITAR"
+
+  // Results
+  flags           Json[]   // Array of critical flags
+  justification   String   @db.Text
+
+  // Analysis details (optional)
+  technicalFlags  Json?    // Detailed technical flags
+  aiRisks         Json?    // Detailed AI risks
+
+  // Metadata
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // User tracking
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+
+  @@map("document_scan")
 }
 
 model ChatMessage {

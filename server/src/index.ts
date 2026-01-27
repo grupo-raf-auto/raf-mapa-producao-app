@@ -19,6 +19,7 @@ import submissionRoutes from "./routes/submission.routes";
 import userRoutes from "./routes/user.routes";
 import chatRoutes from "./routes/chat.routes";
 import documentRoutes from "./routes/document.routes";
+import scannerRoutes from "./routes/documentScanner.routes";
 import { seedTemplates } from "./scripts/seed-templates";
 import { authenticateUser } from "./middleware/auth.middleware";
 
@@ -59,6 +60,7 @@ app.use("/api/submissions", authenticateUser, submissionRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/documents", authenticateUser, documentRoutes);
+app.use("/api/scanner", authenticateUser, scannerRoutes);
 
 // Error handling middleware
 app.use(

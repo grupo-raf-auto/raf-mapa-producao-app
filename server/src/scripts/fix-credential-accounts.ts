@@ -27,13 +27,24 @@ const TEMP_PASSWORD = "Alterar123!";
 
 async function hashLikeBetterAuth(password: string): Promise<string> {
   const salt = randomBytes(16);
-  const key = await promisify(scrypt)(password.normalize("NFKC"), salt, 64, {
-    N: 16384,
-    r: 16,
-    p: 1,
-    maxmem: 128 * 16384 * 16 * 2,
+  const key = await new Promise<Buffer>((resolve, reject) => {
+    scrypt(
+      password.normalize("NFKC"),
+      salt,
+      64,
+      {
+        N: 16384,
+        r: 16,
+        p: 1,
+        maxmem: 128 * 16384 * 16 * 2,
+      },
+      (err, derivedKey) => {
+        if (err) reject(err);
+        else resolve(derivedKey);
+      }
+    );
   });
-  return `${salt.toString("hex")}:${(key as Buffer).toString("hex")}`;
+  return `${salt.toString("hex")}:${key.toString("hex")}`;
 }
 
 async function main() {

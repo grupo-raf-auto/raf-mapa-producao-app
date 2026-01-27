@@ -51,7 +51,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export function DashboardStatusChart({
   data,
-  timeFilter = "month",
+  timeFilter = "monthly",
 }: DashboardStatusChartProps) {
   // Transform data for the chart
   const chartData =

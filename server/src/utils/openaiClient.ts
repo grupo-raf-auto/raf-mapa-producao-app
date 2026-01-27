@@ -1,6 +1,6 @@
-const OpenAI = require("openai");
+import OpenAI from "openai";
 
-const openaiClient = new OpenAI.default({
+const openaiClient = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
@@ -33,6 +33,15 @@ export async function analyzeFraudWithOpenAI(
 }> {
   const model = (process.env.AI_MODEL_FOR_SCANNER as "gpt-4o-mini" | "gpt-4o") || "gpt-4o-mini";
 
+  // Truncate extracted text to prevent exceeding OpenAI context limits
+  // ~60,000 chars = ~15,000 tokens, leaving headroom for prompt and response
+  const MAX_TEXT_CHARS = 60000;
+  const truncatedText = request.extractedText.slice(0, MAX_TEXT_CHARS);
+  const textTruncationInfo =
+    request.extractedText.length > MAX_TEXT_CHARS
+      ? `\n\n[Texto truncado: ${request.extractedText.length} caracteres reduzidos para ${MAX_TEXT_CHARS}]`
+      : "";
+
   // Build content array
   const messageContent: Array<{
     type: "text" | "image_url";
@@ -48,7 +57,7 @@ CONTEXTO:
 - Flags técnicas detectadas: ${request.technicalFlags.map((f) => `${f.tipo} (${f.severidade})`).join(", ")}
 
 TEXTO EXTRAÍDO:
-${request.extractedText}
+${truncatedText}${textTruncationInfo}
 
 TAREFAS:
 1. Analisa visualmente as imagens do documento
@@ -82,7 +91,7 @@ Responde em JSON com este formato EXATO:
     });
   }
 
-  const response = await openaiClient.beta.messages.create({
+  const response = await openaiClient.chat.completions.create({
     model,
     max_tokens: 2000,
     messages: [
@@ -94,9 +103,9 @@ Responde em JSON com este formato EXATO:
   });
 
   // Extract JSON from response
-  const textContent = response.content
-    .filter((c: any) => c.type === "text")
-    .map((c: any) => c.text)
+  const textContent = response.choices
+    .filter((c: any) => c.message?.content)
+    .map((c: any) => c.message.content)
     .join("");
 
   const jsonMatch = textContent.match(/\{[\s\S]*\}/);

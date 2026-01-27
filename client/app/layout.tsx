@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "./globals.css";
+import "@/styles/scanner.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
 import { ModalProvider } from "@/lib/contexts/modal-context";

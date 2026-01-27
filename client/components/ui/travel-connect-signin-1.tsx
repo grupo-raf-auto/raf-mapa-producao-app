@@ -95,23 +95,24 @@ const DotMap = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const renderCtx = canvas.getContext('2d');
+    if (!renderCtx) return;
 
     const dots = generateDots(dimensions.width, dimensions.height);
     let animationFrameId: number;
     let startTime = Date.now();
+    const context = renderCtx; // Capture in local variable
 
     // Draw background dots
     function drawDots() {
-      ctx.clearRect(0, 0, dimensions.width, dimensions.height);
+      context.clearRect(0, 0, dimensions.width, dimensions.height);
 
       // Draw the dots
       dots.forEach((dot) => {
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(225, 72, 64, ${dot.opacity})`; // Primary red with opacity
-        ctx.fill();
+        context.beginPath();
+        context.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+        context.fillStyle = `rgba(225, 72, 64, ${dot.opacity})`; // Primary red with opacity
+        context.fill();
       });
     }
 
@@ -130,37 +131,37 @@ const DotMap = () => {
         const y = route.start.y + (route.end.y - route.start.y) * progress;
 
         // Draw the route line
-        ctx.beginPath();
-        ctx.moveTo(route.start.x, route.start.y);
-        ctx.lineTo(x, y);
-        ctx.strokeStyle = route.color;
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        context.beginPath();
+        context.moveTo(route.start.x, route.start.y);
+        context.lineTo(x, y);
+        context.strokeStyle = route.color;
+        context.lineWidth = 2;
+        context.stroke();
 
         // Draw the start point
-        ctx.beginPath();
-        ctx.arc(route.start.x, route.start.y, 4, 0, Math.PI * 2);
-        ctx.fillStyle = route.color;
-        ctx.fill();
+        context.beginPath();
+        context.arc(route.start.x, route.start.y, 4, 0, Math.PI * 2);
+        context.fillStyle = route.color;
+        context.fill();
 
         // Draw the moving point
-        ctx.beginPath();
-        ctx.arc(x, y, 4, 0, Math.PI * 2);
-        ctx.fillStyle = route.color;
-        ctx.fill();
+        context.beginPath();
+        context.arc(x, y, 4, 0, Math.PI * 2);
+        context.fillStyle = route.color;
+        context.fill();
 
         // Add glow effect to the moving point
-        ctx.beginPath();
-        ctx.arc(x, y, 8, 0, Math.PI * 2);
-        ctx.fillStyle = `${route.color}40`; // 40 = 25% opacity in hex
-        ctx.fill();
+        context.beginPath();
+        context.arc(x, y, 8, 0, Math.PI * 2);
+        context.fillStyle = `${route.color}40`; // 40 = 25% opacity in hex
+        context.fill();
 
         // If the route is complete, draw the end point
         if (progress === 1) {
-          ctx.beginPath();
-          ctx.arc(route.end.x, route.end.y, 4, 0, Math.PI * 2);
-          ctx.fillStyle = route.color;
-          ctx.fill();
+          context.beginPath();
+          context.arc(route.end.x, route.end.y, 4, 0, Math.PI * 2);
+          context.fillStyle = route.color;
+          context.fill();
         }
       });
     }
@@ -244,7 +245,7 @@ const SignInCard = () => {
   const handleGoogleLogin = async () => {
     try {
       if (activeTab === 'register') {
-        await authClient.signUp.social({
+        await (authClient.signUp as any).social({
           provider: 'google',
           callbackURL: '/',
         });

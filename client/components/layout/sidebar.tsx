@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { LayoutDashboard, Search, FileStack, Brain } from 'lucide-react';
+import { LayoutDashboard, Search, FileStack, Brain, FileCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSession } from '@/lib/auth-client';
 
@@ -26,6 +26,12 @@ const mainNavigation = [
     href: '/formularios',
     icon: FileStack,
     description: 'Gestão de formulários',
+  },
+  {
+    label: 'MyScanner',
+    href: '/scanner',
+    icon: FileCheck,
+    description: 'Análise de fraudes em documentos',
   },
   {
     label: 'MySabichão',

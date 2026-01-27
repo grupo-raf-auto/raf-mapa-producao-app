@@ -356,7 +356,10 @@ export function DashboardChartsWrapper({
               </span>
             </div>
             <AgentePerformanceChart
-              data={salesStats?.byAgente || []}
+              data={(salesStats?.byAgente || []).map(item => ({
+                ...item,
+                averageValue: item.averageValue ?? 0
+              }))}
               globalAverage={salesStats?.averageValue}
             />
           </div>
@@ -380,7 +383,10 @@ export function DashboardChartsWrapper({
               <h3 className="chart-card-title">Ticket Médio por Agente</h3>
             </div>
             <TicketMedioAgenteChart
-              data={salesStats?.byAgente || []}
+              data={(salesStats?.byAgente || []).map(item => ({
+                ...item,
+                averageValue: item.averageValue ?? 0
+              }))}
               globalAverage={salesStats?.averageValue}
             />
           </div>
@@ -391,7 +397,10 @@ export function DashboardChartsWrapper({
             <div className="flex items-center justify-between mb-4">
               <h3 className="chart-card-title">Quantidade vs Valor</h3>
             </div>
-            <ColaboradorScatterChart data={salesStats?.byUser || []} />
+            <ColaboradorScatterChart data={(salesStats?.byUser || []).map(item => ({
+              ...item,
+              averageValue: item.averageValue ?? 0
+            }))} />
           </div>
         </AnimatedSection>
       </div>

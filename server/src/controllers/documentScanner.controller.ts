@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import { DocumentScanner } from "../services/documentScanner";
 import { prisma } from "../lib/prisma";
 import type { DocumentScanResult } from "../services/documentScanner";
+import type { AuthUser } from "../middleware/auth.middleware";
 
 interface AuthRequest extends Request {
-  user?: { id: string; email: string };
+  user?: AuthUser;
 }
 
 /**
@@ -36,6 +37,7 @@ export class DocumentScannerController {
           // Store in database
           await prisma.documentScan.create({
             data: {
+              id: documentId,
               fileName: file.originalname,
               fileType: file.mimetype.startsWith("image/") ? "image" : "pdf",
               fileSize: file.size,

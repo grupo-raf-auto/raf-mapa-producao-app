@@ -23,7 +23,7 @@ interface SalesTimelineChartProps {
 // 1. Cash Flow Stacked Bar Chart
 export function CashFlowStackedChart({
   data,
-  timeFilter = "month",
+  timeFilter = "monthly",
 }: SalesTimelineChartProps) {
   const chartData = data.map((item, index) => {
     const [year, month] = item.month.split("-");
@@ -61,13 +61,13 @@ export function CashFlowStackedChart({
     ? (((current.total - previous.total) / previous.total) * 100).toFixed(1)
     : "0.0";
   const periodLabel =
-    timeFilter === "day" ? "Hoje" : timeFilter === "week" ? "Sem" : "Fev";
+    timeFilter === "monthly" ? "Este mês" : timeFilter === "quarterly" ? "Este trimestre" : "Este ano";
   const prevPeriodLabel =
-    timeFilter === "day"
-      ? "Ontem"
-      : timeFilter === "week"
-        ? "Sem passada"
-        : "Jan";
+    timeFilter === "monthly"
+      ? "Mês anterior"
+      : timeFilter === "quarterly"
+        ? "Trimestre anterior"
+        : "Ano anterior";
 
   return (
     <div className="space-y-4">
@@ -164,7 +164,7 @@ export function CashFlowStackedChart({
 // 2. Profit & Loss Progress Bar
 export function ProfitLossChart({
   data,
-  timeFilter = "month",
+  timeFilter = "monthly",
 }: SalesTimelineChartProps) {
   const current = data[data.length - 1];
   const currentValue = current?.totalValue || 0;
@@ -173,7 +173,7 @@ export function ProfitLossChart({
   const maxValue = Math.max(currentValue, 3000);
   const profitPercentage = (profit / maxValue) * 100;
   const periodLabel =
-    timeFilter === "day" ? "Hoje" : timeFilter === "week" ? "Sem" : "Fev";
+    timeFilter === "monthly" ? "Hoje" : timeFilter === "quarterly" ? "Sem" : "Fev";
 
   return (
     <div className="space-y-4">
@@ -219,7 +219,7 @@ export function ProfitLossChart({
 // 3. Net Volume Line Chart with "Today" label
 export function NetVolumeChart({
   data,
-  timeFilter = "month",
+  timeFilter = "monthly",
 }: SalesTimelineChartProps) {
   const chartData = data.map((item, index) => {
     const [year, month] = item.month.split("-");
@@ -255,11 +255,11 @@ export function NetVolumeChart({
       )
     : "0.0";
   const periodLabel =
-    timeFilter === "day" ? "Hoje" : timeFilter === "week" ? "Sem" : "Fev";
+    timeFilter === "monthly" ? "Hoje" : timeFilter === "quarterly" ? "Sem" : "Fev";
   const prevPeriodLabel =
-    timeFilter === "day"
+    timeFilter === "monthly"
       ? "Ontem"
-      : timeFilter === "week"
+      : timeFilter === "quarterly"
         ? "Sem passada"
         : "Jan";
 
@@ -511,7 +511,7 @@ export function ReportsCompletionBar({
 // 6. Cash Flow Column Chart (Positive/Negative)
 export function CashFlowColumnChart({
   data,
-  timeFilter = "month",
+  timeFilter = "monthly",
 }: SalesTimelineChartProps) {
   const chartData = data.map((item, index) => {
     const [year, month] = item.month.split("-");
@@ -584,7 +584,7 @@ export function CashFlowColumnChart({
 // 1. Evolução Temporal de Vendas (estilo moderno)
 export function SalesTimelineChart({
   data,
-  timeFilter = "month",
+  timeFilter = "monthly",
 }: SalesTimelineChartProps) {
   const chartData = data.map((item, index) => {
     const [year, month] = item.month.split("-");
@@ -629,11 +629,11 @@ export function SalesTimelineChart({
       ).toFixed(1)
     : "0.0";
   const periodLabel =
-    timeFilter === "day" ? "Hoje" : timeFilter === "week" ? "Sem" : "Fev";
+    timeFilter === "monthly" ? "Hoje" : timeFilter === "quarterly" ? "Sem" : "Fev";
   const prevPeriodLabel =
-    timeFilter === "day"
+    timeFilter === "monthly"
       ? "Ontem"
-      : timeFilter === "week"
+      : timeFilter === "quarterly"
         ? "Sem passada"
         : "Jan";
 

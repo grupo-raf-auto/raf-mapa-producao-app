@@ -4,12 +4,13 @@ interface ScanResult {
   id: string;
   fileName: string;
   scoreTotal: number;
-  nivelRisco: string;
-  recomendacao: string;
-  scores: { tecnicoScore: number; iaScore: number };
-  flagsCriticas: Array<any>;
-  justificacao: string;
-  timestamp: string;
+  technicalScore: number;
+  iaScore: number;
+  riskLevel: string;
+  recommendation: string;
+  flags: Array<any>;
+  justification: string;
+  createdAt: string;
 }
 
 export function useDocumentScanner() {
@@ -39,7 +40,8 @@ export function useDocumentScanner() {
       const pollInterval = setInterval(async () => {
         attempts++;
         try {
-          const detailResponse = await fetch(`/api/scanner/scans/${data.id}`);
+          const detailResponse = await fetch(`/api/scanner/scan?id=${data.id}`);
+
           if (detailResponse.ok) {
             const scanDetail = await detailResponse.json();
             if (scanDetail.scoreTotal !== undefined) {
@@ -47,6 +49,13 @@ export function useDocumentScanner() {
               clearInterval(pollInterval);
               setScanning(false);
             }
+          } else if (detailResponse.status === 404) {
+            // Scan not ready yet, keep polling
+            console.log(`[Attempt ${attempts}] Scan not ready yet, polling...`);
+          } else {
+            // Other error
+            const errorData = await detailResponse.json().catch(() => ({ error: detailResponse.statusText }));
+            console.error(`Error fetching scan (${detailResponse.status}):`, errorData);
           }
         } catch (err) {
           console.error("Erro ao buscar resultado:", err);
@@ -54,7 +63,7 @@ export function useDocumentScanner() {
 
         if (attempts >= 15) {
           clearInterval(pollInterval);
-          setError("Timeout ao processar documento");
+          setError("Timeout ao processar documento (processamento demorado)");
           setScanning(false);
         }
       }, 2000);

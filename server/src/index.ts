@@ -26,6 +26,9 @@ import { authenticateUser } from "./middleware/auth.middleware";
 const app = express();
 const PORT = process.env.PORT || 3005;
 
+// Trust proxy (required for X-Forwarded-For header from Next.js rewrites)
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 

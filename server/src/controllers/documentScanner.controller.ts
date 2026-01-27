@@ -3,6 +3,10 @@ import { DocumentScanner } from "../services/documentScanner";
 import { prisma } from "../lib/prisma";
 import type { DocumentScanResult } from "../services/documentScanner";
 
+interface AuthRequest extends Request {
+  user?: { id: string; email: string };
+}
+
 /**
  * Controller for document scanning endpoints
  */
@@ -10,7 +14,7 @@ export class DocumentScannerController {
   /**
    * Scans uploaded document for fraud
    */
-  static async scanDocument(req: Request, res: Response) {
+  static async scanDocument(req: AuthRequest, res: Response) {
     try {
       if (!req.user) return res.status(401).json({ error: "Unauthorized" });
       if (!req.file) return res.status(400).json({ error: "Ficheiro não fornecido" });
@@ -73,7 +77,7 @@ export class DocumentScannerController {
   /**
    * Lists user's document scans
    */
-  static async getLastScans(req: Request, res: Response) {
+  static async getLastScans(req: AuthRequest, res: Response) {
     try {
       if (!req.user) return res.status(401).json({ error: "Unauthorized" });
 
@@ -93,7 +97,7 @@ export class DocumentScannerController {
   /**
    * Gets specific scan detail
    */
-  static async getScanDetail(req: Request, res: Response) {
+  static async getScanDetail(req: AuthRequest, res: Response) {
     try {
       if (!req.user) return res.status(401).json({ error: "Unauthorized" });
 

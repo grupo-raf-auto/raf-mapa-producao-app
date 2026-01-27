@@ -110,10 +110,11 @@ export class TechnicalValidator {
     let score = 100;
 
     try {
-      const sharp = await import("sharp");
+      const sharpModule = await import("sharp");
+      const sharp = (sharpModule as any).default || sharpModule;
       const fileStats = fs.statSync(filePath);
 
-      const metadata = await sharp.default(filePath).metadata();
+      const metadata = await sharp(filePath).metadata();
 
       // Flag 1: Unusual dimensions (screenshot vs real photo)
       if (metadata.width && metadata.height) {

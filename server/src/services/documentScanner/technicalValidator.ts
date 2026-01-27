@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { analyzePDF } from "../../utils/pdfAnalyzer";
+import { OCRExtractor } from "../../utils/ocrExtractor";
 import type {
   TechnicalValidationResult,
   TechnicalValidationFlag,
@@ -157,12 +158,20 @@ export class TechnicalValidator {
         score -= 10;
       }
 
+      // Extract text via OCR
+      let textoExtraido = "";
+      try {
+        textoExtraido = await OCRExtractor.extractTextFromImage(filePath);
+      } catch (e) {
+        console.warn("OCR falhou, continuando sem texto extraído:", e);
+      }
+
       score = Math.max(0, score);
 
       return {
         scoreTecnico: score,
         flags,
-        textoExtraido: "", // Will be filled by OCR in next task
+        textoExtraido,
         tempoAnalise: Date.now() - startTime,
         metadados: metadata as unknown as Record<string, unknown>,
       };

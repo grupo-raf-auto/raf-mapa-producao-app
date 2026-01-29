@@ -1,13 +1,18 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
+import { withLegacyId, withLegacyIds } from "../utils/response.utils";
 
 export class CategoryController {
   static async getAll(_req: Request, res: Response) {
     try {
       const categories = await prisma.category.findMany({
         orderBy: { createdAt: "desc" },
+        include: {
+          _count: { select: { questions: true } },
+        },
       });
-      res.json(categories.map((c) => ({ ...c, _id: c.id })));
+
+      res.json(withLegacyIds(categories));
     } catch (error) {
       console.error("Error fetching categories:", error);
       res.status(500).json({ error: "Failed to fetch categories" });
@@ -17,11 +22,19 @@ export class CategoryController {
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const category = await prisma.category.findUnique({ where: { id } });
+      const category = await prisma.category.findUnique({
+        where: { id },
+        include: {
+          questions: true,
+          _count: { select: { questions: true } },
+        },
+      });
+
       if (!category) {
         return res.status(404).json({ error: "Category not found" });
       }
-      res.json({ ...category, _id: category.id });
+
+      res.json(withLegacyId(category));
     } catch (error) {
       console.error("Error fetching category:", error);
       res.status(500).json({ error: "Failed to fetch category" });

@@ -18,7 +18,22 @@ declare global {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
+// Validação de segurança: JWT_SECRET é obrigatório em produção
+const JWT_SECRET = process.env.JWT_SECRET;
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+if (!JWT_SECRET) {
+  if (IS_PRODUCTION) {
+    console.error("FATAL: JWT_SECRET must be defined in production environment");
+    process.exit(1);
+  } else {
+    console.warn(
+      "⚠️  WARNING: JWT_SECRET not defined. Using insecure default for development only."
+    );
+  }
+}
+
+const EFFECTIVE_JWT_SECRET = JWT_SECRET || "dev-secret-change-in-production";
 
 export async function authenticateUser(
   req: Request,
@@ -36,7 +51,7 @@ export async function authenticateUser(
 
     let decoded: { sub: string; email?: string; name?: string | null };
     try {
-      decoded = jwt.verify(token, JWT_SECRET) as typeof decoded;
+      decoded = jwt.verify(token, EFFECTIVE_JWT_SECRET) as typeof decoded;
     } catch {
       return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }

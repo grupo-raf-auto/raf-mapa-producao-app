@@ -154,11 +154,72 @@ function isDatabaseUrlValid(url: string | undefined): boolean {
   return /^(postgresql|postgres):\/\//i.test(url.trim());
 }
 
+/**
+ * Cria ou atualiza um template com suas relações de questões
+ */
+async function upsertTemplate(
+  title: string,
+  description: string,
+  questionIds: string[]
+) {
+  const existing = await prisma.template.findFirst({ where: { title } });
+
+  if (!existing) {
+    // Criar novo template com relações
+    await prisma.template.create({
+      data: {
+        title,
+        description,
+        isDefault: true,
+        isPublic: true,
+        questionIds, // Campo legado para compatibilidade
+        questions: {
+          create: questionIds.map((questionId, index) => ({
+            questionId,
+            order: index,
+          })),
+        },
+      },
+    });
+    console.log(`  ✓ Template "${title}" criado`);
+  } else {
+    // Atualizar template existente
+    await prisma.$transaction(async (tx) => {
+      // Atualizar campos básicos
+      await tx.template.update({
+        where: { id: existing.id },
+        data: {
+          isDefault: true,
+          isPublic: true,
+          questionIds, // Campo legado
+        },
+      });
+
+      // Deletar relações antigas
+      await tx.templateQuestion.deleteMany({
+        where: { templateId: existing.id },
+      });
+
+      // Criar novas relações
+      if (questionIds.length > 0) {
+        await tx.templateQuestion.createMany({
+          data: questionIds.map((questionId, index) => ({
+            templateId: existing.id,
+            questionId,
+            order: index,
+          })),
+        });
+      }
+    });
+    console.log(`  ✓ Template "${title}" atualizado`);
+  }
+}
+
 export async function seedTemplates() {
   if (!isDatabaseUrlValid(process.env.DATABASE_URL)) {
     console.warn(
       "⚠️  Seed ignorado: defina DATABASE_URL em server/.env ou na raiz do projeto.\n" +
-        '   Ex.: DATABASE_URL="postgresql://user:pass@host:5432/nome_db" (Neon, Supabase, etc.)',
+        '   Ex.: DATABASE_URL="postgresql://user:pass@host:5432/nome_db" (Neon, Supabase, etc.)'
     );
     return;
   }
@@ -167,6 +228,7 @@ export async function seedTemplates() {
 
   const questionIds: Record<string, string> = {};
 
+  // Criar/atualizar questões
   for (const qData of questionsData) {
     let q = await prisma.question.findFirst({ where: { title: qData.title } });
     if (q) {
@@ -195,6 +257,7 @@ export async function seedTemplates() {
     }
   }
 
+  // Template 1: Registo de Produção Crédito
   const t1Questions = [
     questionIds["Data"],
     questionIds["Apontador"],
@@ -210,28 +273,13 @@ export async function seedTemplates() {
     questionIds["Fracionamento"],
   ].filter(Boolean);
 
-  let t1 = await prisma.template.findFirst({
-    where: { title: "Registo de Produção Crédito" },
-  });
-  if (!t1) {
-    await prisma.template.create({
-      data: {
-        title: "Registo de Produção Crédito",
-        description: "Template para registo de produção de crédito",
-        questions: t1Questions,
-        isDefault: true,
-        isPublic: true,
-      },
-    });
-    console.log('  ✓ Template "Registo de Produção Crédito" criado');
-  } else {
-    await prisma.template.update({
-      where: { id: t1.id },
-      data: { isDefault: true, isPublic: true, questions: t1Questions },
-    });
-    console.log('  ✓ Template "Registo de Produção Crédito" atualizado');
-  }
+  await upsertTemplate(
+    "Registo de Produção Crédito",
+    "Template para registo de produção de crédito",
+    t1Questions
+  );
 
+  // Template 2: Registo de Produção Seguros
   const t2Questions = [
     questionIds["Data"],
     questionIds["Apontador"],
@@ -248,51 +296,18 @@ export async function seedTemplates() {
     questionIds["Fracionamento"],
   ].filter(Boolean);
 
-  let t2 = await prisma.template.findFirst({
-    where: { title: "Registo de Produção Seguros" },
-  });
-  if (!t2) {
-    await prisma.template.create({
-      data: {
-        title: "Registo de Produção Seguros",
-        description: "Template para registo de produção de seguros",
-        questions: t2Questions,
-        isDefault: true,
-        isPublic: true,
-      },
-    });
-    console.log('  ✓ Template "Registo de Produção Seguros" criado');
-  } else {
-    await prisma.template.update({
-      where: { id: t2.id },
-      data: { isDefault: true, isPublic: true, questions: t2Questions },
-    });
-    console.log('  ✓ Template "Registo de Produção Seguros" atualizado');
-  }
+  await upsertTemplate(
+    "Registo de Produção Seguros",
+    "Template para registo de produção de seguros",
+    t2Questions
+  );
 
-  const t3Questions = t2Questions;
-
-  let t3 = await prisma.template.findFirst({
-    where: { title: "Registo de Vendas Imobiliária" },
-  });
-  if (!t3) {
-    await prisma.template.create({
-      data: {
-        title: "Registo de Vendas Imobiliária",
-        description: "Template para registo de vendas imobiliária",
-        questions: t3Questions,
-        isDefault: true,
-        isPublic: true,
-      },
-    });
-    console.log('  ✓ Template "Registo de Vendas Imobiliária" criado');
-  } else {
-    await prisma.template.update({
-      where: { id: t3.id },
-      data: { isDefault: true, isPublic: true, questions: t3Questions },
-    });
-    console.log('  ✓ Template "Registo de Vendas Imobiliária" atualizado');
-  }
+  // Template 3: Registo de Vendas Imobiliária
+  await upsertTemplate(
+    "Registo de Vendas Imobiliária",
+    "Template para registo de vendas imobiliária",
+    t2Questions
+  );
 
   console.log("\n✅ Seed concluído com sucesso!");
 }

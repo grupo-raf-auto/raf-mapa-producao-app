@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "db:studio": "dotenv -e server/.env -- prisma studio --schema=prisma/schema.prisma",
+    "db:studio": "dotenv -e server/.env -- prisma studio --schema=server/src/prisma/schema.prisma",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",

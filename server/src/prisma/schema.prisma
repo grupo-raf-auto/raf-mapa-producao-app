@@ -23,9 +23,19 @@ model User {
   role          String    @default("user") // admin | user
   isActive      Boolean   @default(true)
 
-  sessions Session[]
-  accounts Account[]
+  // Relações de autenticação
+  sessions      Session[]
+  accounts      Account[]
+
+  // Relações da aplicação
   documentScans DocumentScan[]
+  submissions   FormSubmission[]
+  chatMessages  ChatMessage[]
+  documents     Document[]
+
+  // Relações de criação (opcional - para auditoria)
+  createdQuestions  Question[]
+  createdTemplates  Template[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -89,6 +99,9 @@ model Category {
   description String?
   color       String?
 
+  // Relação com questões
+  questions Question[]
+
   createdAt DateTime @default(now())
 
   @@map("category")
@@ -102,7 +115,17 @@ model Question {
   inputType   String?  // text | date | select | email | tel | number | radio
   options     String[] // para select/radio
 
+  // Relação com categoria (opcional)
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // Relação com criador
   createdBy String?
+  creator   User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  // Relação N:N com templates via tabela de junção
+  templates TemplateQuestion[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -113,25 +136,63 @@ model Template {
   id          String   @id @default(cuid())
   title       String
   description String?
-  questions   String[] // IDs das questões
   isDefault   Boolean  @default(false)
   isPublic    Boolean  @default(false)
 
+  // Relação com criador
   createdBy String?
+  creator   User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  // Relação N:N com questões via tabela de junção
+  questions TemplateQuestion[]
+
+  // Relação com submissions
+  submissions FormSubmission[]
+
+  // Campo legado mantido para compatibilidade durante migração
+  // TODO: Remover após migração completa dos dados
+  questionIds String[] @default([]) @map("questions")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("template")
 }
 
-model FormSubmission {
+// Tabela de junção para relação N:N entre Template e Question
+model TemplateQuestion {
   id         String   @id @default(cuid())
   templateId String
-  answers    Json     // [{ questionId, answer }]
+  questionId String
+  order      Int      @default(0) // Para manter ordenação das questões no template
+
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([templateId, questionId])
+  @@index([templateId])
+  @@index([questionId])
+  @@map("template_question")
+}
+
+model FormSubmission {
+  id          String   @id @default(cuid())
+  answers     Json     // [{ questionId, answer }]
+
+  // Relação com template
+  templateId  String
+  template    Template @relation(fields: [templateId], references: [id], onDelete: Restrict)
+
+  // Relação com usuário que submeteu
   submittedBy String
+  user        User     @relation(fields: [submittedBy], references: [id], onDelete: Cascade)
 
   submittedAt DateTime @default(now())
 
+  @@index([templateId])
+  @@index([submittedBy])
   @@map("submission")
 }
 
@@ -141,14 +202,18 @@ model Document {
   originalName String
   mimeType     String
   size         Int
-  uploadedBy   String
   uploadedAt   DateTime  @default(now())
   processedAt  DateTime?
-  vectorIds    String[]  @default([]) // IDs dos chunks (legado, chunks usam documentId)
   isActive     Boolean   @default(true)
 
-  chunks DocumentChunk[]
+  // Relação com usuário que fez upload
+  uploadedBy   String
+  uploader     User      @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
 
+  // Relação com chunks
+  chunks       DocumentChunk[]
+
+  @@index([uploadedBy])
   @@map("document")
 }
 
@@ -205,10 +270,15 @@ model ChatMessage {
   id             String   @id @default(cuid())
   conversationId String
   role           String   // user | assistant
-  content        String
+  content        String   @db.Text
+
+  // Relação com usuário
   userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
+  @@index([conversationId])
+  @@index([userId])
   @@map("chat_message")
 }

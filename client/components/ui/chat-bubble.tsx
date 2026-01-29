@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { MessageLoading } from "@/components/ui/message-loading";
+import { FormattedAiMessage } from "@/components/ui/formatted-ai-message";
 import { User, Bot } from "lucide-react";
 
 interface ChatBubbleProps {
@@ -45,10 +46,12 @@ export function ChatBubbleMessage({
   className,
   children,
 }: ChatBubbleMessageProps) {
+  const isAiMessage = variant === "received" && typeof children === "string";
+
   return (
     <div
       className={cn(
-        "rounded-xl px-3.5 py-2.5 text-sm",
+        "rounded-xl px-3.5 py-2.5 text-sm max-w-[85%]",
         variant === "sent"
           ? "bg-primary text-primary-foreground"
           : "bg-muted text-foreground",
@@ -59,6 +62,8 @@ export function ChatBubbleMessage({
         <div className="flex items-center space-x-2 py-0.5">
           <MessageLoading />
         </div>
+      ) : isAiMessage ? (
+        <FormattedAiMessage content={children} />
       ) : (
         <span className="leading-relaxed">{children}</span>
       )}

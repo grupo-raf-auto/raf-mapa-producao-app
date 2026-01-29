@@ -27,6 +27,10 @@ const mainNavigation = [
     icon: FileStack,
     description: 'Gestão de formulários',
   },
+];
+
+// Ferramentas inteligentes
+const intelligentTools = [
   {
     label: 'MyScanner',
     href: '/scanner',
@@ -85,6 +89,37 @@ export function Sidebar() {
               Menu
             </p>
             {mainNavigation.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                pathname === item.href ||
+                (item.href !== '/' && pathname.startsWith(item.href));
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  title={item.description}
+                  className={cn(
+                    'sidebar-nav-link flex items-center gap-3 rounded-xl font-medium px-4 py-3.5',
+                    isActive
+                      ? 'active text-white'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  <Icon className="shrink-0 h-5 w-5 transition-all" />
+                  <span className="text-sm whitespace-nowrap overflow-hidden">
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Intelligent Tools Section */}
+          <nav className="space-y-2 px-4 mt-8">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-4">
+              Ferramentas
+            </p>
+            {intelligentTools.map((item) => {
               const Icon = item.icon;
               const isActive =
                 pathname === item.href ||

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent } from "react";
+import { FormEvent, useRef } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -74,11 +74,24 @@ export function SupportChatFooter({
   onSubmit,
   loading,
 }: SupportChatFooterProps) {
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const handleKeyboardSubmit = () => {
+    if (!loading && input.trim()) {
+      formRef.current?.requestSubmit();
+    }
+  };
+
   return (
-    <form onSubmit={onSubmit} className="relative flex items-center gap-2">
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      className="relative flex items-center gap-2"
+    >
       <ChatInput
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onSubmit={handleKeyboardSubmit}
         placeholder="Escreve a tua mensagem..."
         className="flex-1 min-h-10 resize-none rounded-lg bg-muted/50 border border-border px-3 py-2.5 text-sm focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50"
       />

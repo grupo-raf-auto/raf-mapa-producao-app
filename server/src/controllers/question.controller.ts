@@ -1,29 +1,36 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
+import { withLegacyId, withLegacyIds } from "../utils/response.utils";
 
 export class QuestionController {
   static async getAll(req: Request, res: Response) {
     try {
-      const { status, search } = req.query;
+      const { status, search, categoryId } = req.query;
       const where: {
         status?: string;
+        categoryId?: string;
         OR?: {
           title?: { contains: string; mode: "insensitive" };
           description?: { contains: string; mode: "insensitive" };
         }[];
       } = {};
+
       if (status && typeof status === "string") where.status = status;
+      if (categoryId && typeof categoryId === "string") where.categoryId = categoryId;
       if (search && typeof search === "string") {
         where.OR = [
           { title: { contains: search, mode: "insensitive" } },
           { description: { contains: search, mode: "insensitive" } },
         ];
       }
+
       const questions = await prisma.question.findMany({
         where: Object.keys(where).length ? where : undefined,
         orderBy: { createdAt: "desc" },
+        include: { category: true },
       });
-      res.json(questions.map((q) => ({ ...q, _id: q.id })));
+
+      res.json(withLegacyIds(questions));
     } catch (error) {
       console.error("Error fetching questions:", error);
       res.status(500).json({ error: "Failed to fetch questions" });
@@ -33,11 +40,16 @@ export class QuestionController {
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const question = await prisma.question.findUnique({ where: { id } });
+      const question = await prisma.question.findUnique({
+        where: { id },
+        include: { category: true },
+      });
+
       if (!question) {
         return res.status(404).json({ error: "Question not found" });
       }
-      res.json({ ...question, _id: question.id });
+
+      res.json(withLegacyId(question));
     } catch (error) {
       console.error("Error fetching question:", error);
       res.status(500).json({ error: "Failed to fetch question" });
@@ -47,7 +59,9 @@ export class QuestionController {
   static async create(req: Request, res: Response) {
     try {
       if (!req.user) return res.status(401).json({ error: "Unauthorized" });
-      const { title, description, status, inputType, options } = req.body;
+
+      const { title, description, status, inputType, options, categoryId } = req.body;
+
       const question = await prisma.question.create({
         data: {
           title,
@@ -55,9 +69,11 @@ export class QuestionController {
           status: status || "active",
           inputType,
           options: options || [],
+          categoryId: categoryId || null,
           createdBy: req.user.id,
         },
       });
+
       res.status(201).json({ id: question.id });
     } catch (error) {
       console.error("Error creating question:", error);
@@ -68,17 +84,21 @@ export class QuestionController {
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { title, description, status, inputType, options } = req.body;
+      const { title, description, status, inputType, options, categoryId } = req.body;
+
       const data: Record<string, unknown> = {};
       if (title !== undefined) data.title = title;
       if (description !== undefined) data.description = description;
       if (status !== undefined) data.status = status;
       if (inputType !== undefined) data.inputType = inputType;
       if (options !== undefined) data.options = options;
+      if (categoryId !== undefined) data.categoryId = categoryId || null;
+
       await prisma.question.update({
         where: { id },
         data: data as Parameters<typeof prisma.question.update>[0]["data"],
       });
+
       res.json({ success: true });
     } catch (error) {
       console.error("Error updating question:", error);

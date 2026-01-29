@@ -67,7 +67,7 @@ async function processDocumentAsync(
 
     await prisma.document.update({
       where: { id: documentId },
-      data: { vectorIds: chunkIds, processedAt: new Date() },
+      data: { processedAt: new Date() },
     });
 
     try {

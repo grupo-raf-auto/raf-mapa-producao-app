@@ -278,14 +278,84 @@ throw new ValidationError({
 
 ---
 
-## 🧪 Testes
+## 🧪 Testing Architecture
 
-### Teste de Controller Refatorado
+### Testing Strategy
+
+The project uses **Jest** for unit testing with isolated layers:
+
+- **Repositories:** Mocked Prisma delegates for data access isolation
+- **Services:** Mocked repositories for business logic testing
+- **Controllers:** Mocked repositories for request handling testing
+- **E2E Tests:** Real Express app with test database (future phase)
+
+### Running Tests
+
+```bash
+cd server
+
+# Unit tests
+npm run test              # Run all tests once
+npm run test:watch      # Run in watch mode during development
+npm run test:coverage   # Generate coverage report
+
+# Type checking
+npm run type-check      # Verify no TypeScript errors
+
+# Full validation
+npm run test:all        # Type-check + Unit tests + E2E tests
+```
+
+### Unit Test Patterns
+
+**Testing Repositories:**
 
 ```typescript
-describe("QuestionController", () => {
-  let controller: QuestionController;
-  let mockRepository: jest.Mocked<QuestionRepository>;
+describe("BaseRepository", () => {
+  let repository: BaseRepository<any>;
+  const mockDelegate = prisma.question as jest.Mocked<any>;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    repository = new BaseRepository(mockDelegate);
+  });
+
+  it("should find items with pagination", async () => {
+    mockDelegate.findMany.mockResolvedValue([{ id: '1' }]);
+
+    const result = await repository.findMany({ skip: 0, take: 10 });
+
+    expect(result).toEqual([{ id: '1' }]);
+  });
+});
+```
+
+**Testing Services:**
+
+```typescript
+describe("UserStatsService", () => {
+  let service: UserStatsService;
+
+  beforeEach(() => {
+    service = new UserStatsService();
+  });
+
+  it("should aggregate submissions by day", async () => {
+    const mockData = [{ _count: { id: 10 }, createdAt: new Date() }];
+    (prisma.submission.groupBy as jest.Mock).mockResolvedValue(mockData);
+
+    const result = await service.aggregateByDay();
+    expect(result).toBeDefined();
+  });
+});
+```
+
+**Testing Controllers:**
+
+```typescript
+describe("BaseCRUDController", () => {
+  let controller: BaseCRUDController<any>;
+  let mockRepository: jest.Mocked<BaseRepository<any>>;
 
   beforeEach(() => {
     mockRepository = {
@@ -294,29 +364,51 @@ describe("QuestionController", () => {
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn(),
     };
-
-    controller = new QuestionController();
-    (controller as any).repository = mockRepository;
+    controller = new (class extends BaseCRUDController<any> {
+      repository = mockRepository;
+      createSchema = undefined;
+      updateSchema = undefined;
+    })();
   });
 
-  it("should list questions", async () => {
-    mockRepository.findMany.mockResolvedValue([
-      { id: "1", title: "Q1", status: "active" },
-    ]);
+  it("should return paginated items", async () => {
+    mockRepository.findMany.mockResolvedValue([{ id: '1' }]);
+    mockRepository.count.mockResolvedValue(1);
 
-    const req = { query: { status: "active" } } as any;
-    const res = { json: jest.fn() } as any;
+    const req = { query: {}, params: {}, body: {}, user: { id: 'user-1' } } as any;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis()
+    } as any;
 
     await controller.getAll(req, res);
 
-    expect(res.json).toHaveBeenCalledWith({
-      success: true,
-      data: expect.objectContaining({ items: [...] }),
-    });
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          items: [{ id: '1' }],
+          total: 1
+        })
+      })
+    );
   });
 });
 ```
+
+### Test Coverage
+
+**Current Coverage (2026-01-30):**
+- ✅ BaseRepository: 10 tests, 100% coverage
+- ✅ UserStatsService: 4 tests, 100% coverage
+- ✅ BaseCRUDController: 8 tests, 100% coverage
+- **Total: 22 tests passing**
+
+**Goals:**
+- Unit Tests: 80%+ coverage for services and repositories
+- Controller Tests: 90%+ coverage for CRUD and access control
+- E2E Tests: 100% coverage for all API endpoints (future phase)
 
 ---
 

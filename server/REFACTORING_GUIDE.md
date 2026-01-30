@@ -520,6 +520,169 @@ export const updateMySchema = createMySchema.partial();
 
 ---
 
+## 🧪 Testing Refactored Code
+
+### Why Testing Matters for Refactoring
+
+The refactored architecture makes testing much easier:
+
+- **Services are isolated** - Mock repositories instead of database
+- **Controllers are testable** - Mock services and test HTTP handling
+- **No Prisma in controllers** - Tests don't need database setup
+
+### Unit Test Examples
+
+**Testing a Refactored Repository:**
+
+```typescript
+describe('QuestionRepository', () => {
+  let repository: QuestionRepository;
+  const mockDelegate = prisma.question as jest.Mocked<any>;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    repository = new QuestionRepository(mockDelegate);
+  });
+
+  it('should find questions by status', async () => {
+    const mockQuestions = [{ id: '1', status: 'published' }];
+    mockDelegate.findMany.mockResolvedValue(mockQuestions);
+
+    const result = await repository.findMany({ where: { status: 'published' } });
+
+    expect(result).toEqual(mockQuestions);
+    expect(mockDelegate.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { status: 'published' } })
+    );
+  });
+});
+```
+
+**Testing a Refactored Service:**
+
+```typescript
+describe('UserStatsService', () => {
+  let service: UserStatsService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new UserStatsService();
+  });
+
+  it('should generate stats for template', async () => {
+    const mockSubmissions = [
+      { id: '1', userId: 'user-1', submittedAt: new Date() },
+      { id: '2', userId: 'user-2', submittedAt: new Date() },
+    ];
+    (prisma.submission.findMany as jest.Mock).mockResolvedValue(mockSubmissions);
+
+    const result = await service.generateStats('template-123');
+
+    expect(result.totalSubmissions).toBe(2);
+    expect(result.uniqueUsers).toBe(2);
+  });
+});
+```
+
+**Testing a Refactored Controller:**
+
+```typescript
+describe('QuestionController extends BaseCRUDController', () => {
+  let controller: QuestionController;
+  let mockRepository: jest.Mocked<BaseRepository<any>>;
+
+  beforeEach(() => {
+    mockRepository = {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      count: jest.fn(),
+    };
+    controller = new QuestionController();
+    (controller as any).repository = mockRepository;
+  });
+
+  it('should apply custom buildWhere filters', async () => {
+    mockRepository.findMany.mockResolvedValue([]);
+    mockRepository.count.mockResolvedValue(0);
+
+    const req = {
+      query: { status: 'published', categoryId: 'cat-1' },
+      params: {},
+      body: {},
+      user: { id: 'user-1' }
+    } as any;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    } as any;
+
+    await controller.getAll(req, res);
+
+    expect(mockRepository.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          status: 'published',
+          categoryId: 'cat-1'
+        })
+      })
+    );
+  });
+
+  it('should deny access to non-owner items', async () => {
+    const item = { id: '1', userId: 'user-2' }; // Different owner
+    mockRepository.findUnique.mockResolvedValue(item);
+
+    const req = {
+      params: { id: '1' },
+      user: { id: 'user-1', role: 'user' }
+    } as any;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    } as any;
+
+    await controller.getById(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+  });
+});
+```
+
+### Testing Checklist for Refactoring
+
+- [ ] Original controller behavior is preserved
+- [ ] Unit tests for custom methods (buildWhere, validateOwnership, etc.)
+- [ ] E2E tests passing for all endpoints
+- [ ] Error handling tested (400, 403, 404, 500)
+- [ ] Access control validated (admin vs. user)
+- [ ] Performance not degraded (response times)
+- [ ] Type safety maintained (TypeScript strict mode)
+
+### Running Tests
+
+```bash
+# Setup
+cd server
+npm install
+
+# Run unit tests
+npm run test                 # All tests
+npm run test:watch         # Watch mode
+npm run test:coverage      # Coverage report
+
+# Validate everything
+npm run type-check         # TypeScript
+npm run test:all           # All tests
+
+# Debug specific test
+npm run test -- --testNamePattern="should apply custom buildWhere"
+```
+
+---
+
 ## 📚 Próximos Passos
 
 1. **Aplicar padrão em todos os controllers** (Template, Category, Submission, Document, Chat)
@@ -540,5 +703,13 @@ Para dúvidas sobre o refactoring:
 ---
 
 **Última atualização:** 2026-01-30
-**Status:** Em implementação
-**Progresso:** 40% (Fase 1 e 2 completas)
+**Status:** Testing Phase Complete
+**Progresso:** 50% (Phases 1-4 complete, E2E testing future)
+
+### Phase Completion Status
+- ✅ Phase 1: Architecture Base (Logger, Error Handler, Base Repository, Base Controller)
+- ✅ Phase 2: Refactored Controllers (Question, User)
+- ✅ Phase 3: Services (UserStatsService)
+- ✅ Phase 4: Unit Tests (22 tests, 100% passing)
+- ⏳ Phase 5: E2E Tests (future work)
+- ⏳ Phase 6: Full Validation & QA

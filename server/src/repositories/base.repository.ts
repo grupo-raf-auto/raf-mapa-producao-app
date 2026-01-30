@@ -37,7 +37,7 @@ export abstract class BaseRepository<T> implements IRepository<T, Record<string,
   async findMany(filters: RepositoryFilters = {}): Promise<T[]> {
     try {
       logger.debug({ filters, model: this.modelName }, "Finding multiple");
-      return await this.model.findMany(filters) as Promise<T[]>;
+      return (await this.model.findMany(filters as Record<string, unknown>)) as T[];
     } catch (error) {
       logger.error(
         { error, model: this.modelName },
@@ -53,7 +53,7 @@ export abstract class BaseRepository<T> implements IRepository<T, Record<string,
   async findUnique(id: string): Promise<T | null> {
     try {
       logger.debug({ id, model: this.modelName }, "Finding unique");
-      return await this.model.findUnique({ where: { id } });
+      return (await this.model.findUnique({ where: { id } })) as T | null;
     } catch (error) {
       logger.error({ error, id, model: this.modelName }, "Error finding unique");
       throw error;
@@ -66,7 +66,7 @@ export abstract class BaseRepository<T> implements IRepository<T, Record<string,
   async findUniqueBy(where: any): Promise<T | null> {
     try {
       logger.debug({ where, model: this.modelName }, "Finding by condition");
-      return await this.model.findUnique({ where });
+      return (await this.model.findUnique({ where })) as T | null;
     } catch (error) {
       logger.error(
         { error, where, model: this.modelName },
@@ -82,7 +82,7 @@ export abstract class BaseRepository<T> implements IRepository<T, Record<string,
   async create(data: any): Promise<T> {
     try {
       logger.debug({ data, model: this.modelName }, "Creating");
-      return await this.model.create({ data });
+      return (await this.model.create({ data })) as T;
     } catch (error) {
       logger.error({ error, model: this.modelName }, "Error creating");
       throw error;
@@ -95,10 +95,10 @@ export abstract class BaseRepository<T> implements IRepository<T, Record<string,
   async update(id: string, data: any): Promise<T> {
     try {
       logger.debug({ id, data, model: this.modelName }, "Updating");
-      return await this.model.update({
+      return (await this.model.update({
         where: { id },
         data,
-      });
+      })) as T;
     } catch (error) {
       logger.error(
         { error, id, model: this.modelName },
@@ -114,7 +114,7 @@ export abstract class BaseRepository<T> implements IRepository<T, Record<string,
   async delete(id: string): Promise<T> {
     try {
       logger.debug({ id, model: this.modelName }, "Deleting");
-      return await this.model.delete({ where: { id } });
+      return (await this.model.delete({ where: { id } })) as T;
     } catch (error) {
       logger.error({ error, id, model: this.modelName }, "Error deleting");
       throw error;
@@ -143,7 +143,7 @@ export abstract class BaseRepository<T> implements IRepository<T, Record<string,
   async deleteMany(where: any): Promise<number> {
     try {
       logger.warn({ where, model: this.modelName }, "Deleting multiple");
-      const result = await this.model.deleteMany({ where });
+      const result = (await this.model.deleteMany({ where })) as { count: number };
       return result.count;
     } catch (error) {
       logger.error(

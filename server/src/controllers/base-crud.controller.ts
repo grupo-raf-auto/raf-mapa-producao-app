@@ -186,7 +186,8 @@ export abstract class BaseCRUDController<T> {
         const validation = this.createSchema.safeParse(req.body);
         if (!validation.success) {
           const errors: Record<string, string[]> = {};
-          validation.error.errors.forEach((err) => {
+          const zodErrors = validation.error as any;
+          zodErrors.errors?.forEach((err: any) => {
             const path = err.path.join(".");
             if (!errors[path]) errors[path] = [];
             errors[path].push(err.message);
@@ -244,7 +245,8 @@ export abstract class BaseCRUDController<T> {
         const validation = this.updateSchema.safeParse(req.body);
         if (!validation.success) {
           const errors: Record<string, string[]> = {};
-          validation.error.errors.forEach((err) => {
+          const zodErrors = validation.error as any;
+          zodErrors.errors?.forEach((err: any) => {
             const path = err.path.join(".");
             if (!errors[path]) errors[path] = [];
             errors[path].push(err.message);

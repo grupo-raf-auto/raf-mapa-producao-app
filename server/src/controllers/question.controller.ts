@@ -1,128 +1,69 @@
 import { Request, Response } from "express";
+import { BaseCRUDController } from "./base-crud.controller";
+import { QuestionRepository } from "../repositories/question.repository";
+import { createQuestionSchema, updateQuestionSchema } from "../schemas/index";
 import { prisma } from "../lib/prisma";
 import { withLegacyId, withLegacyIds } from "../utils/response.utils";
 
-export class QuestionController {
-  static async getAll(req: Request, res: Response) {
-    try {
-      const { status, search, categoryId } = req.query;
-      const where: {
-        status?: string;
-        categoryId?: string;
-        OR?: {
-          title?: { contains: string; mode: "insensitive" };
-          description?: { contains: string; mode: "insensitive" };
-        }[];
-      } = {};
+/**
+ * QuestionController
+ *
+ * Refatorado para usar BaseCRUDController
+ * - Elimina duplicação de CRUD
+ * - Usa validação Zod centralizada
+ * - Mantém lógica específica de busca
+ * - Logging estruturado incluído na base
+ */
+export class QuestionController extends BaseCRUDController<any> {
+  repository = new QuestionRepository(prisma);
+  createSchema = createQuestionSchema;
+  updateSchema = updateQuestionSchema;
+  protected resourceName = "Question";
 
-      if (status && typeof status === "string") where.status = status;
-      if (categoryId && typeof categoryId === "string") where.categoryId = categoryId;
-      if (search && typeof search === "string") {
-        where.OR = [
-          { title: { contains: search, mode: "insensitive" } },
-          { description: { contains: search, mode: "insensitive" } },
-        ];
-      }
+  /**
+   * Customizar busca com filtros específicos
+   */
+  protected buildWhere(query: any): any {
+    const where: any = {};
 
-      const questions = await prisma.question.findMany({
-        where: Object.keys(where).length ? where : undefined,
-        orderBy: { createdAt: "desc" },
-        include: { category: true },
-      });
-
-      res.json(withLegacyIds(questions));
-    } catch (error) {
-      console.error("Error fetching questions:", error);
-      res.status(500).json({ error: "Failed to fetch questions" });
+    if (query.status && typeof query.status === "string") {
+      where.status = query.status;
     }
+
+    if (query.categoryId && typeof query.categoryId === "string") {
+      where.categoryId = query.categoryId;
+    }
+
+    if (query.search && typeof query.search === "string") {
+      where.OR = [
+        { title: { contains: query.search, mode: "insensitive" } },
+        { description: { contains: query.search, mode: "insensitive" } },
+      ];
+    }
+
+    return where;
   }
 
-  static async getById(req: Request, res: Response) {
-    try {
-      const { id } = req.params;
-      const question = await prisma.question.findUnique({
-        where: { id },
-        include: { category: true },
-      });
-
-      if (!question) {
-        return res.status(404).json({ error: "Question not found" });
-      }
-
-      res.json(withLegacyId(question));
-    } catch (error) {
-      console.error("Error fetching question:", error);
-      res.status(500).json({ error: "Failed to fetch question" });
-    }
+  /**
+   * Normalizar resposta (adicionar _id legado)
+   */
+  protected normalizeItem(item: any): any {
+    return withLegacyId(item);
   }
 
-  static async create(req: Request, res: Response) {
-    try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
-
-      const { title, description, status, inputType, options, categoryId } = req.body;
-
-      const question = await prisma.question.create({
-        data: {
-          title,
-          description,
-          status: status || "active",
-          inputType,
-          options: options || [],
-          categoryId: categoryId || null,
-          createdBy: req.user.id,
-        },
-      });
-
-      res.status(201).json({ id: question.id });
-    } catch (error) {
-      console.error("Error creating question:", error);
-      res.status(500).json({ error: "Failed to create question" });
-    }
+  protected normalizeItems(items: any[]): any {
+    return withLegacyIds(items);
   }
 
-  static async update(req: Request, res: Response) {
-    try {
-      const { id } = req.params;
-      const { title, description, status, inputType, options, categoryId } = req.body;
-
-      const data: Record<string, unknown> = {};
-      if (title !== undefined) data.title = title;
-      if (description !== undefined) data.description = description;
-      if (status !== undefined) data.status = status;
-      if (inputType !== undefined) data.inputType = inputType;
-      if (options !== undefined) data.options = options;
-      if (categoryId !== undefined) data.categoryId = categoryId || null;
-
-      await prisma.question.update({
-        where: { id },
-        data: data as Parameters<typeof prisma.question.update>[0]["data"],
-      });
-
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Error updating question:", error);
-      res.status(500).json({ error: "Failed to update question" });
-    }
-  }
-
-  static async delete(req: Request, res: Response) {
-    try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
-      const { id } = req.params;
-      const question = await prisma.question.findUnique({ where: { id } });
-      if (!question)
-        return res.status(404).json({ error: "Question not found" });
-      if (req.user.role !== "admin" && question.createdBy !== req.user.id) {
-        return res
-          .status(403)
-          .json({ error: "Forbidden: You can only delete your own questions" });
-      }
-      await prisma.question.delete({ where: { id } });
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Error deleting question:", error);
-      res.status(500).json({ error: "Failed to delete question" });
-    }
+  /**
+   * Permitir apenas admin ou criador deletar
+   */
+  protected async validateOwnership(
+    item: any,
+    userId: string,
+    userRole: string
+  ): Promise<boolean> {
+    if (userRole === "admin") return true;
+    return item.createdBy === userId;
   }
 }

@@ -17,6 +17,7 @@ import { userStatsService } from "../services/user-stats.service";
  */
 export class UserController extends BaseCRUDController<any> {
   repository = new UserRepository(prisma);
+  createSchema = undefined;
   updateSchema = updateUserSchema;
   protected resourceName = "User";
 

@@ -5,7 +5,6 @@ import logger from "../lib/logger";
 interface PrismaModel {
   findMany(args?: Record<string, unknown>): Promise<unknown[]>;
   findUnique(args: Record<string, unknown>): Promise<unknown | null>;
-  findUniqueBy(args: Record<string, unknown>): Promise<unknown | null>;
   create(args: Record<string, unknown>): Promise<unknown>;
   update(args: Record<string, unknown>): Promise<unknown>;
   delete(args: Record<string, unknown>): Promise<unknown>;
@@ -60,21 +59,6 @@ export abstract class BaseRepository<T> implements IRepository<T, Record<string,
     }
   }
 
-  /**
-   * Buscar um registro com condição customizada
-   */
-  async findUniqueBy(where: any): Promise<T | null> {
-    try {
-      logger.debug({ where, model: this.modelName }, "Finding by condition");
-      return (await this.model.findUnique({ where })) as T | null;
-    } catch (error) {
-      logger.error(
-        { error, where, model: this.modelName },
-        "Error finding by condition"
-      );
-      throw error;
-    }
-  }
 
   /**
    * Criar novo registro

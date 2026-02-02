@@ -1,6 +1,5 @@
 'use client';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { UsersManagement } from './users-management';
 import { UserPerformance } from './user-performance';
@@ -9,107 +8,153 @@ import { TemplatesManagement } from './templates-management';
 import { DocumentsManager } from '@/components/mysabichao/documents-manager';
 import {
   Users,
+  ArrowLeft,
+  FileText,
+  Ticket,
+  RefreshCw,
+  Shield,
   Search,
   TrendingUp,
-  ArrowLeft,
   FileStack,
-  Shield,
-  FileText,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+type TabValue = 'users' | 'consultas' | 'performance' | 'templates' | 'documents' | 'tickets';
+
+const tabs: { value: TabValue; label: string; icon: React.ElementType }[] = [
+  { value: 'users', label: 'Utilizadores', icon: Users },
+  { value: 'consultas', label: 'Consultas', icon: Search },
+  { value: 'performance', label: 'Desempenho', icon: TrendingUp },
+  { value: 'templates', label: 'Templates', icon: FileStack },
+  { value: 'documents', label: 'Ficheiros', icon: FileText },
+  { value: 'tickets', label: 'Tickets', icon: Ticket },
+];
 
 export function AdminDashboard() {
   const router = useRouter();
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [activeTab, setActiveTab] = useState<TabValue>('users');
+
+  const handleRefresh = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={() => router.push('/')}
-            variant="ghost"
-            size="icon"
-            className="shrink-0"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-secondary to-amber-500 flex items-center justify-center text-white shadow-sm">
-              <Shield className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="font-title text-2xl font-bold text-foreground">
-                Painel de Administração
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Gerir utilizadores, aprovações e permissões do sistema
-              </p>
+      {/* Header Card */}
+      <div className="bg-card rounded-2xl p-4 shadow-sm border">
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: Back button + Icon + Title */}
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => router.push('/')}
+              variant="ghost"
+              size="icon"
+              className="shrink-0 rounded-full"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center text-white shadow-sm">
+                <Shield className="w-5 h-5" />
+              </div>
+              <div>
+                <h1 className="font-title text-xl font-bold text-foreground">
+                  Painel Admin
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Gerir utilizadores
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* Center: Tabs (desktop only) */}
+          <div className="hidden lg:flex items-center bg-muted/50 rounded-full p-1 overflow-x-auto">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.value}
+                  onClick={() => setActiveTab(tab.value)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
+                    activeTab === tab.value
+                      ? 'bg-card shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Right: Refresh button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            className="gap-2 rounded-full shrink-0"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span className="hidden sm:inline">Atualizar</span>
+          </Button>
+        </div>
+
+        {/* Mobile/Tablet Tabs */}
+        <div className="lg:hidden mt-4 flex items-center bg-muted/50 rounded-full p-1 overflow-x-auto">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.value}
+                onClick={() => setActiveTab(tab.value)}
+                className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-2 py-2 rounded-full text-xs font-medium transition-all ${
+                  activeTab === tab.value
+                    ? 'bg-card shadow-sm text-foreground'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className="hidden sm:inline truncate">{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="users" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 h-10">
-          <TabsTrigger
-            value="users"
-            className="gap-2 data-[state=active]:bg-card"
-          >
-            <Users className="w-4 h-4" />
-            <span className="hidden sm:inline">Utilizadores</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="consultas"
-            className="gap-2 data-[state=active]:bg-card"
-          >
-            <Search className="w-4 h-4" />
-            <span className="hidden sm:inline">Consultas</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="performance"
-            className="gap-2 data-[state=active]:bg-card"
-          >
-            <TrendingUp className="w-4 h-4" />
-            <span className="hidden sm:inline">Desempenho</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="templates"
-            className="gap-2 data-[state=active]:bg-card"
-          >
-            <FileStack className="w-4 h-4" />
-            <span className="hidden sm:inline">Templates</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="documents"
-            className="gap-2 data-[state=active]:bg-card"
-          >
-            <FileText className="w-4 h-4" />
-            <span className="hidden sm:inline">Documentos</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* Content */}
+      {activeTab === 'users' && (
+        <UsersManagement key={`users-${refreshKey}`} />
+      )}
 
-        <TabsContent value="users" className="mt-4">
-          <UsersManagement />
-        </TabsContent>
+      {activeTab === 'consultas' && (
+        <AdminConsultasContent key={`consultas-${refreshKey}`} />
+      )}
 
-        <TabsContent value="consultas" className="mt-4">
-          <AdminConsultasContent />
-        </TabsContent>
+      {activeTab === 'performance' && (
+        <UserPerformance key={`performance-${refreshKey}`} />
+      )}
 
-        <TabsContent value="performance" className="mt-4">
-          <UserPerformance />
-        </TabsContent>
+      {activeTab === 'templates' && (
+        <TemplatesManagement key={`templates-${refreshKey}`} />
+      )}
 
-        <TabsContent value="templates" className="mt-4">
-          <TemplatesManagement />
-        </TabsContent>
+      {activeTab === 'documents' && (
+        <DocumentsManager key={`docs-${refreshKey}`} />
+      )}
 
-        <TabsContent value="documents" className="mt-4">
-          <DocumentsManager />
-        </TabsContent>
-      </Tabs>
+      {activeTab === 'tickets' && (
+        <div className="bg-card rounded-2xl p-8 shadow-sm border text-center">
+          <Ticket className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Tickets</h3>
+          <p className="text-muted-foreground">
+            Sistema de tickets em desenvolvimento.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

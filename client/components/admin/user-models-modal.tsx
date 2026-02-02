@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +16,9 @@ import {
   Trash2,
   ToggleLeft,
   ToggleRight,
+  CreditCard,
+  Shield,
+  Building2,
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -35,10 +37,22 @@ interface UserModelsModalProps {
   userName?: string;
 }
 
-const MODEL_LABELS: Record<string, string> = {
-  credito: "💰 Crédito",
-  imobiliaria: "🏠 Imobiliária",
-  seguro: "🛡️ Seguros",
+const MODEL_CONFIG = {
+  credito: {
+    icon: CreditCard,
+    label: "Crédito",
+    color: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
+  },
+  imobiliaria: {
+    icon: Building2,
+    label: "Imobiliária",
+    color: "bg-orange-500/20 text-orange-700 dark:text-orange-300",
+  },
+  seguro: {
+    icon: Shield,
+    label: "Seguros",
+    color: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300",
+  },
 };
 
 const AVAILABLE_MODELS = [
@@ -183,18 +197,25 @@ export function UserModelsModal({
                       Nenhum modelo atribuído. Adicione um modelo abaixo.
                     </p>
                   ) : (
-                    userModels.map((model) => (
+                    userModels.map((model) => {
+                      const config = MODEL_CONFIG[model.modelType as keyof typeof MODEL_CONFIG];
+                      const Icon = config?.icon || CreditCard;
+                      return (
                       <div
                         key={model.id}
                         className="flex items-center justify-between gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                       >
                         <div className="flex flex-col gap-1 min-w-0">
-                          <Badge
-                            variant={model.isActive ? "default" : "secondary"}
-                            className="w-fit"
+                          <div
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium w-fit ${
+                              model.isActive
+                                ? config?.color || "bg-slate-500/20 text-slate-700"
+                                : "bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400"
+                            }`}
                           >
-                            {MODEL_LABELS[model.modelType]}
-                          </Badge>
+                            <Icon className="w-3.5 h-3.5" />
+                            <span>{config?.label || model.modelType}</span>
+                          </div>
                           <span className="text-xs text-muted-foreground">
                             Ativado em{" "}
                             {new Date(model.activatedAt).toLocaleDateString(
@@ -262,7 +283,8 @@ export function UserModelsModal({
                           </Button>
                         </div>
                       </div>
-                    ))
+                    );
+                    })
                   )}
                 </div>
               </div>
@@ -275,31 +297,35 @@ export function UserModelsModal({
                     {availableToAdd.length !== 1 ? "s" : ""})
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    {availableToAdd.map((model) => (
-                      <Button
-                        key={model.type}
-                        variant="outline"
-                        onClick={() => addModel(model.type)}
-                        disabled={actionLoading === model.type}
-                        className="gap-2 h-auto py-3"
-                      >
-                        {actionLoading === model.type ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <>
-                            <Plus className="w-4 h-4" />
-                            <div className="text-left">
-                              <div className="font-medium">
-                                {MODEL_LABELS[model.type]}
+                    {availableToAdd.map((model) => {
+                      const config = MODEL_CONFIG[model.type as keyof typeof MODEL_CONFIG];
+                      const Icon = config?.icon || CreditCard;
+                      return (
+                        <Button
+                          key={model.type}
+                          variant="outline"
+                          onClick={() => addModel(model.type)}
+                          disabled={actionLoading === model.type}
+                          className="gap-2 h-auto py-3"
+                        >
+                          {actionLoading === model.type ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Icon className="w-4 h-4" />
+                              <div className="text-left">
+                                <div className="font-medium">
+                                  {config?.label || model.type}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Adicionar
+                                </div>
                               </div>
-                              <div className="text-xs text-muted-foreground">
-                                Adicionar
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </Button>
-                    ))}
+                            </>
+                          )}
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

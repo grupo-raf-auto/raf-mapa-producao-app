@@ -51,56 +51,58 @@ export function ActivityChart() {
       </div>
 
       {/* Gráfico Simplificado */}
-      <ResponsiveContainer width="100%" height={200}>
-        <LineChart
-          data={data}
-          margin={{ top: 5, right: 5, left: -5, bottom: 5 }}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="#E5E7EB"
-            vertical={false}
-            opacity={0.5}
-          />
-          <XAxis
-            dataKey="name"
-            stroke="#9CA3AF"
-            style={{ fontSize: "11px" }}
-            tickLine={false}
-            axisLine={false}
-          />
-          <YAxis
-            stroke="#9CA3AF"
-            style={{ fontSize: "11px" }}
-            tickLine={false}
-            axisLine={false}
-            width={35}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E5E7EB",
-              borderRadius: "6px",
-              fontSize: "12px",
-              padding: "8px 12px",
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-            }}
-            labelStyle={{
-              fontSize: "11px",
-              color: "#6B7280",
-              marginBottom: "4px",
-            }}
-          />
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="#E14840"
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: "#E14840" }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <div className="w-full h-[200px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={data}
+            margin={{ top: 5, right: 5, left: -5, bottom: 5 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#E5E7EB"
+              vertical={false}
+              opacity={0.5}
+            />
+            <XAxis
+              dataKey="name"
+              stroke="#9CA3AF"
+              style={{ fontSize: "11px" }}
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis
+              stroke="#9CA3AF"
+              style={{ fontSize: "11px" }}
+              tickLine={false}
+              axisLine={false}
+              width={35}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                borderRadius: "6px",
+                fontSize: "12px",
+                padding: "8px 12px",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+              }}
+              labelStyle={{
+                fontSize: "11px",
+                color: "#6B7280",
+                marginBottom: "4px",
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="#E14840"
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, fill: "#E14840" }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

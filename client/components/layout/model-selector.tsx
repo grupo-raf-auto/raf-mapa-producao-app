@@ -1,38 +1,50 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useUserModels } from "@/lib/hooks/use-user-models";
-import { useModelContext } from "@/lib/context/model-context";
+import React, { useState, useEffect } from 'react';
+import { useUserModels } from '@/lib/hooks/use-user-models';
+import { useModelContext } from '@/lib/context/model-context';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Check, CreditCard, Shield, Building2, ChevronDown, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+} from '@/components/ui/dropdown-menu';
+import {
+  Check,
+  CreditCard,
+  Shield,
+  Building2,
+  ChevronDown,
+  Loader2,
+} from 'lucide-react';
+import { toast } from 'sonner';
 
 // Mapear tipos de modelo para ícones e labels
 const modelConfig = {
   credito: {
     icon: CreditCard,
-    label: "Crédito",
-    color: "bg-blue-500/20 text-blue-700 dark:text-blue-300 hover:bg-blue-500/30",
+    label: 'Crédito',
+    color:
+      'bg-blue-500/20 text-blue-700 dark:text-blue-300 hover:bg-blue-500/30',
   },
   seguro: {
     icon: Shield,
-    label: "Seguros",
-    color: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/30",
+    label: 'Seguros',
+    color:
+      'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/30',
   },
   imobiliaria: {
     icon: Building2,
-    label: "Imobiliária",
-    color: "bg-orange-500/20 text-orange-700 dark:text-orange-300 hover:bg-orange-500/30",
+    label: 'Imobiliária',
+    color:
+      'bg-orange-500/20 text-orange-700 dark:text-orange-300 hover:bg-orange-500/30',
   },
 };
 
 export function ModelSelector() {
   const { models, activeModel, switchModel, loading } = useUserModels();
+  console.log('🚀 ~ ModelSelector ~ activeModel:', activeModel);
+  console.log('🚀 ~ ModelSelector ~ models:', models);
   const { switchModel: contextSwitchModel } = useModelContext();
   const [isSwitching, setIsSwitching] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -42,15 +54,15 @@ export function ModelSelector() {
   }, []);
 
   // Log para debugging
-  if (typeof window !== "undefined") {
-    if (!window.__modelSelectorLogged) {
-      console.log("ModelSelector Debug:", {
+  if (typeof window !== 'undefined') {
+    if (!(window as any).__modelSelectorLogged) {
+      console.log('ModelSelector Debug:', {
         mounted,
         loading,
         modelsCount: models?.length,
         activeModel: activeModel?.id,
       });
-      window.__modelSelectorLogged = true;
+      (window as any).__modelSelectorLogged = true;
     }
   }
 
@@ -59,7 +71,7 @@ export function ModelSelector() {
     return (
       <div
         className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-200 dark:bg-slate-700 animate-pulse"
-        style={{ width: "120px", height: "28px" }}
+        style={{ width: '120px', height: '28px' }}
       />
     );
   }
@@ -77,7 +89,8 @@ export function ModelSelector() {
   }
 
   // Sempre renderizar o modelo ativo, independente de ser múltiplo ou não
-  const activeConfig = modelConfig[activeModel.modelType as keyof typeof modelConfig];
+  const activeConfig =
+    modelConfig[activeModel.modelType as keyof typeof modelConfig];
   const ActiveIcon = activeConfig?.icon || CreditCard;
   const hasMultipleModels = models.length > 1;
 
@@ -87,10 +100,10 @@ export function ModelSelector() {
     try {
       setIsSwitching(true);
       await contextSwitchModel(modelId);
-      toast.success("Modelo alterado com sucesso");
+      toast.success('Modelo alterado com sucesso');
     } catch (error) {
-      toast.error("Erro ao trocar modelo");
-      console.error("Error switching model:", error);
+      toast.error('Erro ao trocar modelo');
+      console.error('Error switching model:', error);
     } finally {
       setIsSwitching(false);
     }
@@ -100,7 +113,7 @@ export function ModelSelector() {
   if (!hasMultipleModels) {
     return (
       <div
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${activeConfig?.color || "bg-slate-500/20 text-slate-700 dark:text-slate-300"}`}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${activeConfig?.color || 'bg-slate-500/20 text-slate-700 dark:text-slate-300'}`}
         title="Modelo ativo"
       >
         <ActiveIcon className="w-3.5 h-3.5" />
@@ -114,7 +127,7 @@ export function ModelSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border border-transparent ${activeConfig?.color || "bg-slate-500/20 text-slate-700 dark:text-slate-300"} hover:border-border disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border border-transparent ${activeConfig?.color || 'bg-slate-500/20 text-slate-700 dark:text-slate-300'} hover:border-border disabled:opacity-50 disabled:cursor-not-allowed`}
           disabled={isSwitching || loading}
           title="Selecionar modelo"
         >
@@ -135,7 +148,8 @@ export function ModelSelector() {
 
       <DropdownMenuContent align="end" className="w-48">
         {models.map((model) => {
-          const config = modelConfig[model.modelType as keyof typeof modelConfig];
+          const config =
+            modelConfig[model.modelType as keyof typeof modelConfig];
           const Icon = config?.icon || CreditCard;
           const isActive = activeModel.id === model.id;
 

@@ -107,7 +107,7 @@ export function CashFlowStackedChart({
       </div>
 
       <div className="w-full h-[200px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
         <BarChart
           data={chartData}
           margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
@@ -304,7 +304,7 @@ export function NetVolumeChart({
 
       <div className="relative">
         <div className="w-full h-[180px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <LineChart
             data={chartData}
             margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
@@ -475,7 +475,7 @@ export function ReportsCompletionBar({
       </div>
 
       <div className="w-full h-[200px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
         <BarChart
           data={chartData}
           margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
@@ -555,7 +555,7 @@ export function CashFlowColumnChart({
       </div>
 
       <div className="w-full h-[200px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
         <ComposedChart
           data={chartData}
           margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
@@ -671,7 +671,7 @@ export function SalesTimelineChart({
       {/* Gráfico Simplificado - Apenas Valor Total */}
       <div className="relative">
         <div className="w-full h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <LineChart
             data={chartData}
             margin={{ top: 5, right: 5, left: -5, bottom: 5 }}

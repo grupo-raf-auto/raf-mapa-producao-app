@@ -60,7 +60,7 @@ export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
       {/* Donut Chart Simplificado */}
       <div className="flex flex-col items-center justify-center">
         <div className="w-full h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <PieChart>
               <Pie
                 data={topBancos.slice(0, 5)}

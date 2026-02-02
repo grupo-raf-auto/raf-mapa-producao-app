@@ -270,7 +270,7 @@ export function FillTemplateDialog({
             >
               {/* ScrollArea para muitas questões */}
               <div className="flex-1 overflow-hidden px-6">
-                <ScrollArea className="h-full w-full">
+                <ScrollArea className="h-full w-full px-2">
                   <div className="space-y-6 py-4 pr-4">
                     {questions.map((question, index) => (
                       <div key={question._id || `question-${index}`}>

@@ -12,6 +12,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import compression from "compression";
 import questionRoutes from "./routes/question.routes";
 import categoryRoutes from "./routes/category.routes";
 import templateRoutes from "./routes/template.routes";
@@ -27,20 +28,46 @@ import { authenticateUser } from "./middleware/auth.middleware";
 
 const app = express();
 const PORT = process.env.PORT || 3005;
+const isProduction = process.env.NODE_ENV === "production";
 
 // Trust proxy (required for X-Forwarded-For header from Next.js rewrites)
 app.set('trust proxy', 1);
 
-// Security middleware
-app.use(helmet());
+// Security middleware (only in production to avoid dev issues)
+if (isProduction) {
+  app.use(helmet({
+    contentSecurityPolicy: false, // Disable CSP for API server
+    crossOriginEmbedderPolicy: false,
+  }));
+}
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: "Too many requests from this IP, please try again later.",
-});
-app.use("/api/", limiter);
+// Compression middleware - reduces response size
+app.use(compression());
+
+// Rate limiting - configurable via env vars
+// For 250 users: ~10000 requests per 15 min window is reasonable
+const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"); // 15 min
+const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX || "10000"); // 10k requests per window
+const SKIP_RATE_LIMIT = process.env.SKIP_RATE_LIMIT === "true";
+
+if (!SKIP_RATE_LIMIT) {
+  const limiter = rateLimit({
+    windowMs: RATE_LIMIT_WINDOW_MS,
+    max: RATE_LIMIT_MAX,
+    message: {
+      error: "Too many requests",
+      retryAfter: Math.ceil(RATE_LIMIT_WINDOW_MS / 1000),
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Skip rate limiting for health checks
+    skip: (req) => req.path === "/health",
+  });
+  app.use("/api/", limiter);
+  console.log(`🔒 Rate limiting enabled: ${RATE_LIMIT_MAX} requests per ${RATE_LIMIT_WINDOW_MS / 1000}s window`);
+} else {
+  console.log("⚠️ Rate limiting DISABLED - use only for development/testing");
+}
 
 // Middleware
 app.use(
@@ -49,12 +76,25 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request timeout middleware
+app.use((req, res, next) => {
+  res.setTimeout(30000, () => { // 30 second timeout
+    res.status(408).json({ error: "Request timeout" });
+  });
+  next();
+});
 
 // Health check
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", message: "Server is running" });
+  res.json({ 
+    status: "ok", 
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
 });
 
 // API Routes (protegidas)
@@ -68,6 +108,11 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/documents", authenticateUser, documentRoutes);
 app.use("/api/scanner", authenticateUser, scannerRoutes);
 
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
 // Error handling middleware
 app.use(
   (
@@ -77,7 +122,17 @@ app.use(
     next: express.NextFunction,
   ) => {
     console.error("Error:", err);
-    res.status(500).json({ error: "Internal server error" });
+    
+    // Don't leak error details in production
+    if (isProduction) {
+      res.status(500).json({ error: "Internal server error" });
+    } else {
+      res.status(500).json({ 
+        error: "Internal server error",
+        message: err.message,
+        stack: err.stack,
+      });
+    }
   },
 );
 
@@ -91,10 +146,29 @@ async function initializeServer() {
 }
 
 // Start server
-app.listen(PORT, async () => {
+const server = app.listen(PORT, async () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📡 API available at http://localhost:${PORT}/api`);
+  console.log(`🏥 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔧 Environment: ${isProduction ? "production" : "development"}`);
 
   // Initialize after server starts
   await initializeServer();
+});
+
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down gracefully");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
+});
+
+process.on("SIGINT", () => {
+  console.log("SIGINT received, shutting down gracefully");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
 });

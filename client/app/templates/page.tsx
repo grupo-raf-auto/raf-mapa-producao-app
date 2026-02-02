@@ -3,7 +3,7 @@ import { TemplatesContent } from "@/components/templates/templates-content";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { api } from "@/lib/api";
+import { api } from "@/lib/api.server";
 
 export default async function TemplatesPage() {
   const session = await auth.api.getSession({ headers: await headers() });

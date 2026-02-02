@@ -57,7 +57,10 @@ export function ConsultasList({
       try {
         setLoading(true);
         // Buscar questões para encontrar "Valor", "Nome do Cliente", "Banco" e "Seguradora"
-        const allQuestions = await api.questions.getAll().catch(() => []);
+        // api.questions.getAll() já retorna array (unwrapped pelo api-client)
+        const questionsResponse = await api.questions.getAll().catch(() => []);
+        const allQuestions = Array.isArray(questionsResponse) ? questionsResponse : [];
+
         const valorQuestion = allQuestions.find(
           (q: any) => q.title === "Valor",
         );

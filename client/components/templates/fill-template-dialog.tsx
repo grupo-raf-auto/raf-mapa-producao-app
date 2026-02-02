@@ -273,7 +273,7 @@ export function FillTemplateDialog({
                 <ScrollArea className="h-full w-full">
                   <div className="space-y-6 py-4 pr-4">
                     {questions.map((question, index) => (
-                      <div key={question._id}>
+                      <div key={question._id || `question-${index}`}>
                         <FormField
                           control={form.control}
                           name={question._id || ""}

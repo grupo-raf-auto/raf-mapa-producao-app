@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { apiClient as api } from "@/lib/api-client";
-import { ConsultasWrapper } from "./consultas-wrapper";
-import { Spinner } from "@/components/ui/spinner";
-import { Card, CardContent } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
-import { Search, FileSearch } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { apiClient as api } from '@/lib/api-client';
+import { ConsultasWrapper } from './consultas-wrapper';
+import { Spinner } from '@/components/ui/spinner';
+import { Card, CardContent } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Search, FileSearch } from 'lucide-react';
 
 export function ConsultasContent() {
   const [submissions, setSubmissions] = useState<any[]>([]);
@@ -23,11 +23,12 @@ export function ConsultasContent() {
         api.submissions.getAll().catch(() => []),
         api.templates.getAll().catch(() => []),
       ]);
+      console.log('🚀 ~ loadData ~ submissionsData:', submissionsData);
       setSubmissions(submissionsData || []);
       setTemplates(templatesData || []);
     } catch (error: any) {
-      console.error("Error loading data:", error);
-      setError(error.message || "Erro ao carregar dados. Tente novamente.");
+      console.error('Error loading data:', error);
+      setError(error.message || 'Erro ao carregar dados. Tente novamente.');
     } finally {
       setLoading(false);
     }

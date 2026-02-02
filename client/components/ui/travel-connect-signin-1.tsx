@@ -9,6 +9,12 @@ import { authClient } from '@/lib/auth-client';
 import Link from 'next/link';
 import Image from 'next/image';
 
+const MODEL_OPTIONS = [
+  { value: 'credito', label: 'Crédito', emoji: '💰' },
+  { value: 'imobiliaria', label: 'Imobiliária', emoji: '🏠' },
+  { value: 'seguro', label: 'Seguros', emoji: '🛡️' },
+];
+
 type RoutePoint = {
   x: number;
   y: number;
@@ -207,6 +213,7 @@ const SignInCard = () => {
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerPasswordVisible, setRegisterPasswordVisible] = useState(false);
   const [registerEmail, setRegisterEmail] = useState('');
+  const [selectedModels, setSelectedModels] = useState<string[]>(['credito']);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -328,6 +335,26 @@ const SignInCard = () => {
         return;
       }
 
+      // Add selected models to user after signup
+      if (result.data?.user?.id && selectedModels.length > 0) {
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
+          for (const modelType of selectedModels) {
+            await fetch(`${apiUrl}/api/user-models/user/${result.data.user.id}/models`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include',
+              body: JSON.stringify({ modelType }),
+            });
+          }
+        } catch (modelError) {
+          console.error('Error adding models:', modelError);
+          // Don't fail signup if model addition fails
+        }
+      }
+
       toast.success('Conta criada com sucesso!');
       window.location.href = '/';
     } catch (err) {
@@ -349,7 +376,7 @@ const SignInCard = () => {
         className="w-full max-w-4xl overflow-hidden rounded-2xl flex bg-card shadow-xl border border-border/40"
       >
         {/* Left side - Branding with animated map */}
-        <div className="hidden md:flex md:w-1/2 relative overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-r border-border/40 h-[600px]">
+        <div className="hidden md:flex md:w-1/2 relative overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-r border-border/40">
           <div className="absolute inset-0">
             <DotMap />
           </div>
@@ -673,6 +700,57 @@ const SignInCard = () => {
                       Mínimo de 8 carateres
                     </p>
                   </div>
+
+                  {/* Model Selection */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-foreground">
+                      Modelo de Negócio <span className="text-destructive">*</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {MODEL_OPTIONS.map((model) => (
+                        <label
+                          key={model.value}
+                          className={cn(
+                            'flex flex-col items-center justify-center gap-1 p-3 rounded-lg border-2 cursor-pointer transition-all',
+                            selectedModels.includes(model.value)
+                              ? 'border-primary bg-primary/5'
+                              : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                          )}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedModels.includes(model.value)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedModels([...selectedModels, model.value]);
+                              } else {
+                                if (selectedModels.length > 1) {
+                                  setSelectedModels(
+                                    selectedModels.filter((m) => m !== model.value)
+                                  );
+                                }
+                              }
+                            }}
+                            disabled={loading}
+                            className="sr-only"
+                          />
+                          <span className="text-xl">{model.emoji}</span>
+                          <span className="text-xs font-medium text-foreground">
+                            {model.label}
+                          </span>
+                          {selectedModels.includes(model.value) && (
+                            <span className="text-[10px] text-primary font-medium">
+                              ✓ Selecionado
+                            </span>
+                          )}
+                        </label>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Selecione pelo menos um modelo. Pode alterar depois.
+                    </p>
+                  </div>
+
                   <motion.div
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}

@@ -156,14 +156,17 @@ export function ConsultasDataTable({
         api.questions.getAll().catch(() => []),
       ]);
 
-      const template = templates.find(
+      const templatesList = Array.isArray(templates) ? templates : [];
+      const questionsList = Array.isArray(allQuestions) ? allQuestions : [];
+
+      const template = templatesList.find(
         (t: any) => t._id === submission.templateId,
       );
       setTemplateData(template);
 
       if (template?.questions) {
         const questions = template.questions
-          .map((qId: string) => allQuestions.find((q: any) => q._id === qId))
+          .map((qId: string) => questionsList.find((q: any) => q._id === qId))
           .filter(Boolean);
         setQuestionsData(questions);
 

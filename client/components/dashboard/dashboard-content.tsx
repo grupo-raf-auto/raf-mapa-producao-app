@@ -1,6 +1,6 @@
 import { KPICards } from "./kpi-cards";
 import { DashboardChartsWrapper } from "./dashboard-charts-wrapper";
-import { api } from "@/lib/api";
+import { api } from "@/lib/api.server";
 import { DashboardHeader } from "@/components/ui/dashboard-header";
 
 export async function DashboardContent() {

@@ -135,6 +135,17 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
     result = await res.text();
   }
 
+  // Unwrap API response if it has the { success: true, data: ... } format
+  if (result && typeof result === "object" && "success" in result && "data" in result) {
+    result = result.data;
+  }
+
+  // Unwrap paginated response if it has { items: [...], total, ... } format
+  // This normalizes the response so consumers always get arrays for list endpoints
+  if (result && typeof result === "object" && "items" in result && Array.isArray(result.items)) {
+    result = result.items;
+  }
+
   // Cache successful GET responses
   if (method === "GET") {
     setCachedData(cacheKey, result);
@@ -373,6 +384,50 @@ export const apiClient = {
         method: "DELETE",
       });
       invalidateCache("documents");
+      return result;
+    },
+  },
+  // NEW: User Models management
+  userModels: {
+    getMyModels: async () => {
+      return fetchWithAuth("user-models/my-models");
+    },
+    switchModel: async (modelId: string) => {
+      const result = await fetchWithAuth(`user-models/switch-model/${modelId}`, {
+        method: "POST",
+      });
+      invalidateCache("user-models");
+      return result;
+    },
+    getUserModels: async (userId: string) => {
+      return fetchWithAuth(`user-models/user/${userId}/models`);
+    },
+    addModelToUser: async (userId: string, modelType: string) => {
+      const result = await fetchWithAuth(`user-models/user/${userId}/models`, {
+        method: "POST",
+        body: JSON.stringify({ modelType }),
+      });
+      invalidateCache("user-models");
+      return result;
+    },
+    removeModelFromUser: async (userId: string, modelId: string) => {
+      const result = await fetchWithAuth(
+        `user-models/user/${userId}/models/${modelId}`,
+        {
+          method: "DELETE",
+        }
+      );
+      invalidateCache("user-models");
+      return result;
+    },
+    toggleModelStatus: async (userId: string, modelId: string) => {
+      const result = await fetchWithAuth(
+        `user-models/user/${userId}/models/${modelId}/toggle`,
+        {
+          method: "PATCH",
+        }
+      );
+      invalidateCache("user-models");
       return result;
     },
   },

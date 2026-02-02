@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useUserRole } from "@/lib/hooks/use-user-role";
+import { ModelSwitcher } from "./model-switcher";
 
 export function Topbar() {
   const router = useRouter();
@@ -26,6 +27,9 @@ export function Topbar() {
         </div>
       </div>
       <div className="ml-auto flex items-center gap-4">
+        {/* NEW: Model Switcher */}
+        <ModelSwitcher />
+
         {!loading && userRole === "admin" && (
           <Button
             onClick={() => router.push("/admin")}

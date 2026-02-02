@@ -47,10 +47,17 @@ interface Document {
   chunksCount?: number;
 }
 
+interface UploadingFile {
+  id: string;
+  name: string;
+  size: number;
+}
+
 export function DocumentsManager() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
 
@@ -113,9 +120,16 @@ export function DocumentsManager() {
       return;
     }
 
+    const uploadingFile: UploadingFile = {
+      id: `uploading-${Date.now()}`,
+      name: file.name,
+      size: file.size,
+    };
+
     try {
       setUploading(true);
-      const result = await api.documents.upload(file);
+      setUploadingFiles((prev) => [...prev, uploadingFile]);
+      await api.documents.upload(file);
       toast.success(
         "Documento enviado com sucesso! Processamento em andamento...",
       );
@@ -126,6 +140,7 @@ export function DocumentsManager() {
       toast.error("Erro ao fazer upload: " + error.message);
     } finally {
       setUploading(false);
+      setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadingFile.id));
     }
   };
 
@@ -276,11 +291,11 @@ export function DocumentsManager() {
             </p>
           </div>
 
-          {loading ? (
+          {loading && uploadingFiles.length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
             </div>
-          ) : documents.length === 0 ? (
+          ) : documents.length === 0 && uploadingFiles.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-12">
               Nenhum documento indexado ainda
             </p>
@@ -298,6 +313,49 @@ export function DocumentsManager() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
+                  {uploadingFiles.map((file) => (
+                    <TableRow key={file.id} className="bg-muted/30">
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-5 h-5 text-muted-foreground" />
+                          <div>
+                            <div className="font-medium">
+                              {file.name.length > 40
+                                ? `${file.name.substring(0, 40)}...`
+                                : file.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              .{getFileExtension(file.name)}
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{formatFileSize(file.size)}</TableCell>
+                      <TableCell>-</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className="bg-blue-50 text-blue-700 border-blue-200"
+                        >
+                          <Spinner variant="bars" className="w-3 h-3 mr-1" />
+                          A carregar...
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        -
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          disabled
+                          className="opacity-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                   {documents.map((doc) => (
                     <TableRow key={doc._id}>
                       <TableCell>

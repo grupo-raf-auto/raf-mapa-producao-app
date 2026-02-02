@@ -135,7 +135,7 @@ export function MySabichaoContent() {
 
       {/* Chat Interface */}
       <div className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden mb-12">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
           <AnimatedAIChat
             value={input}
             onChange={setInput}

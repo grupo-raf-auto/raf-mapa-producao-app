@@ -77,6 +77,206 @@ export interface CommandSuggestion {
   action: string;
 }
 
+// Helper function to format message content with better styling
+function formatMessageContent(content: string, role: 'user' | 'assistant') {
+  if (role === 'user') {
+    return content;
+  }
+
+  // Split by newlines
+  const lines = content.split('\n');
+  const result: JSX.Element[] = [];
+  let currentListItems: { type: 'bullet' | 'numbered'; text: JSX.Element[]; key: number }[] = [];
+  let listKeyCounter = 0;
+
+  const flushList = () => {
+    if (currentListItems.length > 0) {
+      const isNumbered = currentListItems[0].type === 'numbered';
+      result.push(
+        <ul
+          key={`list-${listKeyCounter++}`}
+          className={cn(
+            'my-3 space-y-1.5',
+            isNumbered ? 'list-decimal' : 'list-none'
+          )}
+        >
+          {currentListItems.map((item, idx) => (
+            <li key={item.key} className={cn(
+              'text-sm leading-relaxed pl-1',
+              isNumbered ? 'ml-4' : 'ml-2'
+            )}>
+              {!isNumbered && (
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60 mr-2 align-middle"></span>
+              )}
+              {item.text}
+            </li>
+          ))}
+        </ul>
+      );
+      currentListItems = [];
+    }
+  };
+
+  lines.forEach((line, index) => {
+    // Check for headers (# Header)
+    if (line.startsWith('### ')) {
+      flushList();
+      result.push(
+        <h3 key={index} className="font-semibold text-base mt-4 mb-2 text-foreground">
+          {line.replace('### ', '')}
+        </h3>
+      );
+      return;
+    }
+    if (line.startsWith('## ')) {
+      flushList();
+      result.push(
+        <h2 key={index} className="font-bold text-lg mt-4 mb-2 text-foreground">
+          {line.replace('## ', '')}
+        </h2>
+      );
+      return;
+    }
+    if (line.startsWith('# ')) {
+      flushList();
+      result.push(
+        <h1 key={index} className="font-bold text-xl mt-4 mb-2 text-foreground">
+          {line.replace('# ', '')}
+        </h1>
+      );
+      return;
+    }
+
+    // Check for bullet points (- item or * item)
+    if (line.startsWith('- ') || line.startsWith('* ')) {
+      const textParts = parseInlineFormatting(line.substring(2));
+      currentListItems.push({
+        type: 'bullet',
+        text: textParts,
+        key: index
+      });
+      return;
+    }
+
+    // Check for numbered lists (1. item)
+    const numberedMatch = line.match(/^(\d+)\.\s+(.+)/);
+    if (numberedMatch) {
+      const textParts = parseInlineFormatting(numberedMatch[2]);
+      currentListItems.push({
+        type: 'numbered',
+        text: textParts,
+        key: index
+      });
+      return;
+    }
+
+    // Check for horizontal rule (---)
+    if (line.match(/^[-*_]{3,}$/)) {
+      flushList();
+      result.push(<hr key={index} className="my-4 border-border/50" />);
+      return;
+    }
+
+    // Check for blockquotes (> text)
+    if (line.startsWith('> ')) {
+      flushList();
+      result.push(
+        <blockquote key={index} className="border-l-2 border-primary/50 pl-4 my-3 text-sm text-muted-foreground italic">
+          {line.substring(2)}
+        </blockquote>
+      );
+      return;
+    }
+
+    // Check for multi-line code block start
+    if (line.startsWith('```')) {
+      flushList();
+      const codeContent = line.slice(3);
+      if (codeContent && codeContent.endsWith('```')) {
+        result.push(
+          <pre key={index} className="my-3 p-4 bg-muted/50 rounded-xl overflow-x-auto border border-border/50">
+            <code className="text-xs font-mono text-foreground/90">
+              {codeContent.slice(0, -3)}
+            </code>
+          </pre>
+        );
+      }
+      return;
+    }
+
+    // Regular paragraph
+    flushList();
+    if (line.trim() === '') {
+      result.push(<br key={index} />);
+    } else {
+      const textParts = parseInlineFormatting(line);
+      result.push(
+        <p key={index} className="my-2 text-sm leading-relaxed text-foreground/90">
+          {textParts}
+        </p>
+      );
+    }
+  });
+
+  flushList();
+  return result;
+}
+
+// Helper to parse inline formatting (bold, code, links)
+function parseInlineFormatting(text: string): (string | JSX.Element)[] {
+  const parts: (string | JSX.Element)[] = [];
+  const regex = /(\*\*.+?\*\*|`[^`]+`|\[.+?\]\(.+?\))/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    // Add text before match
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+
+    const matched = match[0];
+
+    if (matched.startsWith('**') && matched.endsWith('**')) {
+      parts.push(
+        <strong key={match.index} className="font-semibold text-foreground">
+          {matched.slice(2, -2)}
+        </strong>
+      );
+    } else if (matched.startsWith('`') && matched.endsWith('`')) {
+      parts.push(
+        <code key={match.index} className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono text-foreground">
+          {matched.slice(1, -1)}
+        </code>
+      );
+    } else if (matched.startsWith('[') && matched.includes('](')) {
+      const linkMatch = matched.match(/\[(.+?)\]\((.+?)\)/);
+      if (linkMatch) {
+        parts.push(
+          <a
+            key={match.index}
+            href={linkMatch[2]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            {linkMatch[1]}
+          </a>
+        );
+      }
+    }
+
+    lastIndex = regex.lastIndex;
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+
+  return parts;
+}
+
 const DEFAULT_COMMAND_SUGGESTIONS: CommandSuggestion[] = [
   {
     icon: <FileText className="w-4 h-4" />,
@@ -300,7 +500,8 @@ export function AnimatedAIChat({
       {/* Messages Area */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-8 min-h-0 bg-gradient-to-b from-background via-background to-background/80"
+        className="flex-1 overflow-y-auto px-4 sm:px-6 py-8 min-h-0 bg-gradient-to-b from-background via-background to-background/80"
+        style={{ touchAction: 'pan-y' }}
       >
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-8 max-w-2xl mx-auto">
@@ -310,30 +511,33 @@ export function AnimatedAIChat({
               transition={{ duration: 0.5, ease: 'easeOut' }}
               className="space-y-4"
             >
+              <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-red-500/20 to-red-600/10 flex items-center justify-center shadow-lg">
+                <Bot className="w-10 h-10 text-red-600" />
+              </div>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
                 Olá,{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">
                   {userName}
                 </span>
               </h2>
-              <p className="text-base text-muted-foreground/80 font-medium">
+              <p className="text-base text-muted-foreground/80 font-medium max-w-md mx-auto">
                 Como posso ajudar-te hoje?
               </p>
             </motion.div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full pt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full pt-6">
               {suggestions.map((suggestion, index) => (
                 <motion.button
                   key={suggestion.prefix}
                   onClick={() => handleQuickAction(suggestion.action)}
-                  className="flex flex-col items-start gap-3 p-5 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm hover:bg-card/80 hover:border-red-400/50 transition-all duration-300 text-left group shadow-sm hover:shadow-md cursor-pointer"
+                  className="flex flex-col items-start gap-3 p-4 rounded-2xl border border-border/40 bg-gradient-to-br from-white to-slate-50/50 backdrop-blur-sm hover:from-red-50/50 hover:to-slate-50 hover:border-red-400/50 transition-all duration-300 text-left group shadow-sm hover:shadow-md cursor-pointer"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.06, ease: 'easeOut' }}
                   whileHover={{ y: -2 }}
                 >
-                  <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-red-500/15 to-red-400/10 flex items-center justify-center text-red-600 group-hover:from-red-500/25 group-hover:to-red-400/15 transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500/15 to-red-400/10 flex items-center justify-center text-red-600 group-hover:from-red-500/25 group-hover:to-red-400/15 transition-all duration-300">
                     {suggestion.icon}
                   </div>
                   <div className="w-full">
@@ -367,7 +571,7 @@ export function AnimatedAIChat({
               <motion.div
                 key={message.id}
                 className={cn(
-                  'flex gap-3.5',
+                  'flex gap-3',
                   message.role === 'user' ? 'flex-row-reverse' : 'flex-row',
                 )}
                 initial={{ opacity: 0, y: 12 }}
@@ -381,31 +585,44 @@ export function AnimatedAIChat({
                 {/* Avatar */}
                 <div
                   className={cn(
-                    'w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border font-semibold text-sm',
+                    'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border font-semibold text-sm',
                     message.role === 'user'
-                      ? 'bg-gradient-to-br from-red-600 to-red-700 text-white border-red-500/30 shadow-sm'
-                      : 'bg-gradient-to-br from-slate-100 to-slate-50 text-slate-600 border-slate-200/60 shadow-xs',
+                      ? 'bg-gradient-to-br from-red-600 to-red-700 text-white border-red-500/30 shadow-md'
+                      : 'bg-gradient-to-br from-slate-50 to-slate-100 text-slate-600 border-slate-200 shadow-sm',
                   )}
                 >
                   {message.role === 'user' ? (
-                    <User className="w-4 h-4" />
+                    <User className="w-5 h-5" />
                   ) : (
-                    <Bot className="w-4 h-4" />
+                    <Bot className="w-5 h-5" />
                   )}
                 </div>
 
                 {/* Message */}
-                <div
-                  className={cn(
-                    'max-w-[80%] sm:max-w-[72%] rounded-xl px-5 py-3.5',
-                    message.role === 'user'
-                      ? 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-md'
-                      : 'bg-slate-50 text-foreground border border-slate-200/80 shadow-sm',
+                <div className="flex flex-col gap-1.5">
+                  {message.role === 'assistant' && (
+                    <span className="text-xs text-muted-foreground/60 font-medium ml-1">
+                      MySabichão
+                    </span>
                   )}
-                >
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed font-medium">
-                    {message.content}
-                  </p>
+                  <div
+                    className={cn(
+                      'max-w-[85%] sm:max-w-[75%] rounded-2xl px-5 py-4',
+                      message.role === 'user'
+                        ? 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg'
+                        : 'bg-gradient-to-br from-white to-slate-50 text-foreground border border-border/50 shadow-sm',
+                    )}
+                  >
+                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                      {formatMessageContent(message.content, message.role)}
+                    </div>
+                  </div>
+                  <span className={cn(
+                    'text-[10px] text-muted-foreground/50',
+                    message.role === 'user' ? 'text-right mr-1' : 'ml-1'
+                  )}>
+                    {message.timestamp.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
               </motion.div>
             ))}
@@ -416,11 +633,16 @@ export function AnimatedAIChat({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0 border border-border/50">
-                  <Bot className="w-4 h-4 text-muted-foreground" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 text-slate-600 border border-slate-200 shadow-sm flex items-center justify-center shrink-0">
+                  <Bot className="w-5 h-5" />
                 </div>
-                <div className="bg-muted/60 rounded-lg px-4 py-2.5 border border-border/50">
-                  <TypingDots />
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs text-muted-foreground/60 font-medium ml-1">
+                    MySabichão
+                  </span>
+                  <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl px-5 py-4 border border-border/50 shadow-sm">
+                    <TypingDots />
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -438,7 +660,7 @@ export function AnimatedAIChat({
               {showCommandPalette && (
                 <motion.div
                   ref={commandPaletteRef}
-                  className="absolute left-0 right-0 bottom-full mb-3 bg-white rounded-xl z-50 shadow-lg border border-slate-200/80 overflow-hidden"
+                  className="absolute left-0 right-0 bottom-full mb-3 bg-white rounded-2xl z-50 shadow-xl border border-border/60 overflow-hidden"
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
@@ -449,7 +671,7 @@ export function AnimatedAIChat({
                       <div
                         key={suggestion.prefix}
                         className={cn(
-                          'flex items-center gap-2 px-3 py-2 text-xs transition-colors cursor-pointer',
+                          'flex items-center gap-2 px-4 py-3 text-xs transition-colors cursor-pointer',
                           activeSuggestion === index
                             ? 'bg-primary/10 text-foreground'
                             : 'text-muted-foreground hover:bg-muted/50',
@@ -471,7 +693,7 @@ export function AnimatedAIChat({
             </AnimatePresence>
 
             {/* Input Container */}
-            <div className="relative bg-card rounded-lg border border-border/60 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/10 transition-all shadow-sm">
+            <div className="relative bg-white rounded-2xl border border-border/60 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all shadow-sm">
               {/* Textarea */}
               <div className="p-4">
                 <textarea
@@ -506,8 +728,9 @@ export function AnimatedAIChat({
                     'min-h-[56px] leading-relaxed',
                   )}
                   style={{
-                    overflow: 'hidden',
+                    overflowY: 'auto',
                     scrollMargin: 0,
+                    touchAction: 'pan-y',
                   }}
                 />
               </div>
@@ -548,7 +771,7 @@ export function AnimatedAIChat({
                   <button
                     type="button"
                     onClick={handleAttachFile}
-                    className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                    className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all"
                     title="Anexar ficheiro"
                   >
                     <Paperclip className="w-4 h-4" />
@@ -561,7 +784,7 @@ export function AnimatedAIChat({
                       setShowCommandPalette((prev) => !prev);
                     }}
                     className={cn(
-                      'p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors',
+                      'p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all',
                       showCommandPalette && 'bg-primary/10 text-foreground',
                     )}
                     title="Comandos"
@@ -575,11 +798,11 @@ export function AnimatedAIChat({
                   onClick={handleSendMessage}
                   disabled={loading || !value.trim()}
                   className={cn(
-                    'px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer',
+                    'px-5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer',
                     'flex items-center gap-2',
                     'disabled:opacity-50 disabled:cursor-not-allowed',
                     value.trim() && !loading
-                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
+                      ? 'bg-gradient-to-r from-primary to-red-600 text-white hover:shadow-md'
                       : 'bg-muted text-muted-foreground',
                   )}
                 >
@@ -601,19 +824,19 @@ export function AnimatedAIChat({
 
 function TypingDots() {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1.5">
       {[0, 1, 2].map((dot) => (
         <motion.div
           key={dot}
-          className="w-1.5 h-1.5 bg-muted-foreground rounded-full"
+          className="w-2 h-2 bg-primary/60 rounded-full"
           animate={{
-            opacity: [0.4, 1, 0.4],
-            scale: [1, 1.2, 1],
+            opacity: [0.3, 1, 0.3],
+            scale: [0.9, 1.1, 0.9],
           }}
           transition={{
-            duration: 1.2,
+            duration: 1,
             repeat: Infinity,
-            delay: dot * 0.2,
+            delay: dot * 0.15,
             ease: 'easeInOut',
           }}
         />

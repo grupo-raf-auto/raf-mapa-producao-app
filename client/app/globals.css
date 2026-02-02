@@ -920,8 +920,8 @@
 
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -930,11 +930,41 @@
 
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 3px;
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted-foreground);
+}
+
+/* Ensure scrollable areas work properly across entire width */
+.overflow-y-auto,
+[style*="overflowY: auto"] {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+/* Ensure clickable areas in scrollable containers work properly */
+.overflow-y-auto button,
+.overflow-y-auto a,
+.overflow-y-auto input,
+.overflow-y-auto textarea,
+.overflow-y-auto [role="button"],
+[style*="overflowY: auto"] button,
+[style*="overflowY: auto"] a,
+[style*="overflowY: auto"] input,
+[style*="overflowY: auto"] textarea,
+[style*="overflowY: auto"] [role="button"] {
+  touch-action: manipulation;
+  pointer-events: auto;
+}
+
+/* Ensure entire scrollable area is interactive */
+.overflow-y-auto > *,
+[style*="overflowY: auto"] > * {
+  pointer-events: auto;
 }
 
 /* Focus Prevention */

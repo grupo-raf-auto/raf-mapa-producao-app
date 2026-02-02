@@ -36,9 +36,9 @@ interface UserModelsModalProps {
 }
 
 const MODEL_LABELS: Record<string, string> = {
-  credito: "Crédito",
-  imobiliaria: "Imobiliária",
-  seguro: "Seguros",
+  credito: "💰 Crédito",
+  imobiliaria: "🏠 Imobiliária",
+  seguro: "🛡️ Seguros",
 };
 
 const AVAILABLE_MODELS = [
@@ -156,10 +156,10 @@ export function UserModelsModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Error Alert */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded p-3 flex items-start gap-2">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
               <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-red-800">{error}</div>
             </div>
@@ -174,34 +174,40 @@ export function UserModelsModal({
             <>
               {/* Active Models */}
               <div>
-                <h3 className="font-semibold mb-2 text-sm text-foreground">
+                <h3 className="font-semibold mb-3 text-sm">
                   Modelos Ativos ({userModels.length})
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {userModels.length === 0 ? (
-                    <p className="text-sm text-muted-foreground py-2">
-                      Nenhum modelo atribuído.
+                    <p className="text-sm text-muted-foreground italic py-4">
+                      Nenhum modelo atribuído. Adicione um modelo abaixo.
                     </p>
                   ) : (
                     userModels.map((model) => (
                       <div
                         key={model.id}
-                        className="flex items-center justify-between px-3 py-2 bg-slate-50 rounded border border-slate-200 hover:bg-slate-100 transition-colors"
+                        className="flex items-center justify-between gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                       >
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm">
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <Badge
+                            variant={model.isActive ? "default" : "secondary"}
+                            className="w-fit"
+                          >
                             {MODEL_LABELS[model.modelType]}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Ativado em {new Date(model.activatedAt).toLocaleDateString("pt-PT")}
-                          </div>
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            Ativado em{" "}
+                            {new Date(model.activatedAt).toLocaleDateString(
+                              "pt-PT"
+                            )}
+                          </span>
                         </div>
 
-                        <div className="flex gap-1 ml-2 shrink-0">
+                        <div className="flex gap-2 shrink-0">
                           {/* Toggle Status Button */}
                           <Button
                             size="sm"
-                            variant="ghost"
+                            variant="outline"
                             onClick={() =>
                               toggleModel(model.id, model.modelType)
                             }
@@ -209,28 +215,36 @@ export function UserModelsModal({
                               actionLoading === model.id ||
                               (userModels.length === 1 && model.isActive)
                             }
-                            className="p-1.5 h-auto"
+                            className="gap-2"
                             title={
                               userModels.length === 1 && model.isActive
                                 ? "Não pode desativar o último modelo ativo"
                                 : model.isActive
-                                  ? "Desativar"
-                                  : "Ativar"
+                                  ? "Desativar modelo (mantém histórico)"
+                                  : "Ativar modelo"
                             }
                           >
                             {actionLoading === model.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : model.isActive ? (
-                              <ToggleRight className="w-4 h-4" />
+                              <>
+                                <ToggleRight className="w-4 h-4" />
+                                <span className="hidden sm:inline">
+                                  Desativar
+                                </span>
+                              </>
                             ) : (
-                              <ToggleLeft className="w-4 h-4" />
+                              <>
+                                <ToggleLeft className="w-4 h-4" />
+                                <span className="hidden sm:inline">Ativar</span>
+                              </>
                             )}
                           </Button>
 
                           {/* Remove Button */}
                           <Button
                             size="sm"
-                            variant="ghost"
+                            variant="destructive"
                             onClick={() =>
                               removeModel(model.id, model.modelType)
                             }
@@ -238,7 +252,7 @@ export function UserModelsModal({
                               actionLoading === model.id ||
                               (userModels.length === 1 && model.isActive)
                             }
-                            className="p-1.5 h-auto text-destructive hover:text-destructive hover:bg-destructive/10"
+                            className="p-2"
                           >
                             {actionLoading === model.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -256,24 +270,32 @@ export function UserModelsModal({
               {/* Add New Model */}
               {availableToAdd.length > 0 && (
                 <div>
-                  <h3 className="font-semibold mb-2 text-sm text-foreground">
-                    Adicionar Modelo ({availableToAdd.length})
+                  <h3 className="font-semibold mb-3 text-sm">
+                    Adicionar Modelo ({availableToAdd.length} disponível
+                    {availableToAdd.length !== 1 ? "s" : ""})
                   </h3>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {availableToAdd.map((model) => (
                       <Button
                         key={model.type}
                         variant="outline"
                         onClick={() => addModel(model.type)}
                         disabled={actionLoading === model.type}
-                        className="h-auto py-2"
+                        className="gap-2 h-auto py-3"
                       >
                         {actionLoading === model.type ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
                           <>
-                            <Plus className="w-3 h-3 mr-1.5" />
-                            <span className="text-xs">{MODEL_LABELS[model.type]}</span>
+                            <Plus className="w-4 h-4" />
+                            <div className="text-left">
+                              <div className="font-medium">
+                                {MODEL_LABELS[model.type]}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Adicionar
+                              </div>
+                            </div>
                           </>
                         )}
                       </Button>
@@ -281,6 +303,27 @@ export function UserModelsModal({
                   </div>
                 </div>
               )}
+
+              {/* Info Message */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                  <div className="text-sm text-blue-800 space-y-1">
+                    <strong>Informações importantes:</strong>
+                    <ul className="list-disc list-inside text-xs space-y-0.5">
+                      <li>
+                        <strong>Desativar:</strong> O modelo fica inativo mas o histórico é mantido. Pode ser reativado depois.
+                      </li>
+                      <li>
+                        <strong>Remover:</strong> O modelo é eliminado completamente. Os dados são perdidos e não pode ser revertido.
+                      </li>
+                      <li>
+                        O utilizador deve ter <strong>pelo menos 1 modelo ativo</strong> em qualquer momento.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </>
           )}
         </div>

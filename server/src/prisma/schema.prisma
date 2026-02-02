@@ -37,10 +37,115 @@ model User {
   createdQuestions  Question[]
   createdTemplates  Template[]
 
+  // NEW: Relação com modelos de usuário (credito, imobiliaria, seguro)
+  userModels    UserModel[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("user")
+}
+
+// ============ User Models System ============
+// Tabela de junção para relacionar usuários a modelos de negócio
+model UserModel {
+  id        String   @id @default(cuid())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  modelType String   // "credito" | "imobiliaria" | "seguro"
+  isActive  Boolean  @default(true)
+
+  // Referências aos perfis específicos do modelo (apenas um será preenchido por UserModel)
+  creditoProfileId     String?          @unique
+  creditoProfile       CreditoProfile?  @relation(fields: [creditoProfileId], references: [id], onDelete: Cascade)
+
+  imobiliariaProfileId String?          @unique
+  imobiliariaProfile   ImobiliariaProfile? @relation(fields: [imobiliariaProfileId], references: [id], onDelete: Cascade)
+
+  seguroProfileId      String?          @unique
+  seguroProfile        SeguroProfile?   @relation(fields: [seguroProfileId], references: [id], onDelete: Cascade)
+
+  // Metadados
+  activatedAt DateTime  @default(now())
+  activatedBy String?   // ID do admin que ativou este modelo para o usuário
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, modelType]) // Um usuário pode ter apenas uma instância de cada tipo de modelo
+  @@index([userId])
+  @@index([modelType])
+  @@map("user_model")
+}
+
+// Perfil específico para usuários de Crédito
+model CreditoProfile {
+  id               String   @id @default(cuid())
+
+  // Dados específicos do perfil
+  licenseNumber    String?
+  registrationDate DateTime?
+  specialization   String[] // Tipos de crédito que se especializam
+
+  // Métricas de negócio
+  totalProduction  Decimal  @default(0) @db.Decimal(12, 2)
+  activeClients    Int      @default(0)
+
+  // Relações
+  creditoSubmissions FormSubmission[]
+  userModel        UserModel?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("credito_profile")
+}
+
+// Perfil específico para usuários de Imobiliária
+model ImobiliariaProfile {
+  id             String   @id @default(cuid())
+
+  // Dados específicos do perfil
+  agencyName     String?
+  licenseNumber  String?
+  propertyTypes  String[] // residential, commercial, industrial
+
+  // Métricas de negócio
+  totalSales     Decimal  @default(0) @db.Decimal(12, 2)
+  activeListings Int      @default(0)
+
+  // Relações
+  imobiliariaSubmissions FormSubmission[]
+  userModel      UserModel?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("imobiliaria_profile")
+}
+
+// Perfil específico para usuários de Seguros
+model SeguroProfile {
+  id             String   @id @default(cuid())
+
+  // Dados específicos do perfil
+  licenseNumber  String?
+  insuranceTypes String[] // life, health, auto, property
+
+  // Métricas de negócio
+  totalPremiums  Decimal  @default(0) @db.Decimal(12, 2)
+  activePolicies Int      @default(0)
+
+  // Relações
+  seguroSubmissions FormSubmission[]
+  userModel      UserModel?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("seguro_profile")
 }
 
 model Session {
@@ -189,10 +294,24 @@ model FormSubmission {
   submittedBy String
   user        User     @relation(fields: [submittedBy], references: [id], onDelete: Cascade)
 
+  // NEW: Contexto de modelo - qual modelo estava ativo quando foi submetido
+  modelContext String?  // "credito" | "imobiliaria" | "seguro"
+
+  // NEW: Referências opcionais aos perfis específicos do modelo
+  creditoProfileId     String?
+  creditoProfile       CreditoProfile?  @relation(fields: [creditoProfileId], references: [id], onDelete: SetNull)
+
+  imobiliariaProfileId String?
+  imobiliariaProfile   ImobiliariaProfile? @relation(fields: [imobiliariaProfileId], references: [id], onDelete: SetNull)
+
+  seguroProfileId      String?
+  seguroProfile        SeguroProfile?   @relation(fields: [seguroProfileId], references: [id], onDelete: SetNull)
+
   submittedAt DateTime @default(now())
 
   @@index([templateId])
   @@index([submittedBy])
+  @@index([modelContext]) // NEW: Para filtrar por modelo
   @@map("submission")
 }
 

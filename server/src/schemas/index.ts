@@ -5,6 +5,7 @@ import {
   STRING_DESCRIPTION_MAX_LENGTH,
   INPUT_TYPES,
   VALID_STATUSES,
+  VALID_USER_STATUSES,
   ALLOWED_DOCUMENT_MIME_TYPES,
   VALID_CHAT_CONTEXTS,
   VALID_ROLES,
@@ -85,6 +86,7 @@ export const updateUserSchema = z.object({
   firstName: z.string().max(100).optional(),
   lastName: z.string().max(100).optional(),
   role: z.enum(VALID_ROLES).optional(),
+  status: z.enum(VALID_USER_STATUSES).optional(),
   isActive: z.boolean().optional(),
 });
 

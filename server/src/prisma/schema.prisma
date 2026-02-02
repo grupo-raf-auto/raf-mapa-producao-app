@@ -21,6 +21,7 @@ model User {
   firstName     String?
   lastName      String?
   role          String    @default("user") // admin | user
+  status        String    @default("pending") // pending | approved | rejected
   isActive      Boolean   @default(true)
 
   // Relações de autenticação
@@ -244,6 +245,9 @@ model Template {
   isDefault   Boolean  @default(false)
   isPublic    Boolean  @default(false)
 
+  // Associação com modelo de usuário (credito | imobiliaria | seguro)
+  modelType   String?  // "credito" | "imobiliaria" | "seguro" - null = disponível para todos
+
   // Relação com criador
   createdBy String?
   creator   User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
@@ -261,6 +265,7 @@ model Template {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([modelType])
   @@map("template")
 }
 

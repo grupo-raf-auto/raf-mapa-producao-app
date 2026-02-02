@@ -51,6 +51,12 @@ export const STATUS_ACTIVE = "active";
 export const STATUS_INACTIVE = "inactive";
 export const VALID_STATUSES = [STATUS_ACTIVE, STATUS_INACTIVE] as const;
 
+// ============ USER STATUS ============
+export const USER_STATUS_PENDING = "pending";
+export const USER_STATUS_APPROVED = "approved";
+export const USER_STATUS_REJECTED = "rejected";
+export const VALID_USER_STATUSES = [USER_STATUS_PENDING, USER_STATUS_APPROVED, USER_STATUS_REJECTED] as const;
+
 // ============ INPUT TYPES ============
 export const INPUT_TYPES = [
   "text",
@@ -83,3 +89,9 @@ export const COLOR_HEX_REGEX = /^#[0-9A-F]{6}$/i;
 
 // ============ LOGGING ============
 export const LOG_LEVELS = ["debug", "info", "warn", "error"] as const;
+
+// ============ USER MODELS ============
+// Note: Não há limite máximo de modelos ativos por utilizador
+// Um utilizador pode ter qualquer combinação de credito, imobiliaria e seguro ativos
+export const VALID_MODEL_TYPES = ["credito", "imobiliaria", "seguro"] as const;
+export const MAX_ACTIVE_MODELS = VALID_MODEL_TYPES.length; // 3 modelos no máximo

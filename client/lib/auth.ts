@@ -105,25 +105,9 @@ export const auth = betterAuth({
               },
             });
 
-            // Criar modelo padrão (Crédito) para o novo utilizador
-            try {
-              // Criar profile de Crédito
-              const creditoProfile = await prisma.creditoProfile.create({ data: {} });
-
-              // Criar UserModel associado
-              await prisma.userModel.create({
-                data: {
-                  userId: user.id,
-                  modelType: "credito",
-                  creditoProfileId: creditoProfile.id,
-                  isActive: true,
-                },
-              });
-
-              console.log("[auth] Default credit model created for user:", user.id);
-            } catch (modelError) {
-              console.error("[auth] Error creating default model:", modelError);
-            }
+            // NOTA: Modelos não são mais criados automaticamente.
+            // O utilizador deve selecionar os modelos durante o registro.
+            // Ver validação em travel-connect-signin-1.tsx
           } catch (e) {
             console.error("[auth] databaseHooks.user.create.after:", e);
           }

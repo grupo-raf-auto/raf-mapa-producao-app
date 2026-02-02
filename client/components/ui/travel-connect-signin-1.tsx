@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
+import { apiClient } from '@/lib/api-client';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -213,7 +214,7 @@ const SignInCard = () => {
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerPasswordVisible, setRegisterPasswordVisible] = useState(false);
   const [registerEmail, setRegisterEmail] = useState('');
-  const [selectedModels, setSelectedModels] = useState<string[]>(['credito']);
+  const [selectedModels, setSelectedModels] = useState<string[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -291,6 +292,10 @@ const SignInCard = () => {
       toast.error('A palavra-passe deve ter no mínimo 8 caracteres');
       return;
     }
+    if (selectedModels.length === 0) {
+      toast.error('Selecione pelo menos um modelo de negócio');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -335,28 +340,36 @@ const SignInCard = () => {
         return;
       }
 
-      // Add selected models to user after signup
+      // After signup (with autoSignIn: true, user is already logged in)
+      // Wait a moment for the session cookie to be set, then add models
       if (result.data?.user?.id && selectedModels.length > 0) {
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
-          for (const modelType of selectedModels) {
-            await fetch(`${apiUrl}/api/user-models/user/${result.data.user.id}/models`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              credentials: 'include',
-              body: JSON.stringify({ modelType }),
-            });
-          }
-        } catch (modelError) {
-          console.error('Error adding models:', modelError);
-          // Don't fail signup if model addition fails
-        }
-      }
+          // Small delay to ensure session cookie is properly set
+          await new Promise(resolve => setTimeout(resolve, 500));
 
-      toast.success('Conta criada com sucesso!');
-      window.location.href = '/';
+          // Add all selected models
+          for (const modelType of selectedModels) {
+            try {
+              await apiClient.userModels.addModelToMyUser(modelType);
+              console.log(`[register] Model ${modelType} added successfully`);
+            } catch (modelError) {
+              console.error(`[register] Failed to add model ${modelType}:`, modelError);
+              // Continue with other models even if one fails
+            }
+          }
+
+          toast.success('Conta criada com sucesso!');
+          window.location.href = '/';
+        } catch (error) {
+          console.error('[register] Error adding models:', error);
+          // If model addition fails, still consider signup successful
+          toast.success('Conta criada! Por favor, inicie sessão para configurar os modelos.');
+          setActiveTab('login');
+        }
+      } else {
+        toast.success('Conta criada com sucesso!');
+        window.location.href = '/';
+      }
     } catch (err) {
       console.error('[register] catch:', err);
       toast.error(
@@ -414,7 +427,7 @@ const SignInCard = () => {
         </div>
 
         {/* Right side - Sign In Form */}
-        <div className="w-full md:w-1/2 p-8 md:p-10 flex flex-col justify-center bg-card">
+        <div className="w-full md:w-1/2 px-10 md:px-14 py-8 md:py-10 flex flex-col justify-center bg-card">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -720,15 +733,13 @@ const SignInCard = () => {
                           <input
                             type="checkbox"
                             checked={selectedModels.includes(model.value)}
-                            onChange={(e) => {
+                             onChange={(e) => {
                               if (e.target.checked) {
                                 setSelectedModels([...selectedModels, model.value]);
                               } else {
-                                if (selectedModels.length > 1) {
-                                  setSelectedModels(
-                                    selectedModels.filter((m) => m !== model.value)
-                                  );
-                                }
+                                setSelectedModels(
+                                  selectedModels.filter((m) => m !== model.value)
+                                );
                               }
                             }}
                             disabled={loading}
@@ -747,7 +758,7 @@ const SignInCard = () => {
                       ))}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Selecione pelo menos um modelo. Pode alterar depois.
+                      Obrigatório: selecione pelo menos um modelo de negócio para continuar.
                     </p>
                   </div>
 

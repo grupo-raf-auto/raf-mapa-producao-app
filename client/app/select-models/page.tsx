@@ -103,7 +103,7 @@ export default function SelectModelsPage() {
 
       // Add each selected model to user
       for (const modelType of selectedModels) {
-        await apiClient.userModels.addModelToUser(session!.user!.id, modelType);
+        await apiClient.userModels.addModelToMyUser(modelType);
       }
 
       // Redirect to dashboard

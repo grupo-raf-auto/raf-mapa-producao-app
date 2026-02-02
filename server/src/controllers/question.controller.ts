@@ -56,7 +56,12 @@ export class QuestionController extends BaseCRUDController<any> {
   }
 
   /**
-   * Permitir apenas admin ou criador deletar
+   * Questions are shared resources used in templates/forms.
+   * Allow access to all authenticated users, but only admin or creator can delete.
+   * For get/update operations, allow access if:
+   * - User is admin
+   * - Question has no creator (public/shared question)
+   * - User is the creator
    */
   protected async validateOwnership(
     item: any,
@@ -64,6 +69,11 @@ export class QuestionController extends BaseCRUDController<any> {
     userRole: string
   ): Promise<boolean> {
     if (userRole === "admin") return true;
+    
+    // If question has no creator, it's a public/shared resource
+    if (!item.createdBy) return true;
+    
+    // Otherwise, only creator can access
     return item.createdBy === userId;
   }
 }

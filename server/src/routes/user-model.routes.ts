@@ -20,6 +20,12 @@ router.use(authenticateUser);
 router.get("/my-models", (req, res) => controller.getMyModels(req, res));
 
 /**
+ * POST /api/user-models/my-models
+ * Add a new model to the authenticated user
+ */
+router.post("/my-models", (req, res) => controller.addModelToMyUser(req, res));
+
+/**
  * POST /api/user-models/switch-model/:modelId
  * Switch active model context
  */

@@ -97,6 +97,7 @@ export class UserModelRepository extends BaseRepository<any> {
     const data: any = {
       userId,
       modelType,
+      isActive: true, // Garantir que novos modelos adicionados ficam ativos
       activatedBy,
     };
 

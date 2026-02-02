@@ -128,6 +128,9 @@ export class SubmissionController {
         data,
       });
 
+      // Invalidate stats cache for this user and model
+      StatsService.invalidateCache(req.user.id, req.user.activeModelType);
+
       res.status(201).json({ id: submission.id, success: true });
     } catch (error) {
       console.error("Error creating submission:", error);
@@ -160,6 +163,9 @@ export class SubmissionController {
         data: { answers: answers as object },
       });
 
+      // Invalidate stats cache for this user and model
+      StatsService.invalidateCache(req.user.id, req.user.activeModelType);
+
       res.json(withLegacyId(updated));
     } catch (error) {
       console.error("Error updating submission:", error);
@@ -187,6 +193,10 @@ export class SubmissionController {
       }
 
       await prisma.formSubmission.delete({ where: { id } });
+      
+      // Invalidate stats cache for this user and model
+      StatsService.invalidateCache(req.user.id, req.user.activeModelType);
+      
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting submission:", error);
@@ -201,9 +211,14 @@ export class SubmissionController {
       const templateId = req.query.templateId as string | undefined;
       const detailed = req.query.detailed === "true";
 
-      const filters: { templateId?: string; submittedBy?: string } = {};
+      const filters: { templateId?: string; submittedBy?: string; modelContext?: string } = {};
       if (templateId) filters.templateId = templateId;
       if (req.user.role !== "admin") filters.submittedBy = req.user.id;
+      
+      // NEW: Filter by active model context
+      if (req.user.activeModelType) {
+        filters.modelContext = req.user.activeModelType;
+      }
 
       if (detailed) {
         const salesStats = await StatsService.getSalesStats(filters);

@@ -160,7 +160,8 @@ function isDatabaseUrlValid(url: string | undefined): boolean {
 async function upsertTemplate(
   title: string,
   description: string,
-  questionIds: string[]
+  questionIds: string[],
+  modelType?: "credito" | "imobiliaria" | "seguro"
 ) {
   const existing = await prisma.template.findFirst({ where: { title } });
 
@@ -172,6 +173,7 @@ async function upsertTemplate(
         description,
         isDefault: true,
         isPublic: true,
+        modelType,
         questionIds, // Campo legado para compatibilidade
         questions: {
           create: questionIds.map((questionId, index) => ({
@@ -181,7 +183,7 @@ async function upsertTemplate(
         },
       },
     });
-    console.log(`  ✓ Template "${title}" criado`);
+    console.log(`  ✓ Template "${title}" criado (${modelType || "todos os modelos"})`);
   } else {
     // Atualizar template existente
     await prisma.$transaction(async (tx) => {
@@ -191,6 +193,7 @@ async function upsertTemplate(
         data: {
           isDefault: true,
           isPublic: true,
+          modelType,
           questionIds, // Campo legado
         },
       });
@@ -211,7 +214,7 @@ async function upsertTemplate(
         });
       }
     });
-    console.log(`  ✓ Template "${title}" atualizado`);
+    console.log(`  ✓ Template "${title}" atualizado (${modelType || "todos os modelos"})`);
   }
 }
 
@@ -276,7 +279,8 @@ export async function seedTemplates() {
   await upsertTemplate(
     "Registo de Produção Crédito",
     "Template para registo de produção de crédito",
-    t1Questions
+    t1Questions,
+    "credito"
   );
 
   // Template 2: Registo de Produção Seguros
@@ -299,14 +303,16 @@ export async function seedTemplates() {
   await upsertTemplate(
     "Registo de Produção Seguros",
     "Template para registo de produção de seguros",
-    t2Questions
+    t2Questions,
+    "seguro"
   );
 
   // Template 3: Registo de Vendas Imobiliária
   await upsertTemplate(
     "Registo de Vendas Imobiliária",
     "Template para registo de vendas imobiliária",
-    t2Questions
+    t2Questions,
+    "imobiliaria"
   );
 
   console.log("\n✅ Seed concluído com sucesso!");

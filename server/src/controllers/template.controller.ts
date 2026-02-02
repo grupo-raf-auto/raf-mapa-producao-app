@@ -73,8 +73,13 @@ export class TemplateController {
     try {
       if (!req.user) return res.status(401).json({ error: "Unauthorized" });
 
-      const { title, description, questions, isPublic } = req.body;
+      const { title, description, questions, isPublic, modelType } = req.body;
       const questionIds: string[] = questions || [];
+
+      // Validar modelType se fornecido
+      if (modelType && !["credito", "imobiliaria", "seguro"].includes(modelType)) {
+        return res.status(400).json({ error: "Invalid modelType. Must be: credito, imobiliaria, or seguro" });
+      }
 
       // Criar template com relações de questões
       const template = await prisma.template.create({
@@ -82,6 +87,7 @@ export class TemplateController {
           title,
           description,
           isPublic: isPublic || false,
+          modelType,
           createdBy: req.user.id,
           // Manter campo legado para compatibilidade
           questionIds,
@@ -105,12 +111,17 @@ export class TemplateController {
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { title, description, questions, isPublic } = req.body;
+      const { title, description, questions, isPublic, modelType } = req.body;
 
       // Verificar se template existe
       const existing = await prisma.template.findUnique({ where: { id } });
       if (!existing) {
         return res.status(404).json({ error: "Template not found" });
+      }
+
+      // Validar modelType se fornecido
+      if (modelType && !["credito", "imobiliaria", "seguro"].includes(modelType)) {
+        return res.status(400).json({ error: "Invalid modelType. Must be: credito, imobiliaria, or seguro" });
       }
 
       // Atualizar usando transação para garantir consistência
@@ -120,6 +131,7 @@ export class TemplateController {
         if (title !== undefined) data.title = title;
         if (description !== undefined) data.description = description;
         if (isPublic !== undefined) data.isPublic = isPublic;
+        if (modelType !== undefined) data.modelType = modelType;
 
         // Se questions foi enviado, atualizar relações
         if (questions !== undefined) {

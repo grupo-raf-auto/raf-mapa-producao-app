@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -13,10 +13,11 @@ import { Button } from "@/components/ui/button";
 import { apiClient as api } from "@/lib/api-client";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale/pt";
-import { FileStack, Calendar, FileEdit } from "lucide-react";
+import { FileStack, Calendar, FileEdit, Lock } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { FillTemplateDialog } from "@/components/templates/fill-template-dialog";
 import { PageHeader } from "@/components/ui/page-header";
+import { useModelContext } from "@/lib/context/model-context";
 
 interface Template {
   _id?: string;
@@ -26,6 +27,7 @@ interface Template {
   createdAt: Date | string;
   updatedAt: Date | string;
   isDefault?: boolean;
+  modelType?: "credito" | "imobiliaria" | "seguro" | null;
 }
 
 export function FormulariosContent() {
@@ -33,6 +35,7 @@ export function FormulariosContent() {
   const [loading, setLoading] = useState(true);
   const [fillingTemplate, setFillingTemplate] = useState<Template | null>(null);
   const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
+  const { activeModel, loading: modelLoading } = useModelContext();
 
   // Carregar templates
   useEffect(() => {
@@ -50,7 +53,30 @@ export function FormulariosContent() {
     loadTemplates();
   }, []);
 
-  if (loading) {
+  // Filtrar templates baseado no modelo ativo do usuário
+  const filteredTemplates = useMemo(() => {
+    if (!activeModel) return templates;
+    
+    return templates.filter((template) => {
+      // Templates sem modelType são públicos (disponíveis para todos)
+      if (!template.modelType) return true;
+      
+      // Templates com modelType só são visíveis se corresponderem ao modelo ativo
+      return template.modelType === activeModel.modelType;
+    });
+  }, [templates, activeModel]);
+
+  // Helper para obter o nome de exibição do modelo
+  const getModelDisplayName = (modelType: string) => {
+    const names: Record<string, string> = {
+      credito: "Crédito",
+      imobiliaria: "Imobiliária",
+      seguro: "Seguros",
+    };
+    return names[modelType] || modelType;
+  };
+
+  if (loading || modelLoading) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -75,28 +101,43 @@ export function FormulariosContent() {
     <div className="space-y-6">
       <PageHeader
         title="Formulários"
-        description="Escolha um template para preencher e submeter. Preencha os campos necessários e envie para processamento."
+        description={activeModel 
+          ? `Escolha um template para preencher. Modelo ativo: ${activeModel.modelType}.`
+          : "Escolha um template para preencher e submeter. Preencha os campos necessários e envie para processamento."
+        }
         icon={FileStack}
         iconGradient="from-red-600 via-red-500 to-red-700"
         decoratorIcon={<FileEdit className="w-5 h-5" />}
         decoratorColor="text-red-500"
       />
 
-      {templates.length === 0 ? (
+      {!activeModel ? (
+        <Card className="shadow-sm">
+          <CardContent className="py-8 text-center">
+            <Lock className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">
+              Nenhum modelo ativo selecionado
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Por favor, selecione um modelo para visualizar os formulários disponíveis
+            </p>
+          </CardContent>
+        </Card>
+      ) : filteredTemplates.length === 0 ? (
         <Card className="shadow-sm">
           <CardContent className="py-8 text-center">
             <FileStack className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">
-              Nenhum formulário disponível
+              Nenhum formulário disponível para o modelo "{activeModel.modelType}"
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-              Entre em contato com o administrador para criar templates
+              Entre em contato com o administrador para criar templates para este modelo
             </p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {templates.map((template) => (
+          {filteredTemplates.map((template) => (
             <Card
               key={template._id}
               className="shadow-sm hover:shadow-md transition-shadow"
@@ -111,9 +152,9 @@ export function FormulariosContent() {
                       {template.description || "Sem descrição"}
                     </CardDescription>
                   </div>
-                  <Badge variant="outline" className="ml-2">
-                    Formulário
-                  </Badge>
+                  <div className="flex flex-col gap-1 ml-2">
+                    <Badge variant="outline">Formulário</Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>

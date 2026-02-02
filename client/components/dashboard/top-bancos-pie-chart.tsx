@@ -59,41 +59,43 @@ export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
 
       {/* Donut Chart Simplificado */}
       <div className="flex flex-col items-center justify-center">
-        <ResponsiveContainer width="100%" height={200}>
-          <PieChart>
-            <Pie
-              data={topBancos.slice(0, 5)}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              innerRadius={50}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {topBancos.slice(0, 5).map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E5E7EB",
-                borderRadius: "6px",
-                fontSize: "12px",
-                padding: "8px 12px",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              }}
-              formatter={(value) => {
-                const v = value != null ? Number(value) : 0;
-                return `${v.toLocaleString("pt-PT")} €`;
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        <div className="w-full h-[200px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={topBancos.slice(0, 5)}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                innerRadius={50}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {topBancos.slice(0, 5).map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: "6px",
+                  fontSize: "12px",
+                  padding: "8px 12px",
+                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                }}
+                formatter={(value) => {
+                  const v = value != null ? Number(value) : 0;
+                  return `${v.toLocaleString("pt-PT")} €`;
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );

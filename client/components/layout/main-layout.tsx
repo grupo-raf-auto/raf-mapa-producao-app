@@ -18,6 +18,7 @@ import Link from 'next/link';
 function TopBar() {
   const { data: session } = useSession();
   const user = session?.user;
+  const admin = session?.user.role === 'admin' ? true : false;
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -30,7 +31,7 @@ function TopBar() {
     try {
       // Clear client-side auth state BEFORE server call to prevent race conditions
       // This ensures the UI updates immediately even if server is slow
-      localStorage.removeItem("activeModelId");
+      localStorage.removeItem('activeModelId');
       sessionStorage.clear();
 
       // Sign out from Better Auth (clears server session + cookies)
@@ -72,13 +73,15 @@ function TopBar() {
         {/* Model Selector */}
         <ModelSelector />
         {/* Administração button */}
-        <Link
-          href="/admin"
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-500 text-white rounded-full text-xs font-medium hover:bg-violet-600 transition-colors"
-        >
-          <Shield className="w-3.5 h-3.5" />
-          Administração
-        </Link>
+        {admin && (
+          <Link
+            href="/admin"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-500 text-white rounded-full text-xs font-medium hover:bg-violet-600 transition-colors"
+          >
+            <Shield className="w-3.5 h-3.5" />
+            Administração
+          </Link>
+        )}
 
         {/* CRM MyCredit button */}
         <Link
@@ -126,11 +129,7 @@ function TopBar() {
   );
 }
 
-function MainContent({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -157,9 +156,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarBase open={sidebarOpen} setOpen={setSidebarOpen}>
       {/* Background */}
-      <div
-        className="h-screen w-full p-4 md:p-6 lg:p-8 overflow-hidden bg-background"
-      >
+      <div className="h-screen w-full p-4 md:p-6 lg:p-8 overflow-hidden bg-background">
         {/* Floating Dashboard Container */}
         <div className="floating-dashboard h-[calc(100vh-2rem)] md:h-[calc(100vh-3rem)] lg:h-[calc(100vh-4rem)] flex overflow-hidden relative">
           {/* Sidebar */}

@@ -380,7 +380,7 @@ model DocumentScan {
 
   // User tracking
   userId          String
-  user            User     @relation(fields: [userId], references: [id])
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("document_scan")
 }

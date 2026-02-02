@@ -49,13 +49,13 @@ export function ModelContextProvider({ children }: { children: ReactNode }) {
         throw new Error("Model not found");
       }
 
-      // Call API to switch model
-      const response = await fetch("/api/user-models/switch-model/" + modelId, {
+      // Call API to switch model via the proxy route
+      const response = await fetch("/api/proxy/user-models/switch-model/" + modelId, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("authToken") || ""}`,
         },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -69,6 +69,9 @@ export function ModelContextProvider({ children }: { children: ReactNode }) {
 
       // Store the active model ID in localStorage for persistence
       localStorage.setItem("activeModelId", modelId);
+      
+      // Also store in cookie for Server Components to access
+      document.cookie = `activeModelId=${modelId}; path=/; max-age=86400; SameSite=Lax`;
 
       // Emit custom event to signal model switch (for cache invalidation)
       window.dispatchEvent(

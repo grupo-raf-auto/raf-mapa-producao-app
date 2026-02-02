@@ -1,31 +1,57 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { KPICards } from "./kpi-cards";
 import { DashboardChartsWrapper } from "./dashboard-charts-wrapper";
-import { api } from "@/lib/api.server";
+import { apiClient as api } from "@/lib/api-client";
 import { DashboardHeader } from "@/components/ui/dashboard-header";
+import { useModelContext } from "@/lib/context/model-context";
+import { Card, CardContent } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 
-export async function DashboardContent() {
-  let templates = [];
-  let salesStats = null;
-  let recentSubmissions = [];
+export function DashboardContent() {
+  const [templates, setTemplates] = useState([]);
+  const [salesStats, setSalesStats] = useState(null);
+  const [recentSubmissions, setRecentSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { activeModel, loading: modelLoading } = useModelContext();
 
-  try {
-    const result = await Promise.all([
-      api.templates.getAll(),
-      api.submissions.getStats({ detailed: true }).catch(() => null),
-      api.submissions.getAll().catch(() => []),
-    ]);
-    templates = result[0] || [];
-    salesStats = result[1];
-    // Ordenar por data e pegar as 5 mais recentes
-    recentSubmissions = (result[2] || [])
-      .sort(
-        (a: any, b: any) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )
-      .slice(0, 5);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
+  const loadData = async () => {
+    try {
+      setError(null);
+      setLoading(true);
+      
+      const result = await Promise.all([
+        api.templates.getAll().catch(() => []),
+        api.submissions.getStats({ detailed: true }).catch(() => null),
+        api.submissions.getAll().catch(() => []),
+      ]);
+      
+      setTemplates(result[0] || []);
+      setSalesStats(result[1]);
+      
+      // Ordenar por data e pegar as 5 mais recentes
+      const sortedSubmissions = (result[2] || [])
+        .sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        )
+        .slice(0, 5);
+      setRecentSubmissions(sortedSubmissions);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError("Erro ao carregar dados do dashboard");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!modelLoading) {
+      loadData();
+    }
+  }, [activeModel?.id, modelLoading]);
 
   const stats = {
     totalTemplates: templates.length,
@@ -122,6 +148,36 @@ export async function DashboardContent() {
       colorVariant: "green" as const,
     },
   ];
+
+  if (loading || modelLoading) {
+    return (
+      <div className="space-y-6">
+        <DashboardHeader />
+        <Card>
+          <CardContent className="py-8 text-center flex flex-col items-center gap-3">
+            <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
+            <p className="text-muted-foreground">Carregando dashboard...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <DashboardHeader />
+        <Card>
+          <CardContent className="py-8 text-center">
+            <p className="text-destructive font-medium mb-2">
+              Erro ao carregar dashboard
+            </p>
+            <p className="text-sm text-muted-foreground">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

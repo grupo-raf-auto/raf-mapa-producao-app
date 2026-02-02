@@ -67,6 +67,8 @@ export function useUserModels() {
       if (activeModel) {
         modelContext.setActiveModel(activeModel);
         localStorage.setItem("activeModelId", activeModel.id);
+        // Also set cookie for Server Components
+        document.cookie = `activeModelId=${activeModel.id}; path=/; max-age=86400; SameSite=Lax`;
       }
     } catch (error) {
       console.error("Error loading user models:", error);

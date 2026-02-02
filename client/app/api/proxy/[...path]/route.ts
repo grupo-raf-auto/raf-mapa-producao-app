@@ -5,6 +5,21 @@ import { NextRequest, NextResponse } from "next/server";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005";
 
+// Helper to parse cookies from request header
+function getActiveModelIdFromCookies(request: NextRequest): string | undefined {
+  const cookieHeader = request.headers.get("cookie");
+  if (!cookieHeader) return undefined;
+  
+  const cookies = cookieHeader.split(";");
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split("=");
+    if (name === "activeModelId") {
+      return value;
+    }
+  }
+  return undefined;
+}
+
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> | { path: string[] } },
@@ -77,11 +92,15 @@ async function handleRequest(
         ? await request.text()
         : undefined;
 
+    // Get active model from cookie (from request header for Server Components)
+    const activeModelId = getActiveModelIdFromCookies(request);
+
     const response = await fetch(backendUrl, {
       method,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        ...(activeModelId && { "x-active-model": activeModelId }),
       },
       body,
     });

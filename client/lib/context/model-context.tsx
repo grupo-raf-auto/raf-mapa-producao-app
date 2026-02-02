@@ -6,9 +6,19 @@ export type ModelType = "credito" | "imobiliaria" | "seguro";
 
 export interface UserModel {
   id: string;
+  userId: string;
   modelType: ModelType;
   isActive: boolean;
   activatedAt: string;
+  activatedBy?: string | null;
+  creditoProfileId?: string | null;
+  creditoProfile?: any;
+  imobiliariaProfileId?: string | null;
+  imobiliariaProfile?: any;
+  seguroProfileId?: string | null;
+  seguroProfile?: any;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface ModelContextType {

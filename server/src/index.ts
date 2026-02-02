@@ -22,6 +22,7 @@ import chatRoutes from "./routes/chat.routes";
 import documentRoutes from "./routes/document.routes";
 import scannerRoutes from "./routes/documentScanner.routes";
 import { seedTemplates } from "./scripts/seed-templates";
+import { seedUserModels } from "./scripts/seed-user-models";
 import { authenticateUser } from "./middleware/auth.middleware";
 
 const app = express();
@@ -83,8 +84,9 @@ app.use(
 async function initializeServer() {
   try {
     await seedTemplates();
+    await seedUserModels();
   } catch (error) {
-    console.error("Error seeding templates:", error);
+    console.error("Error during initialization:", error);
   }
 }
 

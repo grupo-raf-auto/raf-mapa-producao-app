@@ -5,11 +5,19 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0; // Never cache - ensure latest auth state
 
 export default async function Home() {
   const session = await auth.api.getSession({ headers: await headers() });
 
+  // If no session, redirect to login immediately
   if (!session?.user) {
+    redirect("/sign-in");
+  }
+
+  // Verify session is still valid (security check)
+  // This ensures user can't access dashboard after logout due to caching
+  if (!session.user.id || !session.user.email) {
     redirect("/sign-in");
   }
 
@@ -25,6 +33,8 @@ export default async function Home() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          // Don't cache this check - ensure real-time model validation
+          next: { revalidate: 0 },
         }
       );
 

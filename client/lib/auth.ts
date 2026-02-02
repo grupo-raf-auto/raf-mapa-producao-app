@@ -104,6 +104,26 @@ export const auth = betterAuth({
                 ...(count === 1 ? { role: "admin" } : {}),
               },
             });
+
+            // Criar modelo padrão (Crédito) para o novo utilizador
+            try {
+              // Criar profile de Crédito
+              const creditoProfile = await prisma.creditoProfile.create({ data: {} });
+
+              // Criar UserModel associado
+              await prisma.userModel.create({
+                data: {
+                  userId: user.id,
+                  modelType: "credito",
+                  creditoProfileId: creditoProfile.id,
+                  isActive: true,
+                },
+              });
+
+              console.log("[auth] Default credit model created for user:", user.id);
+            } catch (modelError) {
+              console.error("[auth] Error creating default model:", modelError);
+            }
           } catch (e) {
             console.error("[auth] databaseHooks.user.create.after:", e);
           }

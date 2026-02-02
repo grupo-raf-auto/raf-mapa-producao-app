@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './sidebar';
+import { ModelSelector } from './model-selector';
 import { SupportChatFab } from '@/components/support/support-chat-fab';
 import { PageAnimation } from '@/components/ui/page-animation';
 import { Sidebar as SidebarBase } from '@/components/ui/sidebar';
@@ -27,11 +28,28 @@ function TopBar() {
 
   const handleSignOut = async () => {
     try {
+      // Clear client-side auth state BEFORE server call to prevent race conditions
+      // This ensures the UI updates immediately even if server is slow
+      localStorage.removeItem("activeModelId");
+      sessionStorage.clear();
+
+      // Sign out from Better Auth (clears server session + cookies)
       await authClient.signOut();
+
+      // Force refresh to ensure session state is completely cleared
+      // This also ensures middleware validation on next navigation
       toast.success('Sessão terminada com sucesso');
-      router.push('/sign-in');
-    } catch {
+
+      // Use replace() instead of push() to prevent back button navigation to dashboard
+      // This is more secure as it removes the dashboard from browser history
+      router.replace('/sign-in');
+    } catch (error) {
+      console.error('Logout error:', error);
       toast.error('Erro ao terminar sessão');
+
+      // Even if logout fails, still redirect to sign-in for security
+      // User should not see dashboard if logout fails
+      router.replace('/sign-in');
     }
   };
 
@@ -51,6 +69,8 @@ function TopBar() {
 
       {/* Right side - action buttons */}
       <div className="flex items-center gap-2">
+        {/* Model Selector */}
+        <ModelSelector />
         {/* Administração button */}
         <Link
           href="/admin"

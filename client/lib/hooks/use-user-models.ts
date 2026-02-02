@@ -42,13 +42,27 @@ export function useUserModels() {
 
       const models = await apiClient.userModels.getMyModels();
 
-      // Set available models
-      modelContext.setAvailableModels(models);
+      // Ensure models is an array (handle edge cases)
+      const modelArray = Array.isArray(models) ? models : [];
 
-      // Determine active model from localStorage or first available
+      // Set available models
+      modelContext.setAvailableModels(modelArray);
+
+      if (modelArray.length === 0) {
+        // No models available
+        modelContext.setActiveModel(null);
+        localStorage.removeItem("activeModelId");
+        return;
+      }
+
+      // Determine active model: try localStorage, then first available
       const storedModelId = localStorage.getItem("activeModelId");
-      const activeModel =
-        models.find((m: UserModel) => m.id === storedModelId) || models[0];
+      let activeModel = modelArray.find((m: UserModel) => m.id === storedModelId);
+
+      // If stored model doesn't exist in current list, use first available
+      if (!activeModel) {
+        activeModel = modelArray[0];
+      }
 
       if (activeModel) {
         modelContext.setActiveModel(activeModel);
@@ -56,6 +70,8 @@ export function useUserModels() {
       }
     } catch (error) {
       console.error("Error loading user models:", error);
+      modelContext.setActiveModel(null);
+      modelContext.setAvailableModels([]);
     } finally {
       modelContext.setLoading(false);
     }

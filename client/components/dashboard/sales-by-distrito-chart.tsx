@@ -44,57 +44,59 @@ export function SalesByDistritoChart({ data }: SalesByDistritoChartProps) {
       </div>
 
       {/* Gráfico Simplificado - Apenas Valor Total */}
-      <ResponsiveContainer width="100%" height={200}>
-        <BarChart
-          data={chartData.slice(0, 5)}
-          margin={{ top: 5, right: 5, left: -5, bottom: 5 }}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="#E5E7EB"
-            vertical={false}
-            opacity={0.5}
-          />
-          <XAxis
-            dataKey="name"
-            stroke="#9CA3AF"
-            style={{ fontSize: "11px" }}
-            tickLine={false}
-            axisLine={false}
-            angle={-30}
-            textAnchor="end"
-            height={50}
-          />
-          <YAxis
-            stroke="#9CA3AF"
-            style={{ fontSize: "11px" }}
-            tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-            tickLine={false}
-            axisLine={false}
-            width={35}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E5E7EB",
-              borderRadius: "6px",
-              fontSize: "12px",
-              padding: "8px 12px",
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-            }}
-            formatter={(value) => {
-              if (value == null) return "-";
-              return `${Number(value).toLocaleString("pt-PT")} €`;
-            }}
-            labelStyle={{
-              fontSize: "11px",
-              color: "#6B7280",
-              marginBottom: "4px",
-            }}
-          />
-          <Bar dataKey="Valor Total (€)" fill="#E14840" radius={[4, 4, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
+      <div className="w-full h-[200px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={chartData.slice(0, 5)}
+            margin={{ top: 5, right: 5, left: -5, bottom: 5 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#E5E7EB"
+              vertical={false}
+              opacity={0.5}
+            />
+            <XAxis
+              dataKey="name"
+              stroke="#9CA3AF"
+              style={{ fontSize: "11px" }}
+              tickLine={false}
+              axisLine={false}
+              angle={-30}
+              textAnchor="end"
+              height={50}
+            />
+            <YAxis
+              stroke="#9CA3AF"
+              style={{ fontSize: "11px" }}
+              tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+              tickLine={false}
+              axisLine={false}
+              width={35}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                borderRadius: "6px",
+                fontSize: "12px",
+                padding: "8px 12px",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+              }}
+              formatter={(value) => {
+                if (value == null) return "-";
+                return `${Number(value).toLocaleString("pt-PT")} €`;
+              }}
+              labelStyle={{
+                fontSize: "11px",
+                color: "#6B7280",
+                marginBottom: "4px",
+              }}
+            />
+            <Bar dataKey="Valor Total (€)" fill="#E14840" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

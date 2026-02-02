@@ -106,7 +106,8 @@ export function CashFlowStackedChart({
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={200}>
+      <div className="w-full h-[200px]">
+        <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}
           margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
@@ -157,6 +158,7 @@ export function CashFlowStackedChart({
           />
         </BarChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }
@@ -301,7 +303,8 @@ export function NetVolumeChart({
       </div>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={180}>
+        <div className="w-full h-[180px]">
+          <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
             margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
@@ -357,6 +360,7 @@ export function NetVolumeChart({
             />
           </LineChart>
         </ResponsiveContainer>
+        </div>
         <div className="absolute top-0 right-8 bg-black text-white text-xs px-2 py-1 rounded font-medium">
           Hoje
         </div>
@@ -470,7 +474,8 @@ export function ReportsCompletionBar({
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={200}>
+      <div className="w-full h-[200px]">
+        <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}
           margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
@@ -504,6 +509,7 @@ export function ReportsCompletionBar({
           />
         </BarChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }
@@ -548,7 +554,8 @@ export function CashFlowColumnChart({
         <p className="text-lg font-semibold text-foreground">Fluxo de Caixa</p>
       </div>
 
-      <ResponsiveContainer width="100%" height={200}>
+      <div className="w-full h-[200px]">
+        <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={chartData}
           margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
@@ -577,6 +584,7 @@ export function CashFlowColumnChart({
           <Bar dataKey="negative" fill="#1F2937" radius={[0, 0, 4, 4]} />
         </ComposedChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }
@@ -662,7 +670,8 @@ export function SalesTimelineChart({
 
       {/* Gráfico Simplificado - Apenas Valor Total */}
       <div className="relative">
-        <ResponsiveContainer width="100%" height={200}>
+        <div className="w-full h-[200px]">
+          <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
             margin={{ top: 5, right: 5, left: -5, bottom: 5 }}
@@ -718,6 +727,7 @@ export function SalesTimelineChart({
             />
           </LineChart>
         </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );

@@ -9,10 +9,19 @@ export class SubmissionController {
       if (!req.user) return res.status(401).json({ error: "Unauthorized" });
 
       const templateId = req.query.templateId as string | undefined;
-      const where: { templateId?: string; submittedBy?: string } = {};
+      const where: {
+        templateId?: string;
+        submittedBy?: string;
+        modelContext?: string;
+      } = {};
 
       if (templateId) where.templateId = templateId;
       if (req.user.role !== "admin") where.submittedBy = req.user.id;
+
+      // NEW: Filter by active model context
+      if (req.user.activeModelType) {
+        where.modelContext = req.user.activeModelType;
+      }
 
       const submissions = await prisma.formSubmission.findMany({
         where,
@@ -77,12 +86,46 @@ export class SubmissionController {
         return res.status(404).json({ error: "Template not found" });
       }
 
+      // NEW: Include modelContext and profile FK
+      const data: any = {
+        templateId,
+        answers: answers as unknown as object,
+        submittedBy: req.user.id,
+        modelContext: req.user.activeModelType,
+      };
+
+      // Add profile FK based on model type
+      if (req.user.activeModelType === "credito" && req.user.activeModelId) {
+        const userModel = await prisma.userModel.findUnique({
+          where: { id: req.user.activeModelId },
+          include: { creditoProfile: true },
+        });
+        if (userModel?.creditoProfile) {
+          data.creditoProfileId = userModel.creditoProfile.id;
+        }
+      } else if (
+        req.user.activeModelType === "imobiliaria" &&
+        req.user.activeModelId
+      ) {
+        const userModel = await prisma.userModel.findUnique({
+          where: { id: req.user.activeModelId },
+          include: { imobiliariaProfile: true },
+        });
+        if (userModel?.imobiliariaProfile) {
+          data.imobiliariaProfileId = userModel.imobiliariaProfile.id;
+        }
+      } else if (req.user.activeModelType === "seguro" && req.user.activeModelId) {
+        const userModel = await prisma.userModel.findUnique({
+          where: { id: req.user.activeModelId },
+          include: { seguroProfile: true },
+        });
+        if (userModel?.seguroProfile) {
+          data.seguroProfileId = userModel.seguroProfile.id;
+        }
+      }
+
       const submission = await prisma.formSubmission.create({
-        data: {
-          templateId,
-          answers: answers as unknown as object,
-          submittedBy: req.user.id,
-        },
+        data,
       });
 
       res.status(201).json({ id: submission.id, success: true });

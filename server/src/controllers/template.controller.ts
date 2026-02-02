@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { withLegacyId, withLegacyIds } from "../utils/response.utils";
+import { withLegacyId, withLegacyIds, successResponse } from "../utils/response.utils";
 
 export class TemplateController {
   static async getAll(req: Request, res: Response) {
@@ -31,7 +31,7 @@ export class TemplateController {
         _questions: t.questions.map((tq) => tq.question),
       }));
 
-      res.json(withLegacyIds(mapped));
+      res.json(successResponse(withLegacyIds(mapped)));
     } catch (error) {
       console.error("Error fetching templates:", error);
       res.status(500).json({ error: "Failed to fetch templates" });
@@ -62,7 +62,7 @@ export class TemplateController {
         _questions: template.questions.map((tq) => tq.question),
       };
 
-      res.json(withLegacyId(mapped));
+      res.json(successResponse(withLegacyId(mapped)));
     } catch (error) {
       console.error("Error fetching template:", error);
       res.status(500).json({ error: "Failed to fetch template" });

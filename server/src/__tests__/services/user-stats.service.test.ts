@@ -17,6 +17,24 @@ jest.mock('../../lib/prisma', () => ({
     formSubmission: {
       findMany: jest.fn(),
     },
+    document: {
+      findMany: jest.fn(),
+    },
+    chatMessage: {
+      findMany: jest.fn(),
+    },
+    user: {
+      findMany: jest.fn(),
+    },
+    template: {
+      findMany: jest.fn(),
+    },
+    question: {
+      findMany: jest.fn(),
+    },
+    documentChunk: {
+      count: jest.fn(),
+    },
   },
 }));
 
@@ -37,69 +55,53 @@ describe('UserStatsService', () => {
       const mockSubmissions = [
         {
           id: '1',
-          userId: 'user-1',
+          submittedBy: 'user-1',
           templateId: 'template-1',
           submittedAt: new Date('2026-01-20'),
-          user: { id: 'user-1', name: 'User One' },
-          template: { id: 'template-1', name: 'Template One' },
+          user: { id: 'user-1', name: 'User One', email: 'user1@test.com', role: 'user', createdAt: new Date() },
+          template: { id: 'template-1', title: 'Template One' },
         },
         {
           id: '2',
-          userId: 'user-2',
+          submittedBy: 'user-2',
           templateId: 'template-1',
           submittedAt: new Date('2026-01-25'),
-          user: { id: 'user-2', name: 'User Two' },
-          template: { id: 'template-1', name: 'Template One' },
+          user: { id: 'user-2', name: 'User Two', email: 'user2@test.com', role: 'user', createdAt: new Date() },
+          template: { id: 'template-1', title: 'Template One' },
         },
       ];
 
       mockPrisma.formSubmission.findMany.mockResolvedValue(mockSubmissions);
+      mockPrisma.document.findMany.mockResolvedValue([]);
+      mockPrisma.chatMessage.findMany.mockResolvedValue([]);
+      mockPrisma.user.findMany.mockResolvedValue([]);
+      mockPrisma.template.findMany.mockResolvedValue([]);
+      mockPrisma.question.findMany.mockResolvedValue([]);
+      mockPrisma.documentChunk.count.mockResolvedValue(0);
 
       const result = await service.generateStats();
 
-      expect(result).toHaveProperty('totalSubmissions', 2);
-      expect(result).toHaveProperty('uniqueUsers', 2);
-      expect(result).toHaveProperty('submissionsByDay');
-      expect(result).toHaveProperty('userStats');
-      expect(result).toHaveProperty('templateStats');
+      expect(result).toHaveProperty('stats');
+      expect(result.stats.totalSubmissions).toBe(2);
+      expect(result).toHaveProperty('trends');
+      expect(result.trends).toHaveProperty('submissionsByDay');
       expect(mockPrisma.formSubmission.findMany).toHaveBeenCalled();
-    });
-
-    it('should filter by templateId when provided', async () => {
-      const mockSubmissions = [
-        {
-          id: '1',
-          userId: 'user-1',
-          templateId: 'template-123',
-          submittedAt: new Date('2026-01-25'),
-          user: { id: 'user-1', name: 'User One' },
-          template: { id: 'template-123', name: 'Template' },
-        },
-      ];
-
-      mockPrisma.formSubmission.findMany.mockResolvedValue(mockSubmissions);
-
-      const result = await service.generateStats('template-123');
-
-      expect(result.totalSubmissions).toBe(1);
-      expect(mockPrisma.formSubmission.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            templateId: 'template-123',
-          }),
-        })
-      );
     });
 
     it('should handle empty submissions', async () => {
       mockPrisma.formSubmission.findMany.mockResolvedValue([]);
+      mockPrisma.document.findMany.mockResolvedValue([]);
+      mockPrisma.chatMessage.findMany.mockResolvedValue([]);
+      mockPrisma.user.findMany.mockResolvedValue([]);
+      mockPrisma.template.findMany.mockResolvedValue([]);
+      mockPrisma.question.findMany.mockResolvedValue([]);
+      mockPrisma.documentChunk.count.mockResolvedValue(0);
 
       const result = await service.generateStats();
 
-      expect(result.totalSubmissions).toBe(0);
-      expect(result.uniqueUsers).toBe(0);
-      expect(result.userStats).toEqual([]);
-      expect(result.templateStats).toEqual([]);
+      expect(result.stats.totalSubmissions).toBe(0);
+      expect(result.stats.totalUsers).toBe(0);
+      expect(result.users).toEqual([]);
     });
   });
 

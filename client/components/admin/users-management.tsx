@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -156,6 +157,11 @@ export function UsersManagement() {
                       >
                         {user.isActive ? "Desativar" : "Ativar"}
                       </Button>
+                      <Link href={`/admin/users/${user._id}/models`}>
+                        <Button variant="outline" size="sm">
+                          Gerir Modelos
+                        </Button>
+                      </Link>
                     </div>
                   </TableCell>
                 </TableRow>

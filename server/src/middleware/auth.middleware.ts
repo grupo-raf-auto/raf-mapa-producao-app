@@ -8,6 +8,15 @@ export interface AuthUser {
   name: string | null;
   role: "admin" | "user";
   _id: string; // alias de id para compatibilidade
+
+  // NEW: Contexto de modelo
+  activeModelId?: string;
+  activeModelType?: string;
+  availableModels?: Array<{
+    id: string;
+    modelType: string;
+    isActive: boolean;
+  }>;
 }
 
 declare global {
@@ -42,6 +51,7 @@ export async function authenticateUser(
 ) {
   try {
     const authHeader = req.headers.authorization;
+    const modelHeader = req.headers["x-active-model"] as string | undefined;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ error: "Unauthorized: No token provided" });
@@ -49,7 +59,13 @@ export async function authenticateUser(
 
     const token = authHeader.slice(7);
 
-    let decoded: { sub: string; email?: string; name?: string | null };
+    let decoded: {
+      sub: string;
+      email?: string;
+      name?: string | null;
+      activeModelId?: string;
+      activeModelType?: string;
+    };
     try {
       decoded = jwt.verify(token, EFFECTIVE_JWT_SECRET) as typeof decoded;
     } catch {
@@ -79,12 +95,31 @@ export async function authenticateUser(
 
     const role = (user.role === "admin" ? "admin" : "user") as "admin" | "user";
 
+    // NEW: Load user's models
+    const userModels = await prisma.userModel.findMany({
+      where: { userId: user.id, isActive: true },
+      select: {
+        id: true,
+        modelType: true,
+        isActive: true,
+      },
+    });
+
+    // Determine active model
+    let activeModel = userModels.find((m) => m.id === modelHeader);
+    if (!activeModel && userModels.length > 0) {
+      activeModel = userModels[0]; // Default to first
+    }
+
     req.user = {
       id: user.id,
       _id: user.id,
       email: user.email,
       name: user.name,
       role,
+      activeModelId: activeModel?.id,
+      activeModelType: activeModel?.modelType,
+      availableModels: userModels,
     };
 
     next();

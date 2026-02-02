@@ -39,6 +39,27 @@ export abstract class BaseCRUDController<T> {
   }
 
   /**
+   * NEW: Aplicar model scoping aos filtros
+   * Se o controller requer isolamento por modelo, adiciona filtro de modelContext
+   * Override em subclass se necessário
+   */
+  protected applyModelScoping(where: any, user: any): any {
+    if (this.requiresModelScoping && user?.activeModelType) {
+      return {
+        ...where,
+        modelContext: user.activeModelType,
+      };
+    }
+    return where;
+  }
+
+  /**
+   * Flag: indica se este controller requer isolamento por modelo
+   * Override em subclass se necessário (ex: FormSubmissionController)
+   */
+  protected requiresModelScoping = false;
+
+  /**
    * Normalizar resposta de um item
    * Implementar em subclass para customizar (ex: adicionar _id)
    */
@@ -89,7 +110,11 @@ export abstract class BaseCRUDController<T> {
       const takeNum = Math.min(100, Math.max(1, parseInt(take as string) || 20));
 
       // Construir filtros
-      const where = this.buildWhere(query);
+      let where = this.buildWhere(query);
+
+      // NEW: Aplicar model scoping se necessário
+      const user = (req as any).user;
+      where = this.applyModelScoping(where, user);
 
       // Buscar dados
       const items = await this.repository.findMany({

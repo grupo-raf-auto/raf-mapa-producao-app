@@ -35,6 +35,9 @@ interface GenerateStatsResult {
   users: UserStats[];
   stats: {
     totalUsers: number;
+    pendingUsers: number;
+    approvedUsers: number;
+    rejectedUsers: number;
     activeUsersLast30: number;
     inactiveUsers: number;
     totalSubmissions: number;
@@ -73,6 +76,8 @@ interface UserStats {
   firstName?: string;
   lastName?: string;
   role: string;
+  status: string;
+  emailVerified: boolean;
   totalSubmissions: number;
   totalTemplates: number;
   totalQuestions: number;
@@ -152,9 +157,11 @@ export class UserStatsService {
           userId: user.id,
           clerkId: user.id,
           email: user.email,
-          firstName: user.name?.split(' ')[0],
-          lastName: user.name?.split(' ').slice(1).join(' '),
+          firstName: user.firstName || user.name?.split(' ')[0],
+          lastName: user.lastName || user.name?.split(' ').slice(1).join(' '),
           role: user.role,
+          status: user.status,
+          emailVerified: user.emailVerified,
           totalSubmissions: 0,
           totalTemplates: 0,
           totalQuestions: 0,
@@ -244,6 +251,9 @@ export class UserStatsService {
 
       // Calculate aggregate stats
       const totalUsers = allUsers.length;
+      const pendingUsers = allUsers.filter(u => u.status === 'pending').length;
+      const approvedUsers = allUsers.filter(u => u.status === 'approved').length;
+      const rejectedUsers = allUsers.filter(u => u.status === 'rejected').length;
       const activeUsersLast30 = users.filter(u => u.activeDaysLast30 > 0).length;
       const inactiveUsers = totalUsers - activeUsersLast30;
       const totalSubmissions = allSubmissions.length;
@@ -271,6 +281,9 @@ export class UserStatsService {
         users,
         stats: {
           totalUsers,
+          pendingUsers,
+          approvedUsers,
+          rejectedUsers,
           activeUsersLast30,
           inactiveUsers,
           totalSubmissions,

@@ -7,6 +7,14 @@ const API_PROXY = "/api/proxy";
 const cache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_TTL = 30000; // 30 seconds
 
+// Listen for model switch events and clear cache
+if (typeof window !== "undefined") {
+  window.addEventListener("model-switched", () => {
+    console.log("[API Client] Model switched - clearing cache");
+    cache.clear();
+  });
+}
+
 function getCacheKey(path: string, options?: RequestInit): string {
   return `${path}-${JSON.stringify(options?.body || "")}`;
 }
@@ -294,10 +302,12 @@ export const apiClient = {
       invalidateCache("submissions");
       return result;
     },
-    getStats: async (params?: { templateId?: string }) => {
+    getStats: async (params?: { templateId?: string; detailed?: boolean }) => {
       const queryParams = new URLSearchParams();
       if (params?.templateId)
         queryParams.append("templateId", params.templateId);
+      if (params?.detailed)
+        queryParams.append("detailed", "true");
 
       const path = `submissions/stats${queryParams.toString() ? `?${queryParams}` : ""}`;
       return fetchWithAuth(path);
@@ -335,6 +345,22 @@ export const apiClient = {
     delete: async (id: string) => {
       const result = await fetchWithAuth(`users/${id}`, {
         method: "DELETE",
+      });
+      invalidateCache("users");
+      return result;
+    },
+    approve: async (id: string) => {
+      const result = await fetchWithAuth(`users/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "approved" }),
+      });
+      invalidateCache("users");
+      return result;
+    },
+    reject: async (id: string) => {
+      const result = await fetchWithAuth(`users/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "rejected" }),
       });
       invalidateCache("users");
       return result;
@@ -391,6 +417,14 @@ export const apiClient = {
   userModels: {
     getMyModels: async () => {
       return fetchWithAuth("user-models/my-models");
+    },
+    addModelToMyUser: async (modelType: string) => {
+      const result = await fetchWithAuth("user-models/my-models", {
+        method: "POST",
+        body: JSON.stringify({ modelType }),
+      });
+      invalidateCache("user-models");
+      return result;
     },
     switchModel: async (modelId: string) => {
       const result = await fetchWithAuth(`user-models/switch-model/${modelId}`, {

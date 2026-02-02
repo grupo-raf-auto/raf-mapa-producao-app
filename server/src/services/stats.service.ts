@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { serverCache } from "../lib/cache";
 
 // ============ Types ============
 
@@ -7,6 +8,7 @@ type Answer = { questionId: string; answer: string };
 export interface StatsFilters {
   templateId?: string;
   submittedBy?: string;
+  modelContext?: string;
 }
 
 export interface AggregatedData {
@@ -139,15 +141,29 @@ function calculateGrowthRates(monthlyData: MonthlyData[]): GrowthRate[] {
 // ============ Main Service ============
 
 export class StatsService {
+  private static readonly CACHE_TTL = 30000; // 30 seconds cache
+
   /**
    * Calcula estatísticas detalhadas de vendas baseado em submissions
+   * Optimized with caching for high-traffic scenarios
    */
   static async getSalesStats(filters: StatsFilters): Promise<SalesStats> {
+    // Create cache key from filters
+    const cacheKey = `stats:${JSON.stringify(filters)}`;
+    
+    // Check cache first
+    const cached = serverCache.get<SalesStats>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     // Buscar dados necessários em paralelo
     const [submissions, allQuestions, allTemplates, users] = await Promise.all([
       prisma.formSubmission.findMany({
         where: filters,
         orderBy: { submittedAt: "desc" },
+        // Limit to prevent memory issues with large datasets
+        take: 10000,
       }),
       prisma.question.findMany({}),
       prisma.template.findMany({ select: { id: true, title: true } }),
@@ -261,7 +277,7 @@ export class StatsService {
       .sort((a, b) => a.month.localeCompare(b.month));
 
     // Construir resultado final
-    return {
+    const result: SalesStats = {
       total: submissions.length,
       totalValue,
       averageValue: validValuesCount > 0 ? totalValue / validValuesCount : 0,
@@ -292,12 +308,48 @@ export class StatsService {
       ),
       growthRates: calculateGrowthRates(monthlyData),
     };
+
+    // Cache the result
+    serverCache.set(cacheKey, result, this.CACHE_TTL);
+    
+    return result;
   }
 
   /**
    * Retorna contagem simples de submissions
+   * Optimized with caching
    */
   static async getSubmissionCount(filters: StatsFilters): Promise<number> {
-    return prisma.formSubmission.count({ where: filters });
+    const cacheKey = `count:${JSON.stringify(filters)}`;
+    
+    const cached = serverCache.get<number>(cacheKey);
+    if (cached !== null) {
+      return cached;
+    }
+    
+    const count = await prisma.formSubmission.count({ where: filters });
+    serverCache.set(cacheKey, count, this.CACHE_TTL);
+    
+    return count;
+  }
+
+  /**
+   * Invalidate stats cache for a specific user/model
+   * Call this when submissions are created/updated/deleted
+   */
+  static invalidateCache(userId?: string, modelContext?: string): void {
+    if (userId) {
+      serverCache.deletePattern(`stats:.*"submittedBy":"${userId}".*`);
+      serverCache.deletePattern(`count:.*"submittedBy":"${userId}".*`);
+    }
+    if (modelContext) {
+      serverCache.deletePattern(`stats:.*"modelContext":"${modelContext}".*`);
+      serverCache.deletePattern(`count:.*"modelContext":"${modelContext}".*`);
+    }
+    // If no specific filters, clear all stats cache
+    if (!userId && !modelContext) {
+      serverCache.deletePattern(`^stats:`);
+      serverCache.deletePattern(`^count:`);
+    }
   }
 }

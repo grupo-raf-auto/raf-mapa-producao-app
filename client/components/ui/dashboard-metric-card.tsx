@@ -257,7 +257,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
       )}
     >
       {/* Left side - Icon, Value, Title */}
-      <div className="flex items-center gap-4 min-w-0">
+      <div className="flex items-center gap-3 min-w-0">
         {/* Icon */}
         {IconComponent && (
           <div
@@ -265,7 +265,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
             style={{ backgroundColor: colors.bg }}
           >
             <IconComponent
-              className="h-5 w-5"
+              className="h-4 w-4"
               style={{ color: colors.icon }}
               aria-hidden="true"
             />
@@ -276,7 +276,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
         <div className="min-w-0">
           <div className="flex items-baseline gap-2">
             <span
-              className="text-xl font-bold tracking-tight"
+              className="text-lg font-bold tracking-tight"
               style={{ color: colors.text }}
             >
               {typeof value === "number"
@@ -307,8 +307,8 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
           data={sparklineData || []}
           type={sparklineType}
           color={colors.text}
-          width={70}
-          height={35}
+          width={56}
+          height={28}
         />
       </div>
     </motion.div>

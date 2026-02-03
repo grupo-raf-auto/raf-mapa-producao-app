@@ -106,7 +106,7 @@ export function AdminConsultasFilters({
                 variant="ghost"
                 size="sm"
                 onClick={handleClearAll}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="w-4 h-4 mr-1" />
                 Limpar filtros
@@ -185,7 +185,7 @@ export function AdminConsultasFilters({
                   <button
                     type="button"
                     onClick={clearSearch}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>

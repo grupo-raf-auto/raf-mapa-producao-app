@@ -70,7 +70,10 @@ function TopBar() {
     <div className="h-14 flex items-center justify-between px-6 border-b border-border bg-card/50 backdrop-blur-sm dark:bg-card/40">
       {/* Logo RAF (esquerda) - visível no admin; spacer nas outras rotas */}
       {isAdminRoute ? (
-        <Link href="/admin" className="flex items-center shrink-0">
+        <Link
+          href="/admin"
+          className="flex items-center shrink-0 cursor-pointer"
+        >
           <Image
             src="/logo-raf.png"
             alt="Grupo RAF"
@@ -92,7 +95,7 @@ function TopBar() {
         {/* CRM MyCredit button */}
         <Link
           href="/crm"
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-medium hover:bg-emerald-600 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-medium hover:bg-emerald-600 transition-colors cursor-pointer"
         >
           <Users className="w-3.5 h-3.5" />
           CRM MyCredit
@@ -101,7 +104,7 @@ function TopBar() {
         {/* Dark mode toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-full border border-border bg-card hover:bg-muted transition-colors dark:bg-card/80 dark:hover:bg-muted/80"
+          className="p-2 rounded-full border border-border bg-card hover:bg-muted transition-colors dark:bg-card/80 dark:hover:bg-muted/80 cursor-pointer"
           title="Alternar tema"
         >
           {mounted && theme === 'dark' ? (
@@ -114,7 +117,7 @@ function TopBar() {
         {/* Reportar Bug button */}
         <button
           onClick={handleReportBug}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-warning/10 text-warning text-xs font-medium hover:bg-warning/20 transition-colors dark:bg-warning/15 dark:text-warning dark:hover:bg-warning/25"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-warning/10 text-warning text-xs font-medium hover:bg-warning/20 transition-colors dark:bg-warning/15 dark:text-warning dark:hover:bg-warning/25 cursor-pointer"
         >
           <Bug className="w-3.5 h-3.5" />
           Reportar Bug
@@ -124,7 +127,7 @@ function TopBar() {
         {user && (
           <button
             onClick={handleSignOut}
-            className="p-2 rounded-full border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors dark:bg-destructive/15 dark:hover:bg-destructive/25"
+            className="p-2 rounded-full border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors dark:bg-destructive/15 dark:hover:bg-destructive/25 cursor-pointer"
             title="Sair"
           >
             <Power className="w-3.5 h-3.5" />

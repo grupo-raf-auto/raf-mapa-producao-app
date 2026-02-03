@@ -112,7 +112,7 @@ export function ConsultasFilters({
             variant="ghost"
             size="sm"
             onClick={handleReset}
-            className="text-muted-foreground"
+            className="text-muted-foreground cursor-pointer"
           >
             <X className="w-4 h-4 mr-2" />
             Limpar

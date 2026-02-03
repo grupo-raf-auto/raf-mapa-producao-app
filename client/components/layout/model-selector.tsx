@@ -127,7 +127,7 @@ export function ModelSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border border-transparent ${activeConfig?.color || 'bg-slate-500/20 text-slate-700 dark:text-slate-300'} hover:border-border disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border border-transparent cursor-pointer ${activeConfig?.color || 'bg-slate-500/20 text-slate-700 dark:text-slate-300'} hover:border-border disabled:opacity-50 disabled:cursor-not-allowed`}
           disabled={isSwitching || loading}
           title="Selecionar modelo"
         >

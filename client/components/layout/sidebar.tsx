@@ -3,7 +3,13 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { LayoutDashboard, Search, FileStack, Brain, FileCheck } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Search,
+  FileStack,
+  Brain,
+  FileCheck,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSession } from '@/lib/auth-client';
 
@@ -67,7 +73,7 @@ export function Sidebar() {
       <div className="flex flex-col h-full relative z-10">
         {/* Logo Header */}
         <div className="h-20 flex items-center justify-center border-b border-white/10 px-4 py-4">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center cursor-pointer">
             <div className="relative h-10 w-auto">
               <Image
                 src="/logo-raf.png"
@@ -99,7 +105,7 @@ export function Sidebar() {
                   href={item.href}
                   title={item.description}
                   className={cn(
-                    'sidebar-nav-link flex items-center gap-3 rounded-xl font-medium px-4 py-3.5',
+                    'sidebar-nav-link flex items-center gap-3 rounded-xl font-medium px-4 py-3.5 cursor-pointer',
                     isActive
                       ? 'active text-white'
                       : 'text-muted-foreground hover:text-foreground',
@@ -130,7 +136,7 @@ export function Sidebar() {
                   href={item.href}
                   title={item.description}
                   className={cn(
-                    'sidebar-nav-link flex items-center gap-3 rounded-xl font-medium px-4 py-3.5',
+                    'sidebar-nav-link flex items-center gap-3 rounded-xl font-medium px-4 py-3.5 cursor-pointer',
                     isActive
                       ? 'active text-white'
                       : 'text-muted-foreground hover:text-foreground',

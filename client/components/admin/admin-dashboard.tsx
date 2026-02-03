@@ -18,7 +18,13 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-type TabValue = 'users' | 'consultas' | 'performance' | 'templates' | 'documents' | 'tickets';
+type TabValue =
+  | 'users'
+  | 'consultas'
+  | 'performance'
+  | 'templates'
+  | 'documents'
+  | 'tickets';
 
 const tabs: { value: TabValue; label: string; icon: React.ElementType }[] = [
   { value: 'users', label: 'Utilizadores', icon: Users },
@@ -65,7 +71,7 @@ export function AdminDashboard() {
                 <button
                   key={tab.value}
                   onClick={() => setActiveTab(tab.value)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                     activeTab === tab.value
                       ? 'bg-card shadow-sm text-foreground'
                       : 'text-muted-foreground hover:text-foreground'
@@ -98,7 +104,7 @@ export function AdminDashboard() {
               <button
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
-                className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-2 py-2 rounded-full text-xs font-medium transition-all ${
+                className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-2 py-2 rounded-full text-xs font-medium transition-all cursor-pointer ${
                   activeTab === tab.value
                     ? 'bg-card shadow-sm text-foreground'
                     : 'text-muted-foreground'
@@ -113,9 +119,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Content */}
-      {activeTab === 'users' && (
-        <UsersManagement key={`users-${refreshKey}`} />
-      )}
+      {activeTab === 'users' && <UsersManagement key={`users-${refreshKey}`} />}
 
       {activeTab === 'consultas' && (
         <AdminConsultasContent key={`consultas-${refreshKey}`} />

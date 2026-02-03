@@ -86,7 +86,11 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
   // Split by newlines
   const lines = content.split('\n');
   const result: JSX.Element[] = [];
-  let currentListItems: { type: 'bullet' | 'numbered'; text: JSX.Element[]; key: number }[] = [];
+  let currentListItems: {
+    type: 'bullet' | 'numbered';
+    text: JSX.Element[];
+    key: number;
+  }[] = [];
   let listKeyCounter = 0;
 
   const flushList = () => {
@@ -97,21 +101,24 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
           key={`list-${listKeyCounter++}`}
           className={cn(
             'my-3 space-y-1.5',
-            isNumbered ? 'list-decimal' : 'list-none'
+            isNumbered ? 'list-decimal' : 'list-none',
           )}
         >
           {currentListItems.map((item, idx) => (
-            <li key={item.key} className={cn(
-              'text-sm leading-relaxed pl-1',
-              isNumbered ? 'ml-4' : 'ml-2'
-            )}>
+            <li
+              key={item.key}
+              className={cn(
+                'text-sm leading-relaxed pl-1',
+                isNumbered ? 'ml-4' : 'ml-2',
+              )}
+            >
               {!isNumbered && (
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60 mr-2 align-middle"></span>
               )}
               {item.text}
             </li>
           ))}
-        </ul>
+        </ul>,
       );
       currentListItems = [];
     }
@@ -122,9 +129,12 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
     if (line.startsWith('### ')) {
       flushList();
       result.push(
-        <h3 key={index} className="font-semibold text-base mt-4 mb-2 text-foreground">
+        <h3
+          key={index}
+          className="font-semibold text-base mt-4 mb-2 text-foreground"
+        >
           {line.replace('### ', '')}
-        </h3>
+        </h3>,
       );
       return;
     }
@@ -133,7 +143,7 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
       result.push(
         <h2 key={index} className="font-bold text-lg mt-4 mb-2 text-foreground">
           {line.replace('## ', '')}
-        </h2>
+        </h2>,
       );
       return;
     }
@@ -142,7 +152,7 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
       result.push(
         <h1 key={index} className="font-bold text-xl mt-4 mb-2 text-foreground">
           {line.replace('# ', '')}
-        </h1>
+        </h1>,
       );
       return;
     }
@@ -153,7 +163,7 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
       currentListItems.push({
         type: 'bullet',
         text: textParts,
-        key: index
+        key: index,
       });
       return;
     }
@@ -165,7 +175,7 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
       currentListItems.push({
         type: 'numbered',
         text: textParts,
-        key: index
+        key: index,
       });
       return;
     }
@@ -181,9 +191,12 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
     if (line.startsWith('> ')) {
       flushList();
       result.push(
-        <blockquote key={index} className="border-l-2 border-primary/50 pl-4 my-3 text-sm text-muted-foreground italic">
+        <blockquote
+          key={index}
+          className="border-l-2 border-primary/50 pl-4 my-3 text-sm text-muted-foreground italic"
+        >
           {line.substring(2)}
-        </blockquote>
+        </blockquote>,
       );
       return;
     }
@@ -194,11 +207,14 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
       const codeContent = line.slice(3);
       if (codeContent && codeContent.endsWith('```')) {
         result.push(
-          <pre key={index} className="my-3 p-4 bg-muted/50 rounded-xl overflow-x-auto border border-border/50">
+          <pre
+            key={index}
+            className="my-3 p-4 bg-muted/50 rounded-xl overflow-x-auto border border-border/50"
+          >
             <code className="text-xs font-mono text-foreground/90">
               {codeContent.slice(0, -3)}
             </code>
-          </pre>
+          </pre>,
         );
       }
       return;
@@ -211,9 +227,12 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
     } else {
       const textParts = parseInlineFormatting(line);
       result.push(
-        <p key={index} className="my-2 text-sm leading-relaxed text-foreground/90">
+        <p
+          key={index}
+          className="my-2 text-sm leading-relaxed text-foreground/90"
+        >
           {textParts}
-        </p>
+        </p>,
       );
     }
   });
@@ -241,13 +260,16 @@ function parseInlineFormatting(text: string): (string | JSX.Element)[] {
       parts.push(
         <strong key={match.index} className="font-semibold text-foreground">
           {matched.slice(2, -2)}
-        </strong>
+        </strong>,
       );
     } else if (matched.startsWith('`') && matched.endsWith('`')) {
       parts.push(
-        <code key={match.index} className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono text-foreground">
+        <code
+          key={match.index}
+          className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono text-foreground"
+        >
           {matched.slice(1, -1)}
-        </code>
+        </code>,
       );
     } else if (matched.startsWith('[') && matched.includes('](')) {
       const linkMatch = matched.match(/\[(.+?)\]\((.+?)\)/);
@@ -261,7 +283,7 @@ function parseInlineFormatting(text: string): (string | JSX.Element)[] {
             className="text-primary hover:underline"
           >
             {linkMatch[1]}
-          </a>
+          </a>,
         );
       }
     }
@@ -617,11 +639,16 @@ export function AnimatedAIChat({
                       {formatMessageContent(message.content, message.role)}
                     </div>
                   </div>
-                  <span className={cn(
-                    'text-[10px] text-muted-foreground/50',
-                    message.role === 'user' ? 'text-right mr-1' : 'ml-1'
-                  )}>
-                    {message.timestamp.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
+                  <span
+                    className={cn(
+                      'text-[10px] text-muted-foreground/50',
+                      message.role === 'user' ? 'text-right mr-1' : 'ml-1',
+                    )}
+                  >
+                    {message.timestamp.toLocaleTimeString('pt-PT', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </span>
                 </div>
               </motion.div>
@@ -755,7 +782,7 @@ export function AnimatedAIChat({
                         <span>{file}</span>
                         <button
                           onClick={() => removeAttachment(index)}
-                          className="text-muted-foreground/60 hover:text-foreground transition-colors"
+                          className="text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
                         >
                           <XIcon className="w-3 h-3" />
                         </button>
@@ -771,7 +798,7 @@ export function AnimatedAIChat({
                   <button
                     type="button"
                     onClick={handleAttachFile}
-                    className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all"
+                    className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all cursor-pointer"
                     title="Anexar ficheiro"
                   >
                     <Paperclip className="w-4 h-4" />
@@ -784,7 +811,7 @@ export function AnimatedAIChat({
                       setShowCommandPalette((prev) => !prev);
                     }}
                     className={cn(
-                      'p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all',
+                      'p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all cursor-pointer',
                       showCommandPalette && 'bg-primary/10 text-foreground',
                     )}
                     title="Comandos"

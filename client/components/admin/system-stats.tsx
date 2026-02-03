@@ -24,7 +24,7 @@ export function SystemStats() {
       const [users, templates, submissions, questions] = await Promise.all([
         api.users.getAll(),
         api.templates.getAll(),
-        api.submissions.getAll(),
+        api.submissions.getAll({ scope: "all" }),
         api.questions.getAll(),
       ]);
 

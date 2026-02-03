@@ -8,7 +8,6 @@ import { TemplatesManagement } from './templates-management';
 import { DocumentsManager } from '@/components/mysabichao/documents-manager';
 import {
   Users,
-  ArrowLeft,
   FileText,
   Ticket,
   RefreshCw,
@@ -17,7 +16,6 @@ import {
   TrendingUp,
   FileStack,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 type TabValue = 'users' | 'consultas' | 'performance' | 'templates' | 'documents' | 'tickets';
@@ -32,7 +30,6 @@ const tabs: { value: TabValue; label: string; icon: React.ElementType }[] = [
 ];
 
 export function AdminDashboard() {
-  const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<TabValue>('users');
 
@@ -45,28 +42,18 @@ export function AdminDashboard() {
       {/* Header Card */}
       <div className="bg-card rounded-2xl p-4 shadow-sm border">
         <div className="flex items-center justify-between gap-4">
-          {/* Left: Back button + Icon + Title */}
+          {/* Left: Icon + Title */}
           <div className="flex items-center gap-3">
-            <Button
-              onClick={() => router.push('/')}
-              variant="ghost"
-              size="icon"
-              className="shrink-0 rounded-full"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center text-white shadow-sm">
-                <Shield className="w-5 h-5" />
-              </div>
-              <div>
-                <h1 className="font-title text-xl font-bold text-foreground">
-                  Painel Admin
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Gerir utilizadores
-                </p>
-              </div>
+            <div className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center text-white shadow-sm">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="font-title text-xl font-bold text-foreground">
+                Painel Admin
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Gerir utilizadores
+              </p>
             </div>
           </div>
 

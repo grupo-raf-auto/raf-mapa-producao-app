@@ -118,7 +118,7 @@ export function UserModelsModal({
 
     if (
       !confirm(
-        `Tem certeza que deseja remover o modelo ${MODEL_LABELS[modelType]}? Esta ação não pode ser desfeita.`
+        `Tem certeza que deseja remover o modelo ${MODEL_CONFIG[modelType as keyof typeof MODEL_CONFIG]?.label || modelType}? Esta ação não pode ser desfeita.`
       )
     ) {
       return;

@@ -43,10 +43,20 @@ interface Question {
   options?: string[];
 }
 
+interface User {
+  _id?: string;
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+}
+
 interface AdminConsultasFiltersModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   templates: Array<{ _id?: string; title: string }>;
+  users: User[];
   questions: Question[];
   questionValues: Record<string, string[]>;
   filters: AdminConsultasFiltersState;
@@ -74,6 +84,7 @@ export function AdminConsultasFiltersModal({
   open,
   onOpenChange,
   templates,
+  users,
   questions,
   questionValues,
   filters,
@@ -93,6 +104,7 @@ export function AdminConsultasFiltersModal({
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (localFilters.templateId !== "all") count++;
+    if (localFilters.userId !== "all") count++;
     if (localFilters.search.trim()) count++;
     Object.values(localFilters.questionFilters).forEach((value) => {
       if (value && value !== "all" && value.trim()) count++;
@@ -107,6 +119,13 @@ export function AdminConsultasFiltersModal({
       if (localFilters.templateId !== "all") {
         const template = templates.find((t) => t._id === localFilters.templateId);
         if (template) badges.push(template.title);
+      }
+      if (localFilters.userId !== "all") {
+        const user = users.find((u) => (u._id || u.id) === localFilters.userId);
+        if (user) {
+          const userName = user.firstName || user.lastName || user.name || user.email;
+          badges.push(`User: ${userName}`);
+        }
       }
       if (localFilters.search.trim()) {
         badges.push(localFilters.search);
@@ -141,6 +160,7 @@ export function AdminConsultasFiltersModal({
   const handleReset = () => {
     setLocalFilters({
       templateId: "all",
+      userId: "all",
       search: "",
       questionFilters: {},
     });
@@ -159,6 +179,30 @@ export function AdminConsultasFiltersModal({
 
   const renderMainFilters = () => (
     <div className="space-y-6 max-w-2xl">
+      {/* User */}
+      <div className="space-y-2">
+        <Label htmlFor="user" className="text-sm font-medium">
+          Utilizador
+        </Label>
+        <Select
+          value={localFilters.userId}
+          onValueChange={(value) => updateLocalFilter({ userId: value })}
+        >
+          <SelectTrigger id="user" className="h-10">
+            <SelectValue placeholder="Todos os utilizadores" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os Utilizadores</SelectItem>
+            {users.map((user) => (
+              <SelectItem key={user._id || user.id} value={user._id || user.id}>
+                {user.firstName || user.lastName || user.name || user.email}
+                {user.email && ` (${user.email})`}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Template */}
       <div className="space-y-2">
         <Label htmlFor="template" className="text-sm font-medium">

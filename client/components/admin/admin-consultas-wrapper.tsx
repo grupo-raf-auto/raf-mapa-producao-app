@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { AdminConsultasFilters } from "./admin-consultas-filters";
-import { AdminConsultasList } from "./admin-consultas-list";
-import type { AdminConsultasFiltersState } from "./admin-consultas-filters";
+import { useState } from 'react';
+import { AdminConsultasFilters } from './admin-consultas-filters';
+import { AdminConsultasList } from './admin-consultas-list';
+import type { AdminConsultasFiltersState } from './admin-consultas-filters';
 
 interface Submission {
   _id?: string;
@@ -29,10 +29,20 @@ interface Question {
   options?: string[];
 }
 
+interface User {
+  _id?: string;
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+}
+
 interface AdminConsultasWrapperProps {
   submissions: Submission[];
   templates: Template[];
   questions: Question[];
+  users: User[];
   onSubmissionUpdate?: () => void;
 }
 
@@ -40,19 +50,24 @@ export function AdminConsultasWrapper({
   submissions,
   templates,
   questions,
+  users,
   onSubmissionUpdate,
 }: AdminConsultasWrapperProps) {
   const [filters, setFilters] = useState<AdminConsultasFiltersState>({
-    templateId: "all",
-    search: "",
+    templateId: 'all',
+    userId: 'all',
+    search: '',
     questionFilters: {},
   });
-  const [questionValues, setQuestionValues] = useState<Record<string, string[]>>({});
+  const [questionValues, setQuestionValues] = useState<
+    Record<string, string[]>
+  >({});
 
   return (
     <>
       <AdminConsultasFilters
         templates={templates}
+        users={users}
         questions={questions}
         questionValues={questionValues}
         filters={filters}
@@ -62,6 +77,7 @@ export function AdminConsultasWrapper({
         submissions={submissions}
         templates={templates}
         questions={questions}
+        users={users}
         filters={filters}
         onSubmissionUpdate={onSubmissionUpdate}
         onQuestionValuesChange={setQuestionValues}

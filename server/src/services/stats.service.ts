@@ -334,6 +334,116 @@ export class StatsService {
   }
 
   /**
+   * Calcula o total de produção acumulado no ano atual
+   */
+  static async getYearlyTotal(filters: StatsFilters): Promise<{ total: number; totalValue: number }> {
+    const cacheKey = `yearly:${JSON.stringify(filters)}`;
+
+    const cached = serverCache.get<{ total: number; totalValue: number }>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const currentYear = new Date().getFullYear();
+    const startOfYear = new Date(currentYear, 0, 1);
+    const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59);
+
+    const submissions = await prisma.formSubmission.findMany({
+      where: {
+        ...filters,
+        submittedAt: {
+          gte: startOfYear,
+          lte: endOfYear,
+        },
+      },
+      select: {
+        answers: true,
+      },
+    });
+
+    // Buscar o questionId de "Valor"
+    const valorQuestion = await prisma.question.findFirst({
+      where: { title: "Valor" },
+      select: { id: true },
+    });
+
+    let totalValue = 0;
+    for (const submission of submissions) {
+      const answers = parseAnswersArray(submission.answers);
+      const valorStr = getAnswerValue(answers, valorQuestion?.id);
+      if (valorStr) {
+        const valor = parseValue(valorStr);
+        if (valor > 0) {
+          totalValue += valor;
+        }
+      }
+    }
+
+    const result = {
+      total: submissions.length,
+      totalValue,
+    };
+
+    serverCache.set(cacheKey, result, this.CACHE_TTL);
+    return result;
+  }
+
+  /**
+   * Calcula o total de produção do mês atual
+   */
+  static async getMonthlyTotal(filters: StatsFilters): Promise<{ total: number; totalValue: number }> {
+    const cacheKey = `monthly:${JSON.stringify(filters)}`;
+
+    const cached = serverCache.get<{ total: number; totalValue: number }>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+    const submissions = await prisma.formSubmission.findMany({
+      where: {
+        ...filters,
+        submittedAt: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+      },
+      select: {
+        answers: true,
+      },
+    });
+
+    // Buscar o questionId de "Valor"
+    const valorQuestion = await prisma.question.findFirst({
+      where: { title: "Valor" },
+      select: { id: true },
+    });
+
+    let totalValue = 0;
+    for (const submission of submissions) {
+      const answers = parseAnswersArray(submission.answers);
+      const valorStr = getAnswerValue(answers, valorQuestion?.id);
+      if (valorStr) {
+        const valor = parseValue(valorStr);
+        if (valor > 0) {
+          totalValue += valor;
+        }
+      }
+    }
+
+    const result = {
+      total: submissions.length,
+      totalValue,
+    };
+
+    serverCache.set(cacheKey, result, this.CACHE_TTL);
+    return result;
+  }
+
+  /**
    * Invalidate stats cache for a specific user/model
    * Call this when submissions are created/updated/deleted
    */
@@ -341,15 +451,21 @@ export class StatsService {
     if (userId) {
       serverCache.deletePattern(`stats:.*"submittedBy":"${userId}".*`);
       serverCache.deletePattern(`count:.*"submittedBy":"${userId}".*`);
+      serverCache.deletePattern(`yearly:.*"submittedBy":"${userId}".*`);
+      serverCache.deletePattern(`monthly:.*"submittedBy":"${userId}".*`);
     }
     if (modelContext) {
       serverCache.deletePattern(`stats:.*"modelContext":"${modelContext}".*`);
       serverCache.deletePattern(`count:.*"modelContext":"${modelContext}".*`);
+      serverCache.deletePattern(`yearly:.*"modelContext":"${modelContext}".*`);
+      serverCache.deletePattern(`monthly:.*"modelContext":"${modelContext}".*`);
     }
     // If no specific filters, clear all stats cache
     if (!userId && !modelContext) {
       serverCache.deletePattern(`^stats:`);
       serverCache.deletePattern(`^count:`);
+      serverCache.deletePattern(`^yearly:`);
+      serverCache.deletePattern(`^monthly:`);
     }
   }
 }

@@ -2,407 +2,410 @@
 // https://www.prisma.io/docs | https://www.better-auth.com
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 // ============ Better Auth ============
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  image         String?
-  // Campos adicionais para a aplicação
-  firstName     String?
-  lastName      String?
-  role          String    @default("user") // admin | user
-  status        String    @default("pending") // pending | approved | rejected
-  isActive      Boolean   @default(true)
+    id            String  @id @default(cuid())
+    name          String?
+    email         String  @unique
+    emailVerified Boolean @default(false)
+    image         String?
+    // Campos adicionais para a aplicação
+    firstName     String?
+    lastName      String?
+    role          String  @default("user") // admin | user
+    status        String  @default("pending") // pending | approved | rejected
+    isActive      Boolean @default(true)
 
-  // Relações de autenticação
-  sessions      Session[]
-  accounts      Account[]
+    // Relações de autenticação
+    sessions Session[]
+    accounts Account[]
 
-  // Relações da aplicação
-  documentScans DocumentScan[]
-  submissions   FormSubmission[]
-  chatMessages  ChatMessage[]
-  documents     Document[]
+    // Relações da aplicação
+    documentScans DocumentScan[]
+    submissions   FormSubmission[]
+    chatMessages  ChatMessage[]
+    documents     Document[]
 
-  // Relações de criação (opcional - para auditoria)
-  createdQuestions  Question[]
-  createdTemplates  Template[]
+    // Relações de criação (opcional - para auditoria)
+    createdQuestions Question[]
+    createdTemplates Template[]
 
-  // NEW: Relação com modelos de usuário (credito, imobiliaria, seguro)
-  userModels    UserModel[]
+    // NEW: Relação com modelos de usuário (credito, imobiliaria, seguro)
+    userModels UserModel[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  @@map("user")
+    @@map("user")
 }
 
 // ============ User Models System ============
 // Tabela de junção para relacionar usuários a modelos de negócio
 model UserModel {
-  id        String   @id @default(cuid())
+    id String @id @default(cuid())
 
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  modelType String   // "credito" | "imobiliaria" | "seguro"
-  isActive  Boolean  @default(true)
+    modelType String // "credito" | "imobiliaria" | "seguro"
+    isActive  Boolean @default(true)
 
-  // Referências aos perfis específicos do modelo (apenas um será preenchido por UserModel)
-  creditoProfileId     String?          @unique
-  creditoProfile       CreditoProfile?  @relation(fields: [creditoProfileId], references: [id], onDelete: Cascade)
+    // Referências aos perfis específicos do modelo (apenas um será preenchido por UserModel)
+    creditoProfileId String?         @unique
+    creditoProfile   CreditoProfile? @relation(fields: [creditoProfileId], references: [id], onDelete: Cascade)
 
-  imobiliariaProfileId String?          @unique
-  imobiliariaProfile   ImobiliariaProfile? @relation(fields: [imobiliariaProfileId], references: [id], onDelete: Cascade)
+    imobiliariaProfileId String?             @unique
+    imobiliariaProfile   ImobiliariaProfile? @relation(fields: [imobiliariaProfileId], references: [id], onDelete: Cascade)
 
-  seguroProfileId      String?          @unique
-  seguroProfile        SeguroProfile?   @relation(fields: [seguroProfileId], references: [id], onDelete: Cascade)
+    seguroProfileId String?        @unique
+    seguroProfile   SeguroProfile? @relation(fields: [seguroProfileId], references: [id], onDelete: Cascade)
 
-  // Metadados
-  activatedAt DateTime  @default(now())
-  activatedBy String?   // ID do admin que ativou este modelo para o usuário
+    // Metadados
+    activatedAt DateTime @default(now())
+    activatedBy String? // ID do admin que ativou este modelo para o usuário
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  @@unique([userId, modelType]) // Um usuário pode ter apenas uma instância de cada tipo de modelo
-  @@index([userId])
-  @@index([modelType])
-  @@map("user_model")
+    @@unique([userId, modelType]) // Um usuário pode ter apenas uma instância de cada tipo de modelo
+    @@index([userId])
+    @@index([modelType])
+    @@map("user_model")
 }
 
 // Perfil específico para usuários de Crédito
 model CreditoProfile {
-  id               String   @id @default(cuid())
+    id String @id @default(cuid())
 
-  // Dados específicos do perfil
-  licenseNumber    String?
-  registrationDate DateTime?
-  specialization   String[] // Tipos de crédito que se especializam
+    // Dados específicos do perfil
+    licenseNumber    String?
+    registrationDate DateTime?
+    specialization   String[] // Tipos de crédito que se especializam
 
-  // Métricas de negócio
-  totalProduction  Decimal  @default(0) @db.Decimal(12, 2)
-  activeClients    Int      @default(0)
+    // Métricas de negócio
+    totalProduction Decimal @default(0) @db.Decimal(12, 2)
+    activeClients   Int     @default(0)
 
-  // Relações
-  creditoSubmissions FormSubmission[]
-  userModel        UserModel?
+    // Relações
+    creditoSubmissions FormSubmission[]
+    userModel          UserModel?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  @@map("credito_profile")
+    @@map("credito_profile")
 }
 
 // Perfil específico para usuários de Imobiliária
 model ImobiliariaProfile {
-  id             String   @id @default(cuid())
+    id String @id @default(cuid())
 
-  // Dados específicos do perfil
-  agencyName     String?
-  licenseNumber  String?
-  propertyTypes  String[] // residential, commercial, industrial
+    // Dados específicos do perfil
+    agencyName    String?
+    licenseNumber String?
+    propertyTypes String[] // residential, commercial, industrial
 
-  // Métricas de negócio
-  totalSales     Decimal  @default(0) @db.Decimal(12, 2)
-  activeListings Int      @default(0)
+    // Métricas de negócio
+    totalSales     Decimal @default(0) @db.Decimal(12, 2)
+    activeListings Int     @default(0)
 
-  // Relações
-  imobiliariaSubmissions FormSubmission[]
-  userModel      UserModel?
+    // Relações
+    imobiliariaSubmissions FormSubmission[]
+    userModel              UserModel?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  @@map("imobiliaria_profile")
+    @@map("imobiliaria_profile")
 }
 
 // Perfil específico para usuários de Seguros
 model SeguroProfile {
-  id             String   @id @default(cuid())
+    id String @id @default(cuid())
 
-  // Dados específicos do perfil
-  licenseNumber  String?
-  insuranceTypes String[] // life, health, auto, property
+    // Dados específicos do perfil
+    licenseNumber  String?
+    insuranceTypes String[] // life, health, auto, property
 
-  // Métricas de negócio
-  totalPremiums  Decimal  @default(0) @db.Decimal(12, 2)
-  activePolicies Int      @default(0)
+    // Métricas de negócio
+    totalPremiums  Decimal @default(0) @db.Decimal(12, 2)
+    activePolicies Int     @default(0)
 
-  // Relações
-  seguroSubmissions FormSubmission[]
-  userModel      UserModel?
+    // Relações
+    seguroSubmissions FormSubmission[]
+    userModel         UserModel?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  @@map("seguro_profile")
+    @@map("seguro_profile")
 }
 
 model Session {
-  id        String   @id @default(cuid())
-  expiresAt DateTime
-  token     String   @unique
-  ipAddress String?
-  userAgent String?
+    id        String   @id @default(cuid())
+    expiresAt DateTime
+    token     String   @unique
+    ipAddress String?
+    userAgent String?
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  @@map("session")
+    @@map("session")
 }
 
 model Account {
-  id                   String    @id @default(cuid())
-  accountId            String
-  providerId           String
-  password             String?   // hash para provider "credential" (email/password)
-  accessToken          String?
-  refreshToken         String?
-  idToken              String?
-  accessTokenExpiresAt DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                String?
+    id                    String    @id @default(cuid())
+    accountId             String
+    providerId            String
+    password              String? // hash para provider "credential" (email/password)
+    accessToken           String?
+    refreshToken          String?
+    idToken               String?
+    accessTokenExpiresAt  DateTime?
+    refreshTokenExpiresAt DateTime?
+    scope                 String?
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  @@map("account")
+    @@map("account")
 }
 
 model Verification {
-  id         String   @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime
+    id         String   @id @default(cuid())
+    identifier String
+    value      String
+    expiresAt  DateTime
 
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+    createdAt DateTime? @default(now())
+    updatedAt DateTime? @updatedAt
 
-  @@map("verification")
+    @@map("verification")
 }
 
 // ============ Aplicação RAF ============
 model Category {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  color       String?
+    id          String  @id @default(cuid())
+    name        String
+    description String?
+    color       String?
 
-  // Relação com questões
-  questions Question[]
+    // Relação com questões
+    questions Question[]
 
-  createdAt DateTime @default(now())
+    createdAt DateTime @default(now())
 
-  @@map("category")
+    @@map("category")
 }
 
 model Question {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  status      String   // active | inactive
-  inputType   String?  // text | date | select | email | tel | number | radio
-  options     String[] // para select/radio
+    id          String   @id @default(cuid())
+    title       String
+    description String?
+    status      String // active | inactive
+    inputType   String? // text | date | select | email | tel | number | radio
+    options     String[] // para select/radio
 
-  // Relação com categoria (opcional)
-  categoryId String?
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+    // Relação com categoria (opcional)
+    categoryId String?
+    category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  // Relação com criador
-  createdBy String?
-  creator   User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+    // Relação com criador
+    createdBy String?
+    creator   User?   @relation(fields: [createdBy], references: [id], onDelete: SetNull)
 
-  // Relação N:N com templates via tabela de junção
-  templates TemplateQuestion[]
+    // Relação N:N com templates via tabela de junção
+    templates TemplateQuestion[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  @@map("question")
+    @@map("question")
 }
 
 model Template {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  isDefault   Boolean  @default(false)
-  isPublic    Boolean  @default(false)
+    id          String  @id @default(cuid())
+    title       String
+    description String?
+    isDefault   Boolean @default(false)
+    isPublic    Boolean @default(false)
 
-  // Associação com modelo de usuário (credito | imobiliaria | seguro)
-  modelType   String?  // "credito" | "imobiliaria" | "seguro" - null = disponível para todos
+    // Associação com modelo de usuário (credito | imobiliaria | seguro)
+    modelType String? // "credito" | "imobiliaria" | "seguro" - null = disponível para todos
 
-  // Relação com criador
-  createdBy String?
-  creator   User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+    // Relação com criador
+    createdBy String?
+    creator   User?   @relation(fields: [createdBy], references: [id], onDelete: SetNull)
 
-  // Relação N:N com questões via tabela de junção
-  questions TemplateQuestion[]
+    // Relação N:N com questões via tabela de junção
+    questions TemplateQuestion[]
 
-  // Relação com submissions
-  submissions FormSubmission[]
+    // Relação com submissions
+    submissions FormSubmission[]
 
-  // Campo legado mantido para compatibilidade durante migração
-  // TODO: Remover após migração completa dos dados
-  questionIds String[] @default([]) @map("questions")
+    // Campo legado mantido para compatibilidade durante migração
+    // TODO: Remover após migração completa dos dados
+    questionIds String[] @default([]) @map("questions")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  @@index([modelType])
-  @@map("template")
+    @@index([modelType])
+    @@map("template")
 }
 
 // Tabela de junção para relação N:N entre Template e Question
 model TemplateQuestion {
-  id         String   @id @default(cuid())
-  templateId String
-  questionId String
-  order      Int      @default(0) // Para manter ordenação das questões no template
+    id         String @id @default(cuid())
+    templateId String
+    questionId String
+    order      Int    @default(0) // Para manter ordenação das questões no template
 
-  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+    template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+    question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+    createdAt DateTime @default(now())
 
-  @@unique([templateId, questionId])
-  @@index([templateId])
-  @@index([questionId])
-  @@map("template_question")
+    @@unique([templateId, questionId])
+    @@index([templateId])
+    @@index([questionId])
+    @@map("template_question")
 }
 
 model FormSubmission {
-  id          String   @id @default(cuid())
-  answers     Json     // [{ questionId, answer }]
+    id      String @id @default(cuid())
+    answers Json // [{ questionId, answer }]
 
-  // Relação com template
-  templateId  String
-  template    Template @relation(fields: [templateId], references: [id], onDelete: Restrict)
+    // Relação com template
+    templateId String
+    template   Template @relation(fields: [templateId], references: [id], onDelete: Restrict)
 
-  // Relação com usuário que submeteu
-  submittedBy String
-  user        User     @relation(fields: [submittedBy], references: [id], onDelete: Cascade)
+    // Relação com usuário que submeteu
+    submittedBy String
+    user        User   @relation(fields: [submittedBy], references: [id], onDelete: Cascade)
 
-  // NEW: Contexto de modelo - qual modelo estava ativo quando foi submetido
-  modelContext String?  // "credito" | "imobiliaria" | "seguro"
+    // NEW: Contexto de modelo - qual modelo estava ativo quando foi submetido
+    modelContext String? // "credito" | "imobiliaria" | "seguro"
 
-  // NEW: Referências opcionais aos perfis específicos do modelo
-  creditoProfileId     String?
-  creditoProfile       CreditoProfile?  @relation(fields: [creditoProfileId], references: [id], onDelete: SetNull)
+    // NEW: Referências opcionais aos perfis específicos do modelo
+    creditoProfileId String?
+    creditoProfile   CreditoProfile? @relation(fields: [creditoProfileId], references: [id], onDelete: SetNull)
 
-  imobiliariaProfileId String?
-  imobiliariaProfile   ImobiliariaProfile? @relation(fields: [imobiliariaProfileId], references: [id], onDelete: SetNull)
+    imobiliariaProfileId String?
+    imobiliariaProfile   ImobiliariaProfile? @relation(fields: [imobiliariaProfileId], references: [id], onDelete: SetNull)
 
-  seguroProfileId      String?
-  seguroProfile        SeguroProfile?   @relation(fields: [seguroProfileId], references: [id], onDelete: SetNull)
+    seguroProfileId String?
+    seguroProfile   SeguroProfile? @relation(fields: [seguroProfileId], references: [id], onDelete: SetNull)
 
-  submittedAt DateTime @default(now())
+    // Admin: confirmação de pagamento de comissão ao utilizador
+    commissionPaid Boolean @default(false)
 
-  @@index([templateId])
-  @@index([submittedBy])
-  @@index([modelContext]) // NEW: Para filtrar por modelo
-  @@map("submission")
+    submittedAt DateTime @default(now())
+
+    @@index([templateId])
+    @@index([submittedBy])
+    @@index([modelContext]) // NEW: Para filtrar por modelo
+    @@map("submission")
 }
 
 model Document {
-  id           String    @id @default(cuid())
-  filename     String
-  originalName String
-  mimeType     String
-  size         Int
-  uploadedAt   DateTime  @default(now())
-  processedAt  DateTime?
-  isActive     Boolean   @default(true)
+    id           String    @id @default(cuid())
+    filename     String
+    originalName String
+    mimeType     String
+    size         Int
+    uploadedAt   DateTime  @default(now())
+    processedAt  DateTime?
+    isActive     Boolean   @default(true)
 
-  // Relação com usuário que fez upload
-  uploadedBy   String
-  uploader     User      @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
+    // Relação com usuário que fez upload
+    uploadedBy String
+    uploader   User   @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
 
-  // Relação com chunks
-  chunks       DocumentChunk[]
+    // Relação com chunks
+    chunks DocumentChunk[]
 
-  @@index([uploadedBy])
-  @@map("document")
+    @@index([uploadedBy])
+    @@map("document")
 }
 
 model DocumentChunk {
-  id         String   @id @default(cuid())
-  documentId String
-  chunkIndex Int
-  content    String
-  embedding  Json?    // array de números (1536 dims)
-  metadata   Json?
+    id         String @id @default(cuid())
+    documentId String
+    chunkIndex Int
+    content    String
+    embedding  Json? // array de números (1536 dims)
+    metadata   Json?
 
-  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+    document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+    createdAt DateTime @default(now())
 
-  @@map("document_chunk")
+    @@map("document_chunk")
 }
 
 model DocumentScan {
-  id        String   @id @default(cuid())
+    id String @id @default(cuid())
 
-  // File metadata
-  fileName     String
-  fileType     String   // "pdf" | "image"
-  fileSize     Int
+    // File metadata
+    fileName String
+    fileType String // "pdf" | "image"
+    fileSize Int
 
-  // Scores
-  scoreTotal      Int      // 0-100
-  technicalScore  Int      // 0-100
-  iaScore         Int      // 0-100
-  riskLevel       String   // "ALTO_RISCO" | "MEDIO_ALTO" | "MEDIO" | "BAIXO"
-  recommendation  String   // "REJEITAR" | "REJEITAR_COM_REVISAO" | "VALIDAR_EXTRA" | "ACEITAR"
+    // Scores
+    scoreTotal     Int // 0-100
+    technicalScore Int // 0-100
+    iaScore        Int // 0-100
+    riskLevel      String // "ALTO_RISCO" | "MEDIO_ALTO" | "MEDIO" | "BAIXO"
+    recommendation String // "REJEITAR" | "REJEITAR_COM_REVISAO" | "VALIDAR_EXTRA" | "ACEITAR"
 
-  // Results
-  flags           Json[]   // Array of critical flags
-  justification   String   @db.Text
+    // Results
+    flags         Json[] // Array of critical flags
+    justification String @db.Text
 
-  // Analysis details (optional)
-  technicalFlags  Json?    // Detailed technical flags
-  aiRisks         Json?    // Detailed AI risks
+    // Analysis details (optional)
+    technicalFlags Json? // Detailed technical flags
+    aiRisks        Json? // Detailed AI risks
 
-  // Metadata
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+    // Metadata
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  // User tracking
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    // User tracking
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("document_scan")
+    @@map("document_scan")
 }
 
 model ChatMessage {
-  id             String   @id @default(cuid())
-  conversationId String
-  role           String   // user | assistant
-  content        String   @db.Text
+    id             String @id @default(cuid())
+    conversationId String
+    role           String // user | assistant
+    content        String @db.Text
 
-  // Relação com usuário
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    // Relação com usuário
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+    createdAt DateTime @default(now())
 
-  @@index([conversationId])
-  @@index([userId])
-  @@map("chat_message")
+    @@index([conversationId])
+    @@index([userId])
+    @@map("chat_message")
 }

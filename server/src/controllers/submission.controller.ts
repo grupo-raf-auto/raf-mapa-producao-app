@@ -1,14 +1,15 @@
-import { Request, Response } from "express";
-import { prisma } from "../lib/prisma";
-import { StatsService } from "../services/stats.service";
-import { withLegacyId, withLegacyIds } from "../utils/response.utils";
+import { Request, Response } from 'express';
+import { prisma } from '../lib/prisma';
+import { StatsService } from '../services/stats.service';
+import { withLegacyId, withLegacyIds } from '../utils/response.utils';
 
 export class SubmissionController {
   static async getAll(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
       const templateId = req.query.templateId as string | undefined;
+      const scope = req.query.scope as 'personal' | 'all' | undefined;
       const where: {
         templateId?: string;
         submittedBy?: string;
@@ -16,28 +17,34 @@ export class SubmissionController {
       } = {};
 
       if (templateId) where.templateId = templateId;
-      if (req.user.role !== "admin") where.submittedBy = req.user.id;
 
-      // NEW: Filter by active model context
-      if (req.user.activeModelType) {
-        where.modelContext = req.user.activeModelType;
+      // Scope-based filtering: only admins can use scope=all
+      const isAdminViewingAll = scope === 'all' && req.user.role === 'admin';
+      if (isAdminViewingAll) {
+        // Admin viewing all data - no submittedBy filter, no modelContext filter
+      } else {
+        // Personal data (default) - filter by user and optionally by active model
+        where.submittedBy = req.user.id;
+        if (req.user.activeModelType) {
+          where.modelContext = req.user.activeModelType;
+        }
       }
 
       const submissions = await prisma.formSubmission.findMany({
         where,
-        orderBy: { submittedAt: "desc" },
+        orderBy: { submittedAt: 'desc' },
       });
 
       res.json(withLegacyIds(submissions));
     } catch (error) {
-      console.error("Error fetching submissions:", error);
-      res.status(500).json({ error: "Failed to fetch submissions" });
+      console.error('Error fetching submissions:', error);
+      res.status(500).json({ error: 'Failed to fetch submissions' });
     }
   }
 
   static async getById(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
       const { id } = req.params;
       const submission = await prisma.formSubmission.findUnique({
@@ -45,35 +52,35 @@ export class SubmissionController {
       });
 
       if (!submission) {
-        return res.status(404).json({ error: "Submission not found" });
+        return res.status(404).json({ error: 'Submission not found' });
       }
 
-      if (req.user.role !== "admin" && submission.submittedBy !== req.user.id) {
+      if (req.user.role !== 'admin' && submission.submittedBy !== req.user.id) {
         return res.status(403).json({
-          error: "Forbidden: You can only view your own submissions",
+          error: 'Forbidden: You can only view your own submissions',
         });
       }
 
       res.json(withLegacyId(submission));
     } catch (error) {
-      console.error("Error fetching submission:", error);
-      res.status(500).json({ error: "Failed to fetch submission" });
+      console.error('Error fetching submission:', error);
+      res.status(500).json({ error: 'Failed to fetch submission' });
     }
   }
 
   static async create(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
       const { templateId, answers } = req.body;
 
       if (!templateId) {
-        return res.status(400).json({ error: "templateId is required" });
+        return res.status(400).json({ error: 'templateId is required' });
       }
 
       if (!answers || !Array.isArray(answers) || answers.length === 0) {
         return res.status(400).json({
-          error: "At least one answer is required",
+          error: 'At least one answer is required',
         });
       }
 
@@ -83,7 +90,7 @@ export class SubmissionController {
       });
 
       if (!template) {
-        return res.status(404).json({ error: "Template not found" });
+        return res.status(404).json({ error: 'Template not found' });
       }
 
       // NEW: Include modelContext and profile FK
@@ -95,7 +102,7 @@ export class SubmissionController {
       };
 
       // Add profile FK based on model type
-      if (req.user.activeModelType === "credito" && req.user.activeModelId) {
+      if (req.user.activeModelType === 'credito' && req.user.activeModelId) {
         const userModel = await prisma.userModel.findUnique({
           where: { id: req.user.activeModelId },
           include: { creditoProfile: true },
@@ -104,7 +111,7 @@ export class SubmissionController {
           data.creditoProfileId = userModel.creditoProfile.id;
         }
       } else if (
-        req.user.activeModelType === "imobiliaria" &&
+        req.user.activeModelType === 'imobiliaria' &&
         req.user.activeModelId
       ) {
         const userModel = await prisma.userModel.findUnique({
@@ -114,7 +121,10 @@ export class SubmissionController {
         if (userModel?.imobiliariaProfile) {
           data.imobiliariaProfileId = userModel.imobiliariaProfile.id;
         }
-      } else if (req.user.activeModelType === "seguro" && req.user.activeModelId) {
+      } else if (
+        req.user.activeModelType === 'seguro' &&
+        req.user.activeModelId
+      ) {
         const userModel = await prisma.userModel.findUnique({
           where: { id: req.user.activeModelId },
           include: { seguroProfile: true },
@@ -133,14 +143,14 @@ export class SubmissionController {
 
       res.status(201).json({ id: submission.id, success: true });
     } catch (error) {
-      console.error("Error creating submission:", error);
-      res.status(500).json({ error: "Failed to create submission" });
+      console.error('Error creating submission:', error);
+      res.status(500).json({ error: 'Failed to create submission' });
     }
   }
 
   static async update(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
       const { id } = req.params;
       const submission = await prisma.formSubmission.findUnique({
@@ -148,19 +158,28 @@ export class SubmissionController {
       });
 
       if (!submission) {
-        return res.status(404).json({ error: "Submission not found" });
+        return res.status(404).json({ error: 'Submission not found' });
       }
 
-      if (req.user.role !== "admin" && submission.submittedBy !== req.user.id) {
+      if (req.user.role !== 'admin' && submission.submittedBy !== req.user.id) {
         return res.status(403).json({
-          error: "Forbidden: You can only edit your own submissions",
+          error: 'Forbidden: You can only edit your own submissions',
         });
       }
 
       const answers = req.body.answers ?? submission.answers;
+      const data: { answers: object; commissionPaid?: boolean } = {
+        answers: answers as object,
+      };
+
+      // Apenas admin pode alterar o estado de comissão paga
+      if (req.body.commissionPaid !== undefined && req.user.role === 'admin') {
+        data.commissionPaid = Boolean(req.body.commissionPaid);
+      }
+
       const updated = await prisma.formSubmission.update({
         where: { id },
-        data: { answers: answers as object },
+        data,
       });
 
       // Invalidate stats cache for this user and model
@@ -168,14 +187,14 @@ export class SubmissionController {
 
       res.json(withLegacyId(updated));
     } catch (error) {
-      console.error("Error updating submission:", error);
-      res.status(500).json({ error: "Failed to update submission" });
+      console.error('Error updating submission:', error);
+      res.status(500).json({ error: 'Failed to update submission' });
     }
   }
 
   static async delete(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
       const { id } = req.params;
       const submission = await prisma.formSubmission.findUnique({
@@ -183,41 +202,66 @@ export class SubmissionController {
       });
 
       if (!submission) {
-        return res.status(404).json({ error: "Submission not found" });
+        return res.status(404).json({ error: 'Submission not found' });
       }
 
-      if (req.user.role !== "admin" && submission.submittedBy !== req.user.id) {
+      if (req.user.role !== 'admin' && submission.submittedBy !== req.user.id) {
         return res.status(403).json({
-          error: "Forbidden: You can only delete your own submissions",
+          error: 'Forbidden: You can only delete your own submissions',
         });
       }
 
       await prisma.formSubmission.delete({ where: { id } });
-      
+
       // Invalidate stats cache for this user and model
       StatsService.invalidateCache(req.user.id, req.user.activeModelType);
-      
+
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting submission:", error);
-      res.status(500).json({ error: "Failed to delete submission" });
+      console.error('Error deleting submission:', error);
+      res.status(500).json({ error: 'Failed to delete submission' });
     }
   }
 
   static async getStats(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
       const templateId = req.query.templateId as string | undefined;
-      const detailed = req.query.detailed === "true";
+      const detailed = req.query.detailed === 'true';
+      const scope = req.query.scope as 'personal' | 'all' | undefined;
+      const period = req.query.period as 'yearly' | 'monthly' | undefined;
 
-      const filters: { templateId?: string; submittedBy?: string; modelContext?: string } = {};
+      const filters: {
+        templateId?: string;
+        submittedBy?: string;
+        modelContext?: string;
+      } = {};
       if (templateId) filters.templateId = templateId;
-      if (req.user.role !== "admin") filters.submittedBy = req.user.id;
-      
+
+      // FIXED: Always filter by user for personal stats (default)
+      // Only show all data when explicitly requested with scope=all AND user is admin
+      if (scope === 'all' && req.user.role === 'admin') {
+        // Admin viewing all data - no submittedBy filter
+      } else {
+        // Personal data - always filter by user
+        filters.submittedBy = req.user.id;
+      }
+
       // NEW: Filter by active model context
       if (req.user.activeModelType) {
         filters.modelContext = req.user.activeModelType;
+      }
+
+      // Handle period-based stats
+      if (period === 'yearly') {
+        const yearlyStats = await StatsService.getYearlyTotal(filters);
+        return res.json(yearlyStats);
+      }
+
+      if (period === 'monthly') {
+        const monthlyStats = await StatsService.getMonthlyTotal(filters);
+        return res.json(monthlyStats);
       }
 
       if (detailed) {
@@ -228,8 +272,8 @@ export class SubmissionController {
       const total = await StatsService.getSubmissionCount(filters);
       res.json({ total });
     } catch (error) {
-      console.error("Error fetching submission stats:", error);
-      res.status(500).json({ error: "Failed to fetch submission stats" });
+      console.error('Error fetching submission stats:', error);
+      res.status(500).json({ error: 'Failed to fetch submission stats' });
     }
   }
 }

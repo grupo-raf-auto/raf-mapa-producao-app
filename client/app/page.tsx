@@ -21,6 +21,11 @@ export default async function Home() {
     redirect("/sign-in");
   }
 
+  // Role-based access control: admins must use /admin dashboard
+  if (session.user.role === "admin") {
+    redirect("/admin");
+  }
+
   // NEW: Check if user has any models, redirect to select-models if not
   try {
     const headersObj = await headers();

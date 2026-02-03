@@ -418,8 +418,8 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 .kpi-card {
   background: var(--card);
-  border-radius: 0.875rem;
-  padding: 1.25rem;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
   position: relative;
   overflow: hidden;
   border: 1px solid var(--border);
@@ -445,9 +445,9 @@
 }
 
 .kpi-card-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.625rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;

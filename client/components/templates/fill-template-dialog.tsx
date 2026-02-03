@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -9,8 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -18,16 +18,40 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { apiClient as api } from "@/lib/api-client";
-import { QuestionInput } from "@/components/questions/question-input";
-import { Spinner } from "@/components/ui/spinner";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { toast } from "sonner";
+} from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { apiClient as api } from '@/lib/api-client';
+import { useSession } from '@/lib/auth-client';
+import { QuestionInput } from '@/components/questions/question-input';
+import { Spinner } from '@/components/ui/spinner';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { toast } from 'sonner';
+
+/** Título da questão "Agente" – preenchido com o nome do utilizador logado */
+const AGENT_QUESTION_TITLE = 'Agente';
+
+/** Nome completo: nome + apelido (ou name/email como fallback) */
+function getDisplayName(
+  user:
+    | {
+        name?: string | null;
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+      }
+    | null
+    | undefined,
+): string {
+  if (!user) return '';
+  const u = user as { firstName?: string; lastName?: string };
+  const first = u.firstName?.trim() ?? '';
+  const last = u.lastName?.trim() ?? '';
+  const full = [first, last].filter(Boolean).join(' ').trim();
+  return full || user.name || user.email || '';
+}
 
 interface Template {
   _id?: string;
@@ -41,7 +65,7 @@ interface Question {
   title: string;
   description?: string;
   status: string;
-  inputType?: "text" | "date" | "select" | "email" | "tel" | "number" | "radio";
+  inputType?: 'text' | 'date' | 'select' | 'email' | 'tel' | 'number' | 'radio';
   options?: string[];
 }
 
@@ -56,27 +80,27 @@ function generateSchema(questions: Question[]) {
   const schemaFields: Record<string, z.ZodTypeAny> = {};
 
   questions.forEach((question) => {
-    const fieldId = question._id || "";
+    const fieldId = question._id || '';
 
-    if (question.inputType === "number") {
+    if (question.inputType === 'number') {
       schemaFields[fieldId] = z.coerce
         .number()
-        .min(0, "Valor deve ser positivo")
+        .min(0, 'Valor deve ser positivo')
         .optional()
-        .or(z.literal(""));
-    } else if (question.inputType === "email") {
+        .or(z.literal(''));
+    } else if (question.inputType === 'email') {
       schemaFields[fieldId] = z
         .string()
-        .email("Email inválido")
+        .email('Email inválido')
         .optional()
-        .or(z.literal(""));
-    } else if (question.inputType === "date") {
-      schemaFields[fieldId] = z.string().min(1, "Data é obrigatória");
+        .or(z.literal(''));
+    } else if (question.inputType === 'date') {
+      schemaFields[fieldId] = z.string().min(1, 'Data é obrigatória');
     } else if (
-      question.inputType === "select" ||
-      question.inputType === "radio"
+      question.inputType === 'select' ||
+      question.inputType === 'radio'
     ) {
-      schemaFields[fieldId] = z.string().min(1, "Selecione uma opção");
+      schemaFields[fieldId] = z.string().min(1, 'Selecione uma opção');
     } else {
       schemaFields[fieldId] = z
         .string()
@@ -92,10 +116,12 @@ export function FillTemplateDialog({
   open,
   onOpenChange,
 }: FillTemplateDialogProps) {
+  const { data: session } = useSession();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
+  const agentDisplayName = getDisplayName(session?.user);
 
   // Carregar questões do template
   const loadQuestions = useCallback(async () => {
@@ -125,8 +151,8 @@ export function FillTemplateDialog({
           return q !== null && q !== undefined;
         })
         .sort((a, b) => {
-          const indexA = template.questions.indexOf(a._id || "");
-          const indexB = template.questions.indexOf(b._id || "");
+          const indexA = template.questions.indexOf(a._id || '');
+          const indexB = template.questions.indexOf(b._id || '');
           return indexA - indexB;
         });
 
@@ -135,10 +161,10 @@ export function FillTemplateDialog({
       if (validQuestions.length === 0) {
         const hasLoadedQuestions = questionsData.some((q) => q !== null);
         if (hasLoadedQuestions) {
-          toast.warning("Nenhuma questão válida encontrada neste template");
+          toast.warning('Nenhuma questão válida encontrada neste template');
         } else {
           toast.error(
-            "Erro ao carregar questões do template. Verifique se o servidor está rodando.",
+            'Erro ao carregar questões do template. Verifique se o servidor está rodando.',
           );
         }
       } else {
@@ -148,8 +174,8 @@ export function FillTemplateDialog({
         );
       }
     } catch (error) {
-      console.error("Error loading questions:", error);
-      toast.error("Erro ao carregar questões. Tente novamente.");
+      console.error('Error loading questions:', error);
+      toast.error('Erro ao carregar questões. Tente novamente.');
       setQuestions([]);
     } finally {
       setLoading(false);
@@ -174,16 +200,20 @@ export function FillTemplateDialog({
     defaultValues: {},
   });
 
-  // Resetar form quando questões mudarem
+  // Resetar form quando questões mudarem; campo "Agente" com nome do utilizador logado
   useEffect(() => {
     if (questions.length > 0) {
       const defaultValues: Record<string, string> = {};
       questions.forEach((q) => {
-        defaultValues[q._id || ""] = "";
+        const id = q._id || '';
+        const title = (q.title || '').trim();
+        const isAgente =
+          title.toLowerCase() === AGENT_QUESTION_TITLE.toLowerCase();
+        defaultValues[id] = isAgente ? agentDisplayName : '';
       });
       form.reset(defaultValues);
     }
-  }, [questions]);
+  }, [questions, agentDisplayName]);
 
   const onSubmit = async (data: FormValues) => {
     if (!template?._id) return;
@@ -193,7 +223,7 @@ export function FillTemplateDialog({
       // Transformar dados para FormSubmission
       const answers = Object.entries(data)
         .filter(
-          ([, value]) => value !== "" && value !== undefined && value !== null,
+          ([, value]) => value !== '' && value !== undefined && value !== null,
         )
         .map(([questionId, answer]) => ({
           questionId,
@@ -201,7 +231,7 @@ export function FillTemplateDialog({
         }));
 
       if (answers.length === 0) {
-        toast.error("Por favor, preencha pelo menos um campo");
+        toast.error('Por favor, preencha pelo menos um campo');
         setSubmitting(false);
         return;
       }
@@ -217,10 +247,10 @@ export function FillTemplateDialog({
       router.refresh();
 
       // Mostrar mensagem de sucesso
-      toast.success("Formulário submetido com sucesso!");
+      toast.success('Formulário submetido com sucesso!');
     } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("Erro ao submeter formulário. Tente novamente.");
+      console.error('Error submitting form:', error);
+      toast.error('Erro ao submeter formulário. Tente novamente.');
     } finally {
       setSubmitting(false);
     }
@@ -252,8 +282,8 @@ export function FillTemplateDialog({
             <div className="text-center">
               <p className="text-muted-foreground mb-2">
                 {template.questions && template.questions.length > 0
-                  ? "Nenhuma questão ativa encontrada neste template"
-                  : "Este template não possui questões"}
+                  ? 'Nenhuma questão ativa encontrada neste template'
+                  : 'Este template não possui questões'}
               </p>
               {template.questions && template.questions.length > 0 && (
                 <p className="text-sm text-muted-foreground">
@@ -272,35 +302,49 @@ export function FillTemplateDialog({
               <div className="flex-1 overflow-hidden px-6">
                 <ScrollArea className="h-full w-full px-2">
                   <div className="space-y-6 py-4 pr-4">
-                    {questions.map((question, index) => (
-                      <div key={question._id || `question-${index}`}>
-                        <FormField
-                          control={form.control}
-                          name={question._id || ""}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-base font-medium">
-                                {question.title}
-                              </FormLabel>
+                    {questions.map((question, index) => {
+                      const isAgenteQuestion =
+                        (question.title || '').trim().toLowerCase() ===
+                        AGENT_QUESTION_TITLE.toLowerCase();
+                      // Campo Agente: sempre input de texto com nome do utilizador logado (sem dropdown)
+                      const questionForInput = isAgenteQuestion
+                        ? {
+                            ...question,
+                            inputType: 'text' as const,
+                            options: undefined,
+                          }
+                        : question;
+                      return (
+                        <div key={question._id || `question-${index}`}>
+                          <FormField
+                            control={form.control}
+                            name={question._id || ''}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">
+                                  {question.title}
+                                </FormLabel>
 
-                              <FormControl>
-                                <QuestionInput
-                                  question={question}
-                                  value={
-                                    field.value as string | Date | undefined
-                                  }
-                                  onChange={field.onChange}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+                                <FormControl>
+                                  <QuestionInput
+                                    question={questionForInput}
+                                    value={
+                                      field.value as string | Date | undefined
+                                    }
+                                    onChange={field.onChange}
+                                    disabled={isAgenteQuestion}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {index < questions.length - 1 && (
+                            <Separator className="mt-6" />
                           )}
-                        />
-                        {index < questions.length - 1 && (
-                          <Separator className="mt-6" />
-                        )}
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 </ScrollArea>
               </div>
@@ -324,7 +368,7 @@ export function FillTemplateDialog({
                       Submetendo...
                     </>
                   ) : (
-                    "Submeter"
+                    'Submeter'
                   )}
                 </Button>
               </DialogFooter>

@@ -56,9 +56,10 @@ export function QuestionInput({
       value instanceof Date ? value : value ? new Date(value) : undefined;
 
     return (
-      <Popover>
+      <Popover modal={false}>
         <PopoverTrigger asChild>
           <Button
+            type="button"
             variant="outline"
             className={cn(
               'w-full justify-start text-left font-normal text-sm min-h-[40px] h-auto py-3 ml-1',
@@ -75,7 +76,7 @@ export function QuestionInput({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 z-[100000]" align="start">
           <Calendar
             mode="single"
             selected={dateValue}
@@ -84,7 +85,6 @@ export function QuestionInput({
                 onChange(date.toISOString());
               }
             }}
-            initialFocus
             locale={pt}
           />
         </PopoverContent>

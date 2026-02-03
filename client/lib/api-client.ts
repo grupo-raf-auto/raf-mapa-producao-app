@@ -1,22 +1,22 @@
 // API helpers para Client Components
 // Usa API route proxy do Next.js que lida com autenticação
 
-const API_PROXY = "/api/proxy";
+const API_PROXY = '/api/proxy';
 
 // Simple in-memory cache with TTL
 const cache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_TTL = 30000; // 30 seconds
 
 // Listen for model switch events and clear cache
-if (typeof window !== "undefined") {
-  window.addEventListener("model-switched", () => {
-    console.log("[API Client] Model switched - clearing cache");
+if (typeof window !== 'undefined') {
+  window.addEventListener('model-switched', () => {
+    console.log('[API Client] Model switched - clearing cache');
     cache.clear();
   });
 }
 
 function getCacheKey(path: string, options?: RequestInit): string {
-  return `${path}-${JSON.stringify(options?.body || "")}`;
+  return `${path}-${JSON.stringify(options?.body || '')}`;
 }
 
 function getCachedData(key: string): any | null {
@@ -48,22 +48,22 @@ function isUnauthorizedError(errorMessage: string, status: number): boolean {
   return (
     status === 401 ||
     status === 403 ||
-    lowerMessage.includes("unauthorized") ||
-    lowerMessage.includes("no user session") ||
-    lowerMessage.includes("user not found") ||
-    lowerMessage.includes("not authenticated") ||
-    lowerMessage.includes("invalid token")
+    lowerMessage.includes('unauthorized') ||
+    lowerMessage.includes('no user session') ||
+    lowerMessage.includes('user not found') ||
+    lowerMessage.includes('not authenticated') ||
+    lowerMessage.includes('invalid token')
   );
 }
 
 // Helper para fazer requisições autenticadas em Client Components
 // Usa a API route proxy que adiciona o token automaticamente
 async function fetchWithAuth(path: string, options: RequestInit = {}) {
-  const method = options.method || "GET";
+  const method = options.method || 'GET';
   const cacheKey = getCacheKey(path, options);
 
   // Use cache for GET requests
-  if (method === "GET") {
+  if (method === 'GET') {
     const cachedData = getCachedData(cacheKey);
     if (cachedData) {
       return cachedData;
@@ -73,19 +73,19 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
   const url = `${API_PROXY}/${path}`;
   const res = await fetch(url, {
     ...options,
-    credentials: "include",
+    credentials: 'include',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...options.headers,
     },
   });
 
   if (!res.ok) {
-    let errorMessage = "Request failed";
+    let errorMessage = 'Request failed';
 
     // Verificar Content-Type antes de tentar fazer parse
-    const contentType = res.headers.get("content-type");
-    const isJson = contentType?.includes("application/json");
+    const contentType = res.headers.get('content-type');
+    const isJson = contentType?.includes('application/json');
 
     try {
       if (isJson) {
@@ -106,10 +106,10 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
 
     // Tratamento especial para 429 (Too Many Requests)
     if (res.status === 429) {
-      const retryAfter = res.headers.get("Retry-After");
+      const retryAfter = res.headers.get('Retry-After');
       const retryMessage = retryAfter
         ? `Muitas requisições. Tente novamente em ${retryAfter} segundos.`
-        : "Muitas requisições. Por favor, aguarde um momento e tente novamente.";
+        : 'Muitas requisições. Por favor, aguarde um momento e tente novamente.';
       throw new Error(retryMessage);
     }
 
@@ -117,17 +117,17 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
     if (isUnauthorizedError(errorMessage, res.status)) {
       // Limpar cache antes de redirecionar
       cache.clear();
-      window.location.href = "/sign-in";
+      window.location.href = '/sign-in';
       // Lançar erro para interromper a execução
-      throw new Error("Redirecting to login");
+      throw new Error('Redirecting to login');
     }
 
     throw new Error(errorMessage);
   }
 
   // Verificar Content-Type antes de fazer parse da resposta de sucesso
-  const contentType = res.headers.get("content-type");
-  const isJson = contentType?.includes("application/json");
+  const contentType = res.headers.get('content-type');
+  const isJson = contentType?.includes('application/json');
 
   let result;
   if (isJson) {
@@ -144,18 +144,28 @@ async function fetchWithAuth(path: string, options: RequestInit = {}) {
   }
 
   // Unwrap API response if it has the { success: true, data: ... } format
-  if (result && typeof result === "object" && "success" in result && "data" in result) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    'success' in result &&
+    'data' in result
+  ) {
     result = result.data;
   }
 
   // Unwrap paginated response if it has { items: [...], total, ... } format
   // This normalizes the response so consumers always get arrays for list endpoints
-  if (result && typeof result === "object" && "items" in result && Array.isArray(result.items)) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    'items' in result &&
+    Array.isArray(result.items)
+  ) {
     result = result.items;
   }
 
   // Cache successful GET responses
-  if (method === "GET") {
+  if (method === 'GET') {
     setCachedData(cacheKey, result);
   }
 
@@ -166,108 +176,112 @@ export const apiClient = {
   questions: {
     getAll: async (params?: { status?: string; search?: string }) => {
       const queryParams = new URLSearchParams();
-      if (params?.status) queryParams.append("status", params.status);
-      if (params?.search) queryParams.append("search", params.search);
+      if (params?.status) queryParams.append('status', params.status);
+      if (params?.search) queryParams.append('search', params.search);
 
-      const path = `questions${queryParams.toString() ? `?${queryParams}` : ""}`;
+      const path = `questions${queryParams.toString() ? `?${queryParams}` : ''}`;
       return fetchWithAuth(path);
     },
     getById: async (id: string) => {
       return fetchWithAuth(`questions/${id}`);
     },
     create: async (data: any) => {
-      const result = await fetchWithAuth("questions", {
-        method: "POST",
+      const result = await fetchWithAuth('questions', {
+        method: 'POST',
         body: JSON.stringify(data),
       });
-      invalidateCache("questions");
+      invalidateCache('questions');
       return result;
     },
     update: async (id: string, data: any) => {
       const result = await fetchWithAuth(`questions/${id}`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify(data),
       });
-      invalidateCache("questions");
+      invalidateCache('questions');
       return result;
     },
     delete: async (id: string) => {
       const result = await fetchWithAuth(`questions/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
-      invalidateCache("questions");
+      invalidateCache('questions');
       return result;
     },
   },
   categories: {
     getAll: async () => {
-      return fetchWithAuth("categories");
+      return fetchWithAuth('categories');
     },
     getById: async (id: string) => {
       return fetchWithAuth(`categories/${id}`);
     },
     create: async (data: any) => {
-      const result = await fetchWithAuth("categories", {
-        method: "POST",
+      const result = await fetchWithAuth('categories', {
+        method: 'POST',
         body: JSON.stringify(data),
       });
-      invalidateCache("categories");
+      invalidateCache('categories');
       return result;
     },
     update: async (id: string, data: any) => {
       const result = await fetchWithAuth(`categories/${id}`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify(data),
       });
-      invalidateCache("categories");
+      invalidateCache('categories');
       return result;
     },
     delete: async (id: string) => {
       const result = await fetchWithAuth(`categories/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
-      invalidateCache("categories");
+      invalidateCache('categories');
       return result;
     },
   },
   templates: {
     getAll: async () => {
-      return fetchWithAuth("templates");
+      return fetchWithAuth('templates');
     },
     getById: async (id: string) => {
       return fetchWithAuth(`templates/${id}`);
     },
     create: async (data: any) => {
-      const result = await fetchWithAuth("templates", {
-        method: "POST",
+      const result = await fetchWithAuth('templates', {
+        method: 'POST',
         body: JSON.stringify(data),
       });
-      invalidateCache("templates");
+      invalidateCache('templates');
       return result;
     },
     update: async (id: string, data: any) => {
       const result = await fetchWithAuth(`templates/${id}`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify(data),
       });
-      invalidateCache("templates");
+      invalidateCache('templates');
       return result;
     },
     delete: async (id: string) => {
       const result = await fetchWithAuth(`templates/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
-      invalidateCache("templates");
+      invalidateCache('templates');
       return result;
     },
   },
   submissions: {
-    getAll: async (params?: { templateId?: string }) => {
+    getAll: async (params?: {
+      templateId?: string;
+      scope?: 'all' | 'personal';
+    }) => {
       const queryParams = new URLSearchParams();
       if (params?.templateId)
-        queryParams.append("templateId", params.templateId);
+        queryParams.append('templateId', params.templateId);
+      if (params?.scope) queryParams.append('scope', params.scope);
 
-      const path = `submissions${queryParams.toString() ? `?${queryParams}` : ""}`;
+      const path = `submissions${queryParams.toString() ? `?${queryParams}` : ''}`;
       return fetchWithAuth(path);
     },
     getById: async (id: string) => {
@@ -277,92 +291,117 @@ export const apiClient = {
       templateId: string;
       answers: { questionId: string; answer: string }[];
     }) => {
-      const result = await fetchWithAuth("submissions", {
-        method: "POST",
+      const result = await fetchWithAuth('submissions', {
+        method: 'POST',
         body: JSON.stringify(data),
       });
-      invalidateCache("submissions");
+      invalidateCache('submissions');
       return result;
     },
     update: async (
       id: string,
-      data: { answers: { questionId: string; answer: string }[] },
+      data: {
+        answers?: { questionId: string; answer: string }[];
+        commissionPaid?: boolean;
+      },
     ) => {
       const result = await fetchWithAuth(`submissions/${id}`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify(data),
       });
-      invalidateCache("submissions");
+      invalidateCache('submissions');
       return result;
     },
     delete: async (id: string) => {
       const result = await fetchWithAuth(`submissions/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
-      invalidateCache("submissions");
+      invalidateCache('submissions');
       return result;
     },
-    getStats: async (params?: { templateId?: string; detailed?: boolean }) => {
+    getStats: async (params?: {
+      templateId?: string;
+      detailed?: boolean;
+      scope?: 'personal' | 'all';
+    }) => {
       const queryParams = new URLSearchParams();
       if (params?.templateId)
-        queryParams.append("templateId", params.templateId);
-      if (params?.detailed)
-        queryParams.append("detailed", "true");
+        queryParams.append('templateId', params.templateId);
+      if (params?.detailed) queryParams.append('detailed', 'true');
+      if (params?.scope) queryParams.append('scope', params.scope);
 
-      const path = `submissions/stats${queryParams.toString() ? `?${queryParams}` : ""}`;
+      const path = `submissions/stats${queryParams.toString() ? `?${queryParams}` : ''}`;
+      return fetchWithAuth(path);
+    },
+    getYearlyStats: async (params?: { templateId?: string }) => {
+      const queryParams = new URLSearchParams();
+      queryParams.append('period', 'yearly');
+      if (params?.templateId)
+        queryParams.append('templateId', params.templateId);
+
+      const path = `submissions/stats${queryParams.toString() ? `?${queryParams}` : ''}`;
+      return fetchWithAuth(path);
+    },
+    getMonthlyStats: async (params?: { templateId?: string }) => {
+      const queryParams = new URLSearchParams();
+      queryParams.append('period', 'monthly');
+      if (params?.templateId)
+        queryParams.append('templateId', params.templateId);
+
+      const path = `submissions/stats${queryParams.toString() ? `?${queryParams}` : ''}`;
       return fetchWithAuth(path);
     },
   },
   users: {
     getAll: async () => {
-      return fetchWithAuth("users");
+      return fetchWithAuth('users');
     },
     getStats: async () => {
-      return fetchWithAuth("users/stats");
+      return fetchWithAuth('users/stats');
     },
     getById: async (id: string) => {
       return fetchWithAuth(`users/${id}`);
     },
     getCurrent: async () => {
-      return fetchWithAuth("users/me");
+      return fetchWithAuth('users/me');
     },
     create: async (data: any) => {
-      const result = await fetchWithAuth("users", {
-        method: "POST",
+      const result = await fetchWithAuth('users', {
+        method: 'POST',
         body: JSON.stringify(data),
       });
-      invalidateCache("users");
+      invalidateCache('users');
       return result;
     },
     update: async (id: string, data: any) => {
       const result = await fetchWithAuth(`users/${id}`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify(data),
       });
-      invalidateCache("users");
+      invalidateCache('users');
       return result;
     },
     delete: async (id: string) => {
       const result = await fetchWithAuth(`users/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
-      invalidateCache("users");
+      invalidateCache('users');
       return result;
     },
     approve: async (id: string) => {
       const result = await fetchWithAuth(`users/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ status: "approved" }),
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'approved' }),
       });
-      invalidateCache("users");
+      invalidateCache('users');
       return result;
     },
     reject: async (id: string) => {
       const result = await fetchWithAuth(`users/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ status: "rejected" }),
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'rejected' }),
       });
-      invalidateCache("users");
+      invalidateCache('users');
       return result;
     },
   },
@@ -370,10 +409,10 @@ export const apiClient = {
     sendMessage: async (
       message: string,
       conversationId?: string,
-      context?: "sabichao" | "support",
+      context?: 'sabichao' | 'support',
     ) => {
-      return fetchWithAuth("chat/message", {
-        method: "POST",
+      return fetchWithAuth('chat/message', {
+        method: 'POST',
         body: JSON.stringify({ message, conversationId, context }),
       });
     },
@@ -384,53 +423,56 @@ export const apiClient = {
   documents: {
     upload: async (file: File) => {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append('file', file);
 
-      const res = await fetch("/api/documents/upload", {
-        method: "POST",
+      const res = await fetch('/api/documents/upload', {
+        method: 'POST',
         body: formData,
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || "Erro ao fazer upload");
+        throw new Error(error.error || 'Erro ao fazer upload');
       }
 
       return res.json();
     },
     getAll: async () => {
-      return fetchWithAuth("documents");
+      return fetchWithAuth('documents');
     },
     getById: async (id: string) => {
       return fetchWithAuth(`documents/${id}`);
     },
     delete: async (id: string) => {
       const result = await fetchWithAuth(`documents/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
-      invalidateCache("documents");
+      invalidateCache('documents');
       return result;
     },
   },
   // NEW: User Models management
   userModels: {
     getMyModels: async () => {
-      return fetchWithAuth("user-models/my-models");
+      return fetchWithAuth('user-models/my-models');
     },
     addModelToMyUser: async (modelType: string) => {
-      const result = await fetchWithAuth("user-models/my-models", {
-        method: "POST",
+      const result = await fetchWithAuth('user-models/my-models', {
+        method: 'POST',
         body: JSON.stringify({ modelType }),
       });
-      invalidateCache("user-models");
+      invalidateCache('user-models');
       return result;
     },
     switchModel: async (modelId: string) => {
-      const result = await fetchWithAuth(`user-models/switch-model/${modelId}`, {
-        method: "POST",
-      });
-      invalidateCache("user-models");
+      const result = await fetchWithAuth(
+        `user-models/switch-model/${modelId}`,
+        {
+          method: 'POST',
+        },
+      );
+      invalidateCache('user-models');
       return result;
     },
     getUserModels: async (userId: string) => {
@@ -438,30 +480,30 @@ export const apiClient = {
     },
     addModelToUser: async (userId: string, modelType: string) => {
       const result = await fetchWithAuth(`user-models/user/${userId}/models`, {
-        method: "POST",
+        method: 'POST',
         body: JSON.stringify({ modelType }),
       });
-      invalidateCache("user-models");
+      invalidateCache('user-models');
       return result;
     },
     removeModelFromUser: async (userId: string, modelId: string) => {
       const result = await fetchWithAuth(
         `user-models/user/${userId}/models/${modelId}`,
         {
-          method: "DELETE",
-        }
+          method: 'DELETE',
+        },
       );
-      invalidateCache("user-models");
+      invalidateCache('user-models');
       return result;
     },
     toggleModelStatus: async (userId: string, modelId: string) => {
       const result = await fetchWithAuth(
         `user-models/user/${userId}/models/${modelId}/toggle`,
         {
-          method: "PATCH",
-        }
+          method: 'PATCH',
+        },
       );
-      invalidateCache("user-models");
+      invalidateCache('user-models');
       return result;
     },
   },

@@ -220,7 +220,7 @@ const SignInCard = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await authClient.signIn.email({
+      const { data, error } = await authClient.signIn.email({
         email: email.trim(),
         password,
         callbackURL: '/',
@@ -242,7 +242,10 @@ const SignInCard = () => {
         return;
       }
       toast.success('Login realizado com sucesso!');
-      window.location.href = '/';
+
+      // Role-based redirect: admins → /admin, users → /
+      const userRole = data?.user?.role;
+      window.location.href = userRole === 'admin' ? '/admin' : '/';
     } catch {
       toast.error('Erro ao fazer login');
     } finally {
@@ -359,7 +362,10 @@ const SignInCard = () => {
           }
 
           toast.success('Conta criada com sucesso!');
-          window.location.href = '/';
+
+          // Role-based redirect: admins → /admin, users → /
+          const userRole = result.data?.user?.role;
+          window.location.href = userRole === 'admin' ? '/admin' : '/';
         } catch (error) {
           console.error('[register] Error adding models:', error);
           // If model addition fails, still consider signup successful
@@ -368,7 +374,10 @@ const SignInCard = () => {
         }
       } else {
         toast.success('Conta criada com sucesso!');
-        window.location.href = '/';
+
+        // Role-based redirect: admins → /admin, users → /
+        const userRole = result.data?.user?.role;
+        window.location.href = userRole === 'admin' ? '/admin' : '/';
       }
     } catch (err) {
       console.error('[register] catch:', err);

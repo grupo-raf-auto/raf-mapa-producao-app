@@ -7,18 +7,21 @@ import { ModelSelector } from './model-selector';
 import { SupportChatFab } from '@/components/support/support-chat-fab';
 import { PageAnimation } from '@/components/ui/page-animation';
 import { Sidebar as SidebarBase } from '@/components/ui/sidebar';
-import { Moon, Sun, Bug, Power, Shield, Users } from 'lucide-react';
+import { Moon, Sun, Bug, Power, Users } from 'lucide-react';
 import { useSession, authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Top bar with search and action buttons
 function TopBar() {
   const { data: session } = useSession();
   const user = session?.user;
-  const admin = session?.user.role === 'admin' ? true : false;
+  const isAdmin = session?.user.role === 'admin';
+  const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith('/admin');
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -65,23 +68,26 @@ function TopBar() {
 
   return (
     <div className="h-14 flex items-center justify-between px-6 border-b border-border bg-card/50 backdrop-blur-sm dark:bg-card/40">
-      {/* Spacer */}
-      <div />
+      {/* Logo RAF (esquerda) - visível no admin; spacer nas outras rotas */}
+      {isAdminRoute ? (
+        <Link href="/admin" className="flex items-center shrink-0">
+          <Image
+            src="/logo-raf.png"
+            alt="Grupo RAF"
+            width={80}
+            height={28}
+            className="h-7 w-auto object-contain"
+            priority
+          />
+        </Link>
+      ) : (
+        <div />
+      )}
 
       {/* Right side - action buttons */}
       <div className="flex items-center gap-2">
-        {/* Model Selector */}
-        <ModelSelector />
-        {/* Administração button */}
-        {admin && (
-          <Link
-            href="/admin"
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-500 text-white rounded-full text-xs font-medium hover:bg-violet-600 transition-colors"
-          >
-            <Shield className="w-3.5 h-3.5" />
-            Administração
-          </Link>
-        )}
+        {/* Model Selector - only show for users (not admins) */}
+        {!isAdminRoute && <ModelSelector />}
 
         {/* CRM MyCredit button */}
         <Link

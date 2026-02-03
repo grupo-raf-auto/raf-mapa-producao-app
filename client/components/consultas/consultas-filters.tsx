@@ -1,30 +1,30 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
+import { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Search, X } from "lucide-react";
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Search, X } from 'lucide-react';
 
 export type TemplateFilter = string; // ID do template ou 'all'
-export type StatusFilter = "all" | "active" | "inactive";
+export type StatusFilter = 'all' | 'active' | 'inactive';
 export type InputTypeFilter =
-  | "all"
-  | "text"
-  | "date"
-  | "select"
-  | "email"
-  | "tel"
-  | "number"
-  | "radio";
+  | 'all'
+  | 'text'
+  | 'date'
+  | 'select'
+  | 'email'
+  | 'tel'
+  | 'number'
+  | 'radio';
 
 export interface ConsultasFiltersState {
   templateId: TemplateFilter;
@@ -45,13 +45,13 @@ interface ConsultasFiltersProps {
 }
 
 const inputTypeLabels: Record<string, string> = {
-  text: "Texto",
-  date: "Data",
-  select: "Seleção",
-  email: "Email",
-  tel: "Telefone",
-  number: "Número",
-  radio: "Radio",
+  text: 'Texto',
+  date: 'Data',
+  select: 'Seleção',
+  email: 'Email',
+  tel: 'Telefone',
+  number: 'Número',
+  radio: 'Radio',
 };
 
 export function ConsultasFilters({
@@ -60,14 +60,14 @@ export function ConsultasFilters({
   seguradoras = [],
   onFilterChange,
 }: ConsultasFiltersProps) {
-  const [templateId, setTemplateId] = useState<TemplateFilter>("all");
-  const [status, setStatus] = useState<StatusFilter>("all");
-  const [inputType, setInputType] = useState<InputTypeFilter>("all");
-  const [search, setSearch] = useState("");
-  const [banco, setBanco] = useState("");
-  const [seguradora, setSeguradora] = useState("");
-  const [valorMin, setValorMin] = useState("");
-  const [valorMax, setValorMax] = useState("");
+  const [templateId, setTemplateId] = useState<TemplateFilter>('all');
+  const [status, setStatus] = useState<StatusFilter>('all');
+  const [inputType, setInputType] = useState<InputTypeFilter>('all');
+  const [search, setSearch] = useState('');
+  const [banco, setBanco] = useState('');
+  const [seguradora, setSeguradora] = useState('');
+  const [valorMin, setValorMin] = useState('');
+  const [valorMax, setValorMax] = useState('');
 
   useEffect(() => {
     onFilterChange?.({
@@ -93,14 +93,14 @@ export function ConsultasFilters({
   ]);
 
   const handleReset = () => {
-    setTemplateId("all");
-    setStatus("all");
-    setInputType("all");
-    setSearch("");
-    setBanco("");
-    setSeguradora("");
-    setValorMin("");
-    setValorMax("");
+    setTemplateId('all');
+    setStatus('all');
+    setInputType('all');
+    setSearch('');
+    setBanco('');
+    setSeguradora('');
+    setValorMin('');
+    setValorMax('');
   };
 
   return (
@@ -120,7 +120,7 @@ export function ConsultasFilters({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {/* Filtro Primário: Template */}
+          {/* Filtro Primário: Template (nome do template do modelo ativo) */}
           <div>
             <Label
               htmlFor="template"
@@ -128,17 +128,14 @@ export function ConsultasFilters({
             >
               Template
             </Label>
-            <Select value={templateId} onValueChange={setTemplateId}>
+            <Select value="all" onValueChange={() => {}}>
               <SelectTrigger id="template">
-                <SelectValue placeholder="Todos os templates" />
+                <SelectValue placeholder={templates[0]?.title ?? 'Template'} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os Templates</SelectItem>
-                {templates.map((template) => (
-                  <SelectItem key={template._id} value={template._id || ""}>
-                    {template.title}
-                  </SelectItem>
-                ))}
+                <SelectItem value="all">
+                  {templates[0]?.title ?? 'Template'}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -152,8 +149,8 @@ export function ConsultasFilters({
               Banco
             </Label>
             <Select
-              value={banco || "all"}
-              onValueChange={(value) => setBanco(value === "all" ? "" : value)}
+              value={banco || 'all'}
+              onValueChange={(value) => setBanco(value === 'all' ? '' : value)}
             >
               <SelectTrigger id="banco">
                 <SelectValue placeholder="Todos os bancos" />
@@ -161,7 +158,7 @@ export function ConsultasFilters({
               <SelectContent>
                 <SelectItem value="all">Todos os Bancos</SelectItem>
                 {bancos
-                  .filter((b) => b && b.trim() !== "")
+                  .filter((b) => b && b.trim() !== '')
                   .sort()
                   .map((bancoOption) => (
                     <SelectItem key={bancoOption} value={bancoOption}>
@@ -181,9 +178,9 @@ export function ConsultasFilters({
               Seguradora
             </Label>
             <Select
-              value={seguradora || "all"}
+              value={seguradora || 'all'}
               onValueChange={(value) =>
-                setSeguradora(value === "all" ? "" : value)
+                setSeguradora(value === 'all' ? '' : value)
               }
             >
               <SelectTrigger id="seguradora">
@@ -192,7 +189,7 @@ export function ConsultasFilters({
               <SelectContent>
                 <SelectItem value="all">Todas as Seguradoras</SelectItem>
                 {seguradoras
-                  .filter((s) => s && s.trim() !== "")
+                  .filter((s) => s && s.trim() !== '')
                   .sort()
                   .map((seguradoraOption) => (
                     <SelectItem key={seguradoraOption} value={seguradoraOption}>

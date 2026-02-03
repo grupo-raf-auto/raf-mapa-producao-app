@@ -7,6 +7,7 @@ import {
   BarChart3,
   Users,
   ShoppingCart,
+  Calendar,
 } from "lucide-react";
 import {
   DashboardMetricCard,
@@ -23,7 +24,8 @@ interface KPICardData {
     | "BarChart3"
     | "FileStack"
     | "Users"
-    | "ShoppingCart";
+    | "ShoppingCart"
+    | "Calendar";
   description?: string;
   trendChange?: string;
   trendType?: "up" | "down" | "neutral";
@@ -43,6 +45,7 @@ const iconMap = {
   FileStack,
   Users,
   ShoppingCart,
+  Calendar,
 };
 
 // Color variants for each card position
@@ -57,7 +60,7 @@ const defaultSparklineData: Record<string, number[]> = {
 
 export function KPICards({ cards }: KPICardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {cards.map((kpi, index) => {
         const IconComponent = iconMap[kpi.iconName];
         const colorVariant =

@@ -10,27 +10,38 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 
 export function DashboardContent() {
-  const [templates, setTemplates] = useState([]);
-  const [salesStats, setSalesStats] = useState(null);
-  const [recentSubmissions, setRecentSubmissions] = useState([]);
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [salesStats, setSalesStats] = useState<any>(null);
+  const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { activeModel, loading: modelLoading } = useModelContext();
+
+  const [yearlyStats, setYearlyStats] = useState<any>(null);
+  const [monthlyStats, setMonthlyStats] = useState<any>(null);
+  const [comparativeStats, setComparativeStats] = useState<any>(null);
 
   const loadData = async () => {
     try {
       setError(null);
       setLoading(true);
-      
+
       const result = await Promise.all([
         api.templates.getAll().catch(() => []),
         api.submissions.getStats({ detailed: true }).catch(() => null),
         api.submissions.getAll().catch(() => []),
+        api.submissions.getYearlyStats().catch(() => ({ total: 0, totalValue: 0 })),
+        api.submissions.getMonthlyStats().catch(() => ({ total: 0, totalValue: 0 })),
+        // Load comparative stats (all users) for comparison charts
+        api.submissions.getStats({ detailed: true, scope: "all" }).catch(() => null),
       ]);
-      
+
       setTemplates(result[0] || []);
       setSalesStats(result[1]);
-      
+      setYearlyStats(result[3]);
+      setMonthlyStats(result[4]);
+      setComparativeStats(result[5]);
+
       // Ordenar por data e pegar as 5 mais recentes
       const sortedSubmissions = (result[2] || [])
         .sort(
@@ -76,10 +87,6 @@ export function DashboardContent() {
     };
   };
 
-  const valueTrend = calculateTrend(
-    currentMonth?.totalValue || 0,
-    previousMonth?.totalValue || 0,
-  );
   const countTrend = calculateTrend(
     currentMonth?.count || 0,
     previousMonth?.count || 0,
@@ -92,22 +99,40 @@ export function DashboardContent() {
   // KPI Cards adaptados ao contexto de Produção
   const kpiCards = [
     {
-      title: "Total Produção",
-      value: stats.totalValue.toLocaleString("pt-PT", {
+      title: "Total Acumulado ao Ano",
+      value: (yearlyStats?.totalValue || 0).toLocaleString("pt-PT", {
         style: "currency",
         currency: "EUR",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }),
       iconName: "Euro" as const,
-      trendChange: valueTrend.change,
-      trendType: valueTrend.type,
-      sparklineType: "bars" as const,
+      trendChange: `${yearlyStats?.total || 0} submissões`,
+      trendType: "neutral" as const,
+      sparklineType: "area" as const,
       sparklineData:
         sparklineValues.length > 0
           ? sparklineValues
           : [30, 45, 35, 50, 40, 55, 45, 60],
       colorVariant: "blue" as const,
+    },
+    {
+      title: "Total Mensal",
+      value: (monthlyStats?.totalValue || 0).toLocaleString("pt-PT", {
+        style: "currency",
+        currency: "EUR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+      iconName: "Calendar" as const,
+      trendChange: `${monthlyStats?.total || 0} submissões`,
+      trendType: "neutral" as const,
+      sparklineType: "bars" as const,
+      sparklineData:
+        sparklineFromMonthly.length > 0
+          ? sparklineFromMonthly.slice(-8)
+          : [20, 35, 25, 40, 30, 45, 35, 50],
+      colorVariant: "purple" as const,
     },
     {
       title: "Total Submissões",
@@ -190,6 +215,7 @@ export function DashboardContent() {
       {/* Charts Section */}
       <DashboardChartsWrapper
         salesStats={salesStats}
+        comparativeStats={comparativeStats}
         recentSubmissions={recentSubmissions}
       />
     </div>

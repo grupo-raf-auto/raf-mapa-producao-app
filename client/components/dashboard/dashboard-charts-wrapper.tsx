@@ -71,6 +71,21 @@ interface DashboardChartsWrapperProps {
     }[];
     averageValue?: number;
   } | null;
+  comparativeStats?: {
+    byUser?: {
+      userId: string;
+      name: string;
+      count: number;
+      totalValue: number;
+      averageValue?: number;
+    }[];
+    byAgente?: {
+      name: string;
+      count: number;
+      totalValue: number;
+      averageValue?: number;
+    }[];
+  } | null;
   recentSubmissions?: Submission[];
 }
 
@@ -158,6 +173,7 @@ function AnimatedSection({
 
 export function DashboardChartsWrapper({
   salesStats,
+  comparativeStats,
   recentSubmissions = [],
 }: DashboardChartsWrapperProps) {
   const [timeFilter, setTimeFilter] = useState<TimeFilterType>("monthly");
@@ -165,6 +181,10 @@ export function DashboardChartsWrapper({
   const filteredTimelineData = salesStats?.byMonth
     ? filterDataByPeriod(salesStats.byMonth, timeFilter)
     : [];
+
+  // Use comparative stats for comparison charts (all users), personal stats for individual charts
+  const userDataForComparison = comparativeStats?.byUser || salesStats?.byUser || [];
+  const agenteDataForComparison = comparativeStats?.byAgente || salesStats?.byAgente || [];
 
   return (
     <div className="space-y-5">
@@ -294,7 +314,7 @@ export function DashboardChartsWrapper({
                 Top 5
               </span>
             </div>
-            <ColaboradorPerformanceChart data={salesStats?.byUser || []} />
+            <ColaboradorPerformanceChart data={userDataForComparison} />
           </div>
         </AnimatedSection>
 
@@ -356,7 +376,7 @@ export function DashboardChartsWrapper({
               </span>
             </div>
             <AgentePerformanceChart
-              data={(salesStats?.byAgente || []).map(item => ({
+              data={agenteDataForComparison.map(item => ({
                 ...item,
                 averageValue: item.averageValue ?? 0
               }))}
@@ -383,7 +403,7 @@ export function DashboardChartsWrapper({
               <h3 className="chart-card-title">Ticket Médio por Agente</h3>
             </div>
             <TicketMedioAgenteChart
-              data={(salesStats?.byAgente || []).map(item => ({
+              data={agenteDataForComparison.map(item => ({
                 ...item,
                 averageValue: item.averageValue ?? 0
               }))}
@@ -397,7 +417,7 @@ export function DashboardChartsWrapper({
             <div className="flex items-center justify-between mb-4">
               <h3 className="chart-card-title">Quantidade vs Valor</h3>
             </div>
-            <ColaboradorScatterChart data={(salesStats?.byUser || []).map(item => ({
+            <ColaboradorScatterChart data={userDataForComparison.map(item => ({
               ...item,
               averageValue: item.averageValue ?? 0
             }))} />

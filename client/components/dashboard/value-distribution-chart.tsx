@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   BarChart,
@@ -8,34 +8,39 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-} from "recharts";
+} from 'recharts';
+import { chartColors } from '@/lib/design-system';
 
 interface ValueDistributionChartProps {
   data: { range: string; count: number }[];
 }
 
-const COLORS = ["#E14840", "#C43A32", "#F06B63", "#F58E87", "#A72C25"];
+const COLORS = [...chartColors.scale];
 
 const RANGE_LABELS: Record<string, string> = {
-  "0-50k": "0-50k",
-  "50k-100k": "50-100k",
-  "100k-200k": "100-200k",
-  "200k-500k": "200-500k",
-  "500k+": "500k+",
+  '0-50k': '0-50k',
+  '50k-100k': '50-100k',
+  '100k-200k': '100-200k',
+  '200k-500k': '200-500k',
+  '500k+': '500k+',
 };
 
 const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
-        <p className="font-medium mb-1">{label}</p>
-        <p className="text-xs text-emerald-300">
-          Operacoes: {payload[0]?.value?.toLocaleString("pt-PT")}
-        </p>
-      </div>
-    );
-  }
-  return null;
+  if (!active || !payload?.length) return null;
+  const value = payload[0]?.value;
+  return (
+    <div className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-md">
+      <p className="text-sm font-semibold text-foreground">{label}</p>
+      <dl className="mt-1.5 space-y-1">
+        <div className="flex items-baseline justify-between gap-4">
+          <dt className="text-xs text-muted-foreground">Operações</dt>
+          <dd className="text-xs font-medium tabular-nums text-foreground">
+            {value != null ? value.toLocaleString('pt-PT') : '—'}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  );
 };
 
 export function ValueDistributionChart({ data }: ValueDistributionChartProps) {
@@ -47,11 +52,11 @@ export function ValueDistributionChart({ data }: ValueDistributionChartProps) {
           color: COLORS[index % COLORS.length],
         }))
       : [
-          { range: "0-50k", count: 0, color: COLORS[0] },
-          { range: "50-100k", count: 0, color: COLORS[1] },
-          { range: "100-200k", count: 0, color: COLORS[2] },
-          { range: "200-500k", count: 0, color: COLORS[3] },
-          { range: "500k+", count: 0, color: COLORS[4] },
+          { range: '0-50k', count: 0, color: COLORS[0] },
+          { range: '50-100k', count: 0, color: COLORS[1] },
+          { range: '100-200k', count: 0, color: COLORS[2] },
+          { range: '200-500k', count: 0, color: COLORS[3] },
+          { range: '500k+', count: 0, color: COLORS[4] },
         ];
 
   const total = chartData.reduce((sum, item) => sum + item.count, 0);
@@ -67,17 +72,17 @@ export function ValueDistributionChart({ data }: ValueDistributionChartProps) {
             dataKey="range"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748B", fontSize: 10 }}
+            tick={{ fill: chartColors.axis, fontSize: 10 }}
             dy={10}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748B", fontSize: 10 }}
+            tick={{ fill: chartColors.axis, fontSize: 10 }}
           />
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ fill: "rgba(0, 0, 0, 0.03)" }}
+            cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
           />
           <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={40}>
             {chartData.map((entry, index) => (
@@ -90,12 +95,12 @@ export function ValueDistributionChart({ data }: ValueDistributionChartProps) {
       {/* Summary Stats */}
       <div className="flex justify-center gap-6 mt-2 text-xs text-muted-foreground">
         <span>
-          Total: <span className="font-medium text-foreground">{total}</span>{" "}
+          Total: <span className="font-medium text-foreground">{total}</span>{' '}
           operacoes
         </span>
         {total > 0 && chartData.length > 0 && (
           <span>
-            Maior concentracao:{" "}
+            Maior concentracao:{' '}
             <span className="font-medium text-emerald-600">
               {
                 chartData.reduce(

@@ -1,22 +1,26 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { TimeFilter, TimeFilterType } from "./time-filter";
-import { DashboardStatusChart } from "./dashboard-status-chart";
-import { OverallSellProgressChart } from "./overall-sell-progress-chart";
-import { VisitorAnalysisChart } from "./visitor-analysis-chart";
-import { EmployeeTaskTable } from "./employee-task-table";
-import { SeguradoraChart } from "./seguradora-chart";
-import { TicketMedioChart } from "./ticket-medio-chart";
-import { ColaboradorPerformanceChart } from "./colaborador-performance-chart";
-import { ValueDistributionChart } from "./value-distribution-chart";
-import { GrowthRateChart } from "./growth-rate-chart";
-import { TemplateCompositionChart } from "./template-composition-chart";
-import { AgentePerformanceChart } from "./agente-performance-chart";
-import { RatingDistributionChart } from "./rating-distribution-chart";
-import { TicketMedioAgenteChart } from "./ticket-medio-agente-chart";
-import { ColaboradorScatterChart } from "./colaborador-scatter-chart";
+import { useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { DashboardStatusChart } from './dashboard-status-chart';
+import { OverallSellProgressChart } from './overall-sell-progress-chart';
+import { VisitorAnalysisChart } from './visitor-analysis-chart';
+import { SeguradoraChart } from './seguradora-chart';
+import { TicketMedioChart } from './ticket-medio-chart';
+import { ColaboradorPerformanceChart } from './colaborador-performance-chart';
+import { GrowthRateChart } from './growth-rate-chart';
+import { AgentePerformanceChart } from './agente-performance-chart';
+import { RatingDistributionChart } from './rating-distribution-chart';
+import { TicketMedioAgenteChart } from './ticket-medio-agente-chart';
+import { FracionamentoChart } from './fracionamento-chart';
+import { useModelContext } from '@/lib/context/model-context';
 
 interface Submission {
   id: string;
@@ -62,6 +66,11 @@ interface DashboardChartsWrapperProps {
       averageValue?: number;
     }[];
     byRating?: { rating: string; count: number; totalValue: number }[];
+    byFracionamento?: {
+      fracionamento: string;
+      count: number;
+      totalValue: number;
+    }[];
     valueRanges?: { range: string; count: number }[];
     growthRates?: {
       month: string;
@@ -89,67 +98,13 @@ interface DashboardChartsWrapperProps {
   recentSubmissions?: Submission[];
 }
 
-// Filter data by time period
-function filterDataByPeriod(
-  data: { month: string; count: number; totalValue: number }[],
-  period: TimeFilterType,
-): { month: string; count: number; totalValue: number }[] {
-  if (!data || data.length === 0) return [];
-
-  switch (period) {
-    case "monthly":
-      return data;
-
-    case "quarterly": {
-      const quarters: Record<string, { month: string; count: number; totalValue: number }> = {};
-      data.forEach((item) => {
-        const [year, month] = item.month.split("-");
-        const quarter = Math.ceil(parseInt(month) / 3);
-        const key = `${year}-Q${quarter}`;
-        if (!quarters[key]) {
-          quarters[key] = { month: key, count: 0, totalValue: 0 };
-        }
-        quarters[key].count += item.count;
-        quarters[key].totalValue += item.totalValue;
-      });
-      return Object.values(quarters).sort((a, b) => a.month.localeCompare(b.month));
-    }
-
-    case "yearly": {
-      const years: Record<string, { month: string; count: number; totalValue: number }> = {};
-      data.forEach((item) => {
-        const year = item.month.split("-")[0];
-        if (!years[year]) {
-          years[year] = { month: year, count: 0, totalValue: 0 };
-        }
-        years[year].count += item.count;
-        years[year].totalValue += item.totalValue;
-      });
-      return Object.values(years).sort((a, b) => a.month.localeCompare(b.month));
-    }
-
-    case "last12months": {
-      const now = new Date();
-      const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 12, 1);
-      return data
-        .filter((item) => {
-          const [year, month] = item.month.split("-");
-          const itemDate = new Date(parseInt(year), parseInt(month) - 1, 1);
-          return itemDate >= twelveMonthsAgo;
-        })
-        .slice(-12);
-    }
-
-    default:
-      return data;
-  }
-}
+// Removed filterDataByPeriod - now handled by backend
 
 // Animation component wrapper
 function AnimatedSection({
   children,
   delay = 0,
-  className = "",
+  className = '',
 }: {
   children: React.ReactNode;
   delay?: number;
@@ -163,7 +118,7 @@ function AnimatedSection({
       transition={{
         delay,
         duration: 0.4,
-        ease: "easeOut",
+        ease: 'easeOut',
       }}
     >
       {children}
@@ -176,70 +131,293 @@ export function DashboardChartsWrapper({
   comparativeStats,
   recentSubmissions = [],
 }: DashboardChartsWrapperProps) {
-  const [timeFilter, setTimeFilter] = useState<TimeFilterType>("monthly");
+  const { activeModel } = useModelContext();
 
-  const filteredTimelineData = salesStats?.byMonth
-    ? filterDataByPeriod(salesStats.byMonth, timeFilter)
-    : [];
+  const isSeguroModel = activeModel?.modelType === 'seguro';
+
+  const timelineData = salesStats?.byMonth || [];
+
+  // Anos presentes nos dados (ex.: "2025-02-04" -> 2025)
+  const availableYears = useMemo(() => {
+    const years = new Set<number>();
+    timelineData.forEach((item) => {
+      const y = item.month.slice(0, 4);
+      if (/^\d{4}$/.test(y)) years.add(parseInt(y, 10));
+    });
+    const arr = Array.from(years).sort((a, b) => b - a);
+    return arr.length > 0 ? arr : [new Date().getFullYear()];
+  }, [timelineData]);
+
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState<string>(() =>
+    String(availableYears[0] ?? currentYear),
+  );
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
+
+  const filteredTimelineData = useMemo(() => {
+    const year = selectedYear || String(currentYear);
+    if (!selectedMonth || selectedMonth === 'all') {
+      return timelineData.filter((item) => item.month.startsWith(year));
+    }
+    const monthPad = selectedMonth.padStart(2, '0');
+    const prefix = `${year}-${monthPad}`;
+    return timelineData.filter(
+      (item) => item.month === prefix || item.month.startsWith(prefix + '-'),
+    );
+  }, [timelineData, selectedYear, selectedMonth, currentYear]);
+
+  const monthOptions = [
+    { value: 'all', label: 'Todos os meses' },
+    { value: '1', label: 'Janeiro' },
+    { value: '2', label: 'Fevereiro' },
+    { value: '3', label: 'Março' },
+    { value: '4', label: 'Abril' },
+    { value: '5', label: 'Maio' },
+    { value: '6', label: 'Junho' },
+    { value: '7', label: 'Julho' },
+    { value: '8', label: 'Agosto' },
+    { value: '9', label: 'Setembro' },
+    { value: '10', label: 'Outubro' },
+    { value: '11', label: 'Novembro' },
+    { value: '12', label: 'Dezembro' },
+  ];
 
   // Use comparative stats for comparison charts (all users), personal stats for individual charts
-  const userDataForComparison = comparativeStats?.byUser || salesStats?.byUser || [];
-  const agenteDataForComparison = comparativeStats?.byAgente || salesStats?.byAgente || [];
+  const userDataForComparison =
+    comparativeStats?.byUser || salesStats?.byUser || [];
+  const agenteDataForComparison =
+    comparativeStats?.byAgente || salesStats?.byAgente || [];
 
+  // Layout específico para dashboard de Seguros
+  if (isSeguroModel) {
+    return (
+      <div className="space-y-5">
+        {/* Row 1: Evolução das Apólices (3 col, full width) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <AnimatedSection className="lg:col-span-3" delay={0}>
+            <div className="chart-card h-full relative">
+              <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="chart-card-title">Evolução das Apólices</h3>
+                  <div className="chart-legend mt-2 flex items-center gap-3 flex-wrap">
+                    <span className="chart-legend-item">
+                      <span className="chart-legend-dot bg-[var(--chart-1)]" />
+                      Apólices
+                    </span>
+                    <span className="text-xs text-muted-foreground font-normal">
+                      Por dia (data da apólice)
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-[100px] h-8 text-xs">
+                      <SelectValue placeholder="Ano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map((y) => (
+                        <SelectItem key={y} value={String(y)}>
+                          {y}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={selectedMonth}
+                    onValueChange={setSelectedMonth}
+                  >
+                    <SelectTrigger className="w-[140px] h-8 text-xs">
+                      <SelectValue placeholder="Mês" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {monthOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DashboardStatusChart
+                data={filteredTimelineData}
+                timeFilter="daily"
+                showOnlyCount
+              />
+            </div>
+          </AnimatedSection>
+        </div>
+
+        {/* Row 2: Apólices por Seguradora + Taxa de Crescimento (3 col) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <AnimatedSection className="lg:col-span-2" delay={0.1}>
+            <div className="chart-card h-full">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Apólices por Seguradora</h3>
+                <div className="chart-legend">
+                  <span className="chart-legend-item">
+                    <span className="chart-legend-dot bg-[var(--chart-1)]" />
+                    Apólices
+                  </span>
+                  <span className="chart-legend-item">
+                    <span className="chart-legend-dot bg-[var(--chart-2)]" />
+                    Valor
+                  </span>
+                </div>
+              </div>
+              <OverallSellProgressChart data={salesStats?.bySeguradora || []} />
+            </div>
+          </AnimatedSection>
+          <AnimatedSection delay={0.15}>
+            <div className="chart-card h-full">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Taxa de Crescimento</h3>
+              </div>
+              <GrowthRateChart data={salesStats?.growthRates || []} />
+            </div>
+          </AnimatedSection>
+        </div>
+
+        {/* Row 3: Performance por Colaborador (1 col) + Valor Médio por Agente (2 col) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <AnimatedSection delay={0.2}>
+            <div className="chart-card h-full">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">
+                  Performance por Colaborador
+                </h3>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                  Top 3
+                </span>
+              </div>
+              <ColaboradorPerformanceChart
+                data={userDataForComparison}
+                rankByCount
+              />
+            </div>
+          </AnimatedSection>
+          <AnimatedSection className="lg:col-span-2" delay={0.25}>
+            <div className="chart-card h-full">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Valor Médio por Agente</h3>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                  Top 3
+                </span>
+              </div>
+              <TicketMedioAgenteChart
+                data={agenteDataForComparison.map((item) => ({
+                  ...item,
+                  averageValue: item.averageValue ?? 0,
+                }))}
+                globalAverage={salesStats?.averageValue}
+              />
+            </div>
+          </AnimatedSection>
+        </div>
+
+        {/* Row 4: Rating de Clientes, Distribuição por Distrito, Distribuição por Fracionamento (3 col) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <AnimatedSection delay={0.35}>
+            <div className="chart-card h-full">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Rating de Clientes</h3>
+              </div>
+              <RatingDistributionChart data={salesStats?.byRating || []} />
+            </div>
+          </AnimatedSection>
+          <AnimatedSection delay={0.4}>
+            <div className="chart-card h-full">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Distribuição por Distrito</h3>
+              </div>
+              <VisitorAnalysisChart data={salesStats?.byDistrito || []} />
+            </div>
+          </AnimatedSection>
+          <AnimatedSection delay={0.45}>
+            <div className="chart-card h-full">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">
+                  Distribuição por Fracionamento
+                </h3>
+              </div>
+              <FracionamentoChart data={salesStats?.byFracionamento || []} />
+            </div>
+          </AnimatedSection>
+        </div>
+      </div>
+    );
+  }
+
+  // Layout original para Crédito
   return (
     <div className="space-y-5">
       {/* First Row: Evolução Produção (2/3) + Produção por Banco (1/3) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Evolução da Produção - Area Chart */}
         <AnimatedSection className="lg:col-span-2" delay={0}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
+          <div className="chart-card h-full relative">
+            <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="chart-card-title">Evolução da Produção</h3>
-                <div className="chart-legend mt-2">
+                <div className="chart-legend mt-2 flex items-center gap-3 flex-wrap">
                   <span className="chart-legend-item">
-                    <span
-                      className="chart-legend-dot"
-                      style={{ backgroundColor: "#E14840" }}
-                    />
+                    <span className="chart-legend-dot bg-[var(--chart-1)]" />
                     Submissões
                   </span>
                   <span className="chart-legend-item">
-                    <span
-                      className="chart-legend-dot"
-                      style={{ backgroundColor: "#C43A32" }}
-                    />
+                    <span className="chart-legend-dot bg-[var(--chart-2)]" />
                     Valor Total
+                  </span>
+                  <span className="text-xs text-muted-foreground font-normal">
+                    Por dia (data da apólice)
                   </span>
                 </div>
               </div>
-              <TimeFilter value={timeFilter} onChange={setTimeFilter} />
+              <div className="flex items-center gap-2 shrink-0">
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="w-[100px] h-8 text-xs">
+                    <SelectValue placeholder="Ano" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableYears.map((y) => (
+                      <SelectItem key={y} value={String(y)}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className="w-[140px] h-8 text-xs">
+                    <SelectValue placeholder="Mês" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <DashboardStatusChart
               data={filteredTimelineData}
-              timeFilter={timeFilter}
+              timeFilter="daily"
+              showOnlyCount={false}
             />
           </div>
         </AnimatedSection>
 
-        {/* Produção por Banco - Vertical Bar Chart */}
         <AnimatedSection delay={0.1}>
           <div className="chart-card h-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="chart-card-title">Produção por Banco</h3>
               <div className="chart-legend">
                 <span className="chart-legend-item">
-                  <span
-                    className="chart-legend-dot"
-                    style={{ backgroundColor: "#E14840" }}
-                  />
+                  <span className="chart-legend-dot bg-[var(--chart-1)]" />
                   Quantidade
                 </span>
                 <span className="chart-legend-item">
-                  <span
-                    className="chart-legend-dot"
-                    style={{ backgroundColor: "#C43A32" }}
-                  />
+                  <span className="chart-legend-dot bg-[var(--chart-2)]" />
                   Valor
                 </span>
               </div>
@@ -249,19 +427,15 @@ export function DashboardChartsWrapper({
         </AnimatedSection>
       </div>
 
-      {/* Second Row: Seguradora + Ticket Médio + Taxa de Crescimento */}
+      {/* Second Row: Produção por Seguradora + Ticket Médio + Taxa de Crescimento */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Produção por Seguradora */}
         <AnimatedSection delay={0.15}>
           <div className="chart-card h-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="chart-card-title">Produção por Seguradora</h3>
               <div className="chart-legend">
                 <span className="chart-legend-item">
-                  <span
-                    className="chart-legend-dot"
-                    style={{ backgroundColor: "#E14840" }}
-                  />
+                  <span className="chart-legend-dot bg-[var(--chart-1)]" />
                   Operações
                 </span>
               </div>
@@ -270,17 +444,13 @@ export function DashboardChartsWrapper({
           </div>
         </AnimatedSection>
 
-        {/* Ticket Médio por Banco */}
         <AnimatedSection delay={0.2}>
           <div className="chart-card h-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="chart-card-title">Ticket Médio por Banco</h3>
               <div className="chart-legend">
                 <span className="chart-legend-item">
-                  <span
-                    className="chart-legend-dot"
-                    style={{ backgroundColor: "#E14840" }}
-                  />
+                  <span className="chart-legend-dot bg-[var(--chart-1)]" />
                   Média
                 </span>
               </div>
@@ -292,7 +462,6 @@ export function DashboardChartsWrapper({
           </div>
         </AnimatedSection>
 
-        {/* Taxa de Crescimento */}
         <AnimatedSection delay={0.25}>
           <div className="chart-card h-full">
             <div className="flex items-center justify-between mb-4">
@@ -303,44 +472,23 @@ export function DashboardChartsWrapper({
         </AnimatedSection>
       </div>
 
-      {/* Third Row: Performance Colaboradores + Distribuição de Valores */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Performance por Colaborador */}
+      {/* Third Row: Performance por Colaborador */}
+      <div className="grid grid-cols-1 gap-5">
         <AnimatedSection delay={0.3}>
           <div className="chart-card h-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="chart-card-title">Performance por Colaborador</h3>
               <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                Top 5
+                Top 3
               </span>
             </div>
             <ColaboradorPerformanceChart data={userDataForComparison} />
           </div>
         </AnimatedSection>
-
-        {/* Distribuição de Valores */}
-        <AnimatedSection delay={0.35}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Distribuição de Valores</h3>
-              <div className="chart-legend">
-                <span className="chart-legend-item">
-                  <span
-                    className="chart-legend-dot"
-                    style={{ backgroundColor: "#E14840" }}
-                  />
-                  Operações
-                </span>
-              </div>
-            </div>
-            <ValueDistributionChart data={salesStats?.valueRanges || []} />
-          </div>
-        </AnimatedSection>
       </div>
 
-      {/* Fourth Row: Análise por Distrito + Últimas Submissões */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Análise por Distrito - Donut Chart */}
+      {/* Fourth Row: Análise por Distrito */}
+      <div className="grid grid-cols-1 gap-5">
         <AnimatedSection delay={0.4}>
           <div className="chart-card h-full">
             <div className="flex items-center justify-between mb-4">
@@ -349,25 +497,11 @@ export function DashboardChartsWrapper({
             <VisitorAnalysisChart data={salesStats?.byDistrito || []} />
           </div>
         </AnimatedSection>
-
-        {/* Tabela de Últimas Submissões */}
-        <AnimatedSection className="lg:col-span-2" delay={0.45}>
-          <EmployeeTaskTable submissions={recentSubmissions} />
-        </AnimatedSection>
       </div>
 
-      {/* Fifth Row: Template Composition + Agente Performance */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      {/* Fifth Row: Performance por Agente */}
+      <div className="grid grid-cols-1 gap-5">
         <AnimatedSection delay={0.5}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Composição por Tipo</h3>
-            </div>
-            <TemplateCompositionChart data={salesStats?.byTemplate || []} />
-          </div>
-        </AnimatedSection>
-
-        <AnimatedSection className="lg:col-span-2" delay={0.55}>
           <div className="chart-card h-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="chart-card-title">Performance por Agente</h3>
@@ -376,9 +510,9 @@ export function DashboardChartsWrapper({
               </span>
             </div>
             <AgentePerformanceChart
-              data={agenteDataForComparison.map(item => ({
+              data={agenteDataForComparison.map((item) => ({
                 ...item,
-                averageValue: item.averageValue ?? 0
+                averageValue: item.averageValue ?? 0,
               }))}
               globalAverage={salesStats?.averageValue}
             />
@@ -386,8 +520,8 @@ export function DashboardChartsWrapper({
         </AnimatedSection>
       </div>
 
-      {/* Sixth Row: Rating + Ticket Médio Agente + Scatter */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      {/* Sixth Row: Rating + Ticket Médio Agente */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <AnimatedSection delay={0.6}>
           <div className="chart-card h-full">
             <div className="flex items-center justify-between mb-4">
@@ -403,24 +537,12 @@ export function DashboardChartsWrapper({
               <h3 className="chart-card-title">Ticket Médio por Agente</h3>
             </div>
             <TicketMedioAgenteChart
-              data={agenteDataForComparison.map(item => ({
+              data={agenteDataForComparison.map((item) => ({
                 ...item,
-                averageValue: item.averageValue ?? 0
+                averageValue: item.averageValue ?? 0,
               }))}
               globalAverage={salesStats?.averageValue}
             />
-          </div>
-        </AnimatedSection>
-
-        <AnimatedSection delay={0.7}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Quantidade vs Valor</h3>
-            </div>
-            <ColaboradorScatterChart data={userDataForComparison.map(item => ({
-              ...item,
-              averageValue: item.averageValue ?? 0
-            }))} />
           </div>
         </AnimatedSection>
       </div>

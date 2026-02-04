@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   PieChart,
@@ -7,25 +7,20 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
-} from "recharts";
+} from 'recharts';
+import { ChartTooltip } from '@/components/ui/chart-tooltip';
+import { chartColors } from '@/lib/design-system';
 
 interface TopBancosPieChartProps {
   data: { name: string; count: number; totalValue: number }[];
 }
 
-// Paleta avermelhada baseada em #E14840
-const COLORS = [
-  "#E14840", // Primary
-  "#C43A32", // Darker red
-  "#F06B63", // Lighter red
-  "#A72C25", // Dark red
-  "#F58E87", // Light red
-];
+const COLORS = [...chartColors.scale];
 
 export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
   // Pegar top 8 bancos por valor
   const topBancos = data.slice(0, 8).map((item) => ({
-    name: item.name || "Não especificado",
+    name: item.name || 'Não especificado',
     value: Math.round(item.totalValue),
     count: item.count,
   }));
@@ -50,7 +45,7 @@ export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
       <div className="text-center">
         <p className="text-xs text-muted-foreground mb-1">Total de Vendas</p>
         <p className="text-3xl font-semibold text-foreground tracking-tight">
-          {totalVisits.toLocaleString("pt-PT")}
+          {totalVisits.toLocaleString('pt-PT')}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
           {topBancos.length} bancos
@@ -60,7 +55,12 @@ export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
       {/* Donut Chart Simplificado */}
       <div className="flex flex-col items-center justify-center">
         <div className="w-full h-[200px]">
-          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            minWidth={0}
+            minHeight={0}
+          >
             <PieChart>
               <Pie
                 data={topBancos.slice(0, 5)}
@@ -69,7 +69,7 @@ export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
                 labelLine={false}
                 innerRadius={50}
                 outerRadius={80}
-                fill="#8884d8"
+                fill={COLORS[0]}
                 dataKey="value"
               >
                 {topBancos.slice(0, 5).map((entry, index) => (
@@ -80,17 +80,33 @@ export function TopBancosPieChart({ data }: TopBancosPieChartProps) {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#FFFFFF",
-                  border: "1px solid #E5E7EB",
-                  borderRadius: "6px",
-                  fontSize: "12px",
-                  padding: "8px 12px",
-                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-                }}
-                formatter={(value) => {
-                  const v = value != null ? Number(value) : 0;
-                  return `${v.toLocaleString("pt-PT")} €`;
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const name = payload[0].name;
+                  const value = payload[0].value;
+                  const count = payload[0].payload?.count;
+                  const rows = [
+                    {
+                      label: 'Valor total',
+                      value:
+                        value != null
+                          ? Number(value).toLocaleString('pt-PT', {
+                              style: 'currency',
+                              currency: 'EUR',
+                              minimumFractionDigits: 0,
+                            })
+                          : '—',
+                    },
+                  ];
+                  if (count != null) {
+                    rows.push({
+                      label: 'Operações',
+                      value: Number(count).toLocaleString('pt-PT'),
+                    });
+                  }
+                  return (
+                    <ChartTooltip title={String(name ?? '')} rows={rows} />
+                  );
                 }}
               />
             </PieChart>

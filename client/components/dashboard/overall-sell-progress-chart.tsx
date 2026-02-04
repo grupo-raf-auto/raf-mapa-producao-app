@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   BarChart,
@@ -8,29 +8,40 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-} from "recharts";
+} from 'recharts';
+import { chartColors } from '@/lib/design-system';
 
 interface OverallSellProgressChartProps {
   data: { name: string; count: number; totalValue: number }[];
 }
 
-// Usar nomes dos bancos em vez de dias
+const TOOLTIP_LABELS: Record<string, string> = {
+  Quantidade: 'Operações',
+  'Valor (k€)': 'Valor (mil €)',
+};
 
-// Custom tooltip
 const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
-        <p className="font-medium mb-1">{label}</p>
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-md">
+      <p className="text-sm font-semibold text-foreground">{label}</p>
+      <dl className="mt-1.5 space-y-1">
         {payload.map((entry: any, index: number) => (
-          <p key={index} className="text-xs" style={{ color: entry.fill }}>
-            {entry.name}: {entry.value?.toLocaleString("pt-PT")}
-          </p>
+          <div
+            key={index}
+            className="flex items-baseline justify-between gap-4"
+          >
+            <dt className="text-xs text-muted-foreground">
+              {TOOLTIP_LABELS[entry.name] ?? entry.name}
+            </dt>
+            <dd className="text-xs font-medium tabular-nums text-foreground">
+              {entry.value != null ? entry.value.toLocaleString('pt-PT') : '—'}
+            </dd>
+          </div>
         ))}
-      </div>
-    );
-  }
-  return null;
+      </dl>
+    </div>
+  );
 };
 
 export function OverallSellProgressChart({
@@ -42,17 +53,17 @@ export function OverallSellProgressChart({
       ? data.slice(0, 7).map((item) => ({
           name:
             item.name.length > 8
-              ? item.name.substring(0, 8) + "..."
+              ? item.name.substring(0, 8) + '...'
               : item.name,
           Quantidade: item.count,
-          "Valor (k€)": Math.round(item.totalValue / 1000),
+          'Valor (k€)': Math.round(item.totalValue / 1000),
         }))
       : [
-          { name: "CGD", Quantidade: 0, "Valor (k€)": 0 },
-          { name: "BPI", Quantidade: 0, "Valor (k€)": 0 },
-          { name: "Santander", Quantidade: 0, "Valor (k€)": 0 },
-          { name: "Millennium", Quantidade: 0, "Valor (k€)": 0 },
-          { name: "Novobanco", Quantidade: 0, "Valor (k€)": 0 },
+          { name: 'CGD', Quantidade: 0, 'Valor (k€)': 0 },
+          { name: 'BPI', Quantidade: 0, 'Valor (k€)': 0 },
+          { name: 'Santander', Quantidade: 0, 'Valor (k€)': 0 },
+          { name: 'Millennium', Quantidade: 0, 'Valor (k€)': 0 },
+          { name: 'Novobanco', Quantidade: 0, 'Valor (k€)': 0 },
         ];
 
   return (
@@ -67,32 +78,32 @@ export function OverallSellProgressChart({
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748B", fontSize: 10 }}
+            tick={{ fill: chartColors.axis, fontSize: 10 }}
             dy={10}
           />
 
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748B", fontSize: 11 }}
+            tick={{ fill: chartColors.axis, fontSize: 11 }}
             dx={-5}
           />
 
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ fill: "rgba(0, 0, 0, 0.03)" }}
+            cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
           />
 
           <Bar
             dataKey="Quantidade"
-            fill="#E14840"
+            fill={chartColors.primary}
             radius={[4, 4, 0, 0]}
             maxBarSize={20}
           />
 
           <Bar
             dataKey="Valor (k€)"
-            fill="#C43A32"
+            fill={chartColors.secondary}
             radius={[4, 4, 0, 0]}
             maxBarSize={20}
           />

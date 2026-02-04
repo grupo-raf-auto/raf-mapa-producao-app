@@ -8,6 +8,8 @@ import {
   Users,
   ShoppingCart,
   Calendar,
+  Shield,
+  ShieldCheck,
 } from "lucide-react";
 import {
   DashboardMetricCard,
@@ -25,7 +27,9 @@ interface KPICardData {
     | "FileStack"
     | "Users"
     | "ShoppingCart"
-    | "Calendar";
+    | "Calendar"
+    | "Shield"
+    | "ShieldCheck";
   description?: string;
   trendChange?: string;
   trendType?: "up" | "down" | "neutral";
@@ -46,6 +50,8 @@ const iconMap = {
   Users,
   ShoppingCart,
   Calendar,
+  Shield,
+  ShieldCheck,
 };
 
 // Color variants for each card position

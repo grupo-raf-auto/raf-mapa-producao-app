@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   BarChart,
@@ -9,7 +9,9 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-} from "recharts";
+} from 'recharts';
+import { ChartTooltip } from '@/components/ui/chart-tooltip';
+import { chartColors } from '@/lib/design-system';
 
 interface SalesByBancoChartProps {
   data: { name: string; count: number; totalValue: number }[];
@@ -17,9 +19,9 @@ interface SalesByBancoChartProps {
 
 export function SalesByBancoChart({ data }: SalesByBancoChartProps) {
   const chartData = data.map((item) => ({
-    name: item.name || "Não especificado",
-    "Número de Vendas": item.count,
-    "Valor Total (€)": Math.round(item.totalValue),
+    name: item.name || 'Não especificado',
+    'Número de Vendas': item.count,
+    'Valor Total (€)': Math.round(item.totalValue),
   }));
 
   const totalVendas = data.reduce((sum, item) => sum + item.count, 0);
@@ -32,9 +34,9 @@ export function SalesByBancoChart({ data }: SalesByBancoChartProps) {
       <div>
         <p className="text-xs text-muted-foreground mb-1">Total de Vendas</p>
         <p className="text-3xl font-semibold text-foreground tracking-tight">
-          {totalValor.toLocaleString("pt-PT", {
-            style: "currency",
-            currency: "EUR",
+          {totalValor.toLocaleString('pt-PT', {
+            style: 'currency',
+            currency: 'EUR',
             minimumFractionDigits: 0,
           })}
         </p>
@@ -45,7 +47,12 @@ export function SalesByBancoChart({ data }: SalesByBancoChartProps) {
 
       {/* Gráfico Simplificado - Apenas Valor Total */}
       <div className="w-full h-[200px]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={0}
+          minHeight={0}
+        >
           <BarChart
             data={chartData.slice(0, 6)}
             margin={{ top: 5, right: 5, left: -5, bottom: 5 }}
@@ -53,14 +60,14 @@ export function SalesByBancoChart({ data }: SalesByBancoChartProps) {
           >
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="#E5E7EB"
+              stroke={chartColors.grid}
               horizontal={false}
               opacity={0.5}
             />
             <XAxis
               type="number"
-              stroke="#9CA3AF"
-              style={{ fontSize: "11px" }}
+              stroke={chartColors.axis}
+              style={{ fontSize: '11px' }}
               tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
               tickLine={false}
               axisLine={false}
@@ -69,32 +76,44 @@ export function SalesByBancoChart({ data }: SalesByBancoChartProps) {
             <YAxis
               type="category"
               dataKey="name"
-              stroke="#9CA3AF"
-              style={{ fontSize: "11px" }}
+              stroke={chartColors.axis}
+              style={{ fontSize: '11px' }}
               width={70}
               tickLine={false}
               axisLine={false}
             />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E5E7EB",
-                borderRadius: "6px",
-                fontSize: "12px",
-                padding: "8px 12px",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              }}
-              formatter={(value) => {
-                if (value == null) return "-";
-                return `${Number(value).toLocaleString("pt-PT")} €`;
-              }}
-              labelStyle={{
-                fontSize: "11px",
-                color: "#6B7280",
-                marginBottom: "4px",
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+                const totalValue = payload[0]?.value;
+                const count = payload[0]?.payload?.['Número de Vendas'];
+                const rows = [
+                  {
+                    label: 'Valor total',
+                    value:
+                      totalValue != null
+                        ? Number(totalValue).toLocaleString('pt-PT', {
+                            style: 'currency',
+                            currency: 'EUR',
+                            minimumFractionDigits: 0,
+                          })
+                        : '—',
+                  },
+                ];
+                if (count != null) {
+                  rows.push({
+                    label: 'Operações',
+                    value: Number(count).toLocaleString('pt-PT'),
+                  });
+                }
+                return <ChartTooltip title={String(label ?? '')} rows={rows} />;
               }}
             />
-            <Bar dataKey="Valor Total (€)" fill="#E14840" radius={[0, 4, 4, 0]} />
+            <Bar
+              dataKey="Valor Total (€)"
+              fill={chartColors.primary}
+              radius={[0, 4, 4, 0]}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

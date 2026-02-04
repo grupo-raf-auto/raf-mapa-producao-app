@@ -1,8 +1,16 @@
-"use client";
+'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from 'recharts';
+import { chartColors } from '@/lib/design-system';
 
-const COLORS = ["#E14840", "#C43A32", "#F06B63"];
+const COLORS = [...chartColors.scale];
 
 interface TemplateCompositionChartProps {
   data: { name: string; count: number; totalValue: number }[];
@@ -23,28 +31,39 @@ export function TemplateCompositionChart({
 
   const chartData = data.map((item, index) => ({
     name: item.name
-      .replace("Registo de Produção ", "")
-      .replace("Registo de Vendas ", ""),
+      .replace('Registo de Produção ', '')
+      .replace('Registo de Vendas ', ''),
     value: item.count,
     percentage: ((item.count / totalSubmissions) * 100).toFixed(1),
     color: COLORS[index % COLORS.length],
   }));
 
   const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
-          <p className="font-medium mb-1">{payload[0].name}</p>
-          <p className="text-xs text-red-300">
-            Submissões: {payload[0].value.toLocaleString("pt-PT")}
-          </p>
-          <p className="text-xs text-purple-300">
-            {payload[0].payload.percentage}% do total
-          </p>
-        </div>
-      );
-    }
-    return null;
+    if (!active || !payload?.length) return null;
+    const name = payload[0].name;
+    const value = payload[0].value;
+    const percentage = payload[0].payload?.percentage;
+    return (
+      <div className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-md">
+        <p className="text-sm font-semibold text-foreground">{name}</p>
+        <dl className="mt-1.5 space-y-1">
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="text-xs text-muted-foreground">Submissões</dt>
+            <dd className="text-xs font-medium tabular-nums text-foreground">
+              {value?.toLocaleString('pt-PT') ?? '—'}
+            </dd>
+          </div>
+          {percentage != null && (
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="text-xs text-muted-foreground">% do total</dt>
+              <dd className="text-xs font-medium tabular-nums text-foreground">
+                {percentage}%
+              </dd>
+            </div>
+          )}
+        </dl>
+      </div>
+    );
   };
 
   return (
@@ -79,7 +98,7 @@ export function TemplateCompositionChart({
         </ResponsiveContainer>
       </div>
       <div className="text-center mt-2 text-sm text-muted-foreground">
-        Total: {totalSubmissions.toLocaleString("pt-PT")} submissões
+        Total: {totalSubmissions.toLocaleString('pt-PT')} submissões
       </div>
     </div>
   );

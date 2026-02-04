@@ -1,20 +1,21 @@
-"use client";
+'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { ChartTooltip } from '@/components/ui/chart-tooltip';
+import { chartColors } from '@/lib/design-system';
 
 interface VisitorAnalysisChartProps {
   data: { name: string; count: number; totalValue: number }[];
 }
 
-// Paleta avermelhada baseada em #E14840
-const COLORS = ["#E14840", "#C43A32", "#F06B63", "#A72C25", "#F58E87"];
+const COLORS = [...chartColors.scale];
 
 const defaultData = [
-  { name: "Lisboa", value: 35, color: COLORS[0] },
-  { name: "Porto", value: 25, color: COLORS[1] },
-  { name: "Braga", value: 18, color: COLORS[2] },
-  { name: "Setúbal", value: 12, color: COLORS[3] },
-  { name: "Outros", value: 10, color: COLORS[4] },
+  { name: 'Lisboa', value: 35, color: COLORS[0] },
+  { name: 'Porto', value: 25, color: COLORS[1] },
+  { name: 'Braga', value: 18, color: COLORS[2] },
+  { name: 'Setúbal', value: 12, color: COLORS[3] },
+  { name: 'Outros', value: 10, color: COLORS[4] },
 ];
 
 export function VisitorAnalysisChart({ data }: VisitorAnalysisChartProps) {
@@ -22,7 +23,7 @@ export function VisitorAnalysisChart({ data }: VisitorAnalysisChartProps) {
   const chartData =
     data.length > 0
       ? data.slice(0, 5).map((item, index) => ({
-          name: item.name || "Unknown",
+          name: item.name || 'Unknown',
           value: item.count,
           color: COLORS[index % COLORS.length],
         }))
@@ -50,13 +51,37 @@ export function VisitorAnalysisChart({ data }: VisitorAnalysisChartProps) {
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const name = payload[0].name;
+                const value = payload[0].value;
+                const pct =
+                  total > 0 ? ((Number(value) / total) * 100).toFixed(0) : '0';
+                return (
+                  <ChartTooltip
+                    title={String(name ?? '')}
+                    rows={[
+                      {
+                        label: 'Operações',
+                        value:
+                          value != null
+                            ? Number(value).toLocaleString('pt-PT')
+                            : '—',
+                      },
+                      { label: '% do total', value: `${pct}%` },
+                    ]}
+                  />
+                );
+              }}
+            />
           </PieChart>
         </ResponsiveContainer>
 
         {/* Center Text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-2xl font-bold text-foreground">
-            {total.toLocaleString("pt-PT")}
+            {total.toLocaleString('pt-PT')}
           </span>
           <span className="text-xs text-muted-foreground">Submissões</span>
         </div>

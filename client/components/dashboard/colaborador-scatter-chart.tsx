@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   ScatterChart,
@@ -9,7 +9,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   ZAxis,
-} from "recharts";
+} from 'recharts';
+import { chartColors } from '@/lib/design-system';
 
 interface ColaboradorScatterChartProps {
   data: {
@@ -40,49 +41,63 @@ export function ColaboradorScatterChart({
   }));
 
   const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
-          <p className="font-medium mb-1">{payload[0].payload.name}</p>
-          <p className="text-xs text-green-300">
-            Valor Total:{" "}
-            {payload[0].payload.x.toLocaleString("pt-PT", {
-              style: "currency",
-              currency: "EUR",
-              minimumFractionDigits: 0,
-            })}
-          </p>
-          <p className="text-xs text-red-300">
-            Operações: {payload[0].payload.y}
-          </p>
-          <p className="text-xs text-purple-300">
-            Ticket Médio:{" "}
-            {(payload[0].payload.z * 1000).toLocaleString("pt-PT", {
-              style: "currency",
-              currency: "EUR",
-              minimumFractionDigits: 0,
-            })}
-          </p>
-        </div>
-      );
-    }
-    return null;
+    if (!active || !payload?.length) return null;
+    const p = payload[0].payload;
+    return (
+      <div className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-md">
+        <p className="text-sm font-semibold text-foreground">{p.name}</p>
+        <dl className="mt-1.5 space-y-1">
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="text-xs text-muted-foreground">Valor total</dt>
+            <dd className="text-xs font-medium tabular-nums text-foreground">
+              {p.x?.toLocaleString('pt-PT', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+              }) ?? '—'}
+            </dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="text-xs text-muted-foreground">Operações</dt>
+            <dd className="text-xs font-medium tabular-nums text-foreground">
+              {p.y != null ? p.y.toLocaleString('pt-PT') : '—'}
+            </dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="text-xs text-muted-foreground">Valor médio</dt>
+            <dd className="text-xs font-medium tabular-nums text-foreground">
+              {p.z != null
+                ? (p.z * 1000).toLocaleString('pt-PT', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 0,
+                  })
+                : '—'}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    );
   };
 
   return (
     <div className="w-full h-[260px]">
       <ResponsiveContainer width="100%" height="100%">
         <ScatterChart margin={{ top: 10, right: 10, bottom: 20, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+          <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
           <XAxis
             type="number"
             dataKey="x"
             name="Valor"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748B", fontSize: 10 }}
+            tick={{ fill: chartColors.axis, fontSize: 10 }}
             tickFormatter={(value) => `${Math.round(value / 1000)}k`}
-            label={{ value: "Valor Total (€)", position: "bottom", fontSize: 10 }}
+            label={{
+              value: 'Valor Total (€)',
+              position: 'bottom',
+              fontSize: 10,
+            }}
           />
           <YAxis
             type="number"
@@ -90,11 +105,11 @@ export function ColaboradorScatterChart({
             name="Quantidade"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748B", fontSize: 10 }}
+            tick={{ fill: chartColors.axis, fontSize: 10 }}
             label={{
-              value: "Operações",
+              value: 'Operações',
               angle: -90,
-              position: "insideLeft",
+              position: 'insideLeft',
               fontSize: 10,
             }}
           />
@@ -106,9 +121,9 @@ export function ColaboradorScatterChart({
           />
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ strokeDasharray: "3 3" }}
+            cursor={{ strokeDasharray: '3 3' }}
           />
-          <Scatter data={chartData} fill="#E14840" />
+          <Scatter data={chartData} fill={chartColors.primary} />
         </ScatterChart>
       </ResponsiveContainer>
     </div>

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   PieChart,
@@ -7,23 +7,18 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
-} from "recharts";
+} from 'recharts';
+import { ChartTooltip } from '@/components/ui/chart-tooltip';
+import { chartColors } from '@/lib/design-system';
 
-// Paleta avermelhada baseada em #E14840
-const COLORS = [
-  "#E14840", // Primary
-  "#C43A32", // Darker red
-  "#F06B63", // Lighter red
-  "#A72C25", // Dark red
-  "#F58E87", // Light red
-];
+const COLORS = [...chartColors.scale];
 
 const data = [
-  { name: "Finance", value: 35 },
-  { name: "Marketing", value: 28 },
-  { name: "HR", value: 20 },
-  { name: "Tech", value: 12 },
-  { name: "Custom", value: 5 },
+  { name: 'Finance', value: 35 },
+  { name: 'Marketing', value: 28 },
+  { name: 'HR', value: 20 },
+  { name: 'Tech', value: 12 },
+  { name: 'Custom', value: 5 },
 ];
 
 export function QuestionsChart() {
@@ -46,7 +41,12 @@ export function QuestionsChart() {
 
       {/* Pie Chart Simplificado */}
       <div className="w-full h-[200px]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={0}
+          minHeight={0}
+        >
           <PieChart>
             <Pie
               data={data}
@@ -54,7 +54,7 @@ export function QuestionsChart() {
               cy="50%"
               labelLine={false}
               outerRadius={70}
-              fill="#8884d8"
+              fill={COLORS[0]}
               dataKey="value"
             >
               {data.map((entry, index) => (
@@ -65,16 +65,24 @@ export function QuestionsChart() {
               ))}
             </Pie>
             <Tooltip
-              contentStyle={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E5E7EB",
-                borderRadius: "6px",
-                fontSize: "12px",
-                padding: "8px 12px",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              }}
-              formatter={(value, name) => {
-                return [`${value}`, name];
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const name = payload[0].name;
+                const value = payload[0].value;
+                return (
+                  <ChartTooltip
+                    title={String(name ?? '')}
+                    rows={[
+                      {
+                        label: 'Questões',
+                        value:
+                          value != null
+                            ? Number(value).toLocaleString('pt-PT')
+                            : '—',
+                      },
+                    ]}
+                  />
+                );
               }}
             />
           </PieChart>

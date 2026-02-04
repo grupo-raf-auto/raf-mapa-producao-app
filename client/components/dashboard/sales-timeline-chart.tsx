@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   BarChart,
@@ -12,8 +12,10 @@ import {
   ResponsiveContainer,
   Legend,
   ComposedChart,
-} from "recharts";
-import { TimeFilterType } from "./time-filter";
+} from 'recharts';
+import { ChartTooltip } from '@/components/ui/chart-tooltip';
+import { chartColors } from '@/lib/design-system';
+import { TimeFilterType } from './time-filter';
 
 interface SalesTimelineChartProps {
   data: { month: string; count: number; totalValue: number }[];
@@ -23,23 +25,23 @@ interface SalesTimelineChartProps {
 // 1. Cash Flow Stacked Bar Chart
 export function CashFlowStackedChart({
   data,
-  timeFilter = "monthly",
+  timeFilter = 'monthly',
 }: SalesTimelineChartProps) {
   const chartData = data.map((item, index) => {
-    const [year, month] = item.month.split("-");
+    const [year, month] = item.month.split('-');
     const monthNames = [
-      "Jan",
-      "Fev",
-      "Mar",
-      "Abr",
-      "Mai",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Set",
-      "Out",
-      "Nov",
-      "Dez",
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez',
     ];
     const monthName = monthNames[parseInt(month) - 1] || month;
 
@@ -48,7 +50,7 @@ export function CashFlowStackedChart({
 
     return {
       date:
-        index === data.length - 1 ? "Hoje" : `${monthName} ${year.slice(-2)}`,
+        index === data.length - 1 ? 'Hoje' : `${monthName} ${year.slice(-2)}`,
       Entrada: entrada,
       Saída: saida,
       total: item.totalValue,
@@ -59,15 +61,19 @@ export function CashFlowStackedChart({
   const previous = chartData[chartData.length - 2];
   const change = previous
     ? (((current.total - previous.total) / previous.total) * 100).toFixed(1)
-    : "0.0";
+    : '0.0';
   const periodLabel =
-    timeFilter === "monthly" ? "Este mês" : timeFilter === "quarterly" ? "Este trimestre" : "Este ano";
+    timeFilter === 'monthly'
+      ? 'Este mês'
+      : timeFilter === 'quarterly'
+        ? 'Este trimestre'
+        : 'Este ano';
   const prevPeriodLabel =
-    timeFilter === "monthly"
-      ? "Mês anterior"
-      : timeFilter === "quarterly"
-        ? "Trimestre anterior"
-        : "Ano anterior";
+    timeFilter === 'monthly'
+      ? 'Mês anterior'
+      : timeFilter === 'quarterly'
+        ? 'Trimestre anterior'
+        : 'Ano anterior';
 
   return (
     <div className="space-y-4">
@@ -77,9 +83,9 @@ export function CashFlowStackedChart({
             1 {periodLabel} - Hoje
           </p>
           <p className="text-2xl font-bold text-foreground">
-            {current.total.toLocaleString("pt-PT", {
-              style: "currency",
-              currency: "EUR",
+            {current.total.toLocaleString('pt-PT', {
+              style: 'currency',
+              currency: 'EUR',
               minimumFractionDigits: 0,
             })}
           </p>
@@ -88,76 +94,85 @@ export function CashFlowStackedChart({
           <p className="text-xs text-muted-foreground">
             {previous
               ? `1 ${prevPeriodLabel} - ${previous.date}`
-              : "Sem comparação"}
+              : 'Sem comparação'}
           </p>
           <p className="text-sm font-medium text-muted-foreground">
-            {previous?.total.toLocaleString("pt-PT", {
-              style: "currency",
-              currency: "EUR",
+            {previous?.total.toLocaleString('pt-PT', {
+              style: 'currency',
+              currency: 'EUR',
               minimumFractionDigits: 0,
-            }) || "N/A"}
+            }) || 'N/A'}
           </p>
           <p
-            className={`text-xs font-medium ${parseFloat(change) >= 0 ? "text-green-600" : "text-red-600"}`}
+            className={`text-xs font-medium ${parseFloat(change) >= 0 ? 'text-green-600' : 'text-red-600'}`}
           >
-            {parseFloat(change) >= 0 ? "+" : ""}
+            {parseFloat(change) >= 0 ? '+' : ''}
             {change}%
           </p>
         </div>
       </div>
 
       <div className="w-full h-[200px]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-        <BarChart
-          data={chartData}
-          margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={0}
+          minHeight={0}
         >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="#E5E7EB"
-            vertical={false}
-          />
-          <XAxis dataKey="date" stroke="#6B7280" style={{ fontSize: "11px" }} />
-          <YAxis
-            stroke="#6B7280"
-            style={{ fontSize: "11px" }}
-            tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E5E7EB",
-              borderRadius: "8px",
-              fontSize: "12px",
-            }}
-            formatter={(v) =>
-              v != null
-                ? Number(v).toLocaleString("pt-PT", {
-                    style: "currency",
-                    currency: "EUR",
-                    minimumFractionDigits: 0,
-                  })
-                : "-"
-            }
-          />
-          <Legend
-            wrapperStyle={{ fontSize: "11px", paddingTop: "10px" }}
-            iconType="square"
-          />
-          <Bar
-            dataKey="Entrada"
-            stackId="a"
-            fill="#E14840"
-            radius={[0, 0, 0, 0]}
-          />
-          <Bar
-            dataKey="Saída"
-            stackId="a"
-            fill="#C43A32"
-            radius={[4, 4, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
+          <BarChart
+            data={chartData}
+            margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#E5E7EB"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="date"
+              stroke={chartColors.axis}
+              style={{ fontSize: '11px' }}
+            />
+            <YAxis
+              stroke={chartColors.axis}
+              style={{ fontSize: '11px' }}
+              tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+            />
+            <Tooltip
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+                const rows = payload.map((entry) => ({
+                  label: entry.name,
+                  value:
+                    entry.value != null
+                      ? Number(entry.value).toLocaleString('pt-PT', {
+                          style: 'currency',
+                          currency: 'EUR',
+                          minimumFractionDigits: 0,
+                        })
+                      : '—',
+                }));
+                return <ChartTooltip title={String(label ?? '')} rows={rows} />;
+              }}
+            />
+            <Legend
+              wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}
+              iconType="square"
+            />
+            <Bar
+              dataKey="Entrada"
+              stackId="a"
+              fill={chartColors.primary}
+              radius={[0, 0, 0, 0]}
+            />
+            <Bar
+              dataKey="Saída"
+              stackId="a"
+              fill={chartColors.primaryLight}
+              radius={[4, 4, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
@@ -166,7 +181,7 @@ export function CashFlowStackedChart({
 // 2. Profit & Loss Progress Bar
 export function ProfitLossChart({
   data,
-  timeFilter = "monthly",
+  timeFilter = 'monthly',
 }: SalesTimelineChartProps) {
   const current = data[data.length - 1];
   const currentValue = current?.totalValue || 0;
@@ -175,16 +190,20 @@ export function ProfitLossChart({
   const maxValue = Math.max(currentValue, 3000);
   const profitPercentage = (profit / maxValue) * 100;
   const periodLabel =
-    timeFilter === "monthly" ? "Hoje" : timeFilter === "quarterly" ? "Sem" : "Fev";
+    timeFilter === 'monthly'
+      ? 'Hoje'
+      : timeFilter === 'quarterly'
+        ? 'Sem'
+        : 'Fev';
 
   return (
     <div className="space-y-4">
       <div>
         <p className="text-sm text-muted-foreground">1 {periodLabel} - Hoje</p>
         <p className="text-2xl font-bold text-foreground">
-          {currentValue.toLocaleString("pt-PT", {
-            style: "currency",
-            currency: "EUR",
+          {currentValue.toLocaleString('pt-PT', {
+            style: 'currency',
+            currency: 'EUR',
             minimumFractionDigits: 0,
           })}
         </p>
@@ -221,29 +240,29 @@ export function ProfitLossChart({
 // 3. Net Volume Line Chart with "Today" label
 export function NetVolumeChart({
   data,
-  timeFilter = "monthly",
+  timeFilter = 'monthly',
 }: SalesTimelineChartProps) {
   const chartData = data.map((item, index) => {
-    const [year, month] = item.month.split("-");
+    const [year, month] = item.month.split('-');
     const monthNames = [
-      "Jan",
-      "Fev",
-      "Mar",
-      "Abr",
-      "Mai",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Set",
-      "Out",
-      "Nov",
-      "Dez",
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez',
     ];
     const monthName = monthNames[parseInt(month) - 1] || month;
 
     return {
       date:
-        index === data.length - 1 ? "Hoje" : `${monthName} ${year.slice(-2)}`,
+        index === data.length - 1 ? 'Hoje' : `${monthName} ${year.slice(-2)}`,
       current: Math.round(item.totalValue),
       previous: Math.round(item.totalValue * 0.8),
     };
@@ -255,15 +274,19 @@ export function NetVolumeChart({
     ? (((current.current - previous.current) / previous.current) * 100).toFixed(
         1,
       )
-    : "0.0";
+    : '0.0';
   const periodLabel =
-    timeFilter === "monthly" ? "Hoje" : timeFilter === "quarterly" ? "Sem" : "Fev";
+    timeFilter === 'monthly'
+      ? 'Hoje'
+      : timeFilter === 'quarterly'
+        ? 'Sem'
+        : 'Fev';
   const prevPeriodLabel =
-    timeFilter === "monthly"
-      ? "Ontem"
-      : timeFilter === "quarterly"
-        ? "Sem passada"
-        : "Jan";
+    timeFilter === 'monthly'
+      ? 'Ontem'
+      : timeFilter === 'quarterly'
+        ? 'Sem passada'
+        : 'Jan';
 
   return (
     <div className="space-y-4">
@@ -273,9 +296,9 @@ export function NetVolumeChart({
             1 {periodLabel} - Hoje
           </p>
           <p className="text-2xl font-bold text-foreground">
-            {current.current.toLocaleString("pt-PT", {
-              style: "currency",
-              currency: "EUR",
+            {current.current.toLocaleString('pt-PT', {
+              style: 'currency',
+              currency: 'EUR',
               minimumFractionDigits: 0,
             })}
           </p>
@@ -284,19 +307,19 @@ export function NetVolumeChart({
           <p className="text-xs text-muted-foreground">
             {previous
               ? `1 ${prevPeriodLabel} - ${previous.date}`
-              : "Sem comparação"}
+              : 'Sem comparação'}
           </p>
           <p className="text-sm font-medium text-muted-foreground">
-            {previous?.current.toLocaleString("pt-PT", {
-              style: "currency",
-              currency: "EUR",
+            {previous?.current.toLocaleString('pt-PT', {
+              style: 'currency',
+              currency: 'EUR',
               minimumFractionDigits: 0,
-            }) || "N/A"}
+            }) || 'N/A'}
           </p>
           <p
-            className={`text-xs font-medium ${parseFloat(change) >= 0 ? "text-green-600" : "text-red-600"}`}
+            className={`text-xs font-medium ${parseFloat(change) >= 0 ? 'text-green-600' : 'text-red-600'}`}
           >
-            {parseFloat(change) >= 0 ? "+" : ""}
+            {parseFloat(change) >= 0 ? '+' : ''}
             {change}%
           </p>
         </div>
@@ -304,62 +327,69 @@ export function NetVolumeChart({
 
       <div className="relative">
         <div className="w-full h-[180px]">
-          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-          <LineChart
-            data={chartData}
-            margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            minWidth={0}
+            minHeight={0}
           >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#E5E7EB"
-              vertical={false}
-            />
-            <XAxis
-              dataKey="date"
-              stroke="#6B7280"
-              style={{ fontSize: "11px" }}
-            />
-            <YAxis
-              stroke="#6B7280"
-              style={{ fontSize: "11px" }}
-              tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E5E7EB",
-                borderRadius: "8px",
-                fontSize: "12px",
-              }}
-              formatter={(v) =>
-                v != null
-                  ? Number(v).toLocaleString("pt-PT", {
-                      style: "currency",
-                      currency: "EUR",
-                      minimumFractionDigits: 0,
-                    })
-                  : "-"
-              }
-            />
-            <Line
-              type="monotone"
-              dataKey="current"
-              stroke="#E14840"
-              strokeWidth={3}
-              dot={{ fill: "#E14840", r: 5 }}
-              activeDot={{ r: 7 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="previous"
-              stroke="#9CA3AF"
-              strokeWidth={2}
-              strokeDasharray="5 5"
-              dot={false}
-              opacity={0.5}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+            <LineChart
+              data={chartData}
+              margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#E5E7EB"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="date"
+                stroke="#6B7280"
+                style={{ fontSize: '11px' }}
+              />
+              <YAxis
+                stroke={chartColors.axis}
+                style={{ fontSize: '11px' }}
+                tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                content={({ active, payload, label }) => {
+                  if (!active || !payload?.length) return null;
+                  const rows = payload.map((entry) => ({
+                    label: entry.name,
+                    value:
+                      entry.value != null
+                        ? Number(entry.value).toLocaleString('pt-PT', {
+                            style: 'currency',
+                            currency: 'EUR',
+                            minimumFractionDigits: 0,
+                          })
+                        : '—',
+                  }));
+                  return (
+                    <ChartTooltip title={String(label ?? '')} rows={rows} />
+                  );
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="current"
+                stroke={chartColors.primary}
+                strokeWidth={3}
+                dot={{ fill: chartColors.primary, r: 5 }}
+                activeDot={{ r: 7 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="previous"
+                stroke={chartColors.axis}
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                dot={false}
+                opacity={0.5}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
         <div className="absolute top-0 right-8 bg-black text-white text-xs px-2 py-1 rounded font-medium">
           Hoje
@@ -410,7 +440,7 @@ export function ReportsCompletionRadial({
       </div>
       <div className="text-center px-4">
         <p className="text-sm text-muted-foreground">
-          Taxa de conclusão de relatórios para o período é sólida ({completed}{" "}
+          Taxa de conclusão de relatórios para o período é sólida ({completed}{' '}
           de {total} hrs registradas)
         </p>
       </div>
@@ -425,20 +455,20 @@ export function ReportsCompletionBar({
   data: { month: string; count: number; totalValue: number }[];
 }) {
   const chartData = data.slice(-7).map((item, index) => {
-    const [year, month] = item.month.split("-");
+    const [year, month] = item.month.split('-');
     const monthNames = [
-      "Jan",
-      "Fev",
-      "Mar",
-      "Abr",
-      "Mai",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Set",
-      "Out",
-      "Nov",
-      "Dez",
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez',
     ];
     const monthName = monthNames[parseInt(month) - 1] || month;
 
@@ -447,7 +477,7 @@ export function ReportsCompletionBar({
 
     return {
       date:
-        index === data.length - 1 ? "Hoje" : `${monthName} ${year.slice(-2)}`,
+        index === data.length - 1 ? 'Hoje' : `${monthName} ${year.slice(-2)}`,
       completed,
       missing,
       total: item.count,
@@ -475,40 +505,54 @@ export function ReportsCompletionBar({
       </div>
 
       <div className="w-full h-[200px]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-        <BarChart
-          data={chartData}
-          margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={0}
+          minHeight={0}
         >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="#E5E7EB"
-            vertical={false}
-          />
-          <XAxis dataKey="date" stroke="#6B7280" style={{ fontSize: "11px" }} />
-          <YAxis stroke="#6B7280" style={{ fontSize: "11px" }} />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E5E7EB",
-              borderRadius: "8px",
-              fontSize: "12px",
-            }}
-          />
-          <Bar
-            dataKey="completed"
-            stackId="a"
-            fill="#E14840"
-            radius={[0, 0, 0, 0]}
-          />
-          <Bar
-            dataKey="missing"
-            stackId="a"
-            fill="#9CA3AF"
-            radius={[4, 4, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
+          <BarChart
+            data={chartData}
+            margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={chartColors.grid}
+              vertical={false}
+            />
+            <XAxis
+              dataKey="date"
+              stroke={chartColors.axis}
+              style={{ fontSize: '11px' }}
+            />
+            <YAxis stroke={chartColors.axis} style={{ fontSize: '11px' }} />
+            <Tooltip
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+                const rows = payload.map((entry) => ({
+                  label: entry.name,
+                  value:
+                    entry.value != null
+                      ? Number(entry.value).toLocaleString('pt-PT')
+                      : '—',
+                }));
+                return <ChartTooltip title={String(label ?? '')} rows={rows} />;
+              }}
+            />
+            <Bar
+              dataKey="completed"
+              stackId="a"
+              fill={chartColors.primary}
+              radius={[0, 0, 0, 0]}
+            />
+            <Bar
+              dataKey="missing"
+              stackId="a"
+              fill={chartColors.axis}
+              radius={[4, 4, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
@@ -517,23 +561,23 @@ export function ReportsCompletionBar({
 // 6. Cash Flow Column Chart (Positive/Negative)
 export function CashFlowColumnChart({
   data,
-  timeFilter = "monthly",
+  timeFilter = 'monthly',
 }: SalesTimelineChartProps) {
   const chartData = data.map((item, index) => {
-    const [year, month] = item.month.split("-");
+    const [year, month] = item.month.split('-');
     const monthNames = [
-      "Jan",
-      "Fev",
-      "Mar",
-      "Abr",
-      "Mai",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Set",
-      "Out",
-      "Nov",
-      "Dez",
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez',
     ];
     const monthName = monthNames[parseInt(month) - 1] || month;
 
@@ -542,7 +586,7 @@ export function CashFlowColumnChart({
 
     return {
       date:
-        index === data.length - 1 ? "Hoje" : `${monthName} ${year.slice(-2)}`,
+        index === data.length - 1 ? 'Hoje' : `${monthName} ${year.slice(-2)}`,
       positive,
       negative,
     };
@@ -555,35 +599,52 @@ export function CashFlowColumnChart({
       </div>
 
       <div className="w-full h-[200px]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-        <ComposedChart
-          data={chartData}
-          margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={0}
+          minHeight={0}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-          <XAxis dataKey="date" stroke="#6B7280" style={{ fontSize: "11px" }} />
-          <YAxis stroke="#6B7280" style={{ fontSize: "11px" }} />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E5E7EB",
-              borderRadius: "8px",
-              fontSize: "12px",
-            }}
-            formatter={(v) =>
-              v != null
-                ? Number(v).toLocaleString("pt-PT", {
-                    style: "currency",
-                    currency: "EUR",
-                    minimumFractionDigits: 0,
-                  })
-                : "-"
-            }
-          />
-          <Bar dataKey="positive" fill="#E14840" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="negative" fill="#1F2937" radius={[0, 0, 4, 4]} />
-        </ComposedChart>
-      </ResponsiveContainer>
+          <ComposedChart
+            data={chartData}
+            margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+            <XAxis
+              dataKey="date"
+              stroke={chartColors.axis}
+              style={{ fontSize: '11px' }}
+            />
+            <YAxis stroke={chartColors.axis} style={{ fontSize: '11px' }} />
+            <Tooltip
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+                const rows = payload.map((entry) => ({
+                  label: entry.name,
+                  value:
+                    entry.value != null
+                      ? Number(entry.value).toLocaleString('pt-PT', {
+                          style: 'currency',
+                          currency: 'EUR',
+                          minimumFractionDigits: 0,
+                        })
+                      : '—',
+                }));
+                return <ChartTooltip title={String(label ?? '')} rows={rows} />;
+              }}
+            />
+            <Bar
+              dataKey="positive"
+              fill={chartColors.primary}
+              radius={[4, 4, 0, 0]}
+            />
+            <Bar
+              dataKey="negative"
+              fill={chartColors.axis}
+              radius={[0, 0, 4, 4]}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
@@ -592,31 +653,31 @@ export function CashFlowColumnChart({
 // 1. Evolução Temporal de Vendas (estilo moderno)
 export function SalesTimelineChart({
   data,
-  timeFilter = "monthly",
+  timeFilter = 'monthly',
 }: SalesTimelineChartProps) {
   const chartData = data.map((item, index) => {
-    const [year, month] = item.month.split("-");
+    const [year, month] = item.month.split('-');
     const monthNames = [
-      "Jan",
-      "Fev",
-      "Mar",
-      "Abr",
-      "Mai",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Set",
-      "Out",
-      "Nov",
-      "Dez",
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez',
     ];
     const monthName = monthNames[parseInt(month) - 1] || month;
 
     return {
       date:
-        index === data.length - 1 ? "Hoje" : `${monthName} ${year.slice(-2)}`,
-      "Número de Vendas": item.count,
-      "Valor Total (€)": Math.round(item.totalValue),
+        index === data.length - 1 ? 'Hoje' : `${monthName} ${year.slice(-2)}`,
+      'Número de Vendas': item.count,
+      'Valor Total (€)': Math.round(item.totalValue),
     };
   });
 
@@ -624,26 +685,30 @@ export function SalesTimelineChart({
   const previous = chartData[chartData.length - 2];
   const countChange = previous
     ? (
-        ((current["Número de Vendas"] - previous["Número de Vendas"]) /
-          previous["Número de Vendas"]) *
+        ((current['Número de Vendas'] - previous['Número de Vendas']) /
+          previous['Número de Vendas']) *
         100
       ).toFixed(1)
-    : "0.0";
+    : '0.0';
   const valueChange = previous
     ? (
-        ((current["Valor Total (€)"] - previous["Valor Total (€)"]) /
-          previous["Valor Total (€)"]) *
+        ((current['Valor Total (€)'] - previous['Valor Total (€)']) /
+          previous['Valor Total (€)']) *
         100
       ).toFixed(1)
-    : "0.0";
+    : '0.0';
   const periodLabel =
-    timeFilter === "monthly" ? "Hoje" : timeFilter === "quarterly" ? "Sem" : "Fev";
+    timeFilter === 'monthly'
+      ? 'Hoje'
+      : timeFilter === 'quarterly'
+        ? 'Sem'
+        : 'Fev';
   const prevPeriodLabel =
-    timeFilter === "monthly"
-      ? "Ontem"
-      : timeFilter === "quarterly"
-        ? "Sem passada"
-        : "Jan";
+    timeFilter === 'monthly'
+      ? 'Ontem'
+      : timeFilter === 'quarterly'
+        ? 'Sem passada'
+        : 'Jan';
 
   return (
     <div className="space-y-4">
@@ -651,17 +716,17 @@ export function SalesTimelineChart({
       <div>
         <p className="text-xs text-muted-foreground mb-1">Valor Total</p>
         <p className="text-3xl font-semibold text-foreground tracking-tight">
-          {current["Valor Total (€)"].toLocaleString("pt-PT", {
-            style: "currency",
-            currency: "EUR",
+          {current['Valor Total (€)'].toLocaleString('pt-PT', {
+            style: 'currency',
+            currency: 'EUR',
             minimumFractionDigits: 0,
           })}
         </p>
         <div className="flex items-center gap-2 mt-1.5">
           <p
-            className={`text-xs font-medium ${parseFloat(valueChange) >= 0 ? "text-success" : "text-destructive"}`}
+            className={`text-xs font-medium ${parseFloat(valueChange) >= 0 ? 'text-success' : 'text-destructive'}`}
           >
-            {parseFloat(valueChange) >= 0 ? "↑" : "↓"}{" "}
+            {parseFloat(valueChange) >= 0 ? '↑' : '↓'}{' '}
             {Math.abs(parseFloat(valueChange))}%
           </p>
           <p className="text-xs text-muted-foreground">vs período anterior</p>
@@ -671,62 +736,70 @@ export function SalesTimelineChart({
       {/* Gráfico Simplificado - Apenas Valor Total */}
       <div className="relative">
         <div className="w-full h-[200px]">
-          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-          <LineChart
-            data={chartData}
-            margin={{ top: 5, right: 5, left: -5, bottom: 5 }}
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            minWidth={0}
+            minHeight={0}
           >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#E5E7EB"
-              vertical={false}
-              opacity={0.5}
-            />
-            <XAxis
-              dataKey="date"
-              stroke="#9CA3AF"
-              style={{ fontSize: "11px" }}
-              tickLine={false}
-              axisLine={false}
-              tickCount={6}
-            />
-            <YAxis
-              stroke="#9CA3AF"
-              style={{ fontSize: "11px" }}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-              width={40}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E5E7EB",
-                borderRadius: "6px",
-                fontSize: "12px",
-                padding: "8px 12px",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              }}
-              formatter={(value) => {
-                if (value == null) return "-";
-                return `${Number(value).toLocaleString("pt-PT")} €`;
-              }}
-              labelStyle={{
-                fontSize: "11px",
-                color: "#6B7280",
-                marginBottom: "4px",
-              }}
-            />
-            <Line
-              type="monotone"
-              dataKey="Valor Total (€)"
-              stroke="#E14840"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4, fill: "#E14840" }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+            <LineChart
+              data={chartData}
+              margin={{ top: 5, right: 5, left: -5, bottom: 5 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke={chartColors.grid}
+                vertical={false}
+                opacity={0.5}
+              />
+              <XAxis
+                dataKey="date"
+                stroke={chartColors.axis}
+                style={{ fontSize: '11px' }}
+                tickLine={false}
+                axisLine={false}
+                tickCount={6}
+              />
+              <YAxis
+                stroke={chartColors.axis}
+                style={{ fontSize: '11px' }}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                width={40}
+              />
+              <Tooltip
+                content={({ active, payload, label }) => {
+                  if (!active || !payload?.length) return null;
+                  const value = payload[0]?.value;
+                  const rows = [
+                    {
+                      label: 'Valor total',
+                      value:
+                        value != null
+                          ? Number(value).toLocaleString('pt-PT', {
+                              style: 'currency',
+                              currency: 'EUR',
+                              minimumFractionDigits: 0,
+                            })
+                          : '—',
+                    },
+                  ];
+                  return (
+                    <ChartTooltip title={String(label ?? '')} rows={rows} />
+                  );
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="Valor Total (€)"
+                stroke={chartColors.primary}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, fill: chartColors.primary }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>

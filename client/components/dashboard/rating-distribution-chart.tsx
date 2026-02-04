@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   BarChart,
@@ -9,9 +9,10 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-} from "recharts";
+} from 'recharts';
+import { chartColors } from '@/lib/design-system';
 
-const COLORS = ["#E14840", "#C43A32", "#F06B63", "#F58E87", "#A72C25"];
+const COLORS = [...chartColors.scale];
 
 interface RatingDistributionChartProps {
   data: { rating: string; count: number; totalValue: number }[];
@@ -36,25 +37,37 @@ export function RatingDistributionChart({
   }));
 
   const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
-          <p className="font-medium mb-1">Rating {payload[0].payload.rating}</p>
-          <p className="text-xs text-green-300">
-            Clientes: {payload[0].value.toLocaleString("pt-PT")}
-          </p>
-          <p className="text-xs text-red-300">
-            Valor Total:{" "}
-            {payload[0].payload.totalValue.toLocaleString("pt-PT", {
-              style: "currency",
-              currency: "EUR",
-              minimumFractionDigits: 0,
-            })}
-          </p>
-        </div>
-      );
-    }
-    return null;
+    if (!active || !payload?.length) return null;
+    const rating = payload[0].payload?.rating;
+    const count = payload[0].value;
+    const totalValue = payload[0].payload?.totalValue;
+    return (
+      <div className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-md">
+        <p className="text-sm font-semibold text-foreground">
+          Rating {rating ?? '—'}
+        </p>
+        <dl className="mt-1.5 space-y-1">
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="text-xs text-muted-foreground">Clientes</dt>
+            <dd className="text-xs font-medium tabular-nums text-foreground">
+              {count != null ? count.toLocaleString('pt-PT') : '—'}
+            </dd>
+          </div>
+          {totalValue != null && (
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="text-xs text-muted-foreground">Valor total</dt>
+              <dd className="text-xs font-medium tabular-nums text-foreground">
+                {totalValue.toLocaleString('pt-PT', {
+                  style: 'currency',
+                  currency: 'EUR',
+                  minimumFractionDigits: 0,
+                })}
+              </dd>
+            </div>
+          )}
+        </dl>
+      </div>
+    );
   };
 
   return (
@@ -64,21 +77,21 @@ export function RatingDistributionChart({
           data={chartData}
           margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+          <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
           <XAxis
             dataKey="rating"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748B", fontSize: 11 }}
+            tick={{ fill: chartColors.axis, fontSize: 11 }}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748B", fontSize: 10 }}
+            tick={{ fill: chartColors.axis, fontSize: 10 }}
           />
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ fill: "rgba(0, 0, 0, 0.03)" }}
+            cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
           />
           <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={60}>
             {chartData.map((entry, index) => (

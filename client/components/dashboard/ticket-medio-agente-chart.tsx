@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   BarChart,
@@ -9,7 +9,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
-} from "recharts";
+} from 'recharts';
+import { chartColors } from '@/lib/design-system';
 
 interface TicketMedioAgenteChartProps {
   data: { name: string; averageValue: number }[];
@@ -28,31 +29,37 @@ export function TicketMedioAgenteChart({
     );
   }
 
-  const top10 = data.slice(0, 10);
+  const top3 = data.slice(0, 3);
 
-  const chartData = top10.map((item) => ({
+  const chartData = top3.map((item) => ({
     name:
-      item.name.length > 12 ? item.name.substring(0, 12) + "..." : item.name,
+      item.name.length > 12 ? item.name.substring(0, 12) + '...' : item.name,
     value: item.averageValue,
   }));
 
   const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
-          <p className="font-medium mb-1">{payload[0].payload.name}</p>
-          <p className="text-xs text-orange-300">
-            Ticket Médio:{" "}
-            {payload[0].value.toLocaleString("pt-PT", {
-              style: "currency",
-              currency: "EUR",
-              minimumFractionDigits: 0,
-            })}
-          </p>
-        </div>
-      );
-    }
-    return null;
+    if (!active || !payload?.length) return null;
+    const name = payload[0].payload?.name;
+    const value = payload[0].value;
+    return (
+      <div className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-md">
+        <p className="text-sm font-semibold text-foreground">{name}</p>
+        <dl className="mt-1.5 space-y-1">
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="text-xs text-muted-foreground">Valor médio</dt>
+            <dd className="text-xs font-medium tabular-nums text-foreground">
+              {value != null
+                ? value.toLocaleString('pt-PT', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 0,
+                  })
+                : '—'}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    );
   };
 
   return (
@@ -62,12 +69,12 @@ export function TicketMedioAgenteChart({
           data={chartData}
           margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+          <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
           <XAxis
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748B", fontSize: 9 }}
+            tick={{ fill: chartColors.axis, fontSize: 9 }}
             angle={-45}
             textAnchor="end"
             height={70}
@@ -75,30 +82,30 @@ export function TicketMedioAgenteChart({
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748B", fontSize: 10 }}
+            tick={{ fill: chartColors.axis, fontSize: 10 }}
             tickFormatter={(value) => `${Math.round(value / 1000)}k`}
           />
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ fill: "rgba(0, 0, 0, 0.03)" }}
+            cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
           />
           {globalAverage > 0 && (
             <ReferenceLine
               y={globalAverage}
-              stroke="#E14840"
+              stroke={chartColors.primary}
               strokeDasharray="5 5"
               strokeWidth={2}
               label={{
                 value: `Média: ${(globalAverage / 1000).toFixed(0)}k`,
-                position: "right",
-                fill: "#E14840",
+                position: 'right',
+                fill: chartColors.primary,
                 fontSize: 10,
               }}
             />
           )}
           <Bar
             dataKey="value"
-            fill="#E14840"
+            fill={chartColors.primary}
             radius={[4, 4, 0, 0]}
             maxBarSize={40}
           />

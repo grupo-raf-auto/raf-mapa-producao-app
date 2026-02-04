@@ -4,7 +4,7 @@ import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export type TimeFilterType = "monthly" | "quarterly" | "yearly" | "last12months";
+export type TimeFilterType = "daily" | "weekly" | "monthly" | "quarterly" | "yearly" | "last12months";
 
 interface TimeFilterProps {
   value: TimeFilterType;
@@ -14,10 +14,11 @@ interface TimeFilterProps {
 
 export function TimeFilter({ value, onChange, className }: TimeFilterProps) {
   const options: { value: TimeFilterType; label: string }[] = [
+    { value: "daily", label: "Diário" },
+    { value: "weekly", label: "Semanal" },
     { value: "monthly", label: "Mensal" },
     { value: "quarterly", label: "Trimestral" },
     { value: "yearly", label: "Anual" },
-    { value: "last12months", label: "Últimos 12 meses" },
   ];
 
   return (
@@ -31,7 +32,7 @@ export function TimeFilter({ value, onChange, className }: TimeFilterProps) {
             size="sm"
             onClick={() => onChange(option.value)}
             className={cn(
-              "h-8 px-3 text-xs font-medium transition-all",
+              "h-8 px-3 text-xs font-medium transition-all cursor-pointer",
               value === option.value
                 ? "bg-background shadow-sm border border-border/70 text-foreground"
                 : "hover:bg-background/50 hover:text-foreground dark:hover:text-foreground",

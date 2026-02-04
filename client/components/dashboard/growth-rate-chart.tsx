@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   LineChart,
@@ -10,8 +10,9 @@ import {
   ReferenceLine,
   Area,
   ComposedChart,
-} from "recharts";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+} from 'recharts';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { chartColors } from '@/lib/design-system';
 
 interface GrowthRateChartProps {
   data: {
@@ -23,32 +24,38 @@ interface GrowthRateChartProps {
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    const growthRate = payload[0]?.value || 0;
-    const data = payload[0]?.payload;
-    const isPositive = growthRate > 0;
-
-    return (
-      <div className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
-        <p className="font-medium mb-1">{label}</p>
-        <p
-          className={`text-xs ${isPositive ? "text-emerald-400" : growthRate < 0 ? "text-red-400" : "text-slate-400"}`}
-        >
-          Crescimento: {isPositive ? "+" : ""}
-          {growthRate.toFixed(1)}%
-        </p>
-        <p className="text-xs text-slate-300">
-          Valor:{" "}
-          {data?.currentValue?.toLocaleString("pt-PT", {
-            style: "currency",
-            currency: "EUR",
-            minimumFractionDigits: 0,
-          })}
-        </p>
-      </div>
-    );
-  }
-  return null;
+  if (!active || !payload?.length) return null;
+  const growthRate = payload[0]?.value ?? 0;
+  const currentValue = payload[0]?.payload?.currentValue;
+  const isPositive = growthRate > 0;
+  return (
+    <div className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-md">
+      <p className="text-sm font-semibold text-foreground">{label}</p>
+      <dl className="mt-1.5 space-y-1">
+        <div className="flex items-baseline justify-between gap-4">
+          <dt className="text-xs text-muted-foreground">Variação</dt>
+          <dd
+            className={`text-xs font-medium tabular-nums ${isPositive ? 'text-emerald-600 dark:text-emerald-400' : growthRate < 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground'}`}
+          >
+            {isPositive ? '+' : ''}
+            {growthRate.toFixed(1)}%
+          </dd>
+        </div>
+        {currentValue != null && (
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="text-xs text-muted-foreground">Valor</dt>
+            <dd className="text-xs font-medium tabular-nums text-foreground">
+              {currentValue.toLocaleString('pt-PT', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+              })}
+            </dd>
+          </div>
+        )}
+      </dl>
+    </div>
+  );
 };
 
 export function GrowthRateChart({ data }: GrowthRateChartProps) {
@@ -56,7 +63,7 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
     data.length > 1
       ? data.slice(-8).map((item) => ({
           month:
-            item.month.split("-")[1] + "/" + item.month.split("-")[0].slice(-2),
+            item.month.split('-')[1] + '/' + item.month.split('-')[0].slice(-2),
           growthRate: Math.round(item.growthRate * 10) / 10,
           currentValue: item.currentValue,
         }))
@@ -103,13 +110,13 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
             <span
               className={`text-lg font-bold ${
                 isPositive
-                  ? "text-emerald-600 dark:text-emerald-400"
+                  ? 'text-emerald-600 dark:text-emerald-400'
                   : latestGrowth < 0
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-slate-500"
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-slate-500'
               }`}
             >
-              {isPositive ? "+" : ""}
+              {isPositive ? '+' : ''}
               {latestGrowth.toFixed(1)}%
             </span>
             <span className="text-xs text-muted-foreground ml-1">
@@ -120,9 +127,9 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
         <div className="text-right">
           <span className="text-sm text-muted-foreground">Media: </span>
           <span
-            className={`text-sm font-medium ${avgGrowth >= 0 ? "text-emerald-600" : "text-red-600"}`}
+            className={`text-sm font-medium ${avgGrowth >= 0 ? 'text-emerald-600' : 'text-red-600'}`}
           >
-            {avgGrowth >= 0 ? "+" : ""}
+            {avgGrowth >= 0 ? '+' : ''}
             {avgGrowth.toFixed(1)}%
           </span>
         </div>
@@ -137,25 +144,37 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
           >
             <defs>
               <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#E14840" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#E14840" stopOpacity={0} />
+                <stop
+                  offset="5%"
+                  stopColor={chartColors.primary}
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={chartColors.primary}
+                  stopOpacity={0}
+                />
               </linearGradient>
             </defs>
             <XAxis
               dataKey="month"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#64748B", fontSize: 10 }}
+              tick={{ fill: chartColors.axis, fontSize: 10 }}
               dy={10}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#64748B", fontSize: 10 }}
+              tick={{ fill: chartColors.axis, fontSize: 10 }}
               tickFormatter={(value) => `${value}%`}
             />
             <Tooltip content={<CustomTooltip />} />
-            <ReferenceLine y={0} stroke="#94A3B8" strokeDasharray="3 3" />
+            <ReferenceLine
+              y={0}
+              stroke={chartColors.axis}
+              strokeDasharray="3 3"
+            />
             <Area
               type="monotone"
               dataKey="growthRate"
@@ -165,9 +184,9 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
             <Line
               type="monotone"
               dataKey="growthRate"
-              stroke="#E14840"
+              stroke={chartColors.primary}
               strokeWidth={2}
-              dot={{ fill: "#E14840", strokeWidth: 0, r: 3 }}
+              dot={{ fill: chartColors.primary, strokeWidth: 0, r: 3 }}
               activeDot={{ r: 5, strokeWidth: 0 }}
             />
           </ComposedChart>

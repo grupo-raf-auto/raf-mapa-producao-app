@@ -10,28 +10,28 @@
  * recomendado no edge/upstream, revogação de outras sessões ao trocar senha.
  */
 
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { nextCookies } from "better-auth/next-js";
-import { APIError } from "better-auth/api";
-import { headers } from "next/headers";
-import { prisma } from "./db";
-import { createAppToken } from "./jwt";
-import { sendResetPasswordEmail } from "./email-reset";
+import { betterAuth } from 'better-auth';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { nextCookies } from 'better-auth/next-js';
+import { APIError } from 'better-auth/api';
+import { headers } from 'next/headers';
+import { prisma } from './db';
+import { createAppToken } from './jwt';
+import { sendResetPasswordEmail, sendVerificationEmail } from './email-reset';
 
 const ALLOWED_DOMAIN = process.env.ALLOWED_EMAIL_DOMAIN; // ex: "gruporaf.pt" – se vazio, qualquer email
 const BASE_URL =
-  process.env.NEXTAUTH_URL || process.env.CLIENT_URL || "http://localhost:3004";
+  process.env.NEXTAUTH_URL || process.env.CLIENT_URL || 'http://localhost:3004';
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: BASE_URL,
-  database: prismaAdapter(prisma, { provider: "postgresql" }),
+  database: prismaAdapter(prisma, { provider: 'postgresql' }),
   plugins: [nextCookies()],
 
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
     minPasswordLength: 8,
     maxPasswordLength: 128,
     autoSignIn: true,
@@ -42,8 +42,8 @@ export const auth = betterAuth({
       const base =
         process.env.NEXTAUTH_URL ||
         process.env.CLIENT_URL ||
-        "http://localhost:3004";
-      const callbackURL = encodeURIComponent("/reset-password");
+        'http://localhost:3004';
+      const callbackURL = encodeURIComponent('/reset-password');
       const resetUrl = `${base}/api/auth/reset-password/${token}?callbackURL=${callbackURL}`;
       await sendResetPasswordEmail({
         to: user.email,
@@ -54,24 +54,46 @@ export const auth = betterAuth({
 
     onPasswordReset: async ({ user }, _request) => {
       // Opcional: auditoria, notificação, etc.
-      if (process.env.NODE_ENV === "development") {
-        console.log("[auth] Password reset completed for:", user.email);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[auth] Password reset completed for:', user.email);
       }
+    },
+  },
+
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    expiresIn: 60 * 60 * 24, // 24 horas
+    sendVerificationEmail: async ({ user, url }, _request) => {
+      // Garantir que o link inclui callbackURL para redirect após verificação:
+      // utilizador deve ir para /approval-status e ver o estado em tempo real.
+      const fullUrl = url.startsWith('http')
+        ? url
+        : `${BASE_URL}${url.startsWith('/') ? url : '/' + url}`;
+      const parsed = new URL(fullUrl);
+      parsed.searchParams.set('callbackURL', '/approval-status');
+      const verificationUrl = parsed.toString();
+      await sendVerificationEmail({
+        to: user.email,
+        url: verificationUrl,
+        userName: user.name,
+        appName: process.env.APP_NAME || 'Mapa Produção',
+      });
     },
   },
 
   user: {
     additionalFields: {
-      firstName: { type: "string", required: false, input: true },
-      lastName: { type: "string", required: false, input: true },
+      firstName: { type: 'string', required: false, input: true },
+      lastName: { type: 'string', required: false, input: true },
       role: {
-        type: "string",
+        type: 'string',
         required: false,
-        defaultValue: "user",
+        defaultValue: 'user',
         input: false,
       },
       isActive: {
-        type: "boolean",
+        type: 'boolean',
         required: false,
         defaultValue: true,
         input: false,
@@ -84,32 +106,30 @@ export const auth = betterAuth({
       create: {
         before: async (user) => {
           if (!ALLOWED_DOMAIN) return;
-          const email = (user.email ?? "").toLowerCase();
-          const domain = email.split("@")[1];
+          const email = (user.email ?? '').toLowerCase();
+          const domain = email.split('@')[1];
           if (!domain)
-            throw new APIError("BAD_REQUEST", { message: "Email inválido." });
+            throw new APIError('BAD_REQUEST', { message: 'Email inválido.' });
           if (domain !== ALLOWED_DOMAIN) {
-            throw new APIError("UNPROCESSABLE_ENTITY", {
+            throw new APIError('UNPROCESSABLE_ENTITY', {
               message: `Apenas emails @${ALLOWED_DOMAIN} podem registar-se.`,
             });
           }
         },
         after: async (user) => {
           try {
-            const count = await prisma.user.count();
+            // Todos os novos utilizadores: role "user", status "pending".
+            // O status só passa a "approved" quando um admin aprovar no painel
+            // de utilizadores. emailVerified fica false até clicarem no link do email.
             await prisma.user.update({
               where: { id: user.id },
               data: {
-                emailVerified: true,
-                ...(count === 1 ? { role: "admin" } : {}),
+                role: 'user',
+                status: 'pending',
               },
             });
-
-            // NOTA: Modelos não são mais criados automaticamente.
-            // O utilizador deve selecionar os modelos durante o registro.
-            // Ver validação em travel-connect-signin-1.tsx
           } catch (e) {
-            console.error("[auth] databaseHooks.user.create.after:", e);
+            console.error('[auth] databaseHooks.user.create.after:', e);
           }
         },
       },
@@ -136,7 +156,7 @@ export async function getAuthTokenServer(): Promise<string | null> {
 export async function getAuthHeadersServer(): Promise<Record<string, string>> {
   const token = await getAuthTokenServer();
   return {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 }

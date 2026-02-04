@@ -42,6 +42,11 @@ function invalidateCache(pathPrefix: string): void {
   }
 }
 
+// Export for external use
+export function clearStatsCache(): void {
+  invalidateCache('submissions/stats');
+}
+
 // Helper para verificar se o erro indica que o utilizador não foi encontrado ou não está autenticado
 function isUnauthorizedError(errorMessage: string, status: number): boolean {
   const lowerMessage = errorMessage.toLowerCase();
@@ -323,12 +328,15 @@ export const apiClient = {
       templateId?: string;
       detailed?: boolean;
       scope?: 'personal' | 'all';
+      granularity?: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
     }) => {
       const queryParams = new URLSearchParams();
       if (params?.templateId)
         queryParams.append('templateId', params.templateId);
       if (params?.detailed) queryParams.append('detailed', 'true');
       if (params?.scope) queryParams.append('scope', params.scope);
+      if (params?.granularity)
+        queryParams.append('granularity', params.granularity);
 
       const path = `submissions/stats${queryParams.toString() ? `?${queryParams}` : ''}`;
       return fetchWithAuth(path);

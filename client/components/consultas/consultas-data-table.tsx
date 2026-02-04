@@ -73,6 +73,9 @@ import {
 import { usePagination } from '@/components/hooks/use-pagination';
 import { cn } from '@/lib/utils';
 
+/** Título da questão "Agente" – não editável no modo editar (registo já associado ao agente). */
+const AGENT_QUESTION_TITLE = 'Agente';
+
 interface Submission {
   _id?: string;
   templateId: string;
@@ -929,7 +932,9 @@ export function ConsultasDataTable({
                                         </span>
                                       )}
                                     </Label>
-                                    {isEditing ? (
+                                    {isEditing &&
+                                    question.title?.toLowerCase() !==
+                                      AGENT_QUESTION_TITLE.toLowerCase() ? (
                                       <div className="mt-2">
                                         <QuestionInput
                                           question={question}

@@ -1,21 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { KPICards } from './kpi-cards';
 import { DashboardChartsWrapper } from './dashboard-charts-wrapper';
 import { apiClient as api, clearStatsCache } from '@/lib/api-client';
 import { DashboardHeader } from '@/components/ui/dashboard-header';
 import { useModelContext } from '@/lib/context/model-context';
+import { useUserModels } from '@/lib/hooks/use-user-models';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 
 export function DashboardContent() {
+  const router = useRouter();
   const [templates, setTemplates] = useState<any[]>([]);
   const [salesStats, setSalesStats] = useState<any>(null);
   const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { activeModel, loading: modelLoading } = useModelContext();
+  const { models, loading: modelsLoading } = useUserModels();
 
   const [yearlyStats, setYearlyStats] = useState<any>(null);
   const [monthlyStats, setMonthlyStats] = useState<any>(null);
@@ -69,6 +73,15 @@ export function DashboardContent() {
       setLoading(false);
     }
   };
+
+  // Se não há modelos após carregar, redirecionar para seleção (evita "Nenhum modelo" no dashboard)
+  useEffect(() => {
+    if (modelsLoading || modelLoading) return;
+    if (!models || models.length === 0) {
+      router.replace('/select-models');
+      return;
+    }
+  }, [modelsLoading, modelLoading, models, router]);
 
   // Carregamento inicial e ao mudar de modelo (período global único: mensal)
   useEffect(() => {

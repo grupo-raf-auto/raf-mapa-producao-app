@@ -226,7 +226,7 @@ export function DashboardChartsWrapper({
                     value={selectedMonth}
                     onValueChange={setSelectedMonth}
                   >
-                    <SelectTrigger className="w-[140px] h-8 text-xs">
+                    <SelectTrigger className="min-w-[11rem] w-auto max-w-[200px] h-8 text-xs">
                       <SelectValue placeholder="Mês" />
                     </SelectTrigger>
                     <SelectContent>
@@ -386,7 +386,7 @@ export function DashboardChartsWrapper({
                   </SelectContent>
                 </Select>
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="w-[140px] h-8 text-xs">
+                  <SelectTrigger className="min-w-[11rem] w-auto max-w-[200px] h-8 text-xs">
                     <SelectValue placeholder="Mês" />
                   </SelectTrigger>
                   <SelectContent>

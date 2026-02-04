@@ -103,6 +103,16 @@ export function ConsultasFilters({
     setValorMax('');
   };
 
+  const hasActiveFilters =
+    templateId !== 'all' ||
+    status !== 'all' ||
+    inputType !== 'all' ||
+    search.trim() !== '' ||
+    banco !== '' ||
+    seguradora !== '' ||
+    valorMin !== '' ||
+    valorMax !== '';
+
   return (
     <Card className="p-7 shadow-sm">
       <div className="space-y-6">
@@ -112,7 +122,8 @@ export function ConsultasFilters({
             variant="ghost"
             size="sm"
             onClick={handleReset}
-            className="text-muted-foreground cursor-pointer"
+            disabled={!hasActiveFilters}
+            className="text-muted-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-4 h-4 mr-2" />
             Limpar

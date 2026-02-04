@@ -13,17 +13,15 @@ interface Template {
   _id?: string;
   title: string;
   description?: string;
-  modelType?: "credito" | "imobiliaria" | "seguro" | null;
+  modelType?: 'credito' | 'imobiliaria' | 'seguro' | null;
 }
 
 interface Submission {
   _id?: string;
   templateId: string;
-  answers: {
-    questionId: string;
-    answer: string;
-  }[];
+  answers: { questionId: string; answer: string }[];
   submittedAt: Date | string;
+  formDate?: string | null;
   submittedBy: string;
 }
 
@@ -48,7 +46,10 @@ export function ConsultasContent() {
       setTemplates(templatesData || []);
     } catch (error: unknown) {
       console.error('Error loading data:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erro ao carregar dados. Tente novamente.';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Erro ao carregar dados. Tente novamente.';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -58,11 +59,11 @@ export function ConsultasContent() {
   // Filtrar templates baseado no modelo ativo do usuário
   const filteredTemplates = useMemo(() => {
     if (!activeModel) return templates;
-    
+
     return templates.filter((template) => {
       // Templates sem modelType são públicos (disponíveis para todos)
       if (!template.modelType) return true;
-      
+
       // Templates com modelType só são visíveis se corresponderem ao modelo ativo
       return template.modelType === activeModel.modelType;
     });
@@ -71,17 +72,19 @@ export function ConsultasContent() {
   // Filtrar submissões para mostrar apenas as que correspondem aos templates visíveis
   const filteredSubmissions = useMemo(() => {
     if (!activeModel) return submissions;
-    
-    const visibleTemplateIds = new Set(filteredTemplates.map(t => t._id));
-    return submissions.filter(submission => visibleTemplateIds.has(submission.templateId));
+
+    const visibleTemplateIds = new Set(filteredTemplates.map((t) => t._id));
+    return submissions.filter((submission) =>
+      visibleTemplateIds.has(submission.templateId),
+    );
   }, [submissions, filteredTemplates, activeModel]);
 
   // Helper para obter o nome de exibição do modelo
   const getModelDisplayName = (modelType: string) => {
     const names: Record<string, string> = {
-      credito: "Crédito",
-      imobiliaria: "Imobiliária",
-      seguro: "Seguros",
+      credito: 'Crédito',
+      imobiliaria: 'Imobiliária',
+      seguro: 'Seguros',
     };
     return names[modelType] || modelType;
   };
@@ -138,9 +141,10 @@ export function ConsultasContent() {
     <div className="space-y-6">
       <PageHeader
         title="Consultas"
-        description={activeModel 
-          ? `Visualize os seus formulários registados. Modelo ativo: ${getModelDisplayName(activeModel.modelType)}.`
-          : "Visualize os seus formulários registados e acompanhe o histórico de submissões."
+        description={
+          activeModel
+            ? `Visualize os seus formulários registados. Modelo ativo: ${getModelDisplayName(activeModel.modelType)}.`
+            : 'Visualize os seus formulários registados e acompanhe o histórico de submissões.'
         }
         icon={Search}
         iconGradient="from-red-600 via-red-500 to-red-700"
@@ -156,7 +160,8 @@ export function ConsultasContent() {
               Nenhum modelo ativo selecionado
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-              Por favor, selecione um modelo para visualizar as consultas disponíveis
+              Por favor, selecione um modelo para visualizar as consultas
+              disponíveis
             </p>
           </CardContent>
         </Card>
@@ -165,10 +170,12 @@ export function ConsultasContent() {
           <CardContent className="py-8 text-center">
             <FileSearch className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">
-              Nenhuma consulta disponível para o modelo &quot;{getModelDisplayName(activeModel.modelType)}&quot;
+              Nenhuma consulta disponível para o modelo &quot;
+              {getModelDisplayName(activeModel.modelType)}&quot;
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-              As submissões serão exibidas aqui quando houver formulários preenchidos para este modelo
+              As submissões serão exibidas aqui quando houver formulários
+              preenchidos para este modelo
             </p>
           </CardContent>
         </Card>

@@ -8,11 +8,9 @@ import { apiClient as api } from '@/lib/api-client';
 interface Submission {
   _id?: string;
   templateId: string;
-  answers: {
-    questionId: string;
-    answer: string;
-  }[];
+  answers: { questionId: string; answer: string }[];
   submittedAt: Date | string;
+  formDate?: string | null;
   submittedBy: string;
 }
 

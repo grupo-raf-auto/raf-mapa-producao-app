@@ -8,11 +8,9 @@ import type { AdminConsultasFiltersState } from './admin-consultas-filters';
 interface Submission {
   _id?: string;
   templateId: string;
-  answers: {
-    questionId: string;
-    answer: string;
-  }[];
+  answers: { questionId: string; answer: string }[];
   submittedAt: Date | string;
+  formDate?: string | null;
   submittedBy: string;
 }
 

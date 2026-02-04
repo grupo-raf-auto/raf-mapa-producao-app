@@ -82,6 +82,8 @@ interface Submission {
     answer: string;
   }[];
   submittedAt: Date | string;
+  /** Data escolhida pelo utilizador no formulário (campo "Data"); quando existe, usar em vez de submittedAt. */
+  formDate?: string | null;
   submittedBy: string;
   commissionPaid?: boolean;
   agentName?: string | null;
@@ -138,10 +140,7 @@ export function ConsultasDataTable({
   }, [submissions]);
 
   const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: 'submittedAt',
-      desc: true,
-    },
+    { id: 'displayDate', desc: true },
   ]);
 
   const [pagination, setPagination] = useState<PaginationState>({
@@ -443,22 +442,24 @@ export function ConsultasDataTable({
         },
       },
       {
-        header: 'Submetido em',
-        accessorKey: 'submittedAt',
+        header: 'Data',
+        id: 'displayDate',
+        accessorFn: (row: Submission) => {
+          const raw = row.formDate || row.submittedAt;
+          return typeof raw === 'string' ? raw : new Date(raw).toISOString();
+        },
         sortingFn: (rowA, rowB, columnId) => {
-          const a = new Date(
-            rowA.getValue(columnId) as string | Date,
-          ).getTime();
-          const b = new Date(
-            rowB.getValue(columnId) as string | Date,
-          ).getTime();
+          const a = new Date(rowA.getValue(columnId) as string).getTime();
+          const b = new Date(rowB.getValue(columnId) as string).getTime();
           return a - b;
         },
         cell: ({ row }) => {
-          const date = row.getValue('submittedAt') as Date | string;
+          const submission = row.original;
+          const dateStr = submission.formDate || submission.submittedAt;
+          const date = new Date(dateStr);
           return (
-            <time dateTime={new Date(date).toISOString().slice(0, 10)}>
-              {format(new Date(date), 'dd/MM/yyyy')}
+            <time dateTime={date.toISOString().slice(0, 10)}>
+              {format(date, 'dd/MM/yyyy')}
             </time>
           );
         },
@@ -788,12 +789,17 @@ export function ConsultasDataTable({
                   {templateData?.description || 'Sem descrição'}
                 </DialogDescription>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Submetido em{' '}
-                  {format(
-                    new Date(viewingSubmission.submittedAt),
-                    "dd 'de' MMMM 'de' yyyy 'às' HH:mm",
-                    { locale: pt },
-                  )}
+                  {viewingSubmission.formDate
+                    ? `Data do registo: ${format(
+                        new Date(viewingSubmission.formDate),
+                        "dd 'de' MMMM 'de' yyyy",
+                        { locale: pt },
+                      )}`
+                    : `Submetido em ${format(
+                        new Date(viewingSubmission.submittedAt),
+                        "dd 'de' MMMM 'de' yyyy 'às' HH:mm",
+                        { locale: pt },
+                      )}`}
                 </p>
               </DialogHeader>
               {!isEditing && !loadingDetails && (

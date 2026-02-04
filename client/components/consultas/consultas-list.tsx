@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useMemo, useState, useEffect } from "react";
-import { ConsultasDataTable } from "./consultas-data-table";
-import type { ConsultasFiltersState } from "./consultas-filters";
-import { apiClient as api } from "@/lib/api-client";
+import { useMemo, useState, useEffect } from 'react';
+import { ConsultasDataTable } from './consultas-data-table';
+import type { ConsultasFiltersState } from './consultas-filters';
+import { apiClient as api } from '@/lib/api-client';
 
 interface Submission {
   _id?: string;
@@ -13,6 +13,7 @@ interface Submission {
     answer: string;
   }[];
   submittedAt: Date | string;
+  formDate?: string | null;
   submittedBy: string;
 }
 
@@ -59,19 +60,21 @@ export function ConsultasList({
         // Buscar questões para encontrar "Valor", "Nome do Cliente", "Banco" e "Seguradora"
         // api.questions.getAll() já retorna array (unwrapped pelo api-client)
         const questionsResponse = await api.questions.getAll().catch(() => []);
-        const allQuestions = Array.isArray(questionsResponse) ? questionsResponse : [];
+        const allQuestions = Array.isArray(questionsResponse)
+          ? questionsResponse
+          : [];
 
         const valorQuestion = allQuestions.find(
-          (q: any) => q.title === "Valor",
+          (q: any) => q.title === 'Valor',
         );
         const nomeClienteQuestion = allQuestions.find(
-          (q: any) => q.title === "Nome do Cliente",
+          (q: any) => q.title === 'Nome do Cliente',
         );
         const bancoQuestion = allQuestions.find(
-          (q: any) => q.title === "Banco",
+          (q: any) => q.title === 'Banco',
         );
         const seguradoraQuestion = allQuestions.find(
-          (q: any) => q.title === "Seguradora",
+          (q: any) => q.title === 'Seguradora',
         );
 
         // Enriquecer submissões com informações do template, valor, nome do cliente, banco e seguradora
@@ -119,7 +122,7 @@ export function ConsultasList({
           return {
             ...submission,
             template,
-            templateTitle: template?.title || "Template não encontrado",
+            templateTitle: template?.title || 'Template não encontrado',
             valorQuestionId: valorQuestion?._id,
             valorAnswer: valorAnswer,
             nomeClienteQuestionId: nomeClienteQuestion?._id,
@@ -132,9 +135,9 @@ export function ConsultasList({
         });
         setSubmissionsWithDetails(enriched);
       } catch (error) {
-        console.error("Error enriching submissions:", error);
+        console.error('Error enriching submissions:', error);
         setSubmissionsWithDetails(
-          submissions.map((s) => ({ ...s, templateTitle: "Desconhecido" })),
+          submissions.map((s) => ({ ...s, templateTitle: 'Desconhecido' })),
         );
       } finally {
         setLoading(false);
@@ -155,7 +158,7 @@ export function ConsultasList({
 
     return submissionsWithDetails.filter((submission) => {
       // Filtro de template
-      if (filters.templateId !== "all") {
+      if (filters.templateId !== 'all') {
         if (submission.templateId !== filters.templateId) {
           return false;
         }
@@ -225,7 +228,7 @@ export function ConsultasList({
   const bancosUnicos = useMemo(() => {
     const bancos = new Set<string>();
     submissionsWithDetails.forEach((submission) => {
-      if (submission.bancoAnswer && submission.bancoAnswer.trim() !== "") {
+      if (submission.bancoAnswer && submission.bancoAnswer.trim() !== '') {
         bancos.add(submission.bancoAnswer);
       }
     });
@@ -237,7 +240,7 @@ export function ConsultasList({
     submissionsWithDetails.forEach((submission) => {
       if (
         submission.seguradoraAnswer &&
-        submission.seguradoraAnswer.trim() !== ""
+        submission.seguradoraAnswer.trim() !== ''
       ) {
         seguradoras.add(submission.seguradoraAnswer);
       }
@@ -269,10 +272,10 @@ export function ConsultasList({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">
-            {filteredSubmissions.length}{" "}
+            {filteredSubmissions.length}{' '}
             {filteredSubmissions.length === 1
-              ? "formulário encontrado"
-              : "formulários encontrados"}
+              ? 'formulário encontrado'
+              : 'formulários encontrados'}
           </h2>
         </div>
       </div>

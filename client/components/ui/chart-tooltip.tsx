@@ -31,29 +31,27 @@ export function ChartTooltip({ title, rows, className }: ChartTooltipProps) {
   return (
     <div
       className={
-        'rounded-lg border border-border bg-card px-3 py-2.5 shadow-md min-w-[140px] max-w-[280px] ' +
+        'rounded-lg border border-border bg-card px-3 py-2.5 shadow-lg min-w-[140px] max-w-[240px] z-100 ' +
         (className ?? '')
       }
+      style={{ background: 'var(--card)' }}
       role="tooltip"
     >
       {title ? (
         <p
-          className="text-sm font-semibold text-foreground truncate"
+          className="text-sm font-semibold text-foreground truncate pr-1"
           title={title}
         >
           {title}
         </p>
       ) : null}
-      <dl className={title ? 'mt-1.5 space-y-1' : 'space-y-1'}>
+      <dl className={title ? 'mt-1.5 space-y-1.5' : 'space-y-1.5'}>
         {rows.map((row, index) => (
-          <div
-            key={index}
-            className="flex items-baseline justify-between gap-4"
-          >
-            <dt className="text-xs text-muted-foreground shrink-0">
+          <div key={index} className="flex items-center justify-between gap-3">
+            <dt className="text-xs text-muted-foreground shrink-0 min-w-0">
               {row.label}
             </dt>
-            <dd className="text-xs font-medium tabular-nums text-foreground text-right truncate">
+            <dd className="text-xs font-medium tabular-nums text-foreground shrink-0">
               {row.value}
             </dd>
           </div>

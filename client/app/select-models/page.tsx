@@ -1,16 +1,24 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, AlertCircle } from "lucide-react";
-import { apiClient } from "@/lib/api-client";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from '@/lib/auth-client';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Spinner } from '@/components/ui/spinner';
+import { AlertCircle, Check, ArrowRight, LayoutGrid } from 'lucide-react';
+import { apiClient } from '@/lib/api-client';
 
 interface ModelOption {
-  value: "credito" | "imobiliaria" | "seguro";
+  value: 'credito' | 'imobiliaria' | 'seguro';
   label: string;
   description: string;
   icon: string;
@@ -18,43 +26,39 @@ interface ModelOption {
 
 const MODEL_OPTIONS: ModelOption[] = [
   {
-    value: "credito",
-    label: "Crédito",
-    description: "Intermediação de crédito e financiamento",
-    icon: "💰",
+    value: 'credito',
+    label: 'Crédito',
+    description: 'Intermediação de crédito e financiamento',
+    icon: '💰',
   },
   {
-    value: "imobiliaria",
-    label: "Imobiliária",
-    description: "Gestão imobiliária e vendas de propriedades",
-    icon: "🏠",
+    value: 'imobiliaria',
+    label: 'Imobiliária',
+    description: 'Gestão imobiliária e vendas de propriedades',
+    icon: '🏠',
   },
   {
-    value: "seguro",
-    label: "Seguros",
-    description: "Mediação de seguros e proteção",
-    icon: "🛡️",
+    value: 'seguro',
+    label: 'Seguros',
+    description: 'Mediação de seguros e proteção',
+    icon: '🛡️',
   },
 ];
 
 export default function SelectModelsPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
-  const [selectedModels, setSelectedModels] = useState<string[]>(["credito"]);
+  const [selectedModels, setSelectedModels] = useState<string[]>(['credito']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // Verify session and redirect if user already has models
   useEffect(() => {
     if (isPending) return;
-
     if (!session?.user) {
-      router.push("/sign-in");
+      router.push('/sign-in');
       return;
     }
-
-    // Check if user already has models
     checkUserModels();
   }, [session, isPending, router]);
 
@@ -62,56 +66,54 @@ export default function SelectModelsPage() {
     try {
       setIsInitializing(true);
       const models = await apiClient.userModels.getMyModels();
-
       if (models && models.length > 0) {
-        // User already has models, redirect to dashboard
-        router.push("/");
+        router.push('/');
         return;
       }
-
       setIsInitializing(false);
     } catch (err) {
-      console.error("Error checking user models:", err);
+      console.error('Error checking user models:', err);
       setIsInitializing(false);
-      // Continue to show selection page even if check fails
     }
   }
 
   function handleToggleModel(modelType: string) {
     setSelectedModels((prev) => {
       if (prev.includes(modelType)) {
-        // Don't allow deselecting the last model
-        if (prev.length === 1) {
-          return prev;
-        }
+        if (prev.length === 1) return prev;
         return prev.filter((m) => m !== modelType);
-      } else {
-        return [...prev, modelType];
       }
+      return [...prev, modelType];
     });
   }
 
   async function handleSubmit() {
     if (selectedModels.length === 0) {
-      setError("Deve selecionar pelo menos um modelo");
+      setError('Selecione pelo menos um modelo de negócio para continuar.');
       return;
     }
-
     try {
       setError(null);
       setIsLoading(true);
-
-      // Add each selected model to user
       for (const modelType of selectedModels) {
         await apiClient.userModels.addModelToMyUser(modelType);
       }
-
-      // Redirect to dashboard
-      router.push("/");
+      try {
+        const list = await apiClient.userModels.getMyModels();
+        const first = list[0] as { id?: string } | undefined;
+        if (first?.id) {
+          localStorage.setItem('activeModelId', first.id);
+          document.cookie = `activeModelId=${first.id}; path=/; max-age=86400; SameSite=Lax`;
+        }
+      } catch (_) {}
+      router.push('/');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao selecionar modelos";
-      setError(errorMessage);
-      console.error("Error selecting models:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Erro ao guardar. Tente novamente.',
+      );
+      console.error('Error selecting models:', err);
     } finally {
       setIsLoading(false);
     }
@@ -119,103 +121,159 @@ export default function SelectModelsPage() {
 
   if (isPending || isInitializing) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 px-4">
+        <Card className="w-full max-w-[420px] border-0 shadow-lg shadow-black/5 bg-card">
+          <CardContent className="pt-10 pb-10 flex flex-col items-center gap-6">
+            <div className="rounded-full bg-muted p-4">
+              <Spinner
+                variant="bars"
+                className="w-8 h-8 text-muted-foreground"
+              />
+            </div>
+            <div className="text-center space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                A carregar a sua conta
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Aguarde um momento...
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!session?.user) {
-    return null; // Will redirect in useEffect
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl">Bem-vindo, {session.user.name}!</CardTitle>
-          <CardDescription className="text-base mt-2">
-            Selecione os modelos de negócio que deseja ativar. Pode sempre
-            adicionar ou remover modelos depois.
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-              <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-red-800">{error}</div>
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 px-4 py-12">
+      <div className="w-full max-w-[520px]">
+        <Card className="border-0 shadow-lg shadow-black/5 bg-card overflow-hidden">
+          <CardHeader className="text-center pb-2 pt-10">
+            <div className="mx-auto rounded-full bg-primary/10 border border-primary/10 w-16 h-16 flex items-center justify-center mb-5">
+              <LayoutGrid className="w-8 h-8 text-primary" />
             </div>
-          )}
-
-          {/* Model Selection Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {MODEL_OPTIONS.map((model) => (
-              <div
-                key={model.value}
-                className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                  selectedModels.includes(model.value)
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
-                }`}
-                onClick={() => handleToggleModel(model.value)}
-              >
-                <div className="absolute top-4 right-4">
-                  <Checkbox
-                    checked={selectedModels.includes(model.value)}
-                    onChange={() => handleToggleModel(model.value)}
-                    disabled={isLoading}
-                  />
-                </div>
-
-                <div className="text-4xl mb-3">{model.icon}</div>
-
-                <h3 className="font-semibold text-lg mb-1">{model.label}</h3>
-                <p className="text-sm text-muted-foreground">{model.description}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Info Message */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-900">
-              <strong>Dica:</strong> Você deve selecionar pelo menos um modelo.
-              Cada modelo dará acesso a funcionalidades específicas dessa área de
-              negócio.
+            <p className="text-xs font-medium text-primary uppercase tracking-wider mb-1">
+              Último passo
             </p>
-          </div>
+            <CardTitle className="text-xl font-semibold tracking-tight">
+              Escolha os seus modelos de negócio
+            </CardTitle>
+            <CardDescription className="text-sm mt-2 max-w-sm mx-auto leading-relaxed">
+              Bem-vindo, {session.user.name ?? 'utilizador'}. A sua conta foi
+              aprovada. Selecione em que áreas pretende trabalhar na plataforma
+              — pode alterar esta escolha mais tarde.
+            </CardDescription>
+          </CardHeader>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <CardContent className="space-y-6">
+            {error && (
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 flex items-start gap-3">
+                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                <p className="text-sm text-destructive font-medium">{error}</p>
+              </div>
+            )}
+
+            <div>
+              <p className="text-xs font-medium text-foreground mb-3">
+                Modelos de negócio (selecione pelo menos um)
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {MODEL_OPTIONS.map((model) => {
+                  const isSelected = selectedModels.includes(model.value);
+                  return (
+                    <button
+                      key={model.value}
+                      type="button"
+                      onClick={() => handleToggleModel(model.value)}
+                      disabled={isLoading}
+                      className={`relative rounded-xl border-2 p-4 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 ${
+                        isSelected
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border bg-card hover:border-primary/30 hover:bg-muted/30'
+                      }`}
+                    >
+                      <div className="absolute top-3 right-3">
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() => handleToggleModel(model.value)}
+                          disabled={isLoading}
+                          className="pointer-events-none"
+                        />
+                      </div>
+                      <span className="text-2xl block mb-2">{model.icon}</span>
+                      <h3 className="font-semibold text-foreground mb-0.5">
+                        {model.label}
+                      </h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {model.description}
+                      </p>
+                      {isSelected && (
+                        <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                          <Check className="w-3.5 h-3.5" />
+                          Selecionado
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
+              <p className="text-xs font-medium text-foreground mb-1">
+                O que acontece a seguir?
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                <li>
+                  Terá acesso às áreas da plataforma correspondentes aos modelos
+                  escolhidos
+                </li>
+                <li>
+                  Poderá adicionar ou remover modelos mais tarde nas definições
+                </li>
+              </ul>
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex flex-col gap-3 pt-2 pb-10">
             <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => router.push("/sign-out")}
-              disabled={isLoading}
-            >
-              Cancelar
-            </Button>
-            <Button
-              className="flex-1"
               onClick={handleSubmit}
               disabled={isLoading || selectedModels.length === 0}
+              variant="default"
+              size="lg"
+              className="w-full h-11 font-medium"
             >
               {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Carregando...
-                </>
+                <span className="inline-flex items-center gap-2">
+                  <Spinner variant="bars" className="w-4 h-4" />A guardar...
+                </span>
               ) : (
-                "Confirmar Seleção"
+                <span className="inline-flex items-center gap-2">
+                  Confirmar e entrar na plataforma
+                  <ArrowRight className="w-4 h-4" />
+                </span>
               )}
             </Button>
-          </div>
-
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            Modelos selecionados: {selectedModels.length}/{MODEL_OPTIONS.length}
-          </p>
-        </CardContent>
-      </Card>
+            <p className="text-xs text-muted-foreground text-center">
+              {selectedModels.length} de {MODEL_OPTIONS.length} modelos
+              selecionados
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground"
+              onClick={() => router.push('/sign-out')}
+              disabled={isLoading}
+            >
+              Terminar sessão
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }

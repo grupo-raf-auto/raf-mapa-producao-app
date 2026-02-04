@@ -6,15 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
-import { apiClient } from '@/lib/api-client';
 import Link from 'next/link';
 import Image from 'next/image';
-
-const MODEL_OPTIONS = [
-  { value: 'credito', label: 'Crédito', emoji: '💰' },
-  { value: 'imobiliaria', label: 'Imobiliária', emoji: '🏠' },
-  { value: 'seguro', label: 'Seguros', emoji: '🛡️' },
-];
 
 type RoutePoint = {
   x: number;
@@ -62,11 +55,20 @@ const DotMap = () => {
         // Create a more organic network pattern
         const isInPattern =
           // Central cluster
-          ((x < width * 0.6 && x > width * 0.2) && (y < height * 0.7 && y > height * 0.2)) ||
+          (x < width * 0.6 &&
+            x > width * 0.2 &&
+            y < height * 0.7 &&
+            y > height * 0.2) ||
           // Top right
-          ((x < width * 0.9 && x > width * 0.65) && (y < height * 0.4 && y > height * 0.1)) ||
+          (x < width * 0.9 &&
+            x > width * 0.65 &&
+            y < height * 0.4 &&
+            y > height * 0.1) ||
           // Bottom left
-          ((x < width * 0.35 && x > width * 0.1) && (y < height * 0.9 && y > height * 0.6));
+          (x < width * 0.35 &&
+            x > width * 0.1 &&
+            y < height * 0.9 &&
+            y > height * 0.6);
 
         if (isInPattern && Math.random() > 0.4) {
           dots.push({
@@ -207,14 +209,25 @@ const SignInCard = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [isHovered, setIsHovered] = useState(false);
-  
+
   // Registration states
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerPasswordVisible, setRegisterPasswordVisible] = useState(false);
   const [registerEmail, setRegisterEmail] = useState('');
-  const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  const [allowedEmailDomain, setAllowedEmailDomain] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    fetch('/api/auth/allowed-email-domain')
+      .then((r) => r.json())
+      .then((data: { allowedEmailDomain?: string | null }) =>
+        setAllowedEmailDomain(data.allowedEmailDomain ?? null),
+      )
+      .catch(() => setAllowedEmailDomain(null));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,7 +236,7 @@ const SignInCard = () => {
       const { data, error } = await authClient.signIn.email({
         email: email.trim(),
         password,
-        callbackURL: '/',
+        callbackURL: '/approval-status',
       });
       if (error) {
         const m = (error.message || '').toLowerCase();
@@ -242,10 +255,8 @@ const SignInCard = () => {
         return;
       }
       toast.success('Login realizado com sucesso!');
-
-      // Role-based redirect: admins → /admin, users → /
-      const userRole = data?.user?.role;
-      window.location.href = userRole === 'admin' ? '/admin' : '/';
+      // Redirecionar para approval-status; a página redireciona para / ou /admin se aprovado
+      window.location.href = '/approval-status';
     } catch {
       toast.error('Erro ao fazer login');
     } finally {
@@ -258,12 +269,12 @@ const SignInCard = () => {
       if (activeTab === 'register') {
         await (authClient.signUp as any).social({
           provider: 'google',
-          callbackURL: '/',
+          callbackURL: '/approval-status',
         });
       } else {
         await authClient.signIn.social({
           provider: 'google',
-          callbackURL: '/',
+          callbackURL: '/approval-status',
         });
       }
     } catch {
@@ -277,7 +288,7 @@ const SignInCard = () => {
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     if (!firstName.trim()) {
       toast.error('O primeiro nome é obrigatório');
@@ -291,12 +302,19 @@ const SignInCard = () => {
       toast.error('O e-mail é obrigatório');
       return;
     }
-    if (registerPassword.length < 8) {
-      toast.error('A palavra-passe deve ter no mínimo 8 caracteres');
+    const emailDomain = registerEmail.trim().toLowerCase().split('@')[1];
+    if (
+      allowedEmailDomain &&
+      emailDomain !== allowedEmailDomain.toLowerCase()
+    ) {
+      toast.error(
+        `Apenas e-mails @${allowedEmailDomain} podem registar-se. Use um endereço @${allowedEmailDomain}.`,
+        { duration: 6000 },
+      );
       return;
     }
-    if (selectedModels.length === 0) {
-      toast.error('Selecione pelo menos um modelo de negócio');
+    if (registerPassword.length < 8) {
+      toast.error('A palavra-passe deve ter no mínimo 8 caracteres');
       return;
     }
 
@@ -306,7 +324,7 @@ const SignInCard = () => {
         name: `${firstName.trim()} ${lastName.trim()}`.trim(),
         email: registerEmail.trim().toLowerCase(),
         password: registerPassword,
-        callbackURL: '/',
+        callbackURL: '/approval-status',
         firstName: firstName.trim(),
         lastName: lastName.trim(),
       });
@@ -318,10 +336,25 @@ const SignInCard = () => {
           status?: number;
           statusText?: string;
           message?: string;
-          error?: string;
+          error?: string | { message?: string };
           code?: string;
         };
-        const raw = (err?.error ?? err?.message ?? '').toLowerCase();
+        const getMsg = (): string => {
+          const m = err?.message;
+          if (typeof m === 'string' && m.trim()) return m;
+          const e = err?.error;
+          if (typeof e === 'string' && e.trim()) return e;
+          if (
+            e &&
+            typeof e === 'object' &&
+            typeof (e as { message?: string }).message === 'string'
+          )
+            return (e as { message: string }).message;
+          if (err?.status === 500) return 'Erro no servidor. Tente novamente.';
+          return 'Erro ao criar conta';
+        };
+        const msg = getMsg();
+        const raw = msg.toLowerCase();
         const isAlreadyExists =
           raw.includes('already exists') ||
           raw.includes('já existe') ||
@@ -333,57 +366,31 @@ const SignInCard = () => {
           );
           return;
         }
-        const msg =
-          err?.error ??
-          err?.message ??
-          (err?.status === 500
-            ? 'Erro no servidor. Tente novamente.'
-            : 'Erro ao criar conta');
-        toast.error(msg);
+        const isDomainRestriction =
+          raw.includes('apenas email') ||
+          (raw.includes('@') && raw.includes('podem registar'));
+        if (isDomainRestriction && allowedEmailDomain) {
+          toast.error(
+            `Apenas e-mails @${allowedEmailDomain} podem registar-se. Use um email desse domínio ou contacte o administrador.`,
+            { duration: 8000 },
+          );
+        } else {
+          toast.error(msg, { duration: 6000 });
+        }
         return;
       }
 
-      // After signup (with autoSignIn: true, user is already logged in)
-      // Wait a moment for the session cookie to be set, then add models
-      if (result.data?.user?.id && selectedModels.length > 0) {
-        try {
-          // Small delay to ensure session cookie is properly set
-          await new Promise(resolve => setTimeout(resolve, 500));
+      toast.success('Conta criada! Verifique o seu email para continuar.');
 
-          // Add all selected models
-          for (const modelType of selectedModels) {
-            try {
-              await apiClient.userModels.addModelToMyUser(modelType);
-              console.log(`[register] Model ${modelType} added successfully`);
-            } catch (modelError) {
-              console.error(`[register] Failed to add model ${modelType}:`, modelError);
-              // Continue with other models even if one fails
-            }
-          }
-
-          toast.success('Conta criada com sucesso!');
-
-          // Role-based redirect: admins → /admin, users → /
-          const userRole = result.data?.user?.role;
-          window.location.href = userRole === 'admin' ? '/admin' : '/';
-        } catch (error) {
-          console.error('[register] Error adding models:', error);
-          // If model addition fails, still consider signup successful
-          toast.success('Conta criada! Por favor, inicie sessão para configurar os modelos.');
-          setActiveTab('login');
-        }
-      } else {
-        toast.success('Conta criada com sucesso!');
-
-        // Role-based redirect: admins → /admin, users → /
-        const userRole = result.data?.user?.role;
-        window.location.href = userRole === 'admin' ? '/admin' : '/';
+      // Guardar email para a página de verificação e redirecionar
+      const emailToStore = registerEmail.trim().toLowerCase();
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('pendingEmail', emailToStore);
       }
+      window.location.href = `/verify-email?email=${encodeURIComponent(emailToStore)}`;
     } catch (err) {
       console.error('[register] catch:', err);
-      toast.error(
-        err instanceof Error ? err.message : 'Erro ao registar',
-      );
+      toast.error(err instanceof Error ? err.message : 'Erro ao registar');
     } finally {
       setLoading(false);
     }
@@ -450,9 +457,11 @@ const SignInCard = () => {
                 ? 'Registe-se para começar'
                 : 'Inicie sessão na sua conta'}
             </p>
-            <p className="text-xs text-muted-foreground mb-6">
-              Apenas e-mails @gruporaf.pt são permitidos
-            </p>
+            {allowedEmailDomain && (
+              <p className="text-xs text-muted-foreground mb-6">
+                Apenas e-mails @{allowedEmailDomain} são permitidos
+              </p>
+            )}
 
             {/* Tabs */}
             <div className="flex gap-0 mb-6 border border-border rounded-lg p-1 bg-muted/30">
@@ -545,7 +554,11 @@ const SignInCard = () => {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="seu.nome@gruporaf.pt"
+                      placeholder={
+                        allowedEmailDomain
+                          ? `seu.nome@${allowedEmailDomain}`
+                          : 'seu.nome@empresa.pt'
+                      }
                       required
                       disabled={loading}
                       className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
@@ -637,7 +650,8 @@ const SignInCard = () => {
                         htmlFor="firstName"
                         className="block text-sm font-medium text-foreground mb-1.5"
                       >
-                        Primeiro Nome <span className="text-destructive">*</span>
+                        Primeiro Nome{' '}
+                        <span className="text-destructive">*</span>
                       </label>
                       <input
                         id="firstName"
@@ -681,7 +695,11 @@ const SignInCard = () => {
                       type="email"
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
-                      placeholder="seu.email@exemplo.com"
+                      placeholder={
+                        allowedEmailDomain
+                          ? `seu.nome@${allowedEmailDomain}`
+                          : 'seu.email@exemplo.com'
+                      }
                       required
                       disabled={loading}
                       className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
@@ -720,54 +738,6 @@ const SignInCard = () => {
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       Mínimo de 8 carateres
-                    </p>
-                  </div>
-
-                  {/* Model Selection */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-foreground">
-                      Modelo de Negócio <span className="text-destructive">*</span>
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {MODEL_OPTIONS.map((model) => (
-                        <label
-                          key={model.value}
-                          className={cn(
-                            'flex flex-col items-center justify-center gap-1 p-3 rounded-lg border-2 cursor-pointer transition-all',
-                            selectedModels.includes(model.value)
-                              ? 'border-primary bg-primary/5'
-                              : 'border-border hover:border-primary/50 hover:bg-muted/50'
-                          )}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedModels.includes(model.value)}
-                             onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedModels([...selectedModels, model.value]);
-                              } else {
-                                setSelectedModels(
-                                  selectedModels.filter((m) => m !== model.value)
-                                );
-                              }
-                            }}
-                            disabled={loading}
-                            className="sr-only"
-                          />
-                          <span className="text-xl">{model.emoji}</span>
-                          <span className="text-xs font-medium text-foreground">
-                            {model.label}
-                          </span>
-                          {selectedModels.includes(model.value) && (
-                            <span className="text-[10px] text-primary font-medium">
-                              ✓ Selecionado
-                            </span>
-                          )}
-                        </label>
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Obrigatório: selecione pelo menos um modelo de negócio para continuar.
                     </p>
                   </div>
 

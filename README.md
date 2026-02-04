@@ -25,7 +25,7 @@ OPENAI_API_KEY=sk-...
 
 Opcionais:
 
-- **`ALLOWED_EMAIL_DOMAIN`** (ex: `gruporaf.pt`): se definido, apenas emails `@<domínio>` podem registar-se.
+- **`ALLOWED_EMAIL_DOMAIN`** (ex: `gruporaf.pt`): se definido, apenas emails `@<domínio>` podem registar-se. Para desenvolvimento ou testes com outros emails (ex.: @hotmail.com), não definas esta variável ou deixa-a vazia no `server/.env` (ou no env do Next.js).
 - **`RESEND_API_KEY`** e **`EMAIL_FROM`**: para enviar emails de recuperação de senha em produção. Sem `RESEND_API_KEY`, em dev o link é impresso no terminal.
 
 **Opcional – client/.env.local:** só é preciso se fizeres `npm run build` no client sem `server/.env` (ex. em CI). Nesse caso copia para `client/.env.local` as variáveis que o Next.js precisa: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `JWT_SECRET`, `NEXTAUTH_URL`, `CLIENT_URL`, `NEXT_PUBLIC_API_URL`.

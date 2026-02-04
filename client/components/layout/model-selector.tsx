@@ -43,8 +43,6 @@ const modelConfig = {
 
 export function ModelSelector() {
   const { models, activeModel, switchModel, loading } = useUserModels();
-  console.log('🚀 ~ ModelSelector ~ activeModel:', activeModel);
-  console.log('🚀 ~ ModelSelector ~ models:', models);
   const { switchModel: contextSwitchModel } = useModelContext();
   const [isSwitching, setIsSwitching] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -52,19 +50,6 @@ export function ModelSelector() {
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Log para debugging
-  if (typeof window !== 'undefined') {
-    if (!(window as any).__modelSelectorLogged) {
-      console.log('ModelSelector Debug:', {
-        mounted,
-        loading,
-        modelsCount: models?.length,
-        activeModel: activeModel?.id,
-      });
-      (window as any).__modelSelectorLogged = true;
-    }
-  }
 
   // Mostrar skeleton enquanto carrega
   if (!mounted || loading) {

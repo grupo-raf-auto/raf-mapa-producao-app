@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 import {
   STRING_MIN_LENGTH,
   STRING_MAX_LENGTH,
@@ -10,17 +10,20 @@ import {
   VALID_CHAT_CONTEXTS,
   VALID_ROLES,
   COLOR_HEX_REGEX,
-} from "../constants";
+} from '../constants';
 
 // ============ QUESTION ============
 
 export const createQuestionSchema = z.object({
   title: z
     .string()
-    .min(STRING_MIN_LENGTH, "Title is required")
-    .max(STRING_MAX_LENGTH, `Title must be less than ${STRING_MAX_LENGTH} characters`),
+    .min(STRING_MIN_LENGTH, 'Title is required')
+    .max(
+      STRING_MAX_LENGTH,
+      `Title must be less than ${STRING_MAX_LENGTH} characters`,
+    ),
   description: z.string().max(STRING_DESCRIPTION_MAX_LENGTH).optional(),
-  status: z.enum(VALID_STATUSES).default("active"),
+  status: z.enum(VALID_STATUSES).default('active'),
   inputType: z.enum(INPUT_TYPES).optional(),
   options: z.array(z.string()).optional(),
   categoryId: z.string().uuid().optional().nullable(),
@@ -45,7 +48,9 @@ export const createTemplateSchema = z.object({
   description: z.string().max(STRING_DESCRIPTION_MAX_LENGTH).optional(),
   isPublic: z.boolean().default(false),
   isDefault: z.boolean().default(false),
-  questionIds: z.array(z.string().uuid()).min(1, "At least one question required"),
+  questionIds: z
+    .array(z.string().uuid())
+    .min(1, 'At least one question required'),
 });
 
 export const updateTemplateSchema = createTemplateSchema.partial().omit({
@@ -77,7 +82,7 @@ export const uploadDocumentSchema = z.object({
 export const sendMessageSchema = z.object({
   conversationId: z.string().min(STRING_MIN_LENGTH),
   message: z.string().min(STRING_MIN_LENGTH).max(5000),
-  chatContext: z.enum(VALID_CHAT_CONTEXTS).default("general"),
+  chatContext: z.enum(VALID_CHAT_CONTEXTS).default('general'),
 });
 
 // ============ USER ============
@@ -88,12 +93,13 @@ export const updateUserSchema = z.object({
   role: z.enum(VALID_ROLES).optional(),
   status: z.enum(VALID_USER_STATUSES).optional(),
   isActive: z.boolean().optional(),
+  rejectionReason: z.string().max(500).optional(),
 });
 
 // ============ DOCUMENT SCANNER ============
 
 export const scanDocumentSchema = z.object({
-  fileType: z.enum(["pdf", "image"]),
+  fileType: z.enum(['pdf', 'image']),
   fileName: z.string().min(STRING_MIN_LENGTH).max(STRING_MAX_LENGTH),
 });
 

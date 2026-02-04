@@ -1,6 +1,6 @@
-import { prisma } from "../lib/prisma";
-import logger from "../lib/logger";
-import { FormSubmission, User, Template } from "@prisma/client";
+import { prisma } from '../lib/prisma';
+import logger from '../lib/logger';
+import { FormSubmission, User, Template } from '@prisma/client';
 
 /**
  * UserStatsService
@@ -106,10 +106,7 @@ export class UserStatsService {
    */
   async generateStats(templateId?: string): Promise<GenerateStatsResult> {
     try {
-      logger.debug(
-        { templateId },
-        "Generating user stats"
-      );
+      logger.debug({ templateId }, 'Generating user stats');
 
       const now = new Date();
       const dateRangeStart = this.getDateOffsetDays(now, STATS_DATE_RANGE_DAYS);
@@ -118,7 +115,14 @@ export class UserStatsService {
       todayStart.setHours(0, 0, 0, 0);
 
       // Fetch all data
-      const [allSubmissions, allDocuments, allChatMessages, allUsers, allTemplates, allQuestions] = await Promise.all([
+      const [
+        allSubmissions,
+        allDocuments,
+        allChatMessages,
+        allUsers,
+        allTemplates,
+        allQuestions,
+      ] = await Promise.all([
         prisma.formSubmission.findMany({
           include: { user: true, template: true },
         }),
@@ -134,25 +138,51 @@ export class UserStatsService {
       ]);
 
       // Filter by date range
-      const submissionsLast30 = allSubmissions.filter(s => new Date(s.submittedAt) >= dateRangeStart);
-      const submissionsLast7 = allSubmissions.filter(s => new Date(s.submittedAt) >= sevenDaysAgo);
-      const submissionsToday = allSubmissions.filter(s => new Date(s.submittedAt) >= todayStart);
+      const submissionsLast30 = allSubmissions.filter(
+        (s) => new Date(s.submittedAt) >= dateRangeStart,
+      );
+      const submissionsLast7 = allSubmissions.filter(
+        (s) => new Date(s.submittedAt) >= sevenDaysAgo,
+      );
+      const submissionsToday = allSubmissions.filter(
+        (s) => new Date(s.submittedAt) >= todayStart,
+      );
 
-      const documentsLast30 = allDocuments.filter(d => new Date(d.uploadedAt) >= dateRangeStart);
-      const documentsLast7 = allDocuments.filter(d => new Date(d.uploadedAt) >= sevenDaysAgo);
+      const documentsLast30 = allDocuments.filter(
+        (d) => new Date(d.uploadedAt) >= dateRangeStart,
+      );
+      const documentsLast7 = allDocuments.filter(
+        (d) => new Date(d.uploadedAt) >= sevenDaysAgo,
+      );
 
-      const chatMessagesLast30 = allChatMessages.filter(m => new Date(m.createdAt) >= dateRangeStart);
-      const chatMessagesLast7 = allChatMessages.filter(m => new Date(m.createdAt) >= sevenDaysAgo);
+      const chatMessagesLast30 = allChatMessages.filter(
+        (m) => new Date(m.createdAt) >= dateRangeStart,
+      );
+      const chatMessagesLast7 = allChatMessages.filter(
+        (m) => new Date(m.createdAt) >= sevenDaysAgo,
+      );
 
       // Aggregate trends by day
-      const submissionsByDay = this.aggregateSubmissionsByDay(submissionsLast30, dateRangeStart, now);
-      const documentsByDay = this.aggregateDocumentsByDay(documentsLast30, dateRangeStart, now);
-      const chatMessagesByDay = this.aggregateChatMessagesByDay(chatMessagesLast30, dateRangeStart, now);
+      const submissionsByDay = this.aggregateSubmissionsByDay(
+        submissionsLast30,
+        dateRangeStart,
+        now,
+      );
+      const documentsByDay = this.aggregateDocumentsByDay(
+        documentsLast30,
+        dateRangeStart,
+        now,
+      );
+      const chatMessagesByDay = this.aggregateChatMessagesByDay(
+        chatMessagesLast30,
+        dateRangeStart,
+        now,
+      );
 
       // Calculate user stats
       const userStatsMap = new Map<string, UserStats>();
 
-      allUsers.forEach(user => {
+      allUsers.forEach((user) => {
         userStatsMap.set(user.id, {
           userId: user.id,
           clerkId: user.id,
@@ -178,23 +208,25 @@ export class UserStatsService {
         });
       });
 
-      // Populate submissions
-      submissionsLast30.forEach(submission => {
+      // Populate submissions: totalSubmissions só em allSubmissions (evitar dupla contagem)
+      submissionsLast30.forEach((submission) => {
         const stat = userStatsMap.get(submission.submittedBy);
         if (stat) {
-          stat.totalSubmissions++;
-          const dateStr = new Date(submission.submittedAt).toISOString().split('T')[0];
-          stat.submissionsByDay[dateStr] = (stat.submissionsByDay[dateStr] || 0) + 1;
+          const dateStr = new Date(submission.submittedAt)
+            .toISOString()
+            .split('T')[0];
+          stat.submissionsByDay[dateStr] =
+            (stat.submissionsByDay[dateStr] || 0) + 1;
         }
       });
 
-      allSubmissions.forEach(submission => {
+      allSubmissions.forEach((submission) => {
         const stat = userStatsMap.get(submission.submittedBy);
         if (stat) stat.totalSubmissions++;
       });
 
       // Populate documents
-      allDocuments.forEach(document => {
+      allDocuments.forEach((document) => {
         const stat = userStatsMap.get(document.uploadedBy);
         if (stat) {
           stat.totalDocuments++;
@@ -203,7 +235,7 @@ export class UserStatsService {
       });
 
       // Populate chat messages
-      allChatMessages.forEach(message => {
+      allChatMessages.forEach((message) => {
         const stat = userStatsMap.get(message.userId);
         if (stat) {
           stat.totalChatMessages++;
@@ -213,7 +245,7 @@ export class UserStatsService {
 
       // Calculate unique conversations and active days
       const userConversations = new Map<string, Set<string>>();
-      allChatMessages.forEach(message => {
+      allChatMessages.forEach((message) => {
         if (!userConversations.has(message.userId)) {
           userConversations.set(message.userId, new Set());
         }
@@ -227,14 +259,16 @@ export class UserStatsService {
 
       // Calculate active days in last 30 days
       const userActiveDays = new Map<string, Set<string>>();
-      submissionsLast30.forEach(submission => {
-        const dateStr = new Date(submission.submittedAt).toISOString().split('T')[0];
+      submissionsLast30.forEach((submission) => {
+        const dateStr = new Date(submission.submittedAt)
+          .toISOString()
+          .split('T')[0];
         if (!userActiveDays.has(submission.submittedBy)) {
           userActiveDays.set(submission.submittedBy, new Set());
         }
         userActiveDays.get(submission.submittedBy)!.add(dateStr);
       });
-      chatMessagesLast30.forEach(message => {
+      chatMessagesLast30.forEach((message) => {
         const dateStr = new Date(message.createdAt).toISOString().split('T')[0];
         if (!userActiveDays.has(message.userId)) {
           userActiveDays.set(message.userId, new Set());
@@ -251,26 +285,49 @@ export class UserStatsService {
 
       // Calculate aggregate stats
       const totalUsers = allUsers.length;
-      const pendingUsers = allUsers.filter(u => u.status === 'pending').length;
-      const approvedUsers = allUsers.filter(u => u.status === 'approved').length;
-      const rejectedUsers = allUsers.filter(u => u.status === 'rejected').length;
-      const activeUsersLast30 = users.filter(u => u.activeDaysLast30 > 0).length;
+      const pendingUsers = allUsers.filter(
+        (u) => u.status === 'pending',
+      ).length;
+      const approvedUsers = allUsers.filter(
+        (u) => u.status === 'approved',
+      ).length;
+      const rejectedUsers = allUsers.filter(
+        (u) => u.status === 'rejected',
+      ).length;
+      const activeUsersLast30 = users.filter(
+        (u) => u.activeDaysLast30 > 0,
+      ).length;
       const inactiveUsers = totalUsers - activeUsersLast30;
       const totalSubmissions = allSubmissions.length;
-      const avgSubmissionsPerUser = totalUsers > 0 ? Math.round(totalSubmissions / totalUsers) : 0;
+      const avgSubmissionsPerUser =
+        totalUsers > 0 ? Math.round(totalSubmissions / totalUsers) : 0;
       const totalDocuments = allDocuments.length;
-      const processedDocuments = allDocuments.filter(d => d.processedAt).length;
-      const avgDocumentsPerUser = totalUsers > 0 ? Math.round(totalDocuments / totalUsers) : 0;
+      const processedDocuments = allDocuments.filter(
+        (d) => d.processedAt,
+      ).length;
+      const avgDocumentsPerUser =
+        totalUsers > 0 ? Math.round(totalDocuments / totalUsers) : 0;
       const totalChatMessages = allChatMessages.length;
-      const userMessages = allChatMessages.filter(m => m.role === 'user').length;
-      const assistantMessages = allChatMessages.filter(m => m.role === 'assistant').length;
+      const userMessages = allChatMessages.filter(
+        (m) => m.role === 'user',
+      ).length;
+      const assistantMessages = allChatMessages.filter(
+        (m) => m.role === 'assistant',
+      ).length;
 
       const conversationIds = new Set<string>();
-      allChatMessages.forEach(m => conversationIds.add(m.conversationId));
+      allChatMessages.forEach((m) => conversationIds.add(m.conversationId));
       const uniqueConversations = conversationIds.size;
 
-      const avgChatMessagesPerUser = totalUsers > 0 ? Math.round(totalChatMessages / totalUsers) : 0;
-      const avgActiveDays = activeUsersLast30 > 0 ? Math.round(users.reduce((sum, u) => sum + u.activeDaysLast30, 0) / activeUsersLast30) : 0;
+      const avgChatMessagesPerUser =
+        totalUsers > 0 ? Math.round(totalChatMessages / totalUsers) : 0;
+      const avgActiveDays =
+        activeUsersLast30 > 0
+          ? Math.round(
+              users.reduce((sum, u) => sum + u.activeDaysLast30, 0) /
+                activeUsersLast30,
+            )
+          : 0;
 
       // Calculate total chunks and templates
       const totalChunks = await prisma.documentChunk.count();
@@ -315,7 +372,7 @@ export class UserStatsService {
         },
       };
     } catch (error) {
-      logger.error({ error }, "Error generating stats");
+      logger.error({ error }, 'Error generating stats');
       throw error;
     }
   }
@@ -326,14 +383,14 @@ export class UserStatsService {
   private aggregateSubmissionsByDay(
     submissions: SubmissionWithRelations[],
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Record<string, number> {
     const result: Record<string, number> = {};
 
     // Inicializar intervalo de datas
     let currentDate = new Date(startDate);
     while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split("T")[0];
+      const dateStr = currentDate.toISOString().split('T')[0];
       result[dateStr] = 0;
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -342,7 +399,7 @@ export class UserStatsService {
     submissions.forEach((submission) => {
       const dateStr = new Date(submission.submittedAt)
         .toISOString()
-        .split("T")[0];
+        .split('T')[0];
       if (result[dateStr] !== undefined) {
         result[dateStr]++;
       }
@@ -357,23 +414,21 @@ export class UserStatsService {
   private aggregateDocumentsByDay(
     documents: any[],
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Record<string, number> {
     const result: Record<string, number> = {};
 
     // Inicializar intervalo de datas
     let currentDate = new Date(startDate);
     while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split("T")[0];
+      const dateStr = currentDate.toISOString().split('T')[0];
       result[dateStr] = 0;
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
     // Contar por dia
     documents.forEach((doc) => {
-      const dateStr = new Date(doc.uploadedAt)
-        .toISOString()
-        .split("T")[0];
+      const dateStr = new Date(doc.uploadedAt).toISOString().split('T')[0];
       if (result[dateStr] !== undefined) {
         result[dateStr]++;
       }
@@ -388,23 +443,21 @@ export class UserStatsService {
   private aggregateChatMessagesByDay(
     messages: any[],
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Record<string, number> {
     const result: Record<string, number> = {};
 
     // Inicializar intervalo de datas
     let currentDate = new Date(startDate);
     while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split("T")[0];
+      const dateStr = currentDate.toISOString().split('T')[0];
       result[dateStr] = 0;
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
     // Contar por dia
     messages.forEach((message) => {
-      const dateStr = new Date(message.createdAt)
-        .toISOString()
-        .split("T")[0];
+      const dateStr = new Date(message.createdAt).toISOString().split('T')[0];
       if (result[dateStr] !== undefined) {
         result[dateStr]++;
       }
@@ -441,7 +494,7 @@ export class UserStatsService {
     });
 
     return Array.from(userMap.values()).sort(
-      (a, b) => b.submissionCount - a.submissionCount
+      (a, b) => b.submissionCount - a.submissionCount,
     );
   }
 
@@ -449,7 +502,7 @@ export class UserStatsService {
    * Agregar por template
    */
   private aggregateByTemplate(
-    submissions: SubmissionWithRelations[]
+    submissions: SubmissionWithRelations[],
   ): TemplateStat[] {
     const templateMap = new Map<string, TemplateStat>();
 
@@ -469,14 +522,16 @@ export class UserStatsService {
     });
 
     return Array.from(templateMap.values()).sort(
-      (a, b) => b.submissionCount - a.submissionCount
+      (a, b) => b.submissionCount - a.submissionCount,
     );
   }
 
   /**
    * Gerar trending (questões mais respondidas)
    */
-  async getTrending(days: number = STATS_DATE_RANGE_DAYS): Promise<TrendingQuestion[]> {
+  async getTrending(
+    days: number = STATS_DATE_RANGE_DAYS,
+  ): Promise<TrendingQuestion[]> {
     try {
       const since = this.getDateOffsetDays(new Date(), days);
 
@@ -515,7 +570,7 @@ export class UserStatsService {
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
     } catch (error) {
-      logger.error({ error }, "Error getting trending");
+      logger.error({ error }, 'Error getting trending');
       throw error;
     }
   }

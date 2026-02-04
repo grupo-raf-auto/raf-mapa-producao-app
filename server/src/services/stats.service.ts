@@ -257,11 +257,13 @@ export class StatsService {
     );
 
     // Inicializar agregações
+    // byMonth usa granularity do request (ex.: daily para evolução); byMonthForGrowth é sempre mensal para taxa de crescimento
     const aggregations = {
       byBanco: {} as Record<string, AggregatedData>,
       bySeguradora: {} as Record<string, AggregatedData>,
       byDistrito: {} as Record<string, AggregatedData>,
       byMonth: {} as Record<string, AggregatedData>,
+      byMonthForGrowth: {} as Record<string, AggregatedData>,
       byUser: {} as Record<string, AggregatedData & { userName: string }>,
       byTemplate: {} as Record<string, AggregatedData>,
       byAgente: {} as Record<string, AggregatedData>,
@@ -317,6 +319,9 @@ export class StatsService {
       if (dateToUse) {
         const timeKey = getTimeKey(dateToUse, filters.granularity || 'monthly');
         aggregateByKey(aggregations.byMonth, timeKey, valor);
+        // Sempre agregar por mês para taxa de crescimento (mês-a-mês), independente do granularity
+        const monthKey = getTimeKey(dateToUse, 'monthly');
+        aggregateByKey(aggregations.byMonthForGrowth, monthKey, valor);
       }
 
       // Agregar por colaborador
@@ -349,8 +354,17 @@ export class StatsService {
         aggregateByKey(aggregations.byFracionamento, fracionamento, valor);
     }
 
-    // Formatar dados mensais ordenados
+    // Formatar dados mensais ordenados (para timeline / evolução)
     const monthlyData = Object.entries(aggregations.byMonth)
+      .map(([month, data]) => ({
+        month,
+        count: data.count,
+        totalValue: data.totalValue,
+      }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+
+    // Dados mensais apenas para taxa de crescimento (sempre mês-a-mês)
+    const monthlyDataForGrowth = Object.entries(aggregations.byMonthForGrowth)
       .map(([month, data]) => ({
         month,
         count: data.count,
@@ -395,7 +409,7 @@ export class StatsService {
       valueRanges: Object.entries(aggregations.valueRanges).map(
         ([range, count]) => ({ range, count }),
       ),
-      growthRates: calculateGrowthRates(monthlyData),
+      growthRates: calculateGrowthRates(monthlyDataForGrowth),
     };
 
     // Cache the result

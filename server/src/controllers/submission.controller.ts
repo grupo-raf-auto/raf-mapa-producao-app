@@ -3,6 +3,20 @@ import { prisma } from '../lib/prisma';
 import { StatsService } from '../services/stats.service';
 import { withLegacyId, withLegacyIds } from '../utils/response.utils';
 
+function getFormDateFromAnswers(
+  answers: unknown,
+  dataQuestionId: string | undefined,
+): string | null {
+  if (!dataQuestionId || !Array.isArray(answers)) return null;
+  const entry = (answers as { questionId: string; answer: string }[]).find(
+    (a) => a.questionId === dataQuestionId,
+  );
+  const value = entry?.answer?.trim();
+  if (!value) return null;
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : value;
+}
+
 export class SubmissionController {
   static async getAll(req: Request, res: Response) {
     try {
@@ -35,7 +49,17 @@ export class SubmissionController {
         orderBy: { submittedAt: 'desc' },
       });
 
-      res.json(withLegacyIds(submissions));
+      const dataQuestion = await prisma.question.findFirst({
+        where: { title: 'Data' },
+        select: { id: true },
+      });
+
+      const submissionsWithFormDate = submissions.map((s) => {
+        const formDate = getFormDateFromAnswers(s.answers, dataQuestion?.id);
+        return { ...withLegacyId(s), formDate };
+      });
+
+      res.json(submissionsWithFormDate);
     } catch (error) {
       console.error('Error fetching submissions:', error);
       res.status(500).json({ error: 'Failed to fetch submissions' });
@@ -231,13 +255,22 @@ export class SubmissionController {
       const detailed = req.query.detailed === 'true';
       const scope = req.query.scope as 'personal' | 'all' | undefined;
       const period = req.query.period as 'yearly' | 'monthly' | undefined;
+      const granularity = req.query.granularity as
+        | 'daily'
+        | 'weekly'
+        | 'monthly'
+        | 'quarterly'
+        | 'yearly'
+        | undefined;
 
       const filters: {
         templateId?: string;
         submittedBy?: string;
         modelContext?: string;
+        granularity?: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
       } = {};
       if (templateId) filters.templateId = templateId;
+      if (granularity) filters.granularity = granularity;
 
       // FIXED: Always filter by user for personal stats (default)
       // Only show all data when explicitly requested with scope=all AND user is admin

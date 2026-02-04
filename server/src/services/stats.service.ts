@@ -1,5 +1,5 @@
-import { prisma } from "../lib/prisma";
-import { serverCache } from "../lib/cache";
+import { prisma } from '../lib/prisma';
+import { serverCache } from '../lib/cache';
 
 // ============ Types ============
 
@@ -9,6 +9,20 @@ export interface StatsFilters {
   templateId?: string;
   submittedBy?: string;
   modelContext?: string;
+  granularity?: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+}
+
+/**
+ * Filtros aceites pelo Prisma (sem granularity).
+ * Inclui submissões com modelContext null para não excluir registos antigos do mesmo modelo.
+ */
+function toPrismaWhere(filters: StatsFilters): Record<string, unknown> {
+  const { granularity: _g, modelContext, ...rest } = filters;
+  const where: Record<string, unknown> = { ...rest };
+  if (modelContext) {
+    where.OR = [{ modelContext }, { modelContext: null }];
+  }
+  return where;
 }
 
 export interface AggregatedData {
@@ -52,6 +66,11 @@ export interface SalesStats {
   byTemplate: NamedAggregation[];
   byAgente: NamedAggregation[];
   byRating: { rating: string; count: number; totalValue: number }[];
+  byFracionamento: {
+    fracionamento: string;
+    count: number;
+    totalValue: number;
+  }[];
   valueRanges: { range: string; count: number }[];
   growthRates: GrowthRate[];
 }
@@ -63,25 +82,45 @@ function parseAnswersArray(answers: unknown): Answer[] {
 }
 
 function parseValue(valueStr: string): number {
-  const parsed = parseFloat(
-    valueStr.replace(/[^\d.,]/g, "").replace(",", ".")
-  );
+  const parsed = parseFloat(valueStr.replace(/[^\d.,]/g, '').replace(',', '.'));
   return isNaN(parsed) ? 0 : parsed;
 }
 
 function getAnswerValue(
   answers: Answer[],
-  questionId: string | undefined
+  questionId: string | undefined,
 ): string | undefined {
   if (!questionId) return undefined;
   const answer = answers.find((a) => a.questionId === questionId);
   return answer?.answer?.trim();
 }
 
+/** Parseia a data inserida no formulário (ex.: "Data" / data do registo do seguro). */
+function parseFormDate(str: string): Date | null {
+  if (!str || !String(str).trim()) return null;
+  const d = new Date(String(str).trim());
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Data a usar nas estatísticas: preferir a data inserida no formulário (ex. data do seguro),
+ * senão a data de submissão (createdAt/submittedAt).
+ */
+function getEffectiveDate(
+  answers: Answer[],
+  dataQuestionId: string | undefined,
+  submittedAt: Date | null,
+): Date | null {
+  const dataStr = getAnswerValue(answers, dataQuestionId);
+  const d = dataStr ? parseFormDate(dataStr) : null;
+  if (d) return d;
+  return submittedAt ? new Date(submittedAt) : null;
+}
+
 function aggregateByKey(
   aggregation: Record<string, AggregatedData>,
   key: string,
-  value: number
+  value: number,
 ): void {
   if (!aggregation[key]) {
     aggregation[key] = { count: 0, totalValue: 0 };
@@ -92,7 +131,7 @@ function aggregateByKey(
 
 function toNamedAggregationArray(
   aggregation: Record<string, AggregatedData>,
-  includeAverage = true
+  includeAverage = true,
 ): NamedAggregation[] {
   return Object.entries(aggregation)
     .map(([name, data]) => ({
@@ -107,11 +146,11 @@ function toNamedAggregationArray(
 }
 
 function getValueRange(value: number): string {
-  if (value < 50000) return "0-50k";
-  if (value < 100000) return "50k-100k";
-  if (value < 200000) return "100k-200k";
-  if (value < 500000) return "200k-500k";
-  return "500k+";
+  if (value < 50000) return '0-50k';
+  if (value < 100000) return '50k-100k';
+  if (value < 200000) return '100k-200k';
+  if (value < 500000) return '200k-500k';
+  return '500k+';
 }
 
 function calculateGrowthRates(monthlyData: MonthlyData[]): GrowthRate[] {
@@ -138,6 +177,36 @@ function calculateGrowthRates(monthlyData: MonthlyData[]): GrowthRate[] {
   });
 }
 
+function getTimeKey(date: Date, granularity: string = 'monthly'): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  switch (granularity) {
+    case 'daily':
+      return `${year}-${month}-${day}`;
+    case 'weekly': {
+      // Get ISO week number
+      const oneJan = new Date(date.getFullYear(), 0, 1);
+      const numberOfDays = Math.floor(
+        (date.getTime() - oneJan.getTime()) / (24 * 60 * 60 * 1000),
+      );
+      const weekNumber = Math.ceil((numberOfDays + oneJan.getDay() + 1) / 7);
+      return `${year}-W${String(weekNumber).padStart(2, '0')}`;
+    }
+    case 'monthly':
+      return `${year}-${month}`;
+    case 'quarterly': {
+      const quarter = Math.ceil((date.getMonth() + 1) / 3);
+      return `${year}-Q${quarter}`;
+    }
+    case 'yearly':
+      return `${year}`;
+    default:
+      return `${year}-${month}`;
+  }
+}
+
 // ============ Main Service ============
 
 export class StatsService {
@@ -150,19 +219,18 @@ export class StatsService {
   static async getSalesStats(filters: StatsFilters): Promise<SalesStats> {
     // Create cache key from filters
     const cacheKey = `stats:${JSON.stringify(filters)}`;
-    
+
     // Check cache first
     const cached = serverCache.get<SalesStats>(cacheKey);
     if (cached) {
       return cached;
     }
 
-    // Buscar dados necessários em paralelo
+    // Buscar dados necessários em paralelo (where sem granularity - não é campo do modelo)
     const [submissions, allQuestions, allTemplates, users] = await Promise.all([
       prisma.formSubmission.findMany({
-        where: filters,
-        orderBy: { submittedAt: "desc" },
-        // Limit to prevent memory issues with large datasets
+        where: toPrismaWhere(filters),
+        orderBy: { submittedAt: 'desc' },
         take: 10000,
       }),
       prisma.question.findMany({}),
@@ -170,20 +238,22 @@ export class StatsService {
       prisma.user.findMany({ select: { id: true, name: true, email: true } }),
     ]);
 
-    // Mapear IDs de questões relevantes
+    // Mapear IDs de questões relevantes (incl. "Data" = data inserida no formulário / data do seguro)
     const questionIds = {
-      valor: allQuestions.find((q) => q.title === "Valor")?.id,
-      banco: allQuestions.find((q) => q.title === "Banco")?.id,
-      seguradora: allQuestions.find((q) => q.title === "Seguradora")?.id,
-      distrito: allQuestions.find((q) => q.title === "Distrito cliente")?.id,
-      agente: allQuestions.find((q) => q.title === "Agente")?.id,
-      rating: allQuestions.find((q) => q.title === "Rating cliente")?.id,
+      valor: allQuestions.find((q) => q.title === 'Valor')?.id,
+      data: allQuestions.find((q) => q.title === 'Data')?.id,
+      banco: allQuestions.find((q) => q.title === 'Banco')?.id,
+      seguradora: allQuestions.find((q) => q.title === 'Seguradora')?.id,
+      distrito: allQuestions.find((q) => q.title === 'Distrito cliente')?.id,
+      agente: allQuestions.find((q) => q.title === 'Agente')?.id,
+      rating: allQuestions.find((q) => q.title === 'Rating cliente')?.id,
+      fracionamento: allQuestions.find((q) => q.title === 'Fracionamento')?.id,
     };
 
     // Criar mapas para lookup rápido
     const templateMap = new Map(allTemplates.map((t) => [t.id, t.title]));
     const userMap = new Map(
-      users.map((u) => [u.id, u.name || u.email || "Desconhecido"])
+      users.map((u) => [u.id, u.name || u.email || 'Desconhecido']),
     );
 
     // Inicializar agregações
@@ -196,12 +266,13 @@ export class StatsService {
       byTemplate: {} as Record<string, AggregatedData>,
       byAgente: {} as Record<string, AggregatedData>,
       byRating: {} as Record<string, AggregatedData>,
+      byFracionamento: {} as Record<string, AggregatedData>,
       valueRanges: {
-        "0-50k": 0,
-        "50k-100k": 0,
-        "100k-200k": 0,
-        "200k-500k": 0,
-        "500k+": 0,
+        '0-50k': 0,
+        '50k-100k': 0,
+        '100k-200k': 0,
+        '200k-500k': 0,
+        '500k+': 0,
       } as Record<string, number>,
     };
 
@@ -230,23 +301,28 @@ export class StatsService {
 
       // Agregar por seguradora
       const seguradora = getAnswerValue(answers, questionIds.seguradora);
-      if (seguradora) aggregateByKey(aggregations.bySeguradora, seguradora, valor);
+      if (seguradora)
+        aggregateByKey(aggregations.bySeguradora, seguradora, valor);
 
       // Agregar por distrito
       const distrito = getAnswerValue(answers, questionIds.distrito);
       if (distrito) aggregateByKey(aggregations.byDistrito, distrito, valor);
 
-      // Agregar por mês
-      if (submission.submittedAt) {
-        const d = new Date(submission.submittedAt);
-        const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-        aggregateByKey(aggregations.byMonth, monthKey, valor);
+      // Agregar por período temporal: usar data do formulário (ex. data do seguro), senão submittedAt
+      const dateToUse = getEffectiveDate(
+        answers,
+        questionIds.data,
+        submission.submittedAt,
+      );
+      if (dateToUse) {
+        const timeKey = getTimeKey(dateToUse, filters.granularity || 'monthly');
+        aggregateByKey(aggregations.byMonth, timeKey, valor);
       }
 
       // Agregar por colaborador
       if (submission.submittedBy) {
         const userId = submission.submittedBy;
-        const userName = userMap.get(userId) || "Desconhecido";
+        const userName = userMap.get(userId) || 'Desconhecido';
         if (!aggregations.byUser[userId]) {
           aggregations.byUser[userId] = { count: 0, totalValue: 0, userName };
         }
@@ -255,7 +331,8 @@ export class StatsService {
       }
 
       // Agregar por template
-      const templateTitle = templateMap.get(submission.templateId) || "Desconhecido";
+      const templateTitle =
+        templateMap.get(submission.templateId) || 'Desconhecido';
       aggregateByKey(aggregations.byTemplate, templateTitle, valor);
 
       // Agregar por agente
@@ -265,6 +342,11 @@ export class StatsService {
       // Agregar por rating
       const rating = getAnswerValue(answers, questionIds.rating);
       if (rating) aggregateByKey(aggregations.byRating, rating, valor);
+
+      // Agregar por fracionamento (importante para seguros)
+      const fracionamento = getAnswerValue(answers, questionIds.fracionamento);
+      if (fracionamento)
+        aggregateByKey(aggregations.byFracionamento, fracionamento, valor);
     }
 
     // Formatar dados mensais ordenados
@@ -303,15 +385,22 @@ export class StatsService {
           totalValue: data.totalValue,
         }))
         .sort((a, b) => b.count - a.count),
+      byFracionamento: Object.entries(aggregations.byFracionamento)
+        .map(([fracionamento, data]) => ({
+          fracionamento,
+          count: data.count,
+          totalValue: data.totalValue,
+        }))
+        .sort((a, b) => b.count - a.count),
       valueRanges: Object.entries(aggregations.valueRanges).map(
-        ([range, count]) => ({ range, count })
+        ([range, count]) => ({ range, count }),
       ),
       growthRates: calculateGrowthRates(monthlyData),
     };
 
     // Cache the result
     serverCache.set(cacheKey, result, this.CACHE_TTL);
-    
+
     return result;
   }
 
@@ -321,25 +410,31 @@ export class StatsService {
    */
   static async getSubmissionCount(filters: StatsFilters): Promise<number> {
     const cacheKey = `count:${JSON.stringify(filters)}`;
-    
+
     const cached = serverCache.get<number>(cacheKey);
     if (cached !== null) {
       return cached;
     }
-    
-    const count = await prisma.formSubmission.count({ where: filters });
+
+    const count = await prisma.formSubmission.count({
+      where: toPrismaWhere(filters),
+    });
     serverCache.set(cacheKey, count, this.CACHE_TTL);
-    
+
     return count;
   }
 
   /**
-   * Calcula o total de produção acumulado no ano atual
+   * Calcula o total de produção acumulado no ano atual (por data do formulário, não por submittedAt).
    */
-  static async getYearlyTotal(filters: StatsFilters): Promise<{ total: number; totalValue: number }> {
+  static async getYearlyTotal(
+    filters: StatsFilters,
+  ): Promise<{ total: number; totalValue: number }> {
     const cacheKey = `yearly:${JSON.stringify(filters)}`;
 
-    const cached = serverCache.get<{ total: number; totalValue: number }>(cacheKey);
+    const cached = serverCache.get<{ total: number; totalValue: number }>(
+      cacheKey,
+    );
     if (cached) {
       return cached;
     }
@@ -347,98 +442,125 @@ export class StatsService {
     const currentYear = new Date().getFullYear();
     const startOfYear = new Date(currentYear, 0, 1);
     const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59);
+    // Carregar submissões com submittedAt no último ano (para cobrir datas do formulário no ano atual)
+    const from = new Date(currentYear - 1, 0, 1);
 
-    const submissions = await prisma.formSubmission.findMany({
-      where: {
-        ...filters,
-        submittedAt: {
-          gte: startOfYear,
-          lte: endOfYear,
+    const [submissions, valorQuestion, dataQuestion] = await Promise.all([
+      prisma.formSubmission.findMany({
+        where: {
+          ...toPrismaWhere(filters),
+          submittedAt: { gte: from },
         },
-      },
-      select: {
-        answers: true,
-      },
-    });
+        select: { answers: true, submittedAt: true },
+      }),
+      prisma.question.findFirst({
+        where: { title: 'Valor' },
+        select: { id: true },
+      }),
+      prisma.question.findFirst({
+        where: { title: 'Data' },
+        select: { id: true },
+      }),
+    ]);
 
-    // Buscar o questionId de "Valor"
-    const valorQuestion = await prisma.question.findFirst({
-      where: { title: "Valor" },
-      select: { id: true },
-    });
-
+    let total = 0;
     let totalValue = 0;
     for (const submission of submissions) {
       const answers = parseAnswersArray(submission.answers);
+      const effectiveDate = getEffectiveDate(
+        answers,
+        dataQuestion?.id,
+        submission.submittedAt,
+      );
+      if (
+        !effectiveDate ||
+        effectiveDate < startOfYear ||
+        effectiveDate > endOfYear
+      )
+        continue;
+      total += 1;
       const valorStr = getAnswerValue(answers, valorQuestion?.id);
       if (valorStr) {
         const valor = parseValue(valorStr);
-        if (valor > 0) {
-          totalValue += valor;
-        }
+        if (valor > 0) totalValue += valor;
       }
     }
 
-    const result = {
-      total: submissions.length,
-      totalValue,
-    };
-
+    const result = { total, totalValue };
     serverCache.set(cacheKey, result, this.CACHE_TTL);
     return result;
   }
 
   /**
-   * Calcula o total de produção do mês atual
+   * Calcula o total de produção do mês atual (por data do formulário, não por submittedAt).
    */
-  static async getMonthlyTotal(filters: StatsFilters): Promise<{ total: number; totalValue: number }> {
+  static async getMonthlyTotal(
+    filters: StatsFilters,
+  ): Promise<{ total: number; totalValue: number }> {
     const cacheKey = `monthly:${JSON.stringify(filters)}`;
 
-    const cached = serverCache.get<{ total: number; totalValue: number }>(cacheKey);
+    const cached = serverCache.get<{ total: number; totalValue: number }>(
+      cacheKey,
+    );
     if (cached) {
       return cached;
     }
 
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    const endOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+    );
+    // Carregar submissões dos últimos 2 meses (para cobrir data do formulário no mês atual)
+    const from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-    const submissions = await prisma.formSubmission.findMany({
-      where: {
-        ...filters,
-        submittedAt: {
-          gte: startOfMonth,
-          lte: endOfMonth,
+    const [submissions, valorQuestion, dataQuestion] = await Promise.all([
+      prisma.formSubmission.findMany({
+        where: {
+          ...toPrismaWhere(filters),
+          submittedAt: { gte: from },
         },
-      },
-      select: {
-        answers: true,
-      },
-    });
+        select: { answers: true, submittedAt: true },
+      }),
+      prisma.question.findFirst({
+        where: { title: 'Valor' },
+        select: { id: true },
+      }),
+      prisma.question.findFirst({
+        where: { title: 'Data' },
+        select: { id: true },
+      }),
+    ]);
 
-    // Buscar o questionId de "Valor"
-    const valorQuestion = await prisma.question.findFirst({
-      where: { title: "Valor" },
-      select: { id: true },
-    });
-
+    let total = 0;
     let totalValue = 0;
     for (const submission of submissions) {
       const answers = parseAnswersArray(submission.answers);
+      const effectiveDate = getEffectiveDate(
+        answers,
+        dataQuestion?.id,
+        submission.submittedAt,
+      );
+      if (
+        !effectiveDate ||
+        effectiveDate < startOfMonth ||
+        effectiveDate > endOfMonth
+      )
+        continue;
+      total += 1;
       const valorStr = getAnswerValue(answers, valorQuestion?.id);
       if (valorStr) {
         const valor = parseValue(valorStr);
-        if (valor > 0) {
-          totalValue += valor;
-        }
+        if (valor > 0) totalValue += valor;
       }
     }
 
-    const result = {
-      total: submissions.length,
-      totalValue,
-    };
-
+    const result = { total, totalValue };
     serverCache.set(cacheKey, result, this.CACHE_TTL);
     return result;
   }

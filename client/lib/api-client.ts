@@ -66,9 +66,10 @@ function isUnauthorizedError(errorMessage: string, status: number): boolean {
 async function fetchWithAuth(path: string, options: RequestInit = {}) {
   const method = options.method || 'GET';
   const cacheKey = getCacheKey(path, options);
+  const skipCache = path === 'users/stats'; // Admin stats: sempre dados frescos
 
-  // Use cache for GET requests
-  if (method === 'GET') {
+  // Use cache for GET requests (exceto users/stats)
+  if (method === 'GET' && !skipCache) {
     const cachedData = getCachedData(cacheKey);
     if (cachedData) {
       return cachedData;
@@ -404,10 +405,13 @@ export const apiClient = {
       invalidateCache('users');
       return result;
     },
-    reject: async (id: string) => {
+    reject: async (id: string, reason: string) => {
       const result = await fetchWithAuth(`users/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ status: 'rejected' }),
+        body: JSON.stringify({
+          status: 'rejected',
+          rejectionReason: reason?.trim().slice(0, 500) || null,
+        }),
       });
       invalidateCache('users');
       return result;
@@ -463,7 +467,18 @@ export const apiClient = {
   // NEW: User Models management
   userModels: {
     getMyModels: async () => {
-      return fetchWithAuth('user-models/my-models');
+      const raw = await fetchWithAuth('user-models/my-models');
+      // Ensure we always return an array (backend may return { success, data: [] })
+      if (Array.isArray(raw)) return raw;
+      if (
+        raw &&
+        typeof raw === 'object' &&
+        'data' in raw &&
+        Array.isArray((raw as { data: unknown }).data)
+      ) {
+        return (raw as { data: unknown[] }).data;
+      }
+      return [];
     },
     addModelToMyUser: async (modelType: string) => {
       const result = await fetchWithAuth('user-models/my-models', {

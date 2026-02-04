@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useSession } from "@/lib/auth-client";
-import { useModelContext, type UserModel } from "@/lib/context/model-context";
-import { apiClient } from "@/lib/api-client";
+import { useEffect } from 'react';
+import { useSession } from '@/lib/auth-client';
+import { useModelContext, type UserModel } from '@/lib/context/model-context';
+import { apiClient } from '@/lib/api-client';
 
 /**
  * Hook para gerenciar modelos de usuário
@@ -24,15 +24,15 @@ export function useUserModels() {
     // Listen for model switch events from other tabs/windows
     const handleModelSwitch = (event: Event) => {
       const customEvent = event as CustomEvent;
-      console.log("Model switched from another tab:", customEvent.detail);
+      console.log('Model switched from another tab:', customEvent.detail);
       // Optionally reload models to sync
       loadUserModels();
     };
 
-    window.addEventListener("model-switched", handleModelSwitch);
+    window.addEventListener('model-switched', handleModelSwitch);
 
     return () => {
-      window.removeEventListener("model-switched", handleModelSwitch);
+      window.removeEventListener('model-switched', handleModelSwitch);
     };
   }, [session?.user?.id, sessionLoading]);
 
@@ -40,10 +40,19 @@ export function useUserModels() {
     try {
       modelContext.setLoading(true);
 
-      const models = await apiClient.userModels.getMyModels();
+      const raw = await apiClient.userModels.getMyModels();
 
-      // Ensure models is an array (handle edge cases)
-      const modelArray = Array.isArray(models) ? models : [];
+      // Handle both unwrapped array and { success, data } from API
+      const models = Array.isArray(raw)
+        ? raw
+        : raw &&
+            typeof raw === 'object' &&
+            'data' in raw &&
+            Array.isArray((raw as { data: unknown }).data)
+          ? (raw as { data: UserModel[] }).data
+          : [];
+
+      const modelArray = models;
 
       // Set available models
       modelContext.setAvailableModels(modelArray);
@@ -51,13 +60,15 @@ export function useUserModels() {
       if (modelArray.length === 0) {
         // No models available
         modelContext.setActiveModel(null);
-        localStorage.removeItem("activeModelId");
+        localStorage.removeItem('activeModelId');
         return;
       }
 
       // Determine active model: try localStorage, then first available
-      const storedModelId = localStorage.getItem("activeModelId");
-      let activeModel = modelArray.find((m: UserModel) => m.id === storedModelId);
+      const storedModelId = localStorage.getItem('activeModelId');
+      let activeModel = modelArray.find(
+        (m: UserModel) => m.id === storedModelId,
+      );
 
       // If stored model doesn't exist in current list, use first available
       if (!activeModel) {
@@ -66,12 +77,12 @@ export function useUserModels() {
 
       if (activeModel) {
         modelContext.setActiveModel(activeModel);
-        localStorage.setItem("activeModelId", activeModel.id);
+        localStorage.setItem('activeModelId', activeModel.id);
         // Also set cookie for Server Components
         document.cookie = `activeModelId=${activeModel.id}; path=/; max-age=86400; SameSite=Lax`;
       }
     } catch (error) {
-      console.error("Error loading user models:", error);
+      console.error('Error loading user models:', error);
       modelContext.setActiveModel(null);
       modelContext.setAvailableModels([]);
     } finally {

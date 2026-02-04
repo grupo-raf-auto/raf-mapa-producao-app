@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -151,12 +151,12 @@
   --popover-foreground: #1f2937;
 
   /* Primary - Company Red */
-  --primary: #E14840;
+  --primary: #e14840;
   --primary-foreground: #ffffff;
 
   /* Secondary - Light Red */
-  --secondary: #FEE2E2;
-  --secondary-foreground: #991B1B;
+  --secondary: #fee2e2;
+  --secondary-foreground: #991b1b;
 
   /* Muted */
   --muted: #f8fafc;
@@ -177,35 +177,35 @@
   /* Borders & Inputs */
   --border: #e2e8f0;
   --input: #e2e8f0;
-  --ring: #E14840;
+  --ring: #e14840;
 
-  /* Chart Colors - Vibrant Palette */
-  --chart-1: #E14840;
-  --chart-2: #14b8a6;
-  --chart-3: #f59e0b;
-  --chart-4: #8b5cf6;
-  --chart-5: #ec4899;
+  /* Chart Colors - Professional palette (brand + teal + neutrals) */
+  --chart-1: #b91c1c;
+  --chart-2: #0d9488;
+  --chart-3: #475569;
+  --chart-4: #6366f1;
+  --chart-5: #0f766e;
 
   /* Sidebar - Clean White */
   --sidebar: #ffffff;
   --sidebar-foreground: #374151;
-  --sidebar-primary: #E14840;
+  --sidebar-primary: #e14840;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #FEE2E2;
-  --sidebar-accent-foreground: #991B1B;
+  --sidebar-accent: #fee2e2;
+  --sidebar-accent-foreground: #991b1b;
   --sidebar-border: #e2e8f0;
-  --sidebar-ring: #E14840;
+  --sidebar-ring: #e14840;
 
   /* Dashboard Specific */
   --dashboard-bg: #ffffff;
   --dashboard-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02);
 
-  /* KPI Card Colors */
-  --kpi-red: #E14840;
-  --kpi-teal: #14b8a6;
-  --kpi-orange: #f97316;
-  --kpi-purple: #8b5cf6;
+  /* KPI Card Colors - Professional tones */
+  --kpi-red: #b91c1c;
+  --kpi-teal: #0d9488;
+  --kpi-orange: #c2413a;
+  --kpi-purple: #6366f1;
 
   /* Table */
   --table-header: #f8fafc;
@@ -280,6 +280,13 @@
   --dashboard-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05);
 
+  /* Chart Colors - Professional (adjusted for dark background) */
+  --chart-1: #ef4444;
+  --chart-2: #2dd4bf;
+  --chart-3: #94a3b8;
+  --chart-4: #818cf8;
+  --chart-5: #5eead4;
+
   /* Table styling */
   --table-header: #0f172a;
   --table-row-hover: #1a2332;
@@ -337,7 +344,7 @@
 }
 
 .floating-dashboard::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -386,7 +393,7 @@
 }
 
 .sidebar-nav-link.active::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 50%;
@@ -454,8 +461,8 @@
 }
 
 .kpi-card-icon.red {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  background: rgba(185, 28, 28, 0.12);
+  color: var(--kpi-red);
 }
 
 .dark .kpi-card-icon.red {
@@ -464,43 +471,43 @@
 }
 
 .kpi-card-icon.teal {
-  background: rgba(59, 130, 246, 0.12);
-  color: #3b82f6;
+  background: rgba(13, 148, 136, 0.12);
+  color: var(--kpi-teal);
 }
 
 .dark .kpi-card-icon.teal {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
+  background: rgba(45, 212, 191, 0.15);
+  color: #5eead4;
 }
 
 .kpi-card-icon.orange {
-  background: rgba(249, 115, 22, 0.12);
-  color: #f97316;
+  background: rgba(194, 65, 58, 0.12);
+  color: var(--kpi-orange);
 }
 
 .dark .kpi-card-icon.orange {
-  background: rgba(249, 115, 22, 0.15);
-  color: #fb923c;
+  background: rgba(251, 146, 60, 0.15);
+  color: #fdba74;
 }
 
 .kpi-card-icon.purple {
-  background: rgba(139, 92, 246, 0.12);
-  color: #8b5cf6;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--kpi-purple);
 }
 
 .dark .kpi-card-icon.purple {
-  background: rgba(139, 92, 246, 0.15);
-  color: #c4b5fd;
+  background: rgba(129, 140, 248, 0.15);
+  color: #a5b4fc;
 }
 
 .kpi-card-icon.green {
-  background: rgba(34, 197, 94, 0.12);
-  color: #22c55e;
+  background: rgba(15, 118, 110, 0.12);
+  color: #0f766e;
 }
 
 .dark .kpi-card-icon.green {
-  background: rgba(34, 197, 94, 0.15);
-  color: #86efac;
+  background: rgba(94, 234, 212, 0.15);
+  color: #5eead4;
 }
 
 .kpi-sparkline {
@@ -939,7 +946,7 @@
 
 /* Ensure scrollable areas work properly across entire width */
 .overflow-y-auto,
-[style*="overflowY: auto"] {
+[style*='overflowY: auto'] {
   touch-action: pan-y !important;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
@@ -951,19 +958,19 @@
 .overflow-y-auto a,
 .overflow-y-auto input,
 .overflow-y-auto textarea,
-.overflow-y-auto [role="button"],
-[style*="overflowY: auto"] button,
-[style*="overflowY: auto"] a,
-[style*="overflowY: auto"] input,
-[style*="overflowY: auto"] textarea,
-[style*="overflowY: auto"] [role="button"] {
+.overflow-y-auto [role='button'],
+[style*='overflowY: auto'] button,
+[style*='overflowY: auto'] a,
+[style*='overflowY: auto'] input,
+[style*='overflowY: auto'] textarea,
+[style*='overflowY: auto'] [role='button'] {
   touch-action: manipulation;
   pointer-events: auto;
 }
 
 /* Ensure entire scrollable area is interactive */
 .overflow-y-auto > *,
-[style*="overflowY: auto"] > * {
+[style*='overflowY: auto'] > * {
   pointer-events: auto;
 }
 
@@ -984,7 +991,7 @@ input:focus {
 }
 
 .notification-badge::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   right: 0;

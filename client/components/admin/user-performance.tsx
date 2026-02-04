@@ -1,22 +1,17 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiClient as api } from "@/lib/api-client";
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { apiClient as api } from '@/lib/api-client';
 import {
-  TrendingUp,
   FileStack,
-  HelpCircle,
   Users,
   MessageSquare,
   FileText,
-  Activity,
-  BarChart3,
-  Download,
   RefreshCw,
-} from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
-import { Button } from "@/components/ui/button";
+} from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 import {
   LineChart,
   Line,
@@ -27,12 +22,10 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  Legend,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
-import { format, subDays, parseISO } from "date-fns";
+} from 'recharts';
+import { ChartTooltip } from '@/components/ui/chart-tooltip';
+import { chartColors } from '@/lib/design-system';
+import { format, subDays, parseISO } from 'date-fns';
 import {
   Table,
   TableBody,
@@ -40,8 +33,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
 interface UserStats {
   userId: string;
@@ -100,12 +93,12 @@ interface StatsData {
   };
 }
 
-const COLORS = ["#007AFF", "#34C759", "#FF9500", "#FF3B30", "#AF52DE"];
-
 export function UserPerformance() {
   const [data, setData] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<"submissions" | "documents" | "chat" | "activity">("submissions");
+  const [sortBy, setSortBy] = useState<
+    'submissions' | 'documents' | 'chat' | 'activity'
+  >('submissions');
 
   useEffect(() => {
     loadStats();
@@ -114,10 +107,12 @@ export function UserPerformance() {
   const loadStats = async () => {
     try {
       setLoading(true);
-      const statsData = await api.users.getStats();
+      const raw = await api.users.getStats();
+      // Backend pode devolver { success, data: { users, stats, trends } }
+      const statsData = raw?.data ?? raw;
       setData(statsData);
     } catch (error: any) {
-      console.error("Error loading user stats:", error);
+      console.error('Error loading user stats:', error);
     } finally {
       setLoading(false);
     }
@@ -146,12 +141,12 @@ export function UserPerformance() {
   // Preparar dados para gráficos (últimos 30 dias)
   const last30Days = Array.from({ length: 30 }, (_, i) => {
     const date = subDays(new Date(), 29 - i);
-    return format(date, "yyyy-MM-dd");
+    return format(date, 'yyyy-MM-dd');
   });
 
   const activityChartData = last30Days.map((date) => {
     return {
-      date: format(parseISO(date), "dd/MM"),
+      date: format(parseISO(date), 'dd/MM'),
       submissions: data.trends.submissionsByDay[date] || 0,
       documents: data.trends.documentsByDay[date] || 0,
       chat: data.trends.chatMessagesByDay[date] || 0,
@@ -161,13 +156,13 @@ export function UserPerformance() {
   // Ordenar utilizadores conforme seleção
   const sortedUsers = [...data.users].sort((a, b) => {
     switch (sortBy) {
-      case "submissions":
+      case 'submissions':
         return b.totalSubmissions - a.totalSubmissions;
-      case "documents":
+      case 'documents':
         return b.totalDocuments - a.totalDocuments;
-      case "chat":
+      case 'chat':
         return b.totalChatMessages - a.totalChatMessages;
-      case "activity":
+      case 'activity':
         return b.activeDaysLast30 - a.activeDaysLast30;
       default:
         return 0;
@@ -176,23 +171,20 @@ export function UserPerformance() {
 
   const topUsers = sortedUsers.slice(0, 10);
 
-  // Dados para gráfico de pizza - Distribuição de atividade
-  const activityDistribution = [
-    {
-      name: "Submissões",
-      value: data.stats.totalSubmissions,
-    },
-    {
-      name: "Documentos",
-      value: data.stats.totalDocuments,
-    },
-    {
-      name: "Mensagens Chat",
-      value: data.stats.totalChatMessages,
-    },
-  ];
+  // Cores do dashboard (mesmo padrão do dashboard de users)
+  const CHART_SCALE = [...chartColors.scale];
 
-  // Calcular taxa de processamento de documentos
+  // Label curto para eixo X do gráfico de barras (email ou nome)
+  const barChartData = topUsers.map((u) => {
+    const name =
+      u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : u.email;
+    return {
+      ...u,
+      displayName: name.length > 18 ? name.slice(0, 18).trim() + '…' : name,
+    };
+  });
+
+  // Calcular taxa de processamento de documentos (apenas para card Documentos)
   const documentProcessingRate =
     data.stats.totalDocuments > 0
       ? Math.round(
@@ -203,9 +195,7 @@ export function UserPerformance() {
   // Calcular taxa de engajamento (utilizadores ativos)
   const engagementRate =
     data.stats.totalUsers > 0
-      ? Math.round(
-          (data.stats.activeUsersLast30 / data.stats.totalUsers) * 100,
-        )
+      ? Math.round((data.stats.activeUsersLast30 / data.stats.totalUsers) * 100)
       : 0;
 
   return (
@@ -243,6 +233,9 @@ export function UserPerformance() {
                 {engagementRate}% engajamento
               </Badge>
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Média {data.stats.avgActiveDays} dias ativos (30 dias)
+            </p>
             {data.stats.inactiveUsers > 0 && (
               <p className="text-xs text-muted-foreground mt-1">
                 {data.stats.inactiveUsers} inativos
@@ -291,10 +284,11 @@ export function UserPerformance() {
               {data.stats.totalDocuments}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {data.stats.processedDocuments} processados ({documentProcessingRate}%)
+              {data.stats.processedDocuments} processados (
+              {documentProcessingRate}%)
             </p>
             <p className="text-xs text-muted-foreground">
-              {data.stats.totalChunks} chunks indexados • Média:{" "}
+              {data.stats.totalChunks} chunks indexados • Média:{' '}
               {data.stats.avgDocumentsPerUser} por utilizador
             </p>
             <div className="flex gap-4 mt-2 text-xs">
@@ -320,7 +314,7 @@ export function UserPerformance() {
               {data.stats.totalChatMessages}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {data.stats.uniqueConversations} conversas • Média:{" "}
+              {data.stats.uniqueConversations} conversas • Média:{' '}
               {data.stats.avgChatMessagesPerUser} por utilizador
             </p>
             <div className="flex gap-4 mt-2 text-xs">
@@ -343,210 +337,178 @@ export function UserPerformance() {
         </Card>
       </div>
 
-      {/* Cards de Métricas Secundárias - Linha 2 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Templates Criados
-            </CardTitle>
-            <FileStack className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {data.stats.totalTemplates}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {data.users.filter((u) => u.totalTemplates > 0).length} utilizadores
-              criaram templates
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Questões Criadas
-            </CardTitle>
-            <HelpCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {data.stats.totalQuestions}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {data.users.filter((u) => u.totalQuestions > 0).length} utilizadores
-              criaram questões
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Dias Médios Ativos
-            </CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {data.stats.avgActiveDays}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Média de dias ativos nos últimos 30 dias
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Taxa de Processamento
-            </CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{documentProcessingRate}%</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Documentos processados e indexados
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Gráficos de Tendências */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Gráfico de Linha - Atividade ao Longo do Tempo */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Atividade ao Longo do Tempo</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Últimos 30 dias - Comparação de atividades
-            </p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={activityChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+      {/* Gráfico de Tendências - Atividade ao Longo do Tempo */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Atividade ao Longo do Tempo</CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">Últimos 30 dias</p>
+        </CardHeader>
+        <CardContent>
+          <div className="w-full h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={activityChartData}
+                margin={{ top: 8, right: 12, left: -5, bottom: 8 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={chartColors.grid}
+                  vertical={false}
+                  opacity={0.6}
+                />
                 <XAxis
                   dataKey="date"
-                  stroke="#6B7280"
-                  style={{ fontSize: "12px" }}
-                  angle={-45}
+                  stroke={chartColors.axis}
+                  tick={{ fill: chartColors.axis, fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  angle={-40}
                   textAnchor="end"
-                  height={60}
+                  height={52}
                 />
-                <YAxis stroke="#6B7280" style={{ fontSize: "12px" }} />
+                <YAxis
+                  stroke={chartColors.axis}
+                  tick={{ fill: chartColors.axis, fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={36}
+                />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#FFFFFF",
-                    border: "1px solid #E5E7EB",
-                    borderRadius: "8px",
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    return (
+                      <ChartTooltip
+                        title={String(label ?? '')}
+                        rows={[
+                          {
+                            label: 'Submissões',
+                            value:
+                              payload.find((p) => p.dataKey === 'submissions')
+                                ?.value != null
+                                ? Number(
+                                    payload.find(
+                                      (p) => p.dataKey === 'submissions',
+                                    )?.value,
+                                  ).toLocaleString('pt-PT')
+                                : '—',
+                          },
+                          {
+                            label: 'Documentos',
+                            value:
+                              payload.find((p) => p.dataKey === 'documents')
+                                ?.value != null
+                                ? Number(
+                                    payload.find(
+                                      (p) => p.dataKey === 'documents',
+                                    )?.value,
+                                  ).toLocaleString('pt-PT')
+                                : '—',
+                          },
+                          {
+                            label: 'Chat',
+                            value:
+                              payload.find((p) => p.dataKey === 'chat')
+                                ?.value != null
+                                ? Number(
+                                    payload.find((p) => p.dataKey === 'chat')
+                                      ?.value,
+                                  ).toLocaleString('pt-PT')
+                                : '—',
+                          },
+                        ]}
+                      />
+                    );
                   }}
                 />
-                <Legend />
                 <Line
                   type="monotone"
                   dataKey="submissions"
-                  stroke="#007AFF"
+                  stroke={chartColors.primary}
                   strokeWidth={2}
-                  dot={{ fill: "#007AFF", r: 3 }}
-                  name="Submissões"
+                  dot={false}
+                  activeDot={{ r: 4, fill: chartColors.primary }}
                 />
                 <Line
                   type="monotone"
                   dataKey="documents"
-                  stroke="#34C759"
+                  stroke={chartColors.secondary}
                   strokeWidth={2}
-                  dot={{ fill: "#34C759", r: 3 }}
-                  name="Documentos"
+                  dot={false}
+                  activeDot={{ r: 4, fill: chartColors.secondary }}
                 />
                 <Line
                   type="monotone"
                   dataKey="chat"
-                  stroke="#FF9500"
+                  stroke={CHART_SCALE[2]}
                   strokeWidth={2}
-                  dot={{ fill: "#FF9500", r: 3 }}
-                  name="Chat"
+                  dot={false}
+                  activeDot={{ r: 4, fill: CHART_SCALE[2] }}
                 />
               </LineChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Gráfico de Pizza - Distribuição de Atividade */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Distribuição de Atividade</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Proporção entre diferentes tipos de atividade
-            </p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={activityDistribution}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
-                  }
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {activityDistribution.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-border/60 flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5">
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span
+                className="w-2.5 h-0.5 rounded-full shrink-0"
+                style={{ backgroundColor: chartColors.primary }}
+              />
+              Submissões
+            </span>
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span
+                className="w-2.5 h-0.5 rounded-full shrink-0"
+                style={{ backgroundColor: chartColors.secondary }}
+              />
+              Documentos
+            </span>
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span
+                className="w-2.5 h-0.5 rounded-full shrink-0"
+                style={{ backgroundColor: CHART_SCALE[2] }}
+              />
+              Chat
+            </span>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Gráfico de Barras - Top 10 Utilizadores */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>Top 10 Utilizadores por Desempenho</CardTitle>
+              <CardTitle>Top 10 por desempenho</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Comparação dos principais indicadores
+                Submissões, documentos e mensagens de chat
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
-                variant={sortBy === "submissions" ? "default" : "outline"}
+                variant={sortBy === 'submissions' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSortBy("submissions")}
+                onClick={() => setSortBy('submissions')}
               >
                 Submissões
               </Button>
               <Button
-                variant={sortBy === "documents" ? "default" : "outline"}
+                variant={sortBy === 'documents' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSortBy("documents")}
+                onClick={() => setSortBy('documents')}
               >
                 Documentos
               </Button>
               <Button
-                variant={sortBy === "chat" ? "default" : "outline"}
+                variant={sortBy === 'chat' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSortBy("chat")}
+                onClick={() => setSortBy('chat')}
               >
                 Chat
               </Button>
               <Button
-                variant={sortBy === "activity" ? "default" : "outline"}
+                variant={sortBy === 'activity' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSortBy("activity")}
+                onClick={() => setSortBy('activity')}
               >
                 Atividade
               </Button>
@@ -554,63 +516,124 @@ export function UserPerformance() {
           </div>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={topUsers.slice(0, 10)}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis
-                dataKey="email"
-                stroke="#6B7280"
-                style={{ fontSize: "11px" }}
-                angle={-45}
-                textAnchor="end"
-                height={100}
+          <div className="w-full h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={barChartData}
+                margin={{ top: 8, right: 12, left: 0, bottom: 8 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="0"
+                  stroke={chartColors.grid}
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="displayName"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: chartColors.axis, fontSize: 11 }}
+                  angle={-35}
+                  textAnchor="end"
+                  height={64}
+                  interval={0}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: chartColors.axis, fontSize: 10 }}
+                  width={36}
+                />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const u = payload[0].payload;
+                    const name =
+                      (u.firstName && u.lastName
+                        ? `${u.firstName} ${u.lastName}`
+                        : u.email) || '—';
+                    return (
+                      <ChartTooltip
+                        title={name}
+                        rows={[
+                          {
+                            label: 'Submissões',
+                            value: (u.totalSubmissions ?? 0).toLocaleString(
+                              'pt-PT',
+                            ),
+                          },
+                          {
+                            label: 'Documentos',
+                            value: (u.totalDocuments ?? 0).toLocaleString(
+                              'pt-PT',
+                            ),
+                          },
+                          {
+                            label: 'Mensagens',
+                            value: (u.totalChatMessages ?? 0).toLocaleString(
+                              'pt-PT',
+                            ),
+                          },
+                        ]}
+                      />
+                    );
+                  }}
+                  cursor={{ fill: 'rgba(0, 0, 0, 0.04)' }}
+                />
+                <Bar
+                  dataKey="totalSubmissions"
+                  fill={CHART_SCALE[0]}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={32}
+                />
+                <Bar
+                  dataKey="totalDocuments"
+                  fill={CHART_SCALE[1]}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={32}
+                />
+                <Bar
+                  dataKey="totalChatMessages"
+                  fill={CHART_SCALE[2]}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={32}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 pt-3 border-t border-border/60 flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5">
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span
+                className="w-2 h-2 rounded-full shrink-0 ring-1 ring-border/50"
+                style={{ backgroundColor: CHART_SCALE[0] }}
               />
-              <YAxis stroke="#6B7280" style={{ fontSize: "12px" }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#FFFFFF",
-                  border: "1px solid #E5E7EB",
-                  borderRadius: "8px",
-                }}
+              Submissões
+            </span>
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span
+                className="w-2 h-2 rounded-full shrink-0 ring-1 ring-border/50"
+                style={{ backgroundColor: CHART_SCALE[1] }}
               />
-              <Legend />
-              <Bar
-                dataKey="totalSubmissions"
-                fill="#007AFF"
-                radius={[4, 4, 0, 0]}
-                name="Submissões"
+              Documentos
+            </span>
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span
+                className="w-2 h-2 rounded-full shrink-0 ring-1 ring-border/50"
+                style={{ backgroundColor: CHART_SCALE[2] }}
               />
-              <Bar
-                dataKey="totalDocuments"
-                fill="#34C759"
-                radius={[4, 4, 0, 0]}
-                name="Documentos"
-              />
-              <Bar
-                dataKey="totalChatMessages"
-                fill="#FF9500"
-                radius={[4, 4, 0, 0]}
-                name="Mensagens"
-              />
-            </BarChart>
-          </ResponsiveContainer>
+              Mensagens
+            </span>
+          </div>
         </CardContent>
       </Card>
 
       {/* Tabela Completa de Utilizadores */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Tabela Completa de Desempenho</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Todos os indicadores por utilizador
-              </p>
-            </div>
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-2" />
-              Exportar
-            </Button>
+          <div>
+            <CardTitle>Tabela Completa de Desempenho</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Indicadores de uso por utilizador
+            </p>
           </div>
         </CardHeader>
         <CardContent>
@@ -625,8 +648,6 @@ export function UserPerformance() {
                   <TableHead className="text-right">Chunks</TableHead>
                   <TableHead className="text-right">Mensagens</TableHead>
                   <TableHead className="text-right">Conversas</TableHead>
-                  <TableHead className="text-right">Templates</TableHead>
-                  <TableHead className="text-right">Questões</TableHead>
                   <TableHead className="text-right">Dias Ativos</TableHead>
                   <TableHead className="text-right">Registado</TableHead>
                 </TableRow>
@@ -644,7 +665,7 @@ export function UserPerformance() {
                         <div className="text-sm text-muted-foreground">
                           {user.email}
                         </div>
-                        {user.role === "admin" && (
+                        {user.role === 'admin' && (
                           <Badge variant="secondary" className="mt-1">
                             Admin
                           </Badge>
@@ -680,12 +701,6 @@ export function UserPerformance() {
                       {user.totalConversations}
                     </TableCell>
                     <TableCell className="text-right">
-                      {user.totalTemplates}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {user.totalQuestions}
-                    </TableCell>
-                    <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <span className="font-medium">
                           {user.activeDaysLast30}
@@ -715,7 +730,7 @@ export function UserPerformance() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">
-                      {format(new Date(user.createdAt), "dd/MM/yyyy")}
+                      {format(new Date(user.createdAt), 'dd/MM/yyyy')}
                     </TableCell>
                   </TableRow>
                 ))}

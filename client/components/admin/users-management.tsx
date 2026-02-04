@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -11,17 +11,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { apiClient as api } from "@/lib/api-client";
-import { toast } from "sonner";
-import { Spinner } from "@/components/ui/spinner";
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { apiClient as api } from '@/lib/api-client';
+import { toast } from 'sonner';
+import { Spinner } from '@/components/ui/spinner';
 import {
   Users,
   Clock,
@@ -33,8 +41,8 @@ import {
   MailCheck,
   MailX,
   Settings2,
-} from "lucide-react";
-import { UserModelsModal } from "./user-models-modal";
+} from 'lucide-react';
+import { UserModelsModal } from './user-models-modal';
 
 interface User {
   _id: string;
@@ -43,11 +51,12 @@ interface User {
   firstName?: string;
   lastName?: string;
   name?: string;
-  role: "admin" | "user";
-  status: "pending" | "approved" | "rejected";
+  role: 'admin' | 'user';
+  status: 'pending' | 'approved' | 'rejected';
   emailVerified: boolean;
   isActive: boolean;
   createdAt: Date;
+  rejectionReason?: string | null;
 }
 
 interface Stats {
@@ -57,17 +66,21 @@ interface Stats {
   rejectedUsers: number;
 }
 
-type FilterStatus = "all" | "pending" | "approved" | "rejected";
+type FilterStatus = 'all' | 'pending' | 'approved' | 'rejected';
 
 export function UsersManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [modelsModalOpen, setModelsModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [selectedUserName, setSelectedUserName] = useState<string>("");
+  const [selectedUserName, setSelectedUserName] = useState<string>('');
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [rejectUserId, setRejectUserId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [rejectSubmitting, setRejectSubmitting] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -83,7 +96,7 @@ export function UsersManagement() {
       setUsers(usersData);
       setStats(statsData.stats);
     } catch (error: any) {
-      toast.error("Erro ao carregar dados: " + error.message);
+      toast.error('Erro ao carregar dados: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -92,41 +105,58 @@ export function UsersManagement() {
   const approveUser = async (userId: string) => {
     try {
       await api.users.approve(userId);
-      toast.success("Utilizador aprovado com sucesso");
+      toast.success('Utilizador aprovado com sucesso');
       loadData();
     } catch (error: any) {
-      toast.error("Erro ao aprovar utilizador: " + error.message);
+      toast.error('Erro ao aprovar utilizador: ' + error.message);
     }
   };
 
-  const rejectUser = async (userId: string) => {
+  const openRejectModal = (userId: string) => {
+    setRejectUserId(userId);
+    setRejectReason('');
+    setRejectModalOpen(true);
+  };
+
+  const confirmRejectUser = async () => {
+    if (!rejectUserId) return;
+    if (!rejectReason.trim()) {
+      toast.error('Indique o motivo da rejeição');
+      return;
+    }
+    setRejectSubmitting(true);
     try {
-      await api.users.reject(userId);
-      toast.success("Utilizador rejeitado");
+      await api.users.reject(rejectUserId, rejectReason.trim());
+      toast.success('Utilizador rejeitado');
+      setRejectModalOpen(false);
+      setRejectUserId(null);
+      setRejectReason('');
       loadData();
     } catch (error: any) {
-      toast.error("Erro ao rejeitar utilizador: " + error.message);
+      toast.error('Erro ao rejeitar utilizador: ' + error.message);
+    } finally {
+      setRejectSubmitting(false);
     }
   };
 
-  const changeRole = async (userId: string, newRole: "admin" | "user") => {
+  const changeRole = async (userId: string, newRole: 'admin' | 'user') => {
     try {
       await api.users.update(userId, { role: newRole });
-      toast.success("Role atualizado com sucesso");
+      toast.success('Role atualizado com sucesso');
       loadData();
     } catch (error: any) {
-      toast.error("Erro ao atualizar role: " + error.message);
+      toast.error('Erro ao atualizar role: ' + error.message);
     }
   };
 
   const deleteUser = async (userId: string) => {
-    if (!confirm("Tem a certeza que deseja eliminar este utilizador?")) return;
+    if (!confirm('Tem a certeza que deseja eliminar este utilizador?')) return;
     try {
       await api.users.delete(userId);
-      toast.success("Utilizador eliminado com sucesso");
+      toast.success('Utilizador eliminado com sucesso');
       loadData();
     } catch (error: any) {
-      toast.error("Erro ao eliminar utilizador: " + error.message);
+      toast.error('Erro ao eliminar utilizador: ' + error.message);
     }
   };
 
@@ -139,14 +169,18 @@ export function UsersManagement() {
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesSearch =
-        searchQuery === "" ||
+        searchQuery === '' ||
         user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (user.firstName?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
-        (user.lastName?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
-        (user.name?.toLowerCase() || "").includes(searchQuery.toLowerCase());
+        (user.firstName?.toLowerCase() || '').includes(
+          searchQuery.toLowerCase(),
+        ) ||
+        (user.lastName?.toLowerCase() || '').includes(
+          searchQuery.toLowerCase(),
+        ) ||
+        (user.name?.toLowerCase() || '').includes(searchQuery.toLowerCase());
 
       const matchesStatus =
-        filterStatus === "all" || user.status === filterStatus;
+        filterStatus === 'all' || user.status === filterStatus;
 
       return matchesSearch && matchesStatus;
     });
@@ -154,10 +188,10 @@ export function UsersManagement() {
 
   const getUserDisplayName = (user: User) => {
     if (user.firstName || user.lastName) {
-      return `${user.firstName || ""} ${user.lastName || ""}`.trim();
+      return `${user.firstName || ''} ${user.lastName || ''}`.trim();
     }
     if (user.name) return user.name;
-    return user.email.split("@")[0];
+    return user.email.split('@')[0];
   };
 
   if (loading) {
@@ -255,15 +289,15 @@ export function UsersManagement() {
           <div className="flex gap-2 flex-wrap">
             {(
               [
-                { value: "all", label: "Todos" },
-                { value: "pending", label: "Pendentes" },
-                { value: "approved", label: "Aprovados" },
-                { value: "rejected", label: "Rejeitados" },
+                { value: 'all', label: 'Todos' },
+                { value: 'pending', label: 'Pendentes' },
+                { value: 'approved', label: 'Aprovados' },
+                { value: 'rejected', label: 'Rejeitados' },
               ] as const
             ).map((filter) => (
               <Button
                 key={filter.value}
-                variant={filterStatus === filter.value ? "default" : "outline"}
+                variant={filterStatus === filter.value ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setFilterStatus(filter.value)}
                 className="rounded-full"
@@ -330,18 +364,18 @@ export function UsersManagement() {
                     <Badge
                       variant="outline"
                       className={
-                        user.status === "approved"
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                          : user.status === "pending"
-                            ? "border-amber-200 bg-amber-50 text-amber-700"
-                            : "border-red-200 bg-red-50 text-red-700"
+                        user.status === 'approved'
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                          : user.status === 'pending'
+                            ? 'border-amber-200 bg-amber-50 text-amber-700'
+                            : 'border-red-200 bg-red-50 text-red-700'
                       }
                     >
-                      {user.status === "approved"
-                        ? "Aprovado"
-                        : user.status === "pending"
-                          ? "Pendente"
-                          : "Rejeitado"}
+                      {user.status === 'approved'
+                        ? 'Aprovado'
+                        : user.status === 'pending'
+                          ? 'Pendente'
+                          : 'Rejeitado'}
                     </Badge>
                   </TableCell>
 
@@ -353,25 +387,29 @@ export function UsersManagement() {
                           variant="outline"
                           size="sm"
                           className={`gap-1 rounded-full ${
-                            user.role === "admin"
-                              ? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                              : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                            user.role === 'admin'
+                              ? 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                           }`}
                         >
-                          {user.role === "admin" ? "ADMIN" : "USER"}
+                          {user.role === 'admin' ? 'ADMIN' : 'USER'}
                           <ChevronDown className="w-3 h-3" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
                         <DropdownMenuItem
-                          onClick={() => changeRole(user._id || user.id, "user")}
-                          disabled={user.role === "user"}
+                          onClick={() =>
+                            changeRole(user._id || user.id, 'user')
+                          }
+                          disabled={user.role === 'user'}
                         >
                           USER
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => changeRole(user._id || user.id, "admin")}
-                          disabled={user.role === "admin"}
+                          onClick={() =>
+                            changeRole(user._id || user.id, 'admin')
+                          }
+                          disabled={user.role === 'admin'}
                         >
                           ADMIN
                         </DropdownMenuItem>
@@ -382,7 +420,7 @@ export function UsersManagement() {
                   {/* Actions */}
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      {user.status === "pending" && (
+                      {user.status === 'pending' && (
                         <>
                           <Button
                             size="sm"
@@ -394,7 +432,7 @@ export function UsersManagement() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => rejectUser(user._id || user.id)}
+                            onClick={() => openRejectModal(user._id || user.id)}
                             className="rounded-lg"
                           >
                             Rejeitar
@@ -436,6 +474,43 @@ export function UsersManagement() {
           userName={selectedUserName}
         />
       )}
+
+      {/* Reject user modal - motivo obrigatório */}
+      <Dialog open={rejectModalOpen} onOpenChange={setRejectModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rejeitar utilizador</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            O motivo da rejeição será mostrado ao utilizador. (obrigatório, máx.
+            500 caracteres)
+          </p>
+          <Textarea
+            placeholder="Motivo da rejeição..."
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            rows={4}
+            maxLength={500}
+            className="resize-none"
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setRejectModalOpen(false)}
+              disabled={rejectSubmitting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmRejectUser}
+              disabled={rejectSubmitting || !rejectReason.trim()}
+            >
+              {rejectSubmitting ? 'A rejeitar...' : 'Rejeitar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

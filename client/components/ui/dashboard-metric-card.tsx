@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import React from "react";
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import {
   ArrowDown,
   ArrowUp,
   Minus,
   TrendingUp,
   TrendingDown,
-} from "lucide-react";
+} from 'lucide-react';
 
 type IconType =
   | React.ElementType
   | React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-export type TrendType = "up" | "down" | "neutral";
-export type SparklineType = "line" | "bars" | "area";
+export type TrendType = 'up' | 'down' | 'neutral';
+export type SparklineType = 'line' | 'bars' | 'area';
 export type ColorVariant =
-  | "blue"
-  | "teal"
-  | "orange"
-  | "purple"
-  | "green"
-  | "red";
+  | 'blue'
+  | 'teal'
+  | 'orange'
+  | 'purple'
+  | 'green'
+  | 'red';
 
 export interface DashboardMetricCardProps {
   value: string | number;
@@ -45,7 +45,7 @@ function generateSparklinePath(
   width: number,
   height: number,
 ): string {
-  if (!data || data.length === 0) return "";
+  if (!data || data.length === 0) return '';
 
   const max = Math.max(...data);
   const min = Math.min(...data);
@@ -57,23 +57,23 @@ function generateSparklinePath(
     return { x, y };
   });
 
-  if (type === "area") {
+  if (type === 'area') {
     const pathData = points
       .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
-      .join(" ");
+      .join(' ');
     return `${pathData} L ${width} ${height} L 0 ${height} Z`;
   }
 
   return points
     .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
-    .join(" ");
+    .join(' ');
 }
 
 // Sparkline component
 function Sparkline({
   data,
-  type = "line",
-  color = "#2563EB",
+  type = 'line',
+  color = '#6366F1',
   width = 80,
   height = 40,
 }: {
@@ -92,7 +92,7 @@ function Sparkline({
   const innerWidth = width - padding * 2;
   const innerHeight = height - padding * 2;
 
-  if (type === "bars") {
+  if (type === 'bars') {
     const barWidth = (innerWidth / data.length) * 0.7;
     const gap = (innerWidth / data.length) * 0.3;
     const max = Math.max(...data);
@@ -126,12 +126,12 @@ function Sparkline({
 
   const path = generateSparklinePath(data, type, innerWidth, innerHeight);
 
-  if (type === "area") {
+  if (type === 'area') {
     return (
       <svg width={width} height={height} className="overflow-visible">
         <defs>
           <linearGradient
-            id={`gradient-${color.replace("#", "")}`}
+            id={`gradient-${color.replace('#', '')}`}
             x1="0%"
             y1="0%"
             x2="0%"
@@ -144,13 +144,13 @@ function Sparkline({
         <g transform={`translate(${padding}, ${padding})`}>
           <motion.path
             d={path}
-            fill={`url(#gradient-${color.replace("#", "")})`}
+            fill={`url(#gradient-${color.replace('#', '')})`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           />
           <motion.path
-            d={generateSparklinePath(data, "line", innerWidth, innerHeight)}
+            d={generateSparklinePath(data, 'line', innerWidth, innerHeight)}
             stroke={color}
             strokeWidth={2}
             fill="none"
@@ -201,17 +201,17 @@ function Sparkline({
   );
 }
 
-// Color mappings
+// Professional palette aligned with dashboard charts (design-system)
 const colorMap: Record<
   ColorVariant,
   { bg: string; text: string; icon: string }
 > = {
-  blue: { bg: "rgba(37, 99, 235, 0.1)", text: "#2563EB", icon: "#2563EB" },
-  teal: { bg: "rgba(20, 184, 166, 0.1)", text: "#14B8A6", icon: "#14B8A6" },
-  orange: { bg: "rgba(249, 115, 22, 0.1)", text: "#F97316", icon: "#F97316" },
-  purple: { bg: "rgba(139, 92, 246, 0.1)", text: "#8B5CF6", icon: "#8B5CF6" },
-  green: { bg: "rgba(16, 185, 129, 0.1)", text: "#10B981", icon: "#10B981" },
-  red: { bg: "rgba(239, 68, 68, 0.1)", text: "#EF4444", icon: "#EF4444" },
+  blue: { bg: 'rgba(99, 102, 241, 0.12)', text: '#6366F1', icon: '#6366F1' },
+  teal: { bg: 'rgba(13, 148, 136, 0.12)', text: '#0D9488', icon: '#0D9488' },
+  orange: { bg: 'rgba(194, 65, 58, 0.12)', text: '#C2413A', icon: '#C2413A' },
+  purple: { bg: 'rgba(99, 102, 241, 0.12)', text: '#6366F1', icon: '#6366F1' },
+  green: { bg: 'rgba(15, 118, 110, 0.12)', text: '#0F766E', icon: '#0F766E' },
+  red: { bg: 'rgba(185, 28, 28, 0.12)', text: '#B91C1C', icon: '#B91C1C' },
 };
 
 export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
@@ -220,27 +220,27 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
   icon: IconComponent,
   description,
   trendChange,
-  trendType = "neutral",
+  trendType = 'neutral',
   className,
   animationDelay = 0,
-  sparklineType = "bars",
+  sparklineType = 'bars',
   sparklineData,
-  colorVariant = "blue",
+  colorVariant = 'blue',
 }) => {
   const colors = colorMap[colorVariant];
 
   const TrendIcon =
-    trendType === "up"
+    trendType === 'up'
       ? TrendingUp
-      : trendType === "down"
+      : trendType === 'down'
         ? TrendingDown
         : Minus;
   const trendColorClass =
-    trendType === "up"
-      ? "text-emerald-500"
-      : trendType === "down"
-        ? "text-red-500"
-        : "text-muted-foreground";
+    trendType === 'up'
+      ? 'text-emerald-500'
+      : trendType === 'down'
+        ? 'text-red-500'
+        : 'text-muted-foreground';
 
   return (
     <motion.div
@@ -252,7 +252,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
         ease: [0.25, 0.46, 0.45, 0.94],
       }}
       className={cn(
-        "kpi-card relative flex items-center justify-between gap-4",
+        'kpi-card relative flex items-center justify-between gap-4',
         className,
       )}
     >
@@ -279,14 +279,14 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
               className="text-lg font-bold tracking-tight"
               style={{ color: colors.text }}
             >
-              {typeof value === "number"
-                ? value.toLocaleString("pt-PT")
+              {typeof value === 'number'
+                ? value.toLocaleString('pt-PT')
                 : value}
             </span>
             {trendChange && (
               <span
                 className={cn(
-                  "flex items-center text-xs font-medium",
+                  'flex items-center text-xs font-medium',
                   trendColorClass,
                 )}
               >
@@ -317,7 +317,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
 
 // Simplified card without sparkline for other uses
 export const SimpleMetricCard: React.FC<
-  Omit<DashboardMetricCardProps, "sparklineType" | "sparklineData">
+  Omit<DashboardMetricCardProps, 'sparklineType' | 'sparklineData'>
 > = (props) => {
   return <DashboardMetricCard {...props} sparklineType="line" />;
 };

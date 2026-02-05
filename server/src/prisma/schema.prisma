@@ -310,9 +310,9 @@ model FormSubmission {
     id      String @id @default(cuid())
     answers Json // [{ questionId, answer }]
 
-    // Relação com template
+    // Relação com template (Cascade: ao eliminar o template, as submissões são eliminadas)
     templateId String
-    template   Template @relation(fields: [templateId], references: [id], onDelete: Restrict)
+    template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
 
     // Relação com usuário que submeteu
     submittedBy String

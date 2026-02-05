@@ -1,27 +1,41 @@
-import { Request, Response } from "express";
-import { prisma } from "../lib/prisma";
-import { withLegacyId, withLegacyIds, successResponse } from "../utils/response.utils";
+import { Request, Response } from 'express';
+import { prisma } from '../lib/prisma';
+import {
+  withLegacyId,
+  withLegacyIds,
+  successResponse,
+} from '../utils/response.utils';
 
 export class TemplateController {
   static async getAll(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
       const templates = await prisma.template.findMany({
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         include: {
           questions: {
             include: { question: true },
-            orderBy: { order: "asc" },
+            orderBy: { order: 'asc' },
           },
         },
       });
 
+      // Admin vê todos. Utilizador vê: públicos, default, os que criou, ou os do seu modelo
+      const userModelTypes = new Set(
+        (req.user.availableModels || []).map(
+          (m: { modelType: string }) => m.modelType,
+        ),
+      );
       const filtered =
-        req.user.role === "admin"
+        req.user.role === 'admin'
           ? templates
           : templates.filter(
-              (t) => t.isPublic || t.isDefault || t.createdBy === req.user?.id
+              (t) =>
+                t.isPublic ||
+                t.isDefault ||
+                t.createdBy === req.user?.id ||
+                (t.modelType != null && userModelTypes.has(t.modelType)),
             );
 
       // Mapear para formato compatível (manter questionIds para retrocompatibilidade)
@@ -33,8 +47,8 @@ export class TemplateController {
 
       res.json(successResponse(withLegacyIds(mapped)));
     } catch (error) {
-      console.error("Error fetching templates:", error);
-      res.status(500).json({ error: "Failed to fetch templates" });
+      console.error('Error fetching templates:', error);
+      res.status(500).json({ error: 'Failed to fetch templates' });
     }
   }
 
@@ -46,13 +60,31 @@ export class TemplateController {
         include: {
           questions: {
             include: { question: true },
-            orderBy: { order: "asc" },
+            orderBy: { order: 'asc' },
           },
         },
       });
 
       if (!template) {
-        return res.status(404).json({ error: "Template not found" });
+        return res.status(404).json({ error: 'Template not found' });
+      }
+
+      // Não-admin: só pode ver se tiver acesso (mesma lógica do getAll)
+      if (req.user.role !== 'admin') {
+        const userModelTypes = new Set(
+          (req.user.availableModels || []).map(
+            (m: { modelType: string }) => m.modelType,
+          ),
+        );
+        const canAccess =
+          template.isPublic ||
+          template.isDefault ||
+          template.createdBy === req.user?.id ||
+          (template.modelType != null &&
+            userModelTypes.has(template.modelType));
+        if (!canAccess) {
+          return res.status(404).json({ error: 'Template not found' });
+        }
       }
 
       // Mapear para formato compatível
@@ -64,21 +96,26 @@ export class TemplateController {
 
       res.json(successResponse(withLegacyId(mapped)));
     } catch (error) {
-      console.error("Error fetching template:", error);
-      res.status(500).json({ error: "Failed to fetch template" });
+      console.error('Error fetching template:', error);
+      res.status(500).json({ error: 'Failed to fetch template' });
     }
   }
 
   static async create(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
       const { title, description, questions, isPublic, modelType } = req.body;
       const questionIds: string[] = questions || [];
 
       // Validar modelType se fornecido
-      if (modelType && !["credito", "imobiliaria", "seguro"].includes(modelType)) {
-        return res.status(400).json({ error: "Invalid modelType. Must be: credito, imobiliaria, or seguro" });
+      if (
+        modelType &&
+        !['credito', 'imobiliaria', 'seguro'].includes(modelType)
+      ) {
+        return res.status(400).json({
+          error: 'Invalid modelType. Must be: credito, imobiliaria, or seguro',
+        });
       }
 
       // Criar template com relações de questões
@@ -103,8 +140,8 @@ export class TemplateController {
 
       res.status(201).json({ id: template.id });
     } catch (error) {
-      console.error("Error creating template:", error);
-      res.status(500).json({ error: "Failed to create template" });
+      console.error('Error creating template:', error);
+      res.status(500).json({ error: 'Failed to create template' });
     }
   }
 
@@ -116,12 +153,17 @@ export class TemplateController {
       // Verificar se template existe
       const existing = await prisma.template.findUnique({ where: { id } });
       if (!existing) {
-        return res.status(404).json({ error: "Template not found" });
+        return res.status(404).json({ error: 'Template not found' });
       }
 
       // Validar modelType se fornecido
-      if (modelType && !["credito", "imobiliaria", "seguro"].includes(modelType)) {
-        return res.status(400).json({ error: "Invalid modelType. Must be: credito, imobiliaria, or seguro" });
+      if (
+        modelType &&
+        !['credito', 'imobiliaria', 'seguro'].includes(modelType)
+      ) {
+        return res.status(400).json({
+          error: 'Invalid modelType. Must be: credito, imobiliaria, or seguro',
+        });
       }
 
       // Atualizar usando transação para garantir consistência
@@ -163,33 +205,34 @@ export class TemplateController {
 
       res.json({ success: true });
     } catch (error) {
-      console.error("Error updating template:", error);
-      res.status(500).json({ error: "Failed to update template" });
+      console.error('Error updating template:', error);
+      res.status(500).json({ error: 'Failed to update template' });
     }
   }
 
   static async delete(req: Request, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
       const { id } = req.params;
       const template = await prisma.template.findUnique({ where: { id } });
       if (!template)
-        return res.status(404).json({ error: "Template not found" });
+        return res.status(404).json({ error: 'Template not found' });
       if (template.isDefault) {
         return res.status(400).json({
-          error: "Não é possível excluir templates padrão do sistema",
+          error: 'Não é possível excluir templates padrão do sistema',
         });
       }
-      if (req.user.role !== "admin" && template.createdBy !== req.user.id) {
+      if (req.user.role !== 'admin' && template.createdBy !== req.user.id) {
         return res
           .status(403)
-          .json({ error: "Forbidden: You can only delete your own templates" });
+          .json({ error: 'Forbidden: You can only delete your own templates' });
       }
+
       await prisma.template.delete({ where: { id } });
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting template:", error);
-      res.status(500).json({ error: "Failed to delete template" });
+      console.error('Error deleting template:', error);
+      res.status(500).json({ error: 'Failed to delete template' });
     }
   }
 }

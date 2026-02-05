@@ -17,6 +17,24 @@ function getFormDateFromAnswers(
   return isNaN(d.getTime()) ? null : value;
 }
 
+/** Rejeita se a resposta à questão "Data" for uma data futura. Retorna mensagem de erro ou null. */
+function validateDataNotFuture(
+  dataQuestionId: string | undefined,
+  answers: { questionId: string; answer: string }[],
+): string | null {
+  if (!dataQuestionId) return null;
+  const dataAnswer = answers.find((a) => a.questionId === dataQuestionId);
+  if (!dataAnswer?.answer?.trim()) return null;
+  const parsed = new Date(dataAnswer.answer.trim());
+  if (isNaN(parsed.getTime())) return null;
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  if (parsed.getTime() > today.getTime()) {
+    return 'A data não pode ser uma data futura.';
+  }
+  return null;
+}
+
 export class SubmissionController {
   static async getAll(req: Request, res: Response) {
     try {
@@ -111,10 +129,26 @@ export class SubmissionController {
       // Verificar se o template existe
       const template = await prisma.template.findUnique({
         where: { id: templateId },
+        include: {
+          questions: {
+            include: { question: { select: { id: true, title: true } } },
+          },
+        },
       });
 
       if (!template) {
         return res.status(404).json({ error: 'Template not found' });
+      }
+
+      const dataQuestionId = template.questions.find(
+        (tq) => tq.question.title === 'Data',
+      )?.questionId;
+      const dataError = validateDataNotFuture(
+        dataQuestionId,
+        answers as { questionId: string; answer: string }[],
+      );
+      if (dataError) {
+        return res.status(400).json({ error: dataError });
       }
 
       // NEW: Include modelContext and profile FK
@@ -192,6 +226,28 @@ export class SubmissionController {
       }
 
       const answers = req.body.answers ?? submission.answers;
+      const answersArray = Array.isArray(answers)
+        ? (answers as { questionId: string; answer: string }[])
+        : [];
+
+      if (answersArray.length > 0) {
+        const templateWithQuestions = await prisma.template.findUnique({
+          where: { id: submission.templateId },
+          include: {
+            questions: {
+              include: { question: { select: { id: true, title: true } } },
+            },
+          },
+        });
+        const dataQuestionId = templateWithQuestions?.questions.find(
+          (tq) => tq.question.title === 'Data',
+        )?.questionId;
+        const dataError = validateDataNotFuture(dataQuestionId, answersArray);
+        if (dataError) {
+          return res.status(400).json({ error: dataError });
+        }
+      }
+
       const data: { answers: object; commissionPaid?: boolean } = {
         answers: answers as object,
       };

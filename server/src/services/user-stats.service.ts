@@ -66,6 +66,7 @@ interface GenerateStatsResult {
     submissionsByDay: Record<string, number>;
     documentsByDay: Record<string, number>;
     chatMessagesByDay: Record<string, number>;
+    userMessagesByDay: Record<string, number>;
   };
 }
 
@@ -175,6 +176,14 @@ export class UserStatsService {
       );
       const chatMessagesByDay = this.aggregateChatMessagesByDay(
         chatMessagesLast30,
+        dateRangeStart,
+        now,
+      );
+      const userMessagesLast30 = chatMessagesLast30.filter(
+        (m) => m.role === 'user',
+      );
+      const userMessagesByDay = this.aggregateChatMessagesByDay(
+        userMessagesLast30,
         dateRangeStart,
         now,
       );
@@ -369,6 +378,7 @@ export class UserStatsService {
           submissionsByDay,
           documentsByDay,
           chatMessagesByDay,
+          userMessagesByDay,
         },
       };
     } catch (error) {

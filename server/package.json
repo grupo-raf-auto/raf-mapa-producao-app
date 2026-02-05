@@ -16,6 +16,7 @@
     "postinstall": "prisma generate --schema=./src/prisma/schema.prisma",
     "db:generate": "prisma generate --schema=./src/prisma/schema.prisma",
     "db:migrate": "prisma migrate dev --schema=./src/prisma/schema.prisma",
+    "db:migrate:deploy": "prisma migrate deploy --schema=./src/prisma/schema.prisma",
     "db:push": "prisma db push --schema=./src/prisma/schema.prisma",
     "seed": "tsx src/scripts/seed-templates.ts",
     "set-admin": "tsx src/scripts/set-admin.ts",

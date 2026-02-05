@@ -75,6 +75,16 @@ interface FillTemplateDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+/** Verifica se a data (string YYYY-MM-DD ou parseável) é futura (após hoje). */
+function isFutureDate(dateStr: string): boolean {
+  if (!dateStr || !String(dateStr).trim()) return false;
+  const d = new Date(String(dateStr).trim());
+  if (isNaN(d.getTime())) return false;
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  return d.getTime() > today.getTime();
+}
+
 // Gerar schema dinamicamente baseado nas questões
 function generateSchema(questions: Question[]) {
   const schemaFields: Record<string, z.ZodTypeAny> = {};
@@ -95,7 +105,13 @@ function generateSchema(questions: Question[]) {
         .optional()
         .or(z.literal(''));
     } else if (question.inputType === 'date') {
-      schemaFields[fieldId] = z.string().min(1, 'Data é obrigatória');
+      schemaFields[fieldId] = z
+        .string()
+        .min(1, 'Data é obrigatória')
+        .refine(
+          (val) => !isFutureDate(val),
+          'A data não pode ser uma data futura',
+        );
     } else if (
       question.inputType === 'select' ||
       question.inputType === 'radio'
@@ -167,11 +183,6 @@ export function FillTemplateDialog({
             'Erro ao carregar questões do template. Verifique se o servidor está rodando.',
           );
         }
-      } else {
-        // Log para debug - remover depois
-        console.log(
-          `Loaded ${validQuestions.length} questions for template ${template._id}`,
-        );
       }
     } catch (error) {
       console.error('Error loading questions:', error);
@@ -248,9 +259,29 @@ export function FillTemplateDialog({
 
       // Mostrar mensagem de sucesso
       toast.success('Formulário submetido com sucesso!');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error submitting form:', error);
-      toast.error('Erro ao submeter formulário. Tente novamente.');
+      const message = error instanceof Error ? error.message : null;
+      toast.error(
+        message && message !== 'Redirecting to login'
+          ? message
+          : 'Erro ao submeter formulário. Tente novamente.',
+      );
+      if (message && /data.*futura|futura.*data/i.test(message)) {
+        const dataQuestion = questions.find(
+          (q) =>
+            q.inputType === 'date' ||
+            (q.title || '').trim().toLowerCase() === 'data',
+        );
+        if (dataQuestion?._id) {
+          requestAnimationFrame(() => {
+            const el = document.querySelector(
+              `[data-question-id="${dataQuestion._id}"]`,
+            ) as HTMLElement | null;
+            el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
+        }
+      }
     } finally {
       setSubmitting(false);
     }
@@ -295,7 +326,29 @@ export function FillTemplateDialog({
         ) : (
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                const firstErrorField = Object.keys(errors)[0];
+                if (firstErrorField) {
+                  toast.warning(
+                    'Corrija os erros assinalados nos campos abaixo.',
+                  );
+                  requestAnimationFrame(() => {
+                    const el = document.querySelector(
+                      `[data-question-id="${firstErrorField}"]`,
+                    ) as HTMLElement | null;
+                    if (el) {
+                      el.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                      });
+                      const focusable = el.querySelector<HTMLElement>(
+                        'input:not([type="hidden"]), select, [role="combobox"], button[type="button"]',
+                      );
+                      focusable?.focus({ preventScroll: true });
+                    }
+                  });
+                }
+              })}
               className="flex flex-col h-full overflow-hidden"
             >
               {/* ScrollArea para muitas questões */}
@@ -314,8 +367,12 @@ export function FillTemplateDialog({
                             options: undefined,
                           }
                         : question;
+                      const questionId = question._id || `question-${index}`;
                       return (
-                        <div key={question._id || `question-${index}`}>
+                        <div
+                          key={questionId}
+                          data-question-id={question._id || ''}
+                        >
                           <FormField
                             control={form.control}
                             name={question._id || ''}

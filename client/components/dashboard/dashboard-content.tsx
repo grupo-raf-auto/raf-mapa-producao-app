@@ -142,9 +142,7 @@ export function DashboardContent() {
       trendType: 'neutral' as const,
       sparklineType: 'area' as const,
       sparklineData:
-        sparklineFromMonthly.length > 0
-          ? sparklineFromMonthly
-          : [30, 45, 35, 50, 40, 55, 45, 60],
+        sparklineFromMonthly.length > 0 ? sparklineFromMonthly : [],
       colorVariant: 'blue' as const,
     },
     {
@@ -166,9 +164,7 @@ export function DashboardContent() {
       trendType: 'neutral' as const,
       sparklineType: 'bars' as const,
       sparklineData:
-        sparklineFromMonthly.length > 0
-          ? sparklineFromMonthly.slice(-8)
-          : [20, 35, 25, 40, 30, 45, 35, 50],
+        sparklineFromMonthly.length > 0 ? sparklineFromMonthly.slice(-8) : [],
       colorVariant: 'purple' as const,
     },
     {
@@ -179,9 +175,7 @@ export function DashboardContent() {
       trendType: countTrend.type,
       sparklineType: 'bars' as const,
       sparklineData:
-        sparklineFromMonthly.length > 0
-          ? sparklineFromMonthly
-          : [20, 35, 25, 40, 30, 45, 35, 50],
+        sparklineFromMonthly.length > 0 ? sparklineFromMonthly : [],
       colorVariant: 'teal' as const,
     },
     {
@@ -199,7 +193,7 @@ export function DashboardContent() {
       sparklineData:
         sparklineFromMonthly.length > 0
           ? monthlyData.slice(-8).map((m) => m.totalValue || 0)
-          : [0, 0, 0, 0, 0, 0, 0, 0],
+          : [],
       colorVariant: 'green' as const,
     },
   ];

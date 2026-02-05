@@ -107,11 +107,13 @@ export function RatingDistributionChart({
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
-            margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+            margin={{ top: 12, right: 12, left: 8, bottom: 24 }}
+            barCategoryGap="20%"
           >
             <CartesianGrid
-              strokeDasharray="0"
+              strokeDasharray="3 3"
               stroke={chartColors.grid}
+              strokeOpacity={0.6}
               vertical={false}
             />
             <XAxis
@@ -119,6 +121,7 @@ export function RatingDistributionChart({
               axisLine={false}
               tickLine={false}
               tick={{ fill: chartColors.axis, fontSize: 11 }}
+              dy={4}
             />
             <YAxis
               domain={[0, yMax]}
@@ -126,13 +129,14 @@ export function RatingDistributionChart({
               allowDecimals={false}
               axisLine={false}
               tickLine={false}
-              tick={{ fill: chartColors.axis, fontSize: 10 }}
+              width={28}
+              tick={{ fill: chartColors.axis, fontSize: 11 }}
             />
             <Tooltip
               content={<CustomTooltip />}
               cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
             />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={60}>
+            <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={44}>
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}

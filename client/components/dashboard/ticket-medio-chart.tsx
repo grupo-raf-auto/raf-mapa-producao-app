@@ -28,9 +28,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   const avgValue = payload[0]?.value ?? 0;
   const count = payload[0]?.payload?.count;
+  const fullName = payload[0]?.payload?.fullName ?? label;
   return (
     <div className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-md">
-      <p className="text-sm font-semibold text-foreground">{label}</p>
+      <p className="text-sm font-semibold text-foreground">{fullName}</p>
       <dl className="mt-1.5 space-y-1">
         <div className="flex items-baseline justify-between gap-4">
           <dt className="text-xs text-muted-foreground">Valor médio</dt>
@@ -59,12 +60,13 @@ export function TicketMedioChart({
   data,
   globalAverage,
 }: TicketMedioChartProps) {
+  const maxLabelLen = 14;
   const chartData =
     data.length > 0
       ? data.slice(0, 6).map((item, index) => ({
           name:
-            item.name.length > 8
-              ? item.name.substring(0, 8) + '...'
+            item.name.length > maxLabelLen
+              ? item.name.slice(0, maxLabelLen).trim() + '…'
               : item.name,
           fullName: item.name,
           averageValue: Math.round(
@@ -90,19 +92,22 @@ export function TicketMedioChart({
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}
-          margin={{ top: 15, right: 10, left: -10, bottom: 0 }}
+          margin={{ top: 12, right: 12, left: 8, bottom: 24 }}
+          barCategoryGap="20%"
         >
           <XAxis
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: chartColors.axis, fontSize: 10 }}
-            dy={10}
+            tick={{ fill: chartColors.axis, fontSize: 11 }}
+            dy={8}
+            interval={0}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: chartColors.axis, fontSize: 10 }}
+            tick={{ fill: chartColors.axis, fontSize: 11 }}
+            width={36}
             tickFormatter={(value) => `${Math.round(value / 1000)}k`}
           />
           <Tooltip
@@ -114,16 +119,16 @@ export function TicketMedioChart({
               y={avgLine}
               stroke={chartColors.primary}
               strokeDasharray="5 5"
-              strokeWidth={2}
+              strokeWidth={1.5}
               label={{
-                value: `Media: ${(avgLine / 1000).toFixed(0)}k`,
+                value: `Média: ${(avgLine / 1000).toFixed(0)}k`,
                 position: 'right',
                 fill: chartColors.primary,
                 fontSize: 10,
               }}
             />
           )}
-          <Bar dataKey="averageValue" radius={[4, 4, 0, 0]} maxBarSize={32}>
+          <Bar dataKey="averageValue" radius={[4, 4, 0, 0]} maxBarSize={28}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}

@@ -6,6 +6,8 @@ import { chartColors } from '@/lib/design-system';
 
 interface FracionamentoChartProps {
   data: { fracionamento: string; count: number; totalValue: number }[];
+  /** Texto no centro do donut (ex. "Operações" para crédito/imobiliária, "Apólices" para seguros) */
+  centerLabel?: string;
 }
 
 const COLORS = [...chartColors.scale];
@@ -19,16 +21,10 @@ const LABEL_MAP: Record<string, string> = {
   'Não aplicável (para crédito)': 'N/A',
 };
 
-const defaultData = [
-  { name: 'Mensal', value: 40, color: COLORS[0] },
-  { name: 'Anual', value: 30, color: COLORS[1] },
-  { name: 'Trimestral', value: 15, color: COLORS[2] },
-  { name: 'Semestral', value: 10, color: COLORS[3] },
-  { name: 'N/A', value: 5, color: COLORS[4] },
-];
-
-export function FracionamentoChart({ data }: FracionamentoChartProps) {
-  // Transform data or use default
+export function FracionamentoChart({
+  data,
+  centerLabel = 'Apólices',
+}: FracionamentoChartProps) {
   const chartData =
     data.length > 0
       ? data.slice(0, 5).map((item, index) => ({
@@ -37,21 +33,39 @@ export function FracionamentoChart({ data }: FracionamentoChartProps) {
           totalValue: item.totalValue,
           color: COLORS[index % COLORS.length],
         }))
-      : defaultData;
+      : [];
 
   const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
+  if (chartData.length === 0) {
+    return (
+      <div className="flex flex-row w-full min-h-0 gap-4 items-center">
+        <div className="relative shrink-0 w-[200px] h-[200px] flex flex-col items-center justify-center">
+          <span className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
+            0
+          </span>
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+            {centerLabel}
+          </span>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Sem dados de fracionamento
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col w-full min-h-0">
+    <div className="flex flex-row w-full min-h-0 gap-4 items-center">
       {/* Donut Chart — center text first (behind) so tooltip can render on top */}
-      <div className="relative w-full aspect-square max-h-[200px] mx-auto">
+      <div className="relative shrink-0 w-[200px] h-[200px]">
         {/* Center text: painted first, visible through donut hole */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
           <span className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
             {total.toLocaleString('pt-PT')}
           </span>
           <span className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
-            Apólices
+            {centerLabel}
           </span>
         </div>
 
@@ -114,8 +128,8 @@ export function FracionamentoChart({ data }: FracionamentoChartProps) {
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="mt-5 w-full grid grid-cols-2 gap-x-4 gap-y-2.5">
+      {/* Legend — à direita do donut */}
+      <div className="flex-1 min-w-0 flex flex-col gap-2.5">
         {chartData.map((item, index) => (
           <div
             key={index}

@@ -10,16 +10,7 @@ interface VisitorAnalysisChartProps {
 
 const COLORS = [...chartColors.scale];
 
-const defaultData = [
-  { name: 'Lisboa', value: 35, color: COLORS[0] },
-  { name: 'Porto', value: 25, color: COLORS[1] },
-  { name: 'Braga', value: 18, color: COLORS[2] },
-  { name: 'Setúbal', value: 12, color: COLORS[3] },
-  { name: 'Outros', value: 10, color: COLORS[4] },
-];
-
 export function VisitorAnalysisChart({ data }: VisitorAnalysisChartProps) {
-  // Transform data or use default
   const chartData =
     data.length > 0
       ? data.slice(0, 5).map((item, index) => ({
@@ -27,15 +18,30 @@ export function VisitorAnalysisChart({ data }: VisitorAnalysisChartProps) {
           value: item.count,
           color: COLORS[index % COLORS.length],
         }))
-      : defaultData;
+      : [];
 
   const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
+  if (chartData.length === 0) {
+    return (
+      <div className="flex flex-row w-full min-h-0 gap-4 items-center">
+        <div className="relative shrink-0 w-[200px] h-[200px] flex flex-col items-center justify-center">
+          <span className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
+            0
+          </span>
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+            Submissões
+          </span>
+        </div>
+        <p className="text-sm text-muted-foreground">Sem dados de distrito</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col w-full min-h-0">
-      {/* Donut Chart — center text first (behind) so tooltip can render on top */}
-      <div className="relative w-full aspect-square max-h-[200px] mx-auto">
-        {/* Center text: painted first, visible through donut hole */}
+    <div className="flex flex-row w-full min-h-0 gap-4 items-center">
+      {/* Donut Chart — mesmo padrão do Fracionamento: centro com total, legenda ao lado */}
+      <div className="relative shrink-0 w-[200px] h-[200px]">
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
           <span className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
             {total.toLocaleString('pt-PT')}
@@ -95,8 +101,8 @@ export function VisitorAnalysisChart({ data }: VisitorAnalysisChartProps) {
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="mt-5 w-full grid grid-cols-2 gap-x-4 gap-y-2.5">
+      {/* Legenda — à direita do donut (mesmo padrão do Fracionamento) */}
+      <div className="flex-1 min-w-0 flex flex-col gap-2.5">
         {chartData.map((item, index) => (
           <div
             key={index}

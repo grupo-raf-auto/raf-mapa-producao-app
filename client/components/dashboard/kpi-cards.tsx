@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   FileStack,
@@ -10,29 +10,29 @@ import {
   Calendar,
   Shield,
   ShieldCheck,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   DashboardMetricCard,
   SparklineType,
   ColorVariant,
-} from "@/components/ui/dashboard-metric-card";
+} from '@/components/ui/dashboard-metric-card';
 
 interface KPICardData {
   title: string;
   value: string | number;
   iconName:
-    | "TrendingUp"
-    | "Euro"
-    | "BarChart3"
-    | "FileStack"
-    | "Users"
-    | "ShoppingCart"
-    | "Calendar"
-    | "Shield"
-    | "ShieldCheck";
+    | 'TrendingUp'
+    | 'Euro'
+    | 'BarChart3'
+    | 'FileStack'
+    | 'Users'
+    | 'ShoppingCart'
+    | 'Calendar'
+    | 'Shield'
+    | 'ShieldCheck';
   description?: string;
   trendChange?: string;
-  trendType?: "up" | "down" | "neutral";
+  trendType?: 'up' | 'down' | 'neutral';
   sparklineType?: SparklineType;
   sparklineData?: number[];
   colorVariant?: ColorVariant;
@@ -55,11 +55,11 @@ const iconMap = {
 };
 
 // Color variants for each card position
-const colorVariants: ColorVariant[] = ["blue", "teal", "green", "red"];
+const colorVariants: ColorVariant[] = ['blue', 'teal', 'green', 'red'];
 
 // Default sparkline data for each card type
 const defaultSparklineData: Record<string, number[]> = {
-  "Total Revenue": [30, 45, 35, 50, 40, 55, 45, 60, 50, 65],
+  'Total Revenue': [30, 45, 35, 50, 40, 55, 45, 60, 50, 65],
   "Today's Sale": [20, 35, 25, 40, 30, 45, 35, 50, 40, 55],
   default: [25, 40, 30, 45, 35, 50, 40, 55, 45, 60],
 };
@@ -72,9 +72,10 @@ export function KPICards({ cards }: KPICardsProps) {
         const colorVariant =
           kpi.colorVariant || colorVariants[index % colorVariants.length];
         const sparklineData =
-          kpi.sparklineData ||
-          defaultSparklineData[kpi.title] ||
-          defaultSparklineData["default"];
+          kpi.sparklineData !== undefined
+            ? kpi.sparklineData
+            : defaultSparklineData[kpi.title] ||
+              defaultSparklineData['default'];
 
         return (
           <DashboardMetricCard
@@ -86,7 +87,7 @@ export function KPICards({ cards }: KPICardsProps) {
             trendChange={kpi.trendChange}
             trendType={kpi.trendType}
             animationDelay={index * 0.08}
-            sparklineType={kpi.sparklineType || "bars"}
+            sparklineType={kpi.sparklineType || 'bars'}
             sparklineData={sparklineData}
             colorVariant={colorVariant}
           />

@@ -134,6 +134,22 @@ export function DashboardChartsWrapper({
   const { activeModel } = useModelContext();
 
   const isSeguroModel = activeModel?.modelType === 'seguro';
+  const isCreditoOuImobiliaria =
+    activeModel?.modelType === 'credito' ||
+    activeModel?.modelType === 'imobiliaria';
+
+  // Labels por contexto: crédito/imobiliária = submissões e data do registo; seguros = apólices
+  const countLegendLabel = isCreditoOuImobiliaria ? 'Submissões' : 'Apólices';
+  const timeLegendSuffix = isCreditoOuImobiliaria
+    ? 'Por dia (data do registo)'
+    : 'Por dia (data da apólice)';
+  const countChartLabel = isCreditoOuImobiliaria ? 'Submissões' : undefined;
+  const countUnit = isCreditoOuImobiliaria
+    ? { singular: 'submissão', plural: 'submissões' }
+    : undefined;
+  const fracionamentoCenterLabel = isCreditoOuImobiliaria
+    ? 'Operações'
+    : 'Apólices';
 
   const timelineData = salesStats?.byMonth || [];
 
@@ -191,7 +207,11 @@ export function DashboardChartsWrapper({
   // Layout específico para dashboard de Seguros
   if (isSeguroModel) {
     return (
-      <div className="space-y-5">
+      <div
+        className="space-y-5"
+        role="region"
+        aria-label="Dashboard de seguros — gráficos e métricas"
+      >
         {/* Row 1: Evolução das Apólices (3 col, full width) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <AnimatedSection className="lg:col-span-3" delay={0}>
@@ -348,204 +368,246 @@ export function DashboardChartsWrapper({
     );
   }
 
-  // Layout original para Crédito
+  // Título de secção por tópico
+  const SectionTitle = ({
+    children,
+    id,
+  }: {
+    children: React.ReactNode;
+    id?: string;
+  }) => (
+    <h2
+      id={id}
+      className="text-sm font-semibold uppercase tracking-wider text-muted-foreground border-b border-border pb-2 mb-1 mt-6 first:mt-0"
+    >
+      {children}
+    </h2>
+  );
+
+  // Layout Crédito e Imobiliária: agrupado por tópicos, grid 3 colunas
   return (
-    <div className="space-y-5">
-      {/* First Row: Evolução Produção (2/3) + Produção por Banco (1/3) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <AnimatedSection className="lg:col-span-2" delay={0}>
-          <div className="chart-card h-full relative">
-            <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3 className="chart-card-title">Evolução da Produção</h3>
-                <div className="chart-legend mt-2 flex items-center gap-3 flex-wrap">
+    <div
+      className="space-y-5"
+      role="region"
+      aria-label={
+        isCreditoOuImobiliaria
+          ? 'Dashboard de produção — gráficos e métricas'
+          : undefined
+      }
+    >
+      {/* ——— 1. Evolução e tendência ——— */}
+      <section aria-labelledby="topic-evolucao">
+        <SectionTitle id="topic-evolucao">Evolução e tendência</SectionTitle>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <AnimatedSection className="lg:col-span-2" delay={0}>
+            <div className="chart-card h-full relative min-h-[320px]">
+              <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="chart-card-title">Evolução da Produção</h3>
+                  <div className="chart-legend mt-2 flex items-center gap-3 flex-wrap">
+                    <span className="chart-legend-item">
+                      <span className="chart-legend-dot bg-[var(--chart-1)]" />
+                      {countLegendLabel}
+                    </span>
+                    <span className="chart-legend-item">
+                      <span className="chart-legend-dot bg-[var(--chart-2)]" />
+                      Valor Total
+                    </span>
+                    <span className="text-xs text-muted-foreground font-normal">
+                      {timeLegendSuffix}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-[100px] h-8 text-xs">
+                      <SelectValue placeholder="Ano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map((y) => (
+                        <SelectItem key={y} value={String(y)}>
+                          {y}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={selectedMonth}
+                    onValueChange={setSelectedMonth}
+                  >
+                    <SelectTrigger className="min-w-[11rem] w-auto max-w-[200px] h-8 text-xs">
+                      <SelectValue placeholder="Mês" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {monthOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DashboardStatusChart
+                data={filteredTimelineData}
+                timeFilter="daily"
+                showOnlyCount={false}
+                countLabel={countChartLabel}
+              />
+            </div>
+          </AnimatedSection>
+          <AnimatedSection delay={0.05}>
+            <div className="chart-card h-full min-h-[280px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Taxa de Crescimento</h3>
+              </div>
+              <GrowthRateChart data={salesStats?.growthRates || []} />
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* ——— 2. Produção por entidade (3 col: 1 gráfico por coluna) ——— */}
+      <section aria-labelledby="topic-entidade">
+        <SectionTitle id="topic-entidade">Produção por entidade</SectionTitle>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <AnimatedSection delay={0.1}>
+            <div className="chart-card h-full min-h-[280px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Produção por Banco</h3>
+                <div className="chart-legend">
                   <span className="chart-legend-item">
                     <span className="chart-legend-dot bg-[var(--chart-1)]" />
-                    Submissões
+                    Quantidade
                   </span>
                   <span className="chart-legend-item">
                     <span className="chart-legend-dot bg-[var(--chart-2)]" />
-                    Valor Total
-                  </span>
-                  <span className="text-xs text-muted-foreground font-normal">
-                    Por dia (data da apólice)
+                    Valor
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-[100px] h-8 text-xs">
-                    <SelectValue placeholder="Ano" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableYears.map((y) => (
-                      <SelectItem key={y} value={String(y)}>
-                        {y}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="min-w-[11rem] w-auto max-w-[200px] h-8 text-xs">
-                    <SelectValue placeholder="Mês" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {monthOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <OverallSellProgressChart data={salesStats?.byBanco || []} />
             </div>
-            <DashboardStatusChart
-              data={filteredTimelineData}
-              timeFilter="daily"
-              showOnlyCount={false}
-            />
-          </div>
-        </AnimatedSection>
-
-        <AnimatedSection delay={0.1}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Produção por Banco</h3>
-              <div className="chart-legend">
-                <span className="chart-legend-item">
-                  <span className="chart-legend-dot bg-[var(--chart-1)]" />
-                  Quantidade
-                </span>
-                <span className="chart-legend-item">
-                  <span className="chart-legend-dot bg-[var(--chart-2)]" />
-                  Valor
-                </span>
-              </div>
-            </div>
-            <OverallSellProgressChart data={salesStats?.byBanco || []} />
-          </div>
-        </AnimatedSection>
-      </div>
-
-      {/* Second Row: Produção por Seguradora + Ticket Médio + Taxa de Crescimento */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <AnimatedSection delay={0.15}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Produção por Seguradora</h3>
-              <div className="chart-legend">
-                <span className="chart-legend-item">
-                  <span className="chart-legend-dot bg-[var(--chart-1)]" />
+          </AnimatedSection>
+          <AnimatedSection delay={0.15}>
+            <div className="chart-card h-full min-h-[280px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Produção por Seguradora</h3>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
                   Operações
                 </span>
               </div>
+              <SeguradoraChart data={salesStats?.bySeguradora || []} />
             </div>
-            <SeguradoraChart data={salesStats?.bySeguradora || []} />
-          </div>
-        </AnimatedSection>
-
-        <AnimatedSection delay={0.2}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Ticket Médio por Banco</h3>
-              <div className="chart-legend">
-                <span className="chart-legend-item">
-                  <span className="chart-legend-dot bg-[var(--chart-1)]" />
+          </AnimatedSection>
+          <AnimatedSection delay={0.2}>
+            <div className="chart-card h-full min-h-[280px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Ticket Médio por Banco</h3>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
                   Média
                 </span>
               </div>
+              <TicketMedioChart
+                data={salesStats?.byBanco || []}
+                globalAverage={salesStats?.averageValue}
+              />
             </div>
-            <TicketMedioChart
-              data={salesStats?.byBanco || []}
-              globalAverage={salesStats?.averageValue}
-            />
-          </div>
-        </AnimatedSection>
+          </AnimatedSection>
+        </div>
+      </section>
 
-        <AnimatedSection delay={0.25}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Taxa de Crescimento</h3>
+      {/* ——— 3. Performance da equipa (3 col: 1 gráfico por coluna) ——— */}
+      <section aria-labelledby="topic-performance">
+        <SectionTitle id="topic-performance">
+          Performance da equipa
+        </SectionTitle>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <AnimatedSection delay={0.25}>
+            <div className="chart-card h-full min-h-[280px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">
+                  Performance por Colaborador
+                </h3>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                  Top 3
+                </span>
+              </div>
+              <ColaboradorPerformanceChart
+                data={userDataForComparison}
+                countUnit={countUnit}
+              />
             </div>
-            <GrowthRateChart data={salesStats?.growthRates || []} />
-          </div>
-        </AnimatedSection>
-      </div>
+          </AnimatedSection>
+          <AnimatedSection delay={0.3}>
+            <div className="chart-card h-full min-h-[320px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Performance por Agente</h3>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                  Top 10
+                </span>
+              </div>
+              <AgentePerformanceChart
+                data={agenteDataForComparison.map((item) => ({
+                  ...item,
+                  averageValue: item.averageValue ?? 0,
+                }))}
+                globalAverage={salesStats?.averageValue}
+              />
+            </div>
+          </AnimatedSection>
+          <AnimatedSection delay={0.35}>
+            <div className="chart-card h-full min-h-[280px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Ticket Médio por Agente</h3>
+              </div>
+              <TicketMedioAgenteChart
+                data={agenteDataForComparison.map((item) => ({
+                  ...item,
+                  averageValue: item.averageValue ?? 0,
+                }))}
+                globalAverage={salesStats?.averageValue}
+              />
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
 
-      {/* Third Row: Performance por Colaborador */}
-      <div className="grid grid-cols-1 gap-5">
-        <AnimatedSection delay={0.3}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Performance por Colaborador</h3>
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                Top 3
-              </span>
+      {/* ——— 4. Distribuição e perfil (3 col: 1 gráfico por coluna) ——— */}
+      <section aria-labelledby="topic-distribuicao">
+        <SectionTitle id="topic-distribuicao">
+          Distribuição e perfil
+        </SectionTitle>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <AnimatedSection delay={0.4}>
+            <div className="chart-card h-full min-h-[280px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Distribuição por Distrito</h3>
+              </div>
+              <VisitorAnalysisChart data={salesStats?.byDistrito || []} />
             </div>
-            <ColaboradorPerformanceChart data={userDataForComparison} />
-          </div>
-        </AnimatedSection>
-      </div>
-
-      {/* Fourth Row: Análise por Distrito */}
-      <div className="grid grid-cols-1 gap-5">
-        <AnimatedSection delay={0.4}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Distribuição por Distrito</h3>
+          </AnimatedSection>
+          <AnimatedSection delay={0.45}>
+            <div className="chart-card h-full min-h-[280px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Distribuição de Rating</h3>
+              </div>
+              <RatingDistributionChart data={salesStats?.byRating || []} />
             </div>
-            <VisitorAnalysisChart data={salesStats?.byDistrito || []} />
-          </div>
-        </AnimatedSection>
-      </div>
-
-      {/* Fifth Row: Performance por Agente */}
-      <div className="grid grid-cols-1 gap-5">
-        <AnimatedSection delay={0.5}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Performance por Agente</h3>
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                Top 10
-              </span>
+          </AnimatedSection>
+          <AnimatedSection delay={0.5}>
+            <div className="chart-card h-full min-h-[280px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="chart-card-title">Fracionamento</h3>
+              </div>
+              <FracionamentoChart
+                data={salesStats?.byFracionamento || []}
+                centerLabel={fracionamentoCenterLabel}
+              />
             </div>
-            <AgentePerformanceChart
-              data={agenteDataForComparison.map((item) => ({
-                ...item,
-                averageValue: item.averageValue ?? 0,
-              }))}
-              globalAverage={salesStats?.averageValue}
-            />
-          </div>
-        </AnimatedSection>
-      </div>
-
-      {/* Sixth Row: Rating + Ticket Médio Agente */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <AnimatedSection delay={0.6}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Distribuição de Rating</h3>
-            </div>
-            <RatingDistributionChart data={salesStats?.byRating || []} />
-          </div>
-        </AnimatedSection>
-
-        <AnimatedSection delay={0.65}>
-          <div className="chart-card h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="chart-card-title">Ticket Médio por Agente</h3>
-            </div>
-            <TicketMedioAgenteChart
-              data={agenteDataForComparison.map((item) => ({
-                ...item,
-                averageValue: item.averageValue ?? 0,
-              }))}
-              globalAverage={salesStats?.averageValue}
-            />
-          </div>
-        </AnimatedSection>
-      </div>
+          </AnimatedSection>
+        </div>
+      </section>
     </div>
   );
 }

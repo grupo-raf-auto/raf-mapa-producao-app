@@ -26,9 +26,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   const count = payload[0]?.value;
   const totalValue = payload[0]?.payload?.totalValue;
+  const fullName = payload[0]?.payload?.fullName ?? label;
   return (
     <div className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-md">
-      <p className="text-sm font-semibold text-foreground">{label}</p>
+      <p className="text-sm font-semibold text-foreground">{fullName}</p>
       <dl className="mt-1.5 space-y-1">
         <div className="flex items-baseline justify-between gap-4">
           <dt className="text-xs text-muted-foreground">Operações</dt>
@@ -54,23 +55,28 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function SeguradoraChart({ data }: SeguradoraChartProps) {
+  const maxLabelLen = 16;
   const chartData =
     data.length > 0
-      ? data.slice(0, 5).map((item, index) => ({
+      ? data.slice(0, 6).map((item, index) => ({
           name:
-            item.name.length > 12
-              ? item.name.substring(0, 12) + '...'
+            item.name.length > maxLabelLen
+              ? item.name.slice(0, maxLabelLen).trim() + '…'
               : item.name,
           fullName: item.name,
           count: item.count,
           totalValue: item.totalValue,
           color: COLORS[index % COLORS.length],
         }))
-      : [
-          { name: 'Fidelidade', count: 0, totalValue: 0, color: COLORS[0] },
-          { name: 'Allianz', count: 0, totalValue: 0, color: COLORS[1] },
-          { name: 'Tranquilidade', count: 0, totalValue: 0, color: COLORS[2] },
-        ];
+      : [];
+
+  if (chartData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[220px] text-muted-foreground text-sm rounded border border-border/50 bg-muted/20">
+        Sem dados de seguradora
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-[220px]">
@@ -78,13 +84,14 @@ export function SeguradoraChart({ data }: SeguradoraChartProps) {
         <BarChart
           data={chartData}
           layout="vertical"
-          margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+          margin={{ top: 8, right: 16, left: 4, bottom: 8 }}
+          barCategoryGap="24%"
         >
           <XAxis
             type="number"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: chartColors.axis, fontSize: 10 }}
+            tick={{ fill: chartColors.axis, fontSize: 11 }}
           />
           <YAxis
             type="category"
@@ -92,13 +99,14 @@ export function SeguradoraChart({ data }: SeguradoraChartProps) {
             axisLine={false}
             tickLine={false}
             tick={{ fill: chartColors.axis, fontSize: 11 }}
-            width={90}
+            width={92}
+            tickMargin={8}
           />
           <Tooltip
             content={<CustomTooltip />}
             cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
           />
-          <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={24}>
+          <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={22}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}

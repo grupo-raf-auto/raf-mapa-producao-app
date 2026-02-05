@@ -22,6 +22,8 @@ interface DashboardStatusChartProps {
   data: { month: string; count: number; totalValue: number }[];
   timeFilter?: TimeFilterType;
   showOnlyCount?: boolean;
+  /** Label para a série de contagem no tooltip (ex. "Submissões" para crédito/imobiliária, "Apólices" para seguros) */
+  countLabel?: string;
 }
 
 const monthNames = [
@@ -69,7 +71,7 @@ function getDefaultRange(length: number) {
   return { startIndex: length - DEFAULT_VISIBLE_POINTS, endIndex: length - 1 };
 }
 
-const TOOLTIP_LABELS: Record<string, string> = {
+const DEFAULT_TOOLTIP_LABELS: Record<string, string> = {
   Apólices: 'Operações',
   'Valor (€)': 'Valor (mil €)',
 };
@@ -79,14 +81,18 @@ function CustomTooltip({
   payload,
   label,
   labelFormatter,
+  countLabel,
 }: {
   active?: boolean;
   payload?: Array<{ name: string; value: number; color: string }>;
   label?: string;
   labelFormatter?: (key: string) => string;
+  countLabel?: string;
 }) {
   if (!active || !payload?.length) return null;
   const displayLabel = labelFormatter && label ? labelFormatter(label) : label;
+  const tooltipLabels = { ...DEFAULT_TOOLTIP_LABELS };
+  if (countLabel) tooltipLabels['Apólices'] = countLabel;
   return (
     <div className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-md">
       <p className="text-sm font-semibold text-foreground">{displayLabel}</p>
@@ -97,7 +103,7 @@ function CustomTooltip({
             className="flex items-baseline justify-between gap-4"
           >
             <dt className="text-xs text-muted-foreground">
-              {TOOLTIP_LABELS[entry.name] ?? entry.name}
+              {tooltipLabels[entry.name] ?? entry.name}
             </dt>
             <dd className="text-xs font-medium tabular-nums text-foreground">
               {entry.value != null ? entry.value.toLocaleString('pt-PT') : '—'}
@@ -113,6 +119,7 @@ export function DashboardStatusChart({
   data,
   timeFilter = 'monthly',
   showOnlyCount = false,
+  countLabel,
 }: DashboardStatusChartProps) {
   // periodKey = chave única (ex. 2025-02, 2026-02); monthLabel = texto para eixo (Fev, Fev com ano se necessário)
   const chartData = useMemo(
@@ -283,7 +290,11 @@ export function DashboardStatusChart({
                 />
                 <Tooltip
                   content={(props) => (
-                    <CustomTooltip {...props} labelFormatter={labelFormatter} />
+                    <CustomTooltip
+                      {...props}
+                      labelFormatter={labelFormatter}
+                      countLabel={countLabel}
+                    />
                   )}
                   cursor={{ stroke: chartColors.axis, strokeWidth: 1 }}
                 />

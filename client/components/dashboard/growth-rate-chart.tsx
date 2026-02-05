@@ -120,14 +120,14 @@ export function GrowthRateChart({ data }: GrowthRateChartProps) {
               {latestGrowth.toFixed(1)}%
             </span>
             <span className="text-xs text-muted-foreground ml-1">
-              ultimo mes
+              último mês
             </span>
           </div>
         </div>
         <div className="text-right">
-          <span className="text-sm text-muted-foreground">Media: </span>
+          <span className="text-sm text-muted-foreground">Média: </span>
           <span
-            className={`text-sm font-medium ${avgGrowth >= 0 ? 'text-emerald-600' : 'text-red-600'}`}
+            className={`text-sm font-medium ${avgGrowth >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}
           >
             {avgGrowth >= 0 ? '+' : ''}
             {avgGrowth.toFixed(1)}%

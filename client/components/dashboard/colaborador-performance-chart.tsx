@@ -13,13 +13,18 @@ interface ColaboradorPerformanceChartProps {
   }[];
   /** Ordenar e exibir ranking por número de operações (ex.: apólices) em vez de valor */
   rankByCount?: boolean;
+  /** Unidade para contagem: singular e plural (ex. { singular: 'apólice', plural: 'apólices' }) */
+  countUnit?: { singular: string; plural: string };
 }
 
 const MEDAL_COLORS = [...chartColors.medal];
 
+const DEFAULT_COUNT_UNIT = { singular: 'apólice', plural: 'apólices' };
+
 export function ColaboradorPerformanceChart({
   data,
   rankByCount = false,
+  countUnit = DEFAULT_COUNT_UNIT,
 }: ColaboradorPerformanceChartProps) {
   const sortedData =
     data.length > 0
@@ -83,7 +88,7 @@ export function ColaboradorPerformanceChart({
                   </span>
                   <span className="text-sm font-semibold text-foreground ml-2">
                     {rankByCount
-                      ? `${item.count} apólice${item.count !== 1 ? 's' : ''}`
+                      ? `${item.count} ${item.count !== 1 ? countUnit.plural : countUnit.singular}`
                       : item.totalValue.toLocaleString('pt-PT', {
                           style: 'currency',
                           currency: 'EUR',

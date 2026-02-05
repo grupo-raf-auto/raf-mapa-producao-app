@@ -184,22 +184,31 @@ export default function SelectModelsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {MODEL_OPTIONS.map((model) => {
                   const isSelected = selectedModels.includes(model.value);
+                  const toggleModel = () => handleToggleModel(model.value);
                   return (
-                    <button
+                    <div
                       key={model.value}
-                      type="button"
-                      onClick={() => handleToggleModel(model.value)}
-                      disabled={isLoading}
-                      className={`relative rounded-xl border-2 p-4 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 ${
+                      role="button"
+                      tabIndex={0}
+                      onClick={toggleModel}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          toggleModel();
+                        }
+                      }}
+                      aria-pressed={isSelected}
+                      aria-disabled={isLoading}
+                      className={`relative rounded-xl border-2 p-4 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 cursor-pointer ${
                         isSelected
                           ? 'border-primary bg-primary/5'
                           : 'border-border bg-card hover:border-primary/30 hover:bg-muted/30'
-                      }`}
+                      } ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
                     >
                       <div className="absolute top-3 right-3">
                         <Checkbox
                           checked={isSelected}
-                          onChange={() => handleToggleModel(model.value)}
+                          onChange={toggleModel}
                           disabled={isLoading}
                           className="pointer-events-none"
                         />
@@ -217,7 +226,7 @@ export default function SelectModelsPage() {
                           Selecionado
                         </div>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>

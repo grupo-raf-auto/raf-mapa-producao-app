@@ -76,6 +76,25 @@ import { cn } from '@/lib/utils';
 /** Título da questão "Agente" – não editável no modo editar (registo já associado ao agente). */
 const AGENT_QUESTION_TITLE = 'Agente';
 
+/** Formata o valor da resposta para exibição; datas em ISO são mostradas em formato legível (pt). */
+function formatAnswerForDisplay(
+  value: string | undefined,
+  question: { inputType?: string },
+): string {
+  if (value == null || String(value).trim() === '') return '';
+  const str = String(value).trim();
+  if (question.inputType === 'date') {
+    const d = new Date(str);
+    if (!Number.isNaN(d.getTime())) return format(d, 'PPP', { locale: pt });
+  }
+  // Valores em formato ISO date (ex.: 2026-02-03T00:00:00.000Z) também são formatados
+  if (/^\d{4}-\d{2}-\d{2}(T|\s|$)/.test(str)) {
+    const d = new Date(str);
+    if (!Number.isNaN(d.getTime())) return format(d, 'PPP', { locale: pt });
+  }
+  return value;
+}
+
 interface Submission {
   _id?: string;
   templateId: string;
@@ -950,7 +969,10 @@ export function ConsultasDataTable({
                                     ) : (
                                       <div className="mt-2">
                                         <p className="text-sm text-foreground bg-muted/50 border border-border rounded-md p-3 min-h-[40px] flex items-center">
-                                          {answer || (
+                                          {formatAnswerForDisplay(
+                                            answer,
+                                            question,
+                                          ) || (
                                             <span className="text-muted-foreground italic">
                                               Sem resposta
                                             </span>

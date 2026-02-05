@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Dialog,
@@ -6,12 +6,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { CreateTemplateDialog } from "@/components/templates/create-template-dialog";
-import { TemplatesList } from "@/components/templates/templates-list";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { CreateTemplateDialog } from '@/components/templates/create-template-dialog';
+import { TemplatesList } from '@/components/templates/templates-list';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface TemplatesManagementDialogProps {
   open: boolean;
@@ -48,7 +48,7 @@ export function TemplatesManagementDialog({
         <div className="flex-1 overflow-hidden">
           <ScrollArea className="h-full w-full">
             <div className="px-6 py-4">
-              <TemplatesList />
+              <TemplatesList showFillButton={false} />
             </div>
           </ScrollArea>
         </div>

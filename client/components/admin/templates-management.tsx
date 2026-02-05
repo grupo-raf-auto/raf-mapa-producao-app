@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { CreateTemplateDialog } from "@/components/templates/create-template-dialog";
-import { TemplatesList } from "@/components/templates/templates-list";
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { CreateTemplateDialog } from '@/components/templates/create-template-dialog';
+import { TemplatesList } from '@/components/templates/templates-list';
 
 export function TemplatesManagement() {
   return (
@@ -23,7 +23,7 @@ export function TemplatesManagement() {
         </CreateTemplateDialog>
       </div>
 
-      <TemplatesList />
+      <TemplatesList showFillButton={false} />
     </div>
   );
 }

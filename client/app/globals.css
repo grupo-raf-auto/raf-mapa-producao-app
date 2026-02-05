@@ -548,7 +548,7 @@
 .chart-card-header {
   display: flex;
   align-items: center;
-  justify-content: between;
+  justify-content: space-between;
   margin-bottom: 1rem;
 }
 
@@ -652,6 +652,168 @@
 .dark .data-table tr:hover td {
   background: var(--table-row-hover);
   transition: background-color 0.2s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PERFORMANCE TABLE (admin — tabela completa de desempenho)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.performance-table-card {
+  background: var(--card);
+  border-radius: 0.875rem;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.dark .performance-table-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.performance-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.75rem 1.5rem;
+  background: var(--table-header);
+  border-bottom: 1px solid var(--border);
+}
+
+.performance-table-count {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.performance-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.performance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.performance-table-header-row {
+  border-bottom: none;
+  background: transparent;
+}
+
+.performance-table-header-row:hover {
+  background: transparent;
+}
+
+.performance-table-head {
+  padding: 0.75rem 1rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+  background: var(--table-header);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.performance-table-head-user {
+  min-width: 180px;
+  padding-left: 1.25rem;
+}
+
+.performance-table-head-num {
+  min-width: 4.5rem;
+}
+
+.performance-table-row {
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.15s ease;
+}
+
+.performance-table-row:last-child {
+  border-bottom: none;
+}
+
+.performance-table-row:hover {
+  background: var(--table-row-hover);
+}
+
+.performance-table-cell {
+  padding: 0.875rem 1rem;
+  vertical-align: middle;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+}
+
+.performance-table-row:last-child .performance-table-cell {
+  border-bottom: none;
+}
+
+.performance-table-cell-user {
+  padding-left: 1.25rem;
+  min-width: 180px;
+}
+
+.performance-table-user {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.performance-table-user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.performance-table-user-name {
+  font-weight: 600;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.performance-table-user-email {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.performance-table-badge-role {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.3125rem 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-width: 1px;
+}
+
+.performance-table-cell-num {
+  min-width: 4.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.performance-table-meta {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-left: 0.25rem;
+}
+
+.performance-table-activity {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.performance-table-badge {
+  font-size: 0.6875rem;
+  padding: 0.125rem 0.5rem;
+}
+
+.performance-table-date {
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
 }
 
 /* Status Badges */

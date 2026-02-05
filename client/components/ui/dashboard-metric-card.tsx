@@ -83,14 +83,35 @@ function Sparkline({
   width?: number;
   height?: number;
 }) {
-  if (!data || data.length === 0) {
-    // Default sparkline data
-    data = [30, 45, 35, 50, 40, 55, 45, 60, 50, 65];
-  }
-
   const padding = 4;
   const innerWidth = width - padding * 2;
   const innerHeight = height - padding * 2;
+
+  // Sem dados: linha plana na base (evita dados fictícios)
+  if (!data || data.length === 0) {
+    const flatY = innerHeight;
+    const path = `M 0 ${flatY} L ${innerWidth} ${flatY}`;
+    return (
+      <svg
+        width={width}
+        height={height}
+        className="overflow-visible"
+        aria-hidden
+      >
+        <g transform={`translate(${padding}, ${padding})`}>
+          <path
+            d={path}
+            stroke={color}
+            strokeWidth={1.5}
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray="4 4"
+            opacity={0.4}
+          />
+        </g>
+      </svg>
+    );
+  }
 
   if (type === 'bars') {
     const barWidth = (innerWidth / data.length) * 0.7;
@@ -261,7 +282,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
         {/* Icon */}
         {IconComponent && (
           <div
-            className="kpi-card-icon flex-shrink-0"
+            className="kpi-card-icon shrink-0"
             style={{ backgroundColor: colors.bg }}
           >
             <IconComponent
@@ -272,37 +293,39 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
           </div>
         )}
 
-        {/* Text content */}
+        {/* Text content: value prominent, then title, then context */}
         <div className="min-w-0">
-          <div className="flex items-baseline gap-2">
-            <span
-              className="text-lg font-bold tracking-tight"
-              style={{ color: colors.text }}
-            >
-              {typeof value === 'number'
-                ? value.toLocaleString('pt-PT')
-                : value}
-            </span>
-            {trendChange && (
-              <span
-                className={cn(
-                  'flex items-center text-xs font-medium',
-                  trendColorClass,
-                )}
-              >
-                <TrendIcon className="h-3 w-3 mr-0.5" />
-                {trendChange}
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+          <span
+            className="block text-xl font-bold tracking-tight leading-tight"
+            style={{ color: colors.text }}
+          >
+            {typeof value === 'number' ? value.toLocaleString('pt-PT') : value}
+          </span>
+          <p className="text-xs font-medium text-foreground mt-1 truncate">
             {title}
           </p>
+          {(trendChange || description) && (
+            <p
+              className={cn(
+                'text-[11px] mt-0.5 truncate',
+                trendChange ? trendColorClass : 'text-muted-foreground',
+              )}
+            >
+              {trendChange ? (
+                <span className="flex items-center gap-1">
+                  <TrendIcon className="h-2.5 w-2.5 shrink-0" />
+                  {trendChange}
+                </span>
+              ) : (
+                description
+              )}
+            </p>
+          )}
         </div>
       </div>
 
       {/* Right side - Sparkline */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <Sparkline
           data={sparklineData || []}
           type={sparklineType}

@@ -66,7 +66,7 @@ function isUnauthorizedError(errorMessage: string, status: number): boolean {
 async function fetchWithAuth(path: string, options: RequestInit = {}) {
   const method = options.method || 'GET';
   const cacheKey = getCacheKey(path, options);
-  const skipCache = path === 'users/stats'; // Admin stats: sempre dados frescos
+  const skipCache = path === 'users/stats' || path === 'notifications'; // Admin stats e notificações: sempre dados frescos
 
   // Use cache for GET requests (exceto users/stats)
   if (method === 'GET' && !skipCache) {
@@ -529,5 +529,38 @@ export const apiClient = {
       invalidateCache('user-models');
       return result;
     },
+  },
+  tickets: {
+    create: async (data: { title: string; description: string }) => {
+      const result = await fetchWithAuth('tickets', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      invalidateCache('notifications');
+      return result;
+    },
+    getAll: async (params?: { status?: string; unreadOnly?: boolean }) => {
+      const queryParams = new URLSearchParams();
+      if (params?.status) queryParams.append('status', params.status);
+      if (params?.unreadOnly) queryParams.append('unreadOnly', 'true');
+      const path = `tickets${queryParams.toString() ? `?${queryParams}` : ''}`;
+      return fetchWithAuth(path);
+    },
+    getById: async (id: string) => fetchWithAuth(`tickets/${id}`),
+    update: async (
+      id: string,
+      data: { readAt?: boolean; status?: 'open' | 'in_progress' | 'resolved' },
+    ) => {
+      const result = await fetchWithAuth(`tickets/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      });
+      invalidateCache('tickets');
+      invalidateCache('notifications');
+      return result;
+    },
+  },
+  notifications: {
+    get: async () => fetchWithAuth('notifications'),
   },
 };

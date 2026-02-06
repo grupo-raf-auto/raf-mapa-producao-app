@@ -2,30 +2,42 @@
 
 import { useEffect } from 'react';
 import { useSession } from '@/lib/auth-client';
-import { useModelContext, type UserModel } from '@/lib/context/model-context';
+import {
+  useOptionalModelContext,
+  type UserModel,
+} from '@/lib/context/model-context';
 import { apiClient } from '@/lib/api-client';
+
+const NO_CONTEXT_RETURN = {
+  models: [] as UserModel[],
+  activeModel: null as UserModel | null,
+  loading: false,
+  switchModel: async (_modelId: string) => {},
+  hasMultipleModels: false,
+  hasContext: false,
+} as const;
 
 /**
  * Hook para gerenciar modelos de usuário
- * Carrega os modelos do usuário autenticado e popula o ModelContext
+ * Carrega os modelos do usuário autenticado e popula o ModelContext.
+ * Se usado fora de ModelContextProvider, retorna estado vazio e hasContext: false (evita crash).
  *
  * Uso:
- * const { models, activeModel, switchModel, loading } = useUserModels();
+ * const { models, activeModel, switchModel, loading, hasContext } = useUserModels();
  */
 export function useUserModels() {
   const { data: session, isPending: sessionLoading } = useSession();
-  const modelContext = useModelContext();
+  const modelContext = useOptionalModelContext();
 
+  // Run only when session is ready; do not depend on modelContext to avoid
+  // infinite loop (context updates after loadUserModels → new reference → effect re-runs).
   useEffect(() => {
-    if (!session?.user || sessionLoading) return;
+    if (!modelContext || !session?.user || sessionLoading) return;
 
     loadUserModels();
 
     // Listen for model switch events from other tabs/windows
-    const handleModelSwitch = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      console.log('Model switched from another tab:', customEvent.detail);
-      // Optionally reload models to sync
+    const handleModelSwitch = () => {
       loadUserModels();
     };
 
@@ -34,9 +46,11 @@ export function useUserModels() {
     return () => {
       window.removeEventListener('model-switched', handleModelSwitch);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- modelContext intentionally omitted to prevent update loop
   }, [session?.user?.id, sessionLoading]);
 
   async function loadUserModels() {
+    if (!modelContext) return;
     try {
       modelContext.setLoading(true);
 
@@ -90,11 +104,16 @@ export function useUserModels() {
     }
   }
 
+  if (!modelContext) {
+    return { ...NO_CONTEXT_RETURN };
+  }
+
   return {
     models: modelContext.availableModels,
     activeModel: modelContext.activeModel,
     loading: modelContext.loading || sessionLoading,
     switchModel: modelContext.switchModel,
     hasMultipleModels: modelContext.hasMultipleModels,
+    hasContext: true,
   };
 }

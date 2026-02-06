@@ -4,55 +4,59 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './sidebar';
 import { ModelSelector } from './model-selector';
-import { SupportChatFab } from '@/components/support/support-chat-fab';
+import { ReportBugDialog } from './report-bug-dialog';
+import { NotificationsDropdown } from './notifications-dropdown';
 import { PageAnimation } from '@/components/ui/page-animation';
 import { Sidebar as SidebarBase } from '@/components/ui/sidebar';
-import { Moon, Sun, Bug, Power, Users } from 'lucide-react';
-import { useSession, authClient } from '@/lib/auth-client';
+import { Search, Bug, ChevronDown, LayoutGrid } from 'lucide-react';
+import { useSession } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
-import Link from 'next/link';
-import Image from 'next/image';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { authClient } from '@/lib/auth-client';
+import { Settings, HelpCircle, LogOut, Moon, Sun } from 'lucide-react';
 
-// Top bar with search and action buttons
+// Top bar with search, notifications and user profile
 function TopBar() {
   const { data: session } = useSession();
   const user = session?.user;
-  const isAdmin = session?.user.role === 'admin';
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith('/admin');
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [reportBugOpen, setReportBugOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const displayName =
+    user?.name ||
+    (user as { firstName?: string })?.firstName ||
+    user?.email?.split('@')[0] ||
+    'Utilizador';
+  const initial = (displayName as string)?.[0]?.toUpperCase() || 'U';
+  const userEmail = user?.email || '';
+
   const handleSignOut = async () => {
     try {
-      // Clear client-side auth state BEFORE server call to prevent race conditions
-      // This ensures the UI updates immediately even if server is slow
       localStorage.removeItem('activeModelId');
       sessionStorage.clear();
-
-      // Sign out from Better Auth (clears server session + cookies)
       await authClient.signOut();
-
-      // Force refresh to ensure session state is completely cleared
-      // This also ensures middleware validation on next navigation
       toast.success('Sessão terminada com sucesso');
-
-      // Use replace() instead of push() to prevent back button navigation to dashboard
-      // This is more secure as it removes the dashboard from browser history
       router.replace('/sign-in');
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Erro ao terminar sessão');
-
-      // Even if logout fails, still redirect to sign-in for security
-      // User should not see dashboard if logout fails
       router.replace('/sign-in');
     }
   };
@@ -61,85 +65,151 @@ function TopBar() {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
-  const handleReportBug = () => {
-    // Opens a bug report - could be a modal or external link
-    toast.info('Funcionalidade de reportar bug em desenvolvimento');
-  };
-
   return (
-    <div className="h-14 flex items-center justify-between px-6 border-b border-border bg-card/50 backdrop-blur-sm dark:bg-card/40">
-      {/* Logo RAF (esquerda) - visível no admin; spacer nas outras rotas */}
-      {isAdminRoute ? (
-        <Link
-          href="/admin"
-          className="flex items-center shrink-0 cursor-pointer"
-        >
-          <Image
-            src="/logo-raf.png"
-            alt="Grupo RAF"
-            width={80}
-            height={28}
-            className="h-7 w-auto object-contain"
-            priority
+    <div className="h-16 flex items-center justify-between px-6 border-b border-border/40 bg-card/80 backdrop-blur-sm">
+      {/* Left side - Search bar */}
+      <div className="flex items-center gap-4">
+        {/* Search Input */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Pesquisar..."
+            className="w-64 h-10 pl-10 pr-12 rounded-xl bg-muted/50 border border-border/50 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
           />
-        </Link>
-      ) : (
-        <div />
-      )}
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground bg-background border border-border rounded">
+            ⌘F
+          </kbd>
+        </div>
+      </div>
 
-      {/* Right side - action buttons */}
-      <div className="flex items-center gap-2">
+      {/* Right side - Actions & Profile */}
+      <div className="flex items-center gap-3">
         {/* Model Selector - only show for users (not admins) */}
         {!isAdminRoute && <ModelSelector />}
 
-        {/* CRM MyCredit button */}
-        <Link
-          href="/crm"
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-medium hover:bg-emerald-600 transition-colors cursor-pointer"
-        >
-          <Users className="w-3.5 h-3.5" />
-          CRM MyCredit
-        </Link>
-
-        {/* Dark mode toggle */}
-        <button
-          onClick={toggleTheme}
-          className="p-2 rounded-full border border-border bg-card hover:bg-muted transition-colors dark:bg-card/80 dark:hover:bg-muted/80 cursor-pointer"
-          title="Alternar tema"
-        >
-          {mounted && theme === 'dark' ? (
-            <Sun className="w-3.5 h-3.5 text-foreground" />
-          ) : (
-            <Moon className="w-3.5 h-3.5 text-foreground" />
-          )}
-        </button>
-
-        {/* Reportar Bug button */}
-        <button
-          onClick={handleReportBug}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-warning/10 text-warning text-xs font-medium hover:bg-warning/20 transition-colors dark:bg-warning/15 dark:text-warning dark:hover:bg-warning/25 cursor-pointer"
-        >
-          <Bug className="w-3.5 h-3.5" />
-          Reportar Bug
-        </button>
-
-        {/* Sair button - icon only */}
-        {user && (
-          <button
-            onClick={handleSignOut}
-            className="p-2 rounded-full border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors dark:bg-destructive/15 dark:hover:bg-destructive/25 cursor-pointer"
-            title="Sair"
+        {/* CRM MyCredit - link para o CRM */}
+        {!isAdminRoute && (
+          <a
+            href={
+              process.env.NEXT_PUBLIC_CRM_MYCREDIT_URL ||
+              'https://crm.my-credit.pt/'
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-accent text-accent-foreground hover:opacity-90 font-medium text-xs transition-colors cursor-pointer shadow-sm"
           >
-            <Power className="w-3.5 h-3.5" />
-          </button>
+            <LayoutGrid className="w-4 h-4 shrink-0" />
+            <span>CRM MyCredit</span>
+          </a>
+        )}
+
+        {/* Report bug - abre modal para utilizador reportar */}
+        <button
+          type="button"
+          title="Reportar um problema"
+          aria-label="Reportar um problema ou bug"
+          onClick={() => setReportBugOpen(true)}
+          className="relative p-2.5 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+        >
+          <Bug className="w-5 h-5 text-muted-foreground" />
+        </button>
+
+        {/* Notifications - contexto: admin = bugs; user = comissões pagas */}
+        <NotificationsDropdown />
+
+        {/* User Profile Dropdown */}
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer">
+                {/* Avatar */}
+                <Avatar className="w-9 h-9 shadow-lg">
+                  <AvatarImage
+                    src={user.image || undefined}
+                    alt={displayName}
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-800 text-white font-semibold text-sm">
+                    {initial}
+                  </AvatarFallback>
+                </Avatar>
+                {/* Name & Email */}
+                <div className="text-left hidden sm:block">
+                  <p className="text-sm font-semibold text-foreground leading-tight">
+                    {displayName}
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-tight">
+                    {userEmail}
+                  </p>
+                </div>
+                <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-3 py-2 border-b border-border">
+                <p className="text-sm font-medium">{displayName}</p>
+                <p className="text-xs text-muted-foreground">{userEmail}</p>
+              </div>
+              <DropdownMenuItem
+                onClick={toggleTheme}
+                className="cursor-pointer"
+              >
+                {mounted && theme === 'dark' ? (
+                  <>
+                    <Sun className="w-4 h-4 mr-2" />
+                    Modo Claro
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-4 h-4 mr-2" />
+                    Modo Escuro
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push('/settings')}
+                className="cursor-pointer"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Definições
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push('/help')}
+                className="cursor-pointer"
+              >
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Ajuda
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleSignOut}
+                className="cursor-pointer text-destructive focus:text-destructive"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Terminar Sessão
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
+
+      <ReportBugDialog open={reportBugOpen} onOpenChange={setReportBugOpen} />
     </div>
   );
 }
 
 function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith('/admin');
+
+  // Admin has its own sidebar and layout - render directly without wrapper
+  if (isAdminRoute) {
+    return (
+      <PageAnimation key={pathname} className="flex-1 h-full flex">
+        {children}
+      </PageAnimation>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
@@ -159,25 +229,22 @@ function MainContent({ children }: { children: React.ReactNode }) {
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const isAdminPage = pathname === '/admin';
-  const showSidebar = !isAdminPage;
+  const isAdminRoute = pathname.startsWith('/admin');
 
   return (
     <SidebarBase open={sidebarOpen} setOpen={setSidebarOpen}>
       {/* Background */}
       <div className="h-screen w-full p-4 md:p-6 lg:p-8 overflow-hidden bg-background">
         {/* Floating Dashboard Container */}
-        <div className="floating-dashboard h-[calc(100vh-2rem)] md:h-[calc(100vh-3rem)] lg:h-[calc(100vh-4rem)] flex overflow-hidden relative">
-          {/* Sidebar */}
-          {showSidebar && <Sidebar />}
+        <div
+          id="dashboard-container"
+          className="floating-dashboard h-[calc(100vh-2rem)] md:h-[calc(100vh-3rem)] lg:h-[calc(100vh-4rem)] flex overflow-hidden relative"
+        >
+          {/* Sidebar - only show user sidebar for non-admin routes */}
+          {!isAdminRoute && <Sidebar />}
 
           {/* Main Content */}
           <MainContent>{children}</MainContent>
-
-          {/* Support Chat FAB */}
-          <div className="absolute bottom-6 right-6">
-            <SupportChatFab />
-          </div>
         </div>
       </div>
     </SidebarBase>

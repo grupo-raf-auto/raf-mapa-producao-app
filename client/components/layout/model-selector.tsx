@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUserModels } from '@/lib/hooks/use-user-models';
-import { useModelContext } from '@/lib/context/model-context';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,14 +41,16 @@ const modelConfig = {
 };
 
 export function ModelSelector() {
-  const { models, activeModel, switchModel, loading } = useUserModels();
-  const { switchModel: contextSwitchModel } = useModelContext();
+  const { models, activeModel, switchModel, loading, hasContext } =
+    useUserModels();
   const [isSwitching, setIsSwitching] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  if (!hasContext) return null;
 
   // Mostrar skeleton enquanto carrega
   if (!mounted || loading) {
@@ -84,7 +85,7 @@ export function ModelSelector() {
 
     try {
       setIsSwitching(true);
-      await contextSwitchModel(modelId);
+      await switchModel(modelId);
       toast.success('Modelo alterado com sucesso');
     } catch (error) {
       toast.error('Erro ao trocar modelo');

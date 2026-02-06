@@ -9,9 +9,12 @@ import {
   FileStack,
   Brain,
   FileCheck,
+  Settings,
+  HelpCircle,
+  User,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useSession } from '@/lib/auth-client';
+import { SidebarSupportChat } from './sidebar-support-chat';
 
 // Navegação principal - visível para todos
 const mainNavigation = [
@@ -51,47 +54,67 @@ const intelligentTools = [
   },
 ];
 
+// General menu items
+const generalNavigation = [
+  {
+    label: 'Definições',
+    href: '/settings',
+    icon: Settings,
+    description: 'Configurações da conta',
+  },
+  {
+    label: 'Ajuda',
+    href: '/help',
+    icon: HelpCircle,
+    description: 'Centro de ajuda',
+  },
+];
+
 export function Sidebar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
-  const user = session?.user;
-
-  const displayName =
-    user?.name ||
-    (user as { firstName?: string })?.firstName ||
-    user?.email?.split('@')[0] ||
-    'Utilizador';
-  const initial = (displayName as string)?.[0]?.toUpperCase() || 'U';
-  const userEmail = user?.email || '';
 
   return (
-    <div className="w-[260px] flex-shrink-0 glass-sidebar flex flex-col relative overflow-hidden">
-      {/* Decorative glass shapes */}
-      <div className="glass-shape glass-shape-1" />
-      <div className="glass-shape glass-shape-2" />
-
+    <div className="w-[260px] flex-shrink-0 sidebar-donezo flex flex-col relative overflow-hidden">
       <div className="flex flex-col h-full relative z-10">
         {/* Logo Header */}
-        <div className="h-20 flex items-center justify-center border-b border-white/10 px-4 py-4">
-          <Link href="/" className="flex items-center cursor-pointer">
-            <div className="relative h-10 w-auto">
+        <div className="h-20 flex items-center px-6 border-b border-white/10">
+          <Link href="/" className="flex items-center gap-3 cursor-pointer">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
               <Image
-                src="/logo-raf.png"
-                alt="MYCREDIT - Intermediários de Crédito"
-                width={120}
-                height={40}
-                className="h-10 w-auto object-contain"
+                src="/logo-raf-favicon.png"
+                alt="RAF"
+                width={28}
+                height={28}
+                className="w-7 h-7 object-contain"
                 priority
               />
             </div>
+            <span className="text-lg font-bold text-white tracking-tight">
+              Grupo RAF
+            </span>
           </Link>
+        </div>
+
+        {/* User Badge - Top */}
+        <div className="px-4 pt-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center">
+                <User className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">Painel Utilizador</p>
+                <p className="text-[11px] text-white/60">Mapa de Produção</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden py-6">
           {/* Main Navigation */}
-          <nav className="space-y-2 px-4">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-4">
+          <nav className="space-y-1 px-4">
+            <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest px-3 mb-3">
               Menu
             </p>
             {mainNavigation.map((item) => {
@@ -105,24 +128,22 @@ export function Sidebar() {
                   href={item.href}
                   title={item.description}
                   className={cn(
-                    'sidebar-nav-link flex items-center gap-3 rounded-xl font-medium px-4 py-3.5 cursor-pointer',
+                    'flex items-center gap-3 rounded-xl font-medium px-4 py-3 cursor-pointer transition-all duration-200',
                     isActive
-                      ? 'active text-white'
-                      : 'text-muted-foreground hover:text-foreground',
+                      ? 'bg-white text-red-900 shadow-lg'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white',
                   )}
                 >
-                  <Icon className="shrink-0 h-5 w-5 transition-all" />
-                  <span className="text-sm whitespace-nowrap overflow-hidden">
-                    {item.label}
-                  </span>
+                  <Icon className="shrink-0 h-5 w-5" />
+                  <span className="text-sm">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
           {/* Intelligent Tools Section */}
-          <nav className="space-y-2 px-4 mt-8">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-4">
+          <nav className="space-y-1 px-4 mt-8">
+            <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest px-3 mb-3">
               Ferramentas
             </p>
             {intelligentTools.map((item) => {
@@ -136,43 +157,49 @@ export function Sidebar() {
                   href={item.href}
                   title={item.description}
                   className={cn(
-                    'sidebar-nav-link flex items-center gap-3 rounded-xl font-medium px-4 py-3.5 cursor-pointer',
+                    'flex items-center gap-3 rounded-xl font-medium px-4 py-3 cursor-pointer transition-all duration-200',
                     isActive
-                      ? 'active text-white'
-                      : 'text-muted-foreground hover:text-foreground',
+                      ? 'bg-white text-red-900 shadow-lg'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white',
                   )}
                 >
-                  <Icon className="shrink-0 h-5 w-5 transition-all" />
-                  <span className="text-sm whitespace-nowrap overflow-hidden">
-                    {item.label}
-                  </span>
+                  <Icon className="shrink-0 h-5 w-5" />
+                  <span className="text-sm">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* General Section */}
+          <nav className="space-y-1 px-4 mt-8">
+            <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest px-3 mb-3">
+              Geral
+            </p>
+            {generalNavigation.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  title={item.description}
+                  className={cn(
+                    'flex items-center gap-3 rounded-xl font-medium px-4 py-3 cursor-pointer transition-all duration-200',
+                    isActive
+                      ? 'bg-white text-red-900 shadow-lg'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white',
+                  )}
+                >
+                  <Icon className="shrink-0 h-5 w-5" />
+                  <span className="text-sm">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
         </div>
 
-        {/* User Profile */}
-        {user && (
-          <div className="mt-auto border-t border-white/10 px-4 py-5">
-            <div className="flex items-center gap-3.5">
-              {/* Avatar */}
-              <div className="shrink-0 h-10 w-10 rounded-full bg-gradient-to-br from-primary to-red-600 flex items-center justify-center text-white font-semibold shadow-lg shadow-primary/20 text-sm">
-                {initial}
-              </div>
-
-              {/* User Info */}
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-foreground truncate">
-                  {displayName}
-                </p>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">
-                  {userEmail}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Support Chat */}
+        <SidebarSupportChat />
       </div>
     </div>
   );

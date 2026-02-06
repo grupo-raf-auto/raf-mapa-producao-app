@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -198,20 +198,30 @@ function QuestionFormDialog({
     onOpenChange(next);
   };
 
-  const submit = form.handleSubmit(async (data) => {
-    setIsSubmitting(true);
-    try {
-      const payload = {
-        ...data,
-        options: (data.options ?? []).filter((s) => s.trim().length > 0),
-      };
-      await onSave(payload);
-      form.reset();
-      onOpenChange(false);
-    } finally {
-      setIsSubmitting(false);
-    }
-  });
+  const submit = (e: React.FormEvent) => {
+    // Prevenir propagação para formulários pai (CreateTemplateDialog/EditTemplateDialog)
+    e.preventDefault();
+    e.stopPropagation();
+
+    form.handleSubmit(async (data) => {
+      setIsSubmitting(true);
+      try {
+        const payload = {
+          ...data,
+          options: (data.options ?? []).filter((s) => s.trim().length > 0),
+        };
+        console.log('[QuestionFormDialog] Submitting:', payload);
+        await onSave(payload);
+        console.log('[QuestionFormDialog] onSave completed');
+        form.reset();
+        onOpenChange(false);
+      } catch (err) {
+        console.error('[QuestionFormDialog] Error in onSave:', err);
+      } finally {
+        setIsSubmitting(false);
+      }
+    })(e);
+  };
 
   const inputTypes = Object.keys(INPUT_TYPE_LABELS) as InputType[];
 
@@ -510,12 +520,14 @@ function SelectQuestionsDialog({
             </ScrollArea>
             <DialogFooter className="border-t pt-4">
               <Button
+                type="button"
                 variant="secondary"
                 onClick={() => handleOpenChange(false)}
               >
                 Cancelar
               </Button>
               <Button
+                type="button"
                 onClick={handleConfirm}
                 disabled={selectedArray.length === 0}
               >
@@ -559,6 +571,13 @@ export function TemplateQuestionsEditor({
     Partial<QuestionEntry> | undefined
   >();
 
+  // Ref para garantir que sempre temos o valor mais recente no saveForm
+  // Evita problemas de stale closure quando o diálogo está aberto
+  const valueRef = useRef(value);
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
   const selectedIds = value.map((e) => e.id).filter(Boolean) as string[];
 
   const addNew = useCallback(() => {
@@ -601,9 +620,13 @@ export function TemplateQuestionsEditor({
 
   const saveForm = useCallback(
     async (data: QuestionFormValues) => {
+      // Usar valueRef.current para garantir que temos o valor mais recente
+      // Isto evita problemas de stale closure quando o diálogo fica aberto por algum tempo
+      const currentValue = valueRef.current;
+
       if (editingIndex !== null) {
-        const entry = value[editingIndex];
-        const next = [...value];
+        const entry = currentValue[editingIndex];
+        const next = [...currentValue];
         next[editingIndex] = {
           ...entry,
           title: data.title,
@@ -616,20 +639,22 @@ export function TemplateQuestionsEditor({
           await onPersistQuestion(entry.id, data);
         }
       } else {
-        onChange([
-          ...value,
-          {
-            ...data,
-            inputType: data.inputType as InputType,
-            options: data.options,
-            isNew: true,
-          },
-        ]);
+        const newEntry = {
+          ...data,
+          inputType: data.inputType as InputType,
+          options: data.options,
+          isNew: true,
+        };
+        console.log('[QuestionsEditor] Adding new entry:', newEntry);
+        console.log('[QuestionsEditor] Current value (from ref):', currentValue);
+        const newValue = [...currentValue, newEntry];
+        console.log('[QuestionsEditor] New value after add:', newValue);
+        onChange(newValue);
       }
       setEditingIndex(null);
       setFormInitial(undefined);
     },
-    [editingIndex, value, onChange, onPersistQuestion],
+    [editingIndex, onChange, onPersistQuestion],
   );
 
   const handleSelectExisting = useCallback(
@@ -653,18 +678,23 @@ export function TemplateQuestionsEditor({
   );
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <ListOrdered className="h-4 w-4" />
-          <span>
+    <div className="space-y-3 min-w-0">
+      <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0 shrink">
+          <ListOrdered className="h-4 w-4 shrink-0" />
+          <span className="truncate">
             {value.length} questão{value.length !== 1 ? 'ões' : ''} no template
           </span>
         </div>
         {!disabled && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button type="button" variant="outline" size="sm">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0"
+              >
                 <Plus className="h-4 w-4 mr-1.5" />
                 Adicionar questão
               </Button>

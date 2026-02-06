@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -39,6 +38,7 @@ import {
 } from '@/components/templates/template-questions-editor';
 import { toast } from 'sonner';
 import { Spinner } from '@/components/ui/spinner';
+import { LayoutTemplate } from 'lucide-react';
 
 const MODEL_ALL = '__all__';
 const MODEL_OPTIONS = [
@@ -86,11 +86,16 @@ function sortQuestions(questions: QuestionFromApi[]): QuestionFromApi[] {
   });
 }
 
+interface CreateTemplateDialogProps {
+  children: React.ReactNode;
+  /** Chamado após criar o template com sucesso */
+  onCreated?: () => void;
+}
+
 export function CreateTemplateDialog({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  onCreated,
+}: CreateTemplateDialogProps) {
   const [open, setOpen] = useState(false);
   const [availableQuestions, setAvailableQuestions] = useState<
     QuestionFromApi[]
@@ -98,7 +103,6 @@ export function CreateTemplateDialog({
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [entries, setEntries] = useState<QuestionEntry[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
 
   const form = useForm<TemplateFormValues>({
     resolver: zodResolver(templateSchema),
@@ -134,18 +138,38 @@ export function CreateTemplateDialog({
     setIsSubmitting(true);
     try {
       const newEntries = entries.filter((e) => e.isNew);
+      console.log('[CreateTemplate] entries:', entries);
+      console.log('[CreateTemplate] newEntries (isNew=true):', newEntries);
+
       const createdIds =
         newEntries.length > 0
           ? await Promise.all(
               newEntries.map(async (entry) => {
-                const created = (await api.questions.create({
+                console.log('[CreateTemplate] Creating question:', entry.title);
+                const raw = await api.questions.create({
                   title: entry.title,
                   description: entry.description,
                   status: 'active',
                   inputType: entry.inputType,
                   options: entry.options,
-                })) as { id?: string; _id?: string };
-                return created?.id ?? created?._id ?? '';
+                });
+                console.log('[CreateTemplate] Question create response:', raw);
+                const created =
+                  (
+                    raw as {
+                      data?: { id?: string; _id?: string };
+                      id?: string;
+                      _id?: string;
+                    }
+                  )?.data ?? (raw as { id?: string; _id?: string });
+                const id = (created?.id ?? created?._id ?? '').trim();
+                if (!id) {
+                  console.error('[CreateTemplate] No ID in response:', raw);
+                  throw new Error(
+                    'Não foi possível obter o ID da questão criada.',
+                  );
+                }
+                return id;
               }),
             )
           : [];
@@ -166,10 +190,11 @@ export function CreateTemplateDialog({
       });
 
       toast.success('Template criado com sucesso.');
-      router.refresh();
       setOpen(false);
       form.reset();
       setEntries([]);
+      // Notificar o pai para atualizar a lista
+      onCreated?.();
     } catch (error) {
       console.error('Error creating template:', error);
       toast.error('Erro ao criar template. Tente novamente.');
@@ -186,108 +211,129 @@ export function CreateTemplateDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col p-0 gap-0">
-        <DialogHeader className="shrink-0 px-8 pt-8 pb-5 border-b bg-muted/30">
-          <DialogTitle className="text-xl">Novo Template</DialogTitle>
-          <DialogDescription className="text-muted-foreground mt-1">
-            Crie um template e defina as questões: selecione existentes ou crie
-            novas.
-          </DialogDescription>
+      <DialogContent
+        className="max-h-[90vh] flex flex-col p-0 gap-0 rounded-xl border shadow-2xl overflow-hidden !max-w-[min(96vw,1680px)] w-[min(96vw,1680px)]"
+        style={{ width: 'min(96vw, 1680px)', maxWidth: 'min(96vw, 1680px)' }}
+      >
+        <DialogHeader className="shrink-0 px-6 sm:px-10 pt-8 sm:pt-10 pb-5 sm:pb-6 border-b border-border/80 bg-gradient-to-b from-muted/50 to-background">
+          <div className="flex flex-col sm:flex-row items-start gap-4">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <LayoutTemplate className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+            <div className="space-y-1.5 pt-0.5 min-w-0 flex-1">
+              <DialogTitle className="text-xl sm:text-2xl font-semibold tracking-tight">
+                Novo Template
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-3xl">
+                Crie um template e defina as questões: selecione existentes ou
+                crie novas. Depois associe ao modelo para os utilizadores
+                preencherem.
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col flex-1 min-h-0"
           >
-            <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <div className="md:col-span-12">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Título do Template</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Digite o título do template"
-                            className="h-10"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="md:col-span-8">
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Descrição</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Descrição opcional"
-                            className="min-h-[88px] resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="md:col-span-4">
-                  <FormField
-                    control={form.control}
-                    name="modelType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Modelo</FormLabel>
-                        <Select
-                          value={field.value ?? MODEL_ALL}
-                          onValueChange={(v) => field.onChange(v)}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="h-10 w-full">
-                              <SelectValue placeholder="Selecione o modelo" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {MODEL_OPTIONS.map((opt) => (
-                              <SelectItem key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <p className="text-sm text-muted-foreground mt-1.5">
-                          Um modelo pode ter vários templates.
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="md:col-span-12 pt-2">
-                  <FormItem className="space-y-3">
-                    <div>
-                      <FormLabel className="text-base font-medium">
-                        Questões
-                      </FormLabel>
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        Adicione questões ao template: selecione das existentes
-                        ou crie novas. Pode reordenar, editar e remover.
-                      </p>
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              <div className="px-4 sm:px-6 md:px-10 py-6 sm:py-8 space-y-6 sm:space-y-8">
+                <section className="space-y-4 sm:space-y-5">
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                    Informação do template
+                  </h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+                    <div className="lg:col-span-12 min-w-0">
+                      <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Título do Template</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Ex.: Mapa de Produção Mensal"
+                                className="h-11 w-full min-w-0 rounded-lg border-border/80"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
+                    <div className="lg:col-span-8 min-w-0">
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem className="min-h-[100px]">
+                            <FormLabel>Descrição</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Descrição opcional do template"
+                                className="min-h-[100px] w-full min-w-0 resize-none rounded-lg border-border/80"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="lg:col-span-4 min-w-0 max-w-full lg:max-w-[320px]">
+                      <FormField
+                        control={form.control}
+                        name="modelType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Modelo</FormLabel>
+                            <Select
+                              value={field.value ?? MODEL_ALL}
+                              onValueChange={(v) => field.onChange(v)}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="h-11 w-full min-w-0 rounded-lg border-border/80">
+                                  <SelectValue placeholder="Selecione o modelo" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {MODEL_OPTIONS.map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <p className="text-sm text-muted-foreground mt-1.5">
+                              Um modelo pode ter vários templates.
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                <section className="space-y-4 rounded-xl border border-border/60 bg-muted/20 p-4 sm:p-6 min-w-0">
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                      Questões
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Adicione questões: selecione das existentes ou crie novas.
+                      Pode reordenar, editar e remover.
+                    </p>
+                  </div>
+                  <FormItem className="space-y-3">
                     <TemplateQuestionsEditor
                       value={entries}
                       onChange={setEntries}
                       availableQuestions={availableQuestions}
                       loadingAvailable={loadingQuestions}
-                      minHeight="280px"
+                      minHeight="300px"
                     />
                     {entries.length === 0 && (
                       <p className="text-sm text-destructive mt-1">
@@ -295,22 +341,24 @@ export function CreateTemplateDialog({
                       </p>
                     )}
                   </FormItem>
-                </div>
+                </section>
               </div>
             </div>
 
-            <div className="shrink-0 flex justify-end gap-2 px-8 py-4 border-t bg-background">
+            <div className="shrink-0 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 px-4 sm:px-6 md:px-10 py-4 sm:py-5 border-t border-border/80 bg-muted/30">
               <Button
                 type="button"
-                variant="secondary"
+                variant="outline"
                 onClick={() => setOpen(false)}
                 disabled={isSubmitting}
+                className="w-full sm:w-auto min-w-0 sm:min-w-[100px]"
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
                 disabled={entries.length === 0 || isSubmitting}
+                className="w-full sm:w-auto min-w-0 sm:min-w-[140px]"
               >
                 {isSubmitting ? (
                   <>

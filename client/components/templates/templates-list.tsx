@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -48,12 +47,14 @@ const MODEL_BADGE_CLASS: Record<string, string> = {
 
 interface Template {
   _id?: string;
+  id?: string;
   title: string;
   description?: string;
   modelType?: string | null;
   questions: string[];
   _questions?: {
     _id?: string;
+    id?: string;
     title: string;
     description?: string;
     inputType?: string;
@@ -61,15 +62,21 @@ interface Template {
   }[];
   createdAt: Date | string;
   updatedAt: Date | string;
-  isDefault?: boolean;
+  createdBy?: string;
+  isPublic?: boolean;
 }
 
 interface TemplatesListProps {
   /** Mostrar botão Preencher e dialog (ocultar para admin). Default true. */
   showFillButton?: boolean;
+  /** Mostrar botões Editar e Excluir (apenas admin na área de templates). Default true em contexto admin. */
+  showEditActions?: boolean;
 }
 
-export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
+export function TemplatesList({
+  showFillButton = true,
+  showEditActions = true,
+}: TemplatesListProps) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +84,6 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [fillingTemplate, setFillingTemplate] = useState<Template | null>(null);
   const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
-  const router = useRouter();
 
   // Carregar templates
   useEffect(() => {
@@ -103,8 +109,7 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
     try {
       await api.templates.delete(id);
       // Atualizar lista local removendo o template excluído
-      setTemplates((prev) => prev.filter((t) => t._id !== id));
-      router.refresh();
+      setTemplates((prev) => prev.filter((t) => t._id !== id && t.id !== id));
     } catch (error) {
       console.error('Error deleting template:', error);
       const message =
@@ -210,7 +215,7 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {templates.map((template) => (
             <Card
-              key={template._id}
+              key={template._id ?? template.id ?? template.title}
               className={cn(
                 'overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm',
                 'transition-all duration-200 ease-out',
@@ -286,51 +291,54 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
                       Preencher
                     </Button>
                   )}
-                  <Button
-                    variant="outline"
-                    size="default"
-                    className="min-w-[2.75rem] font-medium md:min-w-0"
-                    onClick={() => handleEdit(template)}
-                  >
-                    <Edit className="h-4 w-4 shrink-0 md:mr-1.5" />
-                    <span className="hidden md:inline">Editar</span>
-                  </Button>
-                  {!template.isDefault && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                          aria-label="Excluir template"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Confirmar exclusão
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Tem certeza que deseja excluir o template &quot;
-                            {template.title}&quot;? Esta ação não pode ser
-                            desfeita.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() =>
-                              template._id && handleDelete(template._id)
-                            }
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  {showEditActions && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="default"
+                        className="min-w-[2.75rem] font-medium md:min-w-0"
+                        onClick={() => handleEdit(template)}
+                      >
+                        <Edit className="h-4 w-4 shrink-0 md:mr-1.5" />
+                        <span className="hidden md:inline">Editar</span>
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            aria-label="Excluir template"
                           >
-                            Excluir
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Confirmar exclusão
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir o template &quot;
+                              {template.title}&quot;? Esta ação não pode ser
+                              desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() =>
+                                (template._id ?? template.id) &&
+                                handleDelete(template._id ?? template.id!)
+                              }
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </>
                   )}
                 </div>
               </CardContent>
@@ -344,6 +352,16 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
           template={editingTemplate}
           open={isEditDialogOpen}
           onOpenChange={handleEditDialogClose}
+          onSaved={(updated) => {
+            setEditingTemplate(updated);
+            setTemplates((prev) =>
+              prev.map((t) =>
+                t._id === updated._id || t._id === updated.id
+                  ? { ...t, ...updated, _id: updated._id ?? updated.id }
+                  : t,
+              ),
+            );
+          }}
         />
       )}
 

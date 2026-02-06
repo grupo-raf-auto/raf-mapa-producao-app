@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -61,18 +60,22 @@ interface QuestionFromApiWithId extends QuestionFromApi {
 
 interface Template {
   _id?: string;
+  id?: string;
   title: string;
   description?: string;
   modelType?: string | null;
   questions: string[];
   _questions?: QuestionFromApiWithId[];
-  isDefault?: boolean;
+  createdBy?: string;
+  isPublic?: boolean;
 }
 
 interface EditTemplateDialogProps {
   template: Template;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Chamado após guardar com sucesso; recebe o template atualizado. Se não fechar o modal, use para atualizar o template no estado do pai. */
+  onSaved?: (updatedTemplate: Template) => void;
 }
 
 const questionOrder = [
@@ -109,7 +112,9 @@ function templateToEntries(template: Template): QuestionEntry[] {
   const qs = template._questions ?? [];
   if (qs.length > 0) {
     return qs.map((q) => ({
-      id: q._id,
+      id:
+        (q as { _id?: string; id?: string })._id ??
+        (q as { _id?: string; id?: string }).id,
       title: q.title,
       description: q.description,
       inputType: q.inputType,
@@ -123,6 +128,7 @@ export function EditTemplateDialog({
   template,
   open,
   onOpenChange,
+  onSaved,
 }: EditTemplateDialogProps) {
   const [entries, setEntries] = useState<QuestionEntry[]>([]);
   const [availableQuestions, setAvailableQuestions] = useState<
@@ -130,7 +136,6 @@ export function EditTemplateDialog({
   >([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
 
   const form = useForm<TemplateFormValues>({
     resolver: zodResolver(templateSchema),
@@ -145,7 +150,13 @@ export function EditTemplateDialog({
   });
 
   const initialEntries = useMemo(() => templateToEntries(template), [template]);
+  const hasOpenedRef = useRef(false);
+  /** Evita que o preenchimento a partir de template.questions sobrescreva depois do utilizador adicionar novas questões. */
+  const populatedFromIdsRef = useRef(false);
+  /** Rastreia se o utilizador já interagiu com as entries (adicionou/editou/removeu questões). */
+  const userInteractedRef = useRef(false);
 
+  // Repor entries APENAS na primeira vez que o diálogo abre. Enquanto estiver aberto, nunca sobrescrever.
   useEffect(() => {
     if (open) {
       form.reset({
@@ -156,35 +167,47 @@ export function EditTemplateDialog({
             ? template.modelType
             : MODEL_ALL,
       });
-      setEntries(initialEntries);
+      if (!hasOpenedRef.current) {
+        hasOpenedRef.current = true;
+        setEntries(initialEntries);
+      }
+    } else {
+      hasOpenedRef.current = false;
+      populatedFromIdsRef.current = false;
+      userInteractedRef.current = false;
     }
   }, [open, template, form, initialEntries]);
 
-  // Se o template não trouxer _questions, reconstruir entradas a partir dos ids quando houver questões disponíveis
+  // Só preencher a partir de template.questions quando não temos _questions (ex.: primeiro carregamento).
+  // Executa apenas uma vez por abertura do diálogo para não sobrescrever questões que o utilizador acabou de adicionar.
   useEffect(() => {
     if (
       !open ||
+      populatedFromIdsRef.current ||
+      userInteractedRef.current ||
       initialEntries.length > 0 ||
       !template.questions?.length ||
       availableQuestions.length === 0
     ) {
       return;
     }
-    const built: QuestionEntry[] = template.questions
+    const built = template.questions
       .map((id) => {
         const q = availableQuestions.find((aq) => aq._id === id);
-        return q
-          ? {
-              id: q._id,
-              title: q.title,
-              description: q.description,
-              inputType: q.inputType,
-              options: q.options,
-            }
-          : null;
+        if (!q) return null;
+        return {
+          id: q._id,
+          title: q.title,
+          description: q.description,
+          inputType: q.inputType,
+          options: q.options,
+        } as QuestionEntry;
       })
-      .filter((e): e is QuestionEntry => e != null);
-    if (built.length > 0) setEntries(built);
+      .filter((e): e is QuestionEntry => e !== null);
+    if (built.length > 0) {
+      setEntries(built);
+      populatedFromIdsRef.current = true;
+    }
   }, [open, initialEntries.length, template.questions, availableQuestions]);
 
   useEffect(() => {
@@ -201,8 +224,17 @@ export function EditTemplateDialog({
     }
   }, [open]);
 
+  const templateId =
+    template._id ?? (template as Template & { id?: string }).id;
+
+  /** Wrapper para setEntries que marca que o utilizador interagiu com as questões. */
+  const handleEntriesChange = useCallback((newEntries: QuestionEntry[]) => {
+    userInteractedRef.current = true;
+    setEntries(newEntries);
+  }, []);
+
   const onSubmit = async (data: TemplateFormValues) => {
-    if (!template._id) {
+    if (!templateId) {
       toast.error('ID do template não encontrado.');
       return;
     }
@@ -220,14 +252,30 @@ export function EditTemplateDialog({
         newEntries.length > 0
           ? await Promise.all(
               newEntries.map(async (entry) => {
-                const created = (await api.questions.create({
+                const raw = await api.questions.create({
                   title: entry.title,
                   description: entry.description,
                   status: 'active',
                   inputType: entry.inputType,
                   options: entry.options,
-                })) as { id?: string; _id?: string };
-                return created?.id ?? created?._id ?? '';
+                });
+                // API pode devolver { data: item } ou o item diretamente (após unwrap no client)
+                const created =
+                  (
+                    raw as {
+                      data?: { id?: string; _id?: string };
+                      id?: string;
+                      _id?: string;
+                    }
+                  )?.data ?? (raw as { id?: string; _id?: string });
+                const id = (created?.id ?? created?._id ?? '').trim();
+                if (!id) {
+                  console.error('Question create response:', raw);
+                  throw new Error(
+                    'Não foi possível obter o ID da questão criada. Tente novamente.',
+                  );
+                }
+                return id;
               }),
             )
           : [];
@@ -267,7 +315,7 @@ export function EditTemplateDialog({
         })
         .filter(Boolean);
 
-      await api.templates.update(template._id, {
+      await api.templates.update(templateId, {
         title: data.title,
         description: data.description || undefined,
         modelType:
@@ -278,7 +326,14 @@ export function EditTemplateDialog({
       });
 
       toast.success('Template atualizado com sucesso.');
-      router.refresh();
+
+      // Notificar o pai e fechar o modal
+      if (onSaved) {
+        const updatedTemplate = await api.templates.getById(templateId);
+        if (updatedTemplate) {
+          onSaved(updatedTemplate as Template);
+        }
+      }
       onOpenChange(false);
     } catch (error) {
       console.error('Error updating template:', error);
@@ -388,18 +443,26 @@ export function EditTemplateDialog({
                     </div>
                     <TemplateQuestionsEditor
                       value={entries}
-                      onChange={setEntries}
+                      onChange={handleEntriesChange}
                       availableQuestions={availableQuestions}
                       loadingAvailable={loadingQuestions}
                       minHeight="280px"
                       onPersistQuestion={async (id, data) => {
                         try {
-                          await api.questions.update(id, {
+                          // Filtrar campos undefined para evitar erros de validação
+                          const updateData: Record<string, unknown> = {
                             title: data.title,
-                            description: data.description,
-                            inputType: data.inputType,
-                            options: data.options,
-                          });
+                          };
+                          if (data.description !== undefined) {
+                            updateData.description = data.description || null;
+                          }
+                          if (data.inputType !== undefined) {
+                            updateData.inputType = data.inputType;
+                          }
+                          if (data.options !== undefined) {
+                            updateData.options = data.options;
+                          }
+                          await api.questions.update(id, updateData);
                           toast.success('Questão atualizada.');
                         } catch (err) {
                           console.error(err);

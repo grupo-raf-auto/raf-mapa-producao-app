@@ -116,27 +116,30 @@ function Sparkline({
   if (type === 'bars') {
     const barWidth = (innerWidth / data.length) * 0.7;
     const gap = (innerWidth / data.length) * 0.3;
-    const max = Math.max(...data);
+    const max = Math.max(...data) || 1;
 
     return (
       <svg width={width} height={height} className="overflow-visible">
         {data.map((value, index) => {
-          const barHeight = (value / max) * innerHeight;
+          const numValue = Number(value);
+          const safeValue = Number.isFinite(numValue) ? numValue : 0;
+          const barHeight = Math.max(0, (safeValue / max) * innerHeight);
           const x = padding + index * (barWidth + gap);
           const y = height - padding - barHeight;
+          const safeY = Number.isFinite(y) ? y : height - padding;
 
           return (
             <motion.rect
               key={index}
               x={x}
-              y={y}
+              y={safeY}
               width={barWidth}
               height={barHeight}
               rx={2}
               fill={color}
               opacity={0.8}
               initial={{ height: 0, y: height - padding }}
-              animate={{ height: barHeight, y }}
+              animate={{ height: barHeight, y: safeY }}
               transition={{ delay: index * 0.05, duration: 0.3 }}
             />
           );

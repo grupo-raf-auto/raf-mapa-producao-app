@@ -52,6 +52,7 @@ model User {
     submissions   FormSubmission[]
     chatMessages  ChatMessage[]
     documents     Document[]
+    bugReports    BugReport[]
 
     // Relações de criação (opcional - para auditoria)
     createdQuestions Question[]
@@ -261,7 +262,6 @@ model Template {
     id          String  @id @default(cuid())
     title       String
     description String?
-    isDefault   Boolean @default(false)
     isPublic    Boolean @default(false)
 
     // Associação com modelo de usuário (credito | imobiliaria | seguro)
@@ -427,4 +427,25 @@ model ChatMessage {
     @@index([conversationId])
     @@index([userId])
     @@map("chat_message")
+}
+
+// ============ Bug Reports / Tickets (user → admin) ============
+model BugReport {
+    id          String    @id @default(cuid())
+    title       String
+    description String    @db.Text
+    status      String    @default("open") // open | in_progress | resolved
+    // Admin marca como lido para contagem de notificações
+    readAt      DateTime?
+
+    reportedById String
+    reportedBy   User   @relation(fields: [reportedById], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([reportedById])
+    @@index([status])
+    @@index([readAt])
+    @@map("bug_report")
 }

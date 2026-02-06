@@ -1,13 +1,14 @@
-import { Request, Response } from "express";
-import { ZodSchema } from "zod";
-import logger from "../lib/logger";
+import { Request, Response } from 'express';
+import { ZodSchema } from 'zod';
+import logger from '../lib/logger';
 import {
   NotFoundError,
   ForbiddenError,
   ValidationError,
   ApiResponse,
-} from "../types/index";
-import { BaseRepository } from "../repositories/base.repository";
+} from '../types/index';
+import { BaseRepository } from '../repositories/base.repository';
+import { debugLog } from '../utils/debug-log';
 
 /**
  * Controller base genérico para operações CRUD
@@ -28,7 +29,7 @@ export abstract class BaseCRUDController<T> {
   abstract repository: BaseRepository<T>;
   abstract createSchema?: ZodSchema;
   abstract updateSchema?: ZodSchema;
-  protected resourceName = "Entity";
+  protected resourceName = 'Entity';
 
   /**
    * Construir filtros WHERE a partir de query params
@@ -82,17 +83,17 @@ export abstract class BaseCRUDController<T> {
   protected async validateOwnership(
     item: T | Record<string, unknown>,
     userId: string,
-    userRole: string
+    userRole: string,
   ): Promise<boolean> {
     // Admin sempre pode acessar
-    if (userRole === "admin") return true;
+    if (userRole === 'admin') return true;
 
     // Verificar propriedade
     const itemData = item as Record<string, unknown>;
-    if ("uploadedBy" in itemData) return itemData.uploadedBy === userId;
-    if ("createdBy" in itemData) return itemData.createdBy === userId;
-    if ("submittedBy" in itemData) return itemData.submittedBy === userId;
-    if ("userId" in itemData) return itemData.userId === userId;
+    if ('uploadedBy' in itemData) return itemData.uploadedBy === userId;
+    if ('createdBy' in itemData) return itemData.createdBy === userId;
+    if ('submittedBy' in itemData) return itemData.submittedBy === userId;
+    if ('userId' in itemData) return itemData.userId === userId;
 
     // Sem validação específica = permitir
     return true;
@@ -107,7 +108,10 @@ export abstract class BaseCRUDController<T> {
 
       // Paginação
       const skipNum = Math.max(0, parseInt(skip as string) || 0);
-      const takeNum = Math.min(100, Math.max(1, parseInt(take as string) || 20));
+      const takeNum = Math.min(
+        100,
+        Math.max(1, parseInt(take as string) || 20),
+      );
 
       // Construir filtros
       let where = this.buildWhere(query);
@@ -125,12 +129,12 @@ export abstract class BaseCRUDController<T> {
       });
 
       const total = await this.repository.count(
-        Object.keys(where).length ? { where } : {}
+        Object.keys(where).length ? { where } : {},
       );
 
       logger.info(
         { count: items.length, total, resourceName: this.resourceName },
-        `Listed ${this.resourceName}`
+        `Listed ${this.resourceName}`,
       );
 
       const response: ApiResponse = {
@@ -148,7 +152,7 @@ export abstract class BaseCRUDController<T> {
     } catch (error) {
       logger.error(
         { error, resourceName: this.resourceName },
-        `Error listing ${this.resourceName}`
+        `Error listing ${this.resourceName}`,
       );
       throw error;
     }
@@ -163,7 +167,10 @@ export abstract class BaseCRUDController<T> {
       const item = await this.repository.findUnique(id);
 
       if (!item) {
-        throw new NotFoundError(this.resourceName, id);
+        return res.status(404).json({
+          success: false,
+          error: `${this.resourceName} not found`,
+        });
       }
 
       // Validar propriedade
@@ -172,14 +179,20 @@ export abstract class BaseCRUDController<T> {
         const hasAccess = await this.validateOwnership(
           item,
           user.id,
-          user.role
+          user.role,
         );
         if (!hasAccess) {
-          throw new ForbiddenError(`Cannot access this ${this.resourceName}`);
+          return res.status(403).json({
+            success: false,
+            error: `Cannot access this ${this.resourceName}`,
+          });
         }
       }
 
-      logger.info({ id, resourceName: this.resourceName }, `Retrieved ${this.resourceName}`);
+      logger.info(
+        { id, resourceName: this.resourceName },
+        `Retrieved ${this.resourceName}`,
+      );
 
       const response: ApiResponse = {
         success: true,
@@ -190,9 +203,12 @@ export abstract class BaseCRUDController<T> {
     } catch (error) {
       logger.error(
         { error, id: req.params.id, resourceName: this.resourceName },
-        `Error retrieving ${this.resourceName}`
+        `Error retrieving ${this.resourceName}`,
       );
-      throw error;
+      return res.status(500).json({
+        success: false,
+        error: `Failed to retrieve ${this.resourceName}`,
+      });
     }
   }
 
@@ -203,31 +219,74 @@ export abstract class BaseCRUDController<T> {
     try {
       const user = (req as any).user;
       if (!user) {
-        throw new Error("Unauthorized");
+        throw new Error('Unauthorized');
       }
 
-      // Validar schema
+      // Validar schema e usar dados validados (defaults e coerções do Zod)
+      let body = req.body;
       if (this.createSchema) {
         const validation = this.createSchema.safeParse(req.body);
         if (!validation.success) {
           const errors: Record<string, string[]> = {};
-          const zodErrors = validation.error as any;
-          zodErrors.errors?.forEach((err: any) => {
-            const path = err.path.join(".");
+          // Usar .issues (propriedade correta do ZodError)
+          validation.error.issues?.forEach((issue) => {
+            const path = issue.path.join('.') || '_root';
             if (!errors[path]) errors[path] = [];
-            errors[path].push(err.message);
+            errors[path].push(issue.message);
           });
-          throw new ValidationError(errors);
+          logger.warn(
+            {
+              resourceName: this.resourceName,
+              validationErrors: errors,
+              body: req.body,
+            },
+            `Validation failed for ${this.resourceName} create`,
+          );
+          return res.status(400).json({
+            success: false,
+            error: 'Validation error',
+            details: errors,
+          });
         }
+        body = validation.data;
       }
 
       // Criar com userId do usuário autenticado
-      const data = this.prepareCreateData(req.body, user.id);
+      const data = this.prepareCreateData(body, user.id);
+      // #region agent log
+      debugLog({
+        location: 'base-crud.controller.ts:create',
+        message: 'before repository.create',
+        data: {
+          resourceName: this.resourceName,
+          hasTitle: !!(data as any).title,
+          hasStatus: !!(data as any).status,
+          optionsIsArray: Array.isArray((data as any).options),
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        hypothesisId: 'B',
+      });
+      // #endregion
       const item = await this.repository.create(data);
+      // #region agent log
+      debugLog({
+        location: 'base-crud.controller.ts:create',
+        message: 'after repository.create',
+        data: { resourceName: this.resourceName, itemId: (item as any)?.id },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        hypothesisId: 'B',
+      });
+      // #endregion
 
       logger.info(
-        { id: (item as any).id, userId: user.id, resourceName: this.resourceName },
-        `Created ${this.resourceName}`
+        {
+          id: (item as any).id,
+          userId: user.id,
+          resourceName: this.resourceName,
+        },
+        `Created ${this.resourceName}`,
       );
 
       const response: ApiResponse = {
@@ -237,9 +296,22 @@ export abstract class BaseCRUDController<T> {
 
       return res.status(201).json(response);
     } catch (error) {
+      // #region agent log
+      debugLog({
+        location: 'base-crud.controller.ts:create catch',
+        message: 'create error',
+        data: {
+          resourceName: this.resourceName,
+          errorMessage: error instanceof Error ? error.message : String(error),
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        hypothesisId: 'B',
+      });
+      // #endregion
       logger.error(
         { error, resourceName: this.resourceName },
-        `Error creating ${this.resourceName}`
+        `Error creating ${this.resourceName}`,
       );
       throw error;
     }
@@ -256,13 +328,19 @@ export abstract class BaseCRUDController<T> {
       // Buscar item existente
       const item = await this.repository.findUnique(id);
       if (!item) {
-        throw new NotFoundError(this.resourceName, id);
+        return res.status(404).json({
+          success: false,
+          error: `${this.resourceName} not found`,
+        });
       }
 
       // Validar propriedade
       const hasAccess = await this.validateOwnership(item, user.id, user.role);
       if (!hasAccess) {
-        throw new ForbiddenError(`Cannot update this ${this.resourceName}`);
+        return res.status(403).json({
+          success: false,
+          error: `Cannot update this ${this.resourceName}`,
+        });
       }
 
       // Validar schema
@@ -270,13 +348,25 @@ export abstract class BaseCRUDController<T> {
         const validation = this.updateSchema.safeParse(req.body);
         if (!validation.success) {
           const errors: Record<string, string[]> = {};
-          const zodErrors = validation.error as any;
-          zodErrors.errors?.forEach((err: any) => {
-            const path = err.path.join(".");
+          // Usar .issues (propriedade correta do ZodError)
+          validation.error.issues?.forEach((issue) => {
+            const path = issue.path.join('.') || '_root';
             if (!errors[path]) errors[path] = [];
-            errors[path].push(err.message);
+            errors[path].push(issue.message);
           });
-          throw new ValidationError(errors);
+          logger.warn(
+            {
+              resourceName: this.resourceName,
+              validationErrors: errors,
+              body: req.body,
+            },
+            `Validation failed for ${this.resourceName} update`,
+          );
+          return res.status(400).json({
+            success: false,
+            error: 'Validation error',
+            details: errors,
+          });
         }
       }
 
@@ -285,7 +375,7 @@ export abstract class BaseCRUDController<T> {
 
       logger.info(
         { id, userId: user.id, resourceName: this.resourceName },
-        `Updated ${this.resourceName}`
+        `Updated ${this.resourceName}`,
       );
 
       const response: ApiResponse = {
@@ -297,9 +387,12 @@ export abstract class BaseCRUDController<T> {
     } catch (error) {
       logger.error(
         { error, id: req.params.id, resourceName: this.resourceName },
-        `Error updating ${this.resourceName}`
+        `Error updating ${this.resourceName}`,
       );
-      throw error;
+      return res.status(500).json({
+        success: false,
+        error: `Failed to update ${this.resourceName}`,
+      });
     }
   }
 
@@ -314,13 +407,19 @@ export abstract class BaseCRUDController<T> {
       // Buscar item existente
       const item = await this.repository.findUnique(id);
       if (!item) {
-        throw new NotFoundError(this.resourceName, id);
+        return res.status(404).json({
+          success: false,
+          error: `${this.resourceName} not found`,
+        });
       }
 
       // Validar propriedade
       const hasAccess = await this.validateOwnership(item, user.id, user.role);
       if (!hasAccess) {
-        throw new ForbiddenError(`Cannot delete this ${this.resourceName}`);
+        return res.status(403).json({
+          success: false,
+          error: `Cannot delete this ${this.resourceName}`,
+        });
       }
 
       // Deletar
@@ -328,7 +427,7 @@ export abstract class BaseCRUDController<T> {
 
       logger.info(
         { id, userId: user.id, resourceName: this.resourceName },
-        `Deleted ${this.resourceName}`
+        `Deleted ${this.resourceName}`,
       );
 
       const response: ApiResponse = {
@@ -340,9 +439,12 @@ export abstract class BaseCRUDController<T> {
     } catch (error) {
       logger.error(
         { error, id: req.params.id, resourceName: this.resourceName },
-        `Error deleting ${this.resourceName}`
+        `Error deleting ${this.resourceName}`,
       );
-      throw error;
+      return res.status(500).json({
+        success: false,
+        error: `Failed to delete ${this.resourceName}`,
+      });
     }
   }
 
@@ -354,10 +456,10 @@ export abstract class BaseCRUDController<T> {
    */
   protected prepareCreateData(data: any, userId: string): any {
     // Adicionar userId automaticamente se o modelo tiver esse campo
-    if ("userId" in data === false) {
+    if ('userId' in data === false) {
       data.userId = userId;
     }
-    if ("createdBy" in data === false) {
+    if ('createdBy' in data === false) {
       data.createdBy = userId;
     }
     return data;
@@ -367,8 +469,8 @@ export abstract class BaseCRUDController<T> {
    * Construir orderBy a partir de query
    */
   protected getOrderBy(query: any): any {
-    const orderBy = query.orderBy || "createdAt";
-    const direction = query.orderDirection || "desc";
+    const orderBy = query.orderBy || 'createdAt';
+    const direction = query.orderDirection || 'desc';
     return { [orderBy]: direction };
   }
 }

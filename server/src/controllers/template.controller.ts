@@ -21,7 +21,7 @@ export class TemplateController {
         },
       });
 
-      // Admin vê todos. Utilizador vê: públicos, default, os que criou, ou os do seu modelo
+      // Admin vê todos. Utilizador vê: públicos, os que criou, ou os do seu modelo
       const userModelTypes = new Set(
         (req.user.availableModels || []).map(
           (m: { modelType: string }) => m.modelType,
@@ -33,16 +33,15 @@ export class TemplateController {
           : templates.filter(
               (t) =>
                 t.isPublic ||
-                t.isDefault ||
                 t.createdBy === req.user?.id ||
                 (t.modelType != null && userModelTypes.has(t.modelType)),
             );
 
-      // Mapear para formato compatível (manter questionIds para retrocompatibilidade)
+      // Mapear para formato compatível (manter questionIds para retrocompatibilidade; _questions com _id para o frontend)
       const mapped = filtered.map((t) => ({
         ...t,
         questions: t.questions.map((tq) => tq.questionId),
-        _questions: t.questions.map((tq) => tq.question),
+        _questions: t.questions.map((tq) => withLegacyId(tq.question)),
       }));
 
       res.json(successResponse(withLegacyIds(mapped)));
@@ -78,7 +77,6 @@ export class TemplateController {
         );
         const canAccess =
           template.isPublic ||
-          template.isDefault ||
           template.createdBy === req.user?.id ||
           (template.modelType != null &&
             userModelTypes.has(template.modelType));
@@ -87,11 +85,11 @@ export class TemplateController {
         }
       }
 
-      // Mapear para formato compatível
+      // Mapear para formato compatível (_questions com _id para o frontend)
       const mapped = {
         ...template,
         questions: template.questions.map((tq) => tq.questionId),
-        _questions: template.questions.map((tq) => tq.question),
+        _questions: template.questions.map((tq) => withLegacyId(tq.question)),
       };
 
       res.json(successResponse(withLegacyId(mapped)));
@@ -104,6 +102,11 @@ export class TemplateController {
   static async create(req: Request, res: Response) {
     try {
       if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({
+          error: 'Apenas administradores podem criar templates.',
+        });
+      }
 
       const { title, description, questions, isPublic, modelType } = req.body;
       const questionIds: string[] = questions || [];
@@ -123,7 +126,7 @@ export class TemplateController {
         data: {
           title,
           description,
-          isPublic: isPublic || false,
+          isPublic: isPublic ?? true,
           modelType,
           createdBy: req.user.id,
           // Manter campo legado para compatibilidade
@@ -147,13 +150,19 @@ export class TemplateController {
 
   static async update(req: Request, res: Response) {
     try {
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
       const { id } = req.params;
       const { title, description, questions, isPublic, modelType } = req.body;
 
-      // Verificar se template existe
       const existing = await prisma.template.findUnique({ where: { id } });
       if (!existing) {
         return res.status(404).json({ error: 'Template not found' });
+      }
+      if (req.user.role !== 'admin' && existing.createdBy !== req.user.id) {
+        return res.status(403).json({
+          error:
+            'Apenas o criador ou um administrador podem editar este template.',
+        });
       }
 
       // Validar modelType se fornecido
@@ -175,18 +184,17 @@ export class TemplateController {
         if (isPublic !== undefined) data.isPublic = isPublic;
         if (modelType !== undefined) data.modelType = modelType;
 
-        // Se questions foi enviado, atualizar relações
-        if (questions !== undefined) {
-          const questionIds: string[] = questions;
-          data.questionIds = questionIds;
-
-          // Deletar relações antigas
-          await tx.templateQuestion.deleteMany({
-            where: { templateId: id },
-          });
-
-          // Criar novas relações
+        // Se questions foi enviado, atualizar relações (template_question + campo legado).
+        if (questions !== undefined && Array.isArray(questions)) {
+          const questionIds: string[] = questions.filter(
+            (id: unknown): id is string =>
+              typeof id === 'string' && id.length > 0,
+          );
           if (questionIds.length > 0) {
+            data.questionIds = questionIds;
+            await tx.templateQuestion.deleteMany({
+              where: { templateId: id },
+            });
             await tx.templateQuestion.createMany({
               data: questionIds.map((questionId: string, index: number) => ({
                 templateId: id,
@@ -217,11 +225,6 @@ export class TemplateController {
       const template = await prisma.template.findUnique({ where: { id } });
       if (!template)
         return res.status(404).json({ error: 'Template not found' });
-      if (template.isDefault) {
-        return res.status(400).json({
-          error: 'Não é possível excluir templates padrão do sistema',
-        });
-      }
       if (req.user.role !== 'admin' && template.createdBy !== req.user.id) {
         return res
           .status(403)

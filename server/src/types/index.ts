@@ -1,15 +1,15 @@
-export type QuestionStatus = "active" | "inactive";
+export type QuestionStatus = 'active' | 'inactive';
 
 export type QuestionInputType =
-  | "text"
-  | "date"
-  | "select"
-  | "email"
-  | "tel"
-  | "number"
-  | "radio";
+  | 'text'
+  | 'date'
+  | 'select'
+  | 'email'
+  | 'tel'
+  | 'number'
+  | 'radio';
 
-export type UserRole = "admin" | "user";
+export type UserRole = 'admin' | 'user';
 
 export interface Question {
   _id?: string;
@@ -32,11 +32,11 @@ export interface Category {
 }
 
 export type QuestionCategory =
-  | "Finance"
-  | "Marketing"
-  | "HR"
-  | "Tech"
-  | "Custom";
+  | 'Finance'
+  | 'Marketing'
+  | 'HR'
+  | 'Tech'
+  | 'Custom';
 
 export interface Template {
   _id?: string;
@@ -45,8 +45,7 @@ export interface Template {
   questions: string[]; // Question IDs
   createdAt: Date;
   updatedAt: Date;
-  isDefault?: boolean; // Indica se é um template padrão do sistema
-  createdBy?: string; // Clerk ID do utilizador que criou
+  createdBy?: string; // ID do utilizador que criou
   isPublic?: boolean; // Templates públicos podem ser usados por todos
 }
 
@@ -104,7 +103,7 @@ export interface DocumentChunk {
 export interface ChatMessage {
   _id?: string;
   conversationId: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   createdAt: Date;
   userId: string; // Clerk ID
@@ -119,7 +118,7 @@ export interface AuthenticatedRequest {
   user?: {
     id: string;
     email: string;
-    role: "admin" | "user";
+    role: 'admin' | 'user';
   };
 }
 
@@ -140,10 +139,10 @@ export class HttpError extends Error {
   constructor(
     public statusCode: number,
     message: string,
-    public details?: Record<string, unknown> | string
+    public details?: Record<string, unknown> | string,
   ) {
     super(message);
-    this.name = "HttpError";
+    this.name = 'HttpError';
   }
 }
 
@@ -152,8 +151,8 @@ export class HttpError extends Error {
  */
 export class ValidationError extends HttpError {
   constructor(public errors: Record<string, string[]>) {
-    super(400, "Validation error");
-    this.name = "ValidationError";
+    super(400, 'Validation error');
+    this.name = 'ValidationError';
   }
 }
 
@@ -162,8 +161,8 @@ export class ValidationError extends HttpError {
  */
 export class NotFoundError extends HttpError {
   constructor(resource: string, id?: string) {
-    super(404, `${resource} not found` + (id ? `: ${id}` : ""));
-    this.name = "NotFoundError";
+    super(404, `${resource} not found` + (id ? `: ${id}` : ''));
+    this.name = 'NotFoundError';
   }
 }
 
@@ -171,9 +170,9 @@ export class NotFoundError extends HttpError {
  * Acesso negado
  */
 export class ForbiddenError extends HttpError {
-  constructor(message = "Access denied") {
+  constructor(message = 'Access denied') {
     super(403, message);
-    this.name = "ForbiddenError";
+    this.name = 'ForbiddenError';
   }
 }
 
@@ -181,9 +180,9 @@ export class ForbiddenError extends HttpError {
  * Não autenticado
  */
 export class UnauthorizedError extends HttpError {
-  constructor(message = "Unauthorized") {
+  constructor(message = 'Unauthorized') {
     super(401, message);
-    this.name = "UnauthorizedError";
+    this.name = 'UnauthorizedError';
   }
 }
 
@@ -195,7 +194,7 @@ export interface ListFilters {
   take?: number;
   search?: string;
   orderBy?: string;
-  orderDirection?: "asc" | "desc";
+  orderDirection?: 'asc' | 'desc';
 }
 
 /**
@@ -216,7 +215,7 @@ export interface RepositoryFilters {
   where?: Record<string, unknown>;
   skip?: number;
   take?: number;
-  orderBy?: Record<string, "asc" | "desc">;
+  orderBy?: Record<string, 'asc' | 'desc'>;
 }
 
 export interface IRepository<T, CreateInput = unknown, UpdateInput = unknown> {
@@ -225,7 +224,7 @@ export interface IRepository<T, CreateInput = unknown, UpdateInput = unknown> {
   create(data: CreateInput): Promise<T>;
   update(id: string, data: UpdateInput): Promise<T>;
   delete(id: string): Promise<T>;
-  count(filters?: Pick<RepositoryFilters, "where">): Promise<number>;
+  count(filters?: Pick<RepositoryFilters, 'where'>): Promise<number>;
 }
 
 /**

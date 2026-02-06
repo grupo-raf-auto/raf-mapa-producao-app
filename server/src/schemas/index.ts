@@ -22,10 +22,14 @@ export const createQuestionSchema = z.object({
       STRING_MAX_LENGTH,
       `Title must be less than ${STRING_MAX_LENGTH} characters`,
     ),
-  description: z.string().max(STRING_DESCRIPTION_MAX_LENGTH).optional(),
+  description: z
+    .string()
+    .max(STRING_DESCRIPTION_MAX_LENGTH)
+    .optional()
+    .nullable(),
   status: z.enum(VALID_STATUSES).default('active'),
-  inputType: z.enum(INPUT_TYPES).optional(),
-  options: z.array(z.string()).optional(),
+  inputType: z.enum(INPUT_TYPES).optional().nullable(),
+  options: z.array(z.string()).optional().nullable(),
   categoryId: z.string().uuid().optional().nullable(),
 });
 
@@ -46,10 +50,10 @@ export const updateCategorySchema = createCategorySchema.partial();
 export const createTemplateSchema = z.object({
   title: z.string().min(STRING_MIN_LENGTH).max(STRING_MAX_LENGTH),
   description: z.string().max(STRING_DESCRIPTION_MAX_LENGTH).optional(),
-  isPublic: z.boolean().default(false),
-  isDefault: z.boolean().default(false),
+  isPublic: z.boolean().default(true),
+  modelType: z.enum(['credito', 'imobiliaria', 'seguro']).optional().nullable(),
   questionIds: z
-    .array(z.string().uuid())
+    .array(z.string().min(1))
     .min(1, 'At least one question required'),
 });
 

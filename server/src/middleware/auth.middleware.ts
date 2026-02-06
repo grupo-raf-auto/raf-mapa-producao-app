@@ -47,6 +47,85 @@ if (!JWT_SECRET) {
 
 const EFFECTIVE_JWT_SECRET = JWT_SECRET || 'dev-secret-change-in-production';
 
+async function loadUserAndAttach(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  userId: string,
+  modelHeader?: string,
+) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      isActive: true,
+      status: true,
+    },
+  });
+
+  if (!user) {
+    return res.status(401).json({ error: 'Unauthorized: User not found' });
+  }
+
+  if (!user.isActive) {
+    return res
+      .status(403)
+      .json({ error: 'Forbidden: User account is inactive' });
+  }
+
+  const isMyModelsSelf =
+    (req.method === 'GET' || req.method === 'POST') &&
+    typeof req.originalUrl === 'string' &&
+    req.originalUrl.includes('/user-models/my-models') &&
+    !req.originalUrl.includes('/user/');
+
+  const canAccess =
+    user.role === UserRole.admin ||
+    user.status === UserApprovalStatus.approved ||
+    (user.status === UserApprovalStatus.pending && isMyModelsSelf);
+
+  if (!canAccess) {
+    return res.status(403).json({
+      error:
+        'Forbidden: Conta pendente de aprovação ou rejeitada. Contacte o administrador.',
+    });
+  }
+
+  const role = (
+    user.role === UserRole.admin ? UserRole.admin : UserRole.user
+  ) as 'admin' | 'user';
+
+  const userModels = await prisma.userModel.findMany({
+    where: { userId: user.id, isActive: true },
+    select: {
+      id: true,
+      modelType: true,
+      isActive: true,
+    },
+  });
+
+  let activeModel = userModels.find((m) => m.id === modelHeader);
+  if (!activeModel && userModels.length > 0) {
+    activeModel = userModels[0];
+  }
+
+  req.user = {
+    id: user.id,
+    _id: user.id,
+    email: user.email,
+    name: user.name,
+    role,
+    activeModelId: activeModel?.id,
+    activeModelType: activeModel?.modelType,
+    availableModels: userModels,
+  };
+
+  next();
+}
+
 export async function authenticateUser(
   req: Request,
   res: Response,
@@ -56,104 +135,36 @@ export async function authenticateUser(
     const authHeader = req.headers.authorization;
     const modelHeader = req.headers['x-active-model'] as string | undefined;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Unauthorized: No token provided' });
+    // 1) Try Bearer JWT first
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.slice(7);
+      let decoded: {
+        sub: string;
+        email?: string;
+        name?: string | null;
+      };
+      try {
+        decoded = jwt.verify(token, EFFECTIVE_JWT_SECRET) as typeof decoded;
+      } catch {
+        return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+      }
+      if (decoded?.sub) {
+        return loadUserAndAttach(req, res, next, decoded.sub, modelHeader);
+      }
     }
 
-    const token = authHeader.slice(7);
-
-    let decoded: {
-      sub: string;
-      email?: string;
-      name?: string | null;
-      activeModelId?: string;
-      activeModelType?: string;
-    };
-    try {
-      decoded = jwt.verify(token, EFFECTIVE_JWT_SECRET) as typeof decoded;
-    } catch {
-      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-    }
-
-    if (!decoded?.sub) {
-      return res
-        .status(401)
-        .json({ error: 'Unauthorized: Invalid token payload' });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.sub },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        isActive: true,
-        status: true,
-      },
+    // 2) Try session cookie (better-auth) for SPA frontend
+    const { fromNodeHeaders } = await import('better-auth/node');
+    const { auth } = await import('../auth');
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
     });
 
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized: User not found' });
+    if (session?.user?.id) {
+      return loadUserAndAttach(req, res, next, session.user.id, modelHeader);
     }
 
-    if (!user.isActive) {
-      return res
-        .status(403)
-        .json({ error: 'Forbidden: User account is inactive' });
-    }
-
-    // Permitir utilizadores pendentes apenas em GET/POST "my-models" (seleção de modelos antes da aprovação)
-    const isMyModelsSelf =
-      (req.method === 'GET' || req.method === 'POST') &&
-      typeof req.originalUrl === 'string' &&
-      req.originalUrl.includes('/user-models/my-models') &&
-      !req.originalUrl.includes('/user/');
-
-    const canAccess =
-      user.role === UserRole.admin ||
-      user.status === UserApprovalStatus.approved ||
-      (user.status === UserApprovalStatus.pending && isMyModelsSelf);
-
-    if (!canAccess) {
-      return res.status(403).json({
-        error:
-          'Forbidden: Conta pendente de aprovação ou rejeitada. Contacte o administrador.',
-      });
-    }
-
-    const role = (
-      user.role === UserRole.admin ? UserRole.admin : UserRole.user
-    ) as 'admin' | 'user';
-
-    // NEW: Load user's models
-    const userModels = await prisma.userModel.findMany({
-      where: { userId: user.id, isActive: true },
-      select: {
-        id: true,
-        modelType: true,
-        isActive: true,
-      },
-    });
-
-    // Determine active model
-    let activeModel = userModels.find((m) => m.id === modelHeader);
-    if (!activeModel && userModels.length > 0) {
-      activeModel = userModels[0]; // Default to first
-    }
-
-    req.user = {
-      id: user.id,
-      _id: user.id,
-      email: user.email,
-      name: user.name,
-      role,
-      activeModelId: activeModel?.id,
-      activeModelType: activeModel?.modelType,
-      availableModels: userModels,
-    };
-
-    next();
+    return res.status(401).json({ error: 'Unauthorized: No token provided' });
   } catch (error) {
     console.error('Authentication error:', error);
     res

@@ -84,13 +84,14 @@ function CustomTooltip({
   countLabel,
 }: {
   active?: boolean;
-  payload?: Array<{ name: string; value: number; color: string }>;
-  label?: string;
+  payload?: readonly { name: string; value: number; color: string }[];
+  label?: string | number;
   labelFormatter?: (key: string) => string;
   countLabel?: string;
 }) {
   if (!active || !payload?.length) return null;
-  const displayLabel = labelFormatter && label ? labelFormatter(label) : label;
+  const labelStr = label != null ? String(label) : undefined;
+  const displayLabel = labelFormatter && labelStr ? labelFormatter(labelStr) : labelStr;
   const tooltipLabels = { ...DEFAULT_TOOLTIP_LABELS };
   if (countLabel) tooltipLabels['Apólices'] = countLabel;
   return (

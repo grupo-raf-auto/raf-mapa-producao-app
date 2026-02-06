@@ -108,16 +108,18 @@ export function QuestionInput({
           <SelectValue placeholder="Selecione uma opção" />
         </SelectTrigger>
         <SelectContent>
-          {question.options && question.options.length > 0 ? (
-            question.options.map((option, index) => (
-              <SelectItem key={index} value={option}>
-                {option}
-              </SelectItem>
-            ))
+          {question.options && question.options.filter(opt => opt && opt.trim()).length > 0 ? (
+            question.options
+              .filter(opt => opt && opt.trim())
+              .map((option, index) => (
+                <SelectItem key={index} value={option}>
+                  {option}
+                </SelectItem>
+              ))
           ) : (
-            <SelectItem value="" disabled>
+            <div className="px-2 py-1.5 text-sm text-muted-foreground">
               Nenhuma opção disponível
-            </SelectItem>
+            </div>
           )}
         </SelectContent>
       </Select>
@@ -131,18 +133,20 @@ export function QuestionInput({
         onValueChange={onChange}
         disabled={disabled}
       >
-        {question.options && question.options.length > 0 ? (
-          question.options.map((option, index) => (
-            <div key={index} className="flex items-center space-x-2 ml-1 ">
-              <RadioGroupItem value={option} id={`${question._id}-${index}`} />
-              <Label
-                htmlFor={`${question._id}-${index}`}
-                className="font-normal cursor-pointer"
-              >
-                {option}
-              </Label>
-            </div>
-          ))
+        {question.options && question.options.filter(opt => opt && opt.trim()).length > 0 ? (
+          question.options
+            .filter(opt => opt && opt.trim())
+            .map((option, index) => (
+              <div key={index} className="flex items-center space-x-2 ml-1 ">
+                <RadioGroupItem value={option} id={`${question._id}-${index}`} />
+                <Label
+                  htmlFor={`${question._id}-${index}`}
+                  className="font-normal cursor-pointer"
+                >
+                  {option}
+                </Label>
+              </div>
+            ))
         ) : (
           <div className="text-sm text-muted-foreground">
             Nenhuma opção disponível

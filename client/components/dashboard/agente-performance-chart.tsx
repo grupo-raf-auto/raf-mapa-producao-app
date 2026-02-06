@@ -38,7 +38,7 @@ export function AgentePerformanceChart({
   const maxLabelLen = 18;
 
   const chartData = top10.map((item) => {
-    let color = chartColors.redScale[2];
+    let color: string = chartColors.redScale[2];
     if (item.averageValue > globalAverage * 1.1) {
       color = chartColors.primary;
     } else if (item.averageValue < globalAverage * 0.9) {

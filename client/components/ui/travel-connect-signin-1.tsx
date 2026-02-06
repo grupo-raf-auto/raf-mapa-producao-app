@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -203,6 +204,13 @@ const DotMap = () => {
 };
 
 const SignInCard = () => {
+  const searchParams = useSearchParams();
+  const callbackUrl =
+    searchParams.get('callbackUrl') &&
+    searchParams.get('callbackUrl')!.startsWith('/')
+      ? searchParams.get('callbackUrl')!
+      : '/';
+
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -236,7 +244,7 @@ const SignInCard = () => {
       const { data, error } = await authClient.signIn.email({
         email: email.trim(),
         password,
-        callbackURL: '/approval-status',
+        callbackURL: callbackUrl,
       });
       if (error) {
         const m = (error.message || '').toLowerCase();
@@ -255,8 +263,8 @@ const SignInCard = () => {
         return;
       }
       toast.success('Login realizado com sucesso!');
-      // Redirecionar para approval-status; a página redireciona para / ou /admin se aprovado
-      window.location.href = '/approval-status';
+      // Utilizadores aprovados vão para o destino; o middleware redireciona os pendentes para /approval-status
+      window.location.href = callbackUrl;
     } catch {
       toast.error('Erro ao fazer login');
     } finally {
@@ -274,7 +282,7 @@ const SignInCard = () => {
       } else {
         await authClient.signIn.social({
           provider: 'google',
-          callbackURL: '/approval-status',
+          callbackURL: callbackUrl,
         });
       }
     } catch {

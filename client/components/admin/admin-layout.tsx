@@ -27,14 +27,6 @@ import {
   Sun,
 } from 'lucide-react';
 
-export type AdminTabValue =
-  | 'users'
-  | 'consultas'
-  | 'performance'
-  | 'templates'
-  | 'documents'
-  | 'tickets';
-
 function AdminTopBar() {
   const { data: session } = useSession();
   const user = session?.user;
@@ -175,21 +167,12 @@ function AdminTopBar() {
 
 interface AdminLayoutProps {
   children: React.ReactNode;
-  activeTab?: AdminTabValue | null;
-  onTabChange?: (tab: AdminTabValue) => void;
 }
 
-export function AdminLayout({
-  children,
-  activeTab = null,
-  onTabChange,
-}: AdminLayoutProps) {
+export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <>
-      <AdminSidebar
-        activeTab={activeTab ?? undefined}
-        onTabChange={onTabChange ?? (() => {})}
-      />
+      <AdminSidebar />
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <AdminTopBar />
         <main className="flex-1 overflow-auto p-6">

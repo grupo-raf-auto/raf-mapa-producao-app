@@ -17,7 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import { SidebarSupportChat } from '@/components/layout/sidebar-support-chat';
 
-// Admin navigation
+// Admin navigation — each item maps to /admin/{tab}
 const adminNavigation = [
   {
     label: 'Utilizadores',
@@ -57,7 +57,7 @@ const adminNavigation = [
   },
 ];
 
-// General menu items (admin: definicoes under /admin)
+// General menu items
 const generalNavigation = [
   {
     label: 'Definições',
@@ -73,15 +73,8 @@ const generalNavigation = [
   },
 ];
 
-interface AdminSidebarProps {
-  activeTab?: string;
-  onTabChange?: (tab: string) => void;
-}
-
-export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
+export function AdminSidebar() {
   const pathname = usePathname();
-  const isDashboard =
-    typeof activeTab === 'string' && typeof onTabChange === 'function';
 
   return (
     <div className="w-[260px] h-full flex-shrink-0 sidebar-donezo flex flex-col relative overflow-hidden">
@@ -132,31 +125,20 @@ export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
             </p>
             {adminNavigation.map((item) => {
               const Icon = item.icon;
-              const isActive = activeTab === item.tab;
-              if (isDashboard) {
-                return (
-                  <button
-                    key={item.tab}
-                    onClick={() => onTabChange?.(item.tab)}
-                    title={item.description}
-                    className={cn(
-                      'w-full flex items-center gap-3 rounded-xl font-medium px-4 py-3 cursor-pointer transition-all duration-200',
-                      isActive
-                        ? 'bg-white text-red-900 shadow-lg'
-                        : 'text-white/70 hover:bg-white/10 hover:text-white',
-                    )}
-                  >
-                    <Icon className="shrink-0 h-5 w-5" />
-                    <span className="text-sm">{item.label}</span>
-                  </button>
-                );
-              }
+              const href = `/admin/${item.tab}`;
+              const isActive =
+                pathname === href || pathname.startsWith(href + '/');
               return (
                 <Link
                   key={item.tab}
-                  href="/admin"
+                  href={href}
                   title={item.description}
-                  className="flex items-center gap-3 rounded-xl font-medium px-4 py-3 cursor-pointer transition-all duration-200 text-white/70 hover:bg-white/10 hover:text-white"
+                  className={cn(
+                    'w-full flex items-center gap-3 rounded-xl font-medium px-4 py-3 cursor-pointer transition-all duration-200',
+                    isActive
+                      ? 'bg-white text-red-900 shadow-lg'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white',
+                  )}
                 >
                   <Icon className="shrink-0 h-5 w-5" />
                   <span className="text-sm">{item.label}</span>

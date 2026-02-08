@@ -202,10 +202,12 @@ function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith('/admin');
 
-  // Admin has its own sidebar and layout - render directly without wrapper
+  // Admin has its own sidebar and layout - render directly without wrapper.
+  // Use a stable key so the admin layout (sidebar + topbar) stays mounted
+  // and only the page content swaps on sub-route navigation.
   if (isAdminRoute) {
     return (
-      <PageAnimation key={pathname} className="flex-1 h-full flex">
+      <PageAnimation key="/admin" className="flex-1 h-full flex">
         {children}
       </PageAnimation>
     );

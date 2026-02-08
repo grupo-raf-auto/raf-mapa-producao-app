@@ -7,7 +7,13 @@ import { useSession } from '@/lib/auth-client';
 import { MainLayout } from '@/components/layout/main-layout';
 import TravelConnectSignIn from '@/components/ui/travel-connect-signin-1';
 import { DashboardWrapper } from '@/components/dashboard/dashboard-wrapper';
-import { AdminDashboard } from '@/components/admin/admin-dashboard';
+import { AdminDashboard, useAdminRefresh } from '@/components/admin/admin-dashboard';
+import { UsersManagement } from '@/components/admin/users-management';
+import { AdminConsultasContent } from '@/components/admin/admin-consultas-content';
+import { UserPerformance } from '@/components/admin/user-performance';
+import { TemplatesManagement } from '@/components/admin/templates-management';
+import { DocumentsManager } from '@/components/mysabichao/documents-manager';
+import { Ticket } from 'lucide-react';
 import { TemplatesContent } from '@/components/templates/templates-content';
 import { FormulariosContent } from '@/components/formularios/formularios-content';
 import { ConsultasContent } from '@/components/consultas/consultas-content';
@@ -63,6 +69,48 @@ function AdminPage() {
       </MainLayout>
     </ProtectedRoute>
   );
+}
+
+function TicketsPlaceholder() {
+  return (
+    <div className="bg-card rounded-2xl p-8 shadow-sm border text-center">
+      <Ticket className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+      <h3 className="text-lg font-semibold mb-2">Tickets</h3>
+      <p className="text-muted-foreground">
+        Sistema de tickets em desenvolvimento.
+      </p>
+    </div>
+  );
+}
+
+function AdminUsersRoute() {
+  const { refreshKey } = useAdminRefresh();
+  return <UsersManagement key={`users-${refreshKey}`} />;
+}
+
+function AdminConsultasRoute() {
+  const { refreshKey } = useAdminRefresh();
+  return <AdminConsultasContent key={`consultas-${refreshKey}`} />;
+}
+
+function AdminPerformanceRoute() {
+  const { refreshKey } = useAdminRefresh();
+  return <UserPerformance key={`performance-${refreshKey}`} />;
+}
+
+function AdminTemplatesRoute() {
+  const { refreshKey } = useAdminRefresh();
+  return <TemplatesManagement key={`templates-${refreshKey}`} />;
+}
+
+function AdminDocumentsRoute() {
+  const { refreshKey } = useAdminRefresh();
+  return <DocumentsManager key={`docs-${refreshKey}`} />;
+}
+
+function AdminTicketsRoute() {
+  const { refreshKey } = useAdminRefresh();
+  return <TicketsPlaceholder key={`tickets-${refreshKey}`} />;
 }
 
 function TemplatesPage() {
@@ -133,7 +181,16 @@ function App() {
             <Routes>
               <Route path="/sign-in" element={<SignInPage />} />
               <Route path="/" element={<HomePage />} />
-              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin" element={<AdminPage />}>
+                <Route index element={<Navigate to="users" replace />} />
+                <Route path="users" element={<AdminUsersRoute />} />
+                <Route path="users/:userId/models" element={<SelectModelsPage />} />
+                <Route path="consultas" element={<AdminConsultasRoute />} />
+                <Route path="performance" element={<AdminPerformanceRoute />} />
+                <Route path="templates" element={<AdminTemplatesRoute />} />
+                <Route path="documents" element={<AdminDocumentsRoute />} />
+                <Route path="tickets" element={<AdminTicketsRoute />} />
+              </Route>
               <Route path="/select-models" element={<SelectModelsPage />} />
               <Route path="/templates" element={<TemplatesPage />} />
               <Route path="/formularios" element={<FormulariosPage />} />
@@ -155,10 +212,6 @@ function App() {
               <Route
                 path="/approval-status"
                 element={<div>Approval status (TODO: wrap component)</div>}
-              />
-              <Route
-                path="/admin/users/:userId/models"
-                element={<AdminPage />}
               />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

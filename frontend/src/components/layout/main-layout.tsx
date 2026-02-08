@@ -137,6 +137,10 @@ function TopBar() {
 function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  // Use a stable key for admin routes so the layout (header + tabs) stays
+  // mounted and only the <Outlet /> content swaps on tab navigation.
+  const pageKey = pathname.startsWith('/admin') ? '/admin' : pathname;
+
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
       {/* Top Bar */}
@@ -145,7 +149,7 @@ function MainContent({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <main className="flex-1 overflow-auto p-6">
         <div className="max-w-[1600px] mx-auto">
-          <PageAnimation key={pathname}>{children}</PageAnimation>
+          <PageAnimation key={pageKey}>{children}</PageAnimation>
         </div>
       </main>
     </div>
@@ -155,7 +159,7 @@ function MainContent({ children }: { children: React.ReactNode }) {
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const isAdminPage = pathname === '/admin';
+  const isAdminPage = pathname.startsWith('/admin');
   const showSidebar = !isAdminPage;
 
   return (

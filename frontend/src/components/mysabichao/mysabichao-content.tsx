@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import {
   AnimatedAIChat,
@@ -126,13 +124,12 @@ export function MySabichaoContent() {
       {/* Professional Header */}
       <PageHeader
         title="MySabichão"
-        description="Assistente inteligente para consultas sobre templates, procedimentos, documentação e análise de risco. Utilize comandos rápidos ou faça perguntas em linguagem natural."
+        description="Assistente para templates, documentação e análise. Perguntas em linguagem natural."
         icon={Brain}
         iconGradient="from-red-600 via-red-500 to-red-700"
         decoratorIcon={<Sparkles className="w-5 h-5" />}
         decoratorColor="text-red-500"
       />
-
       {/* Chat Interface */}
       <div className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">

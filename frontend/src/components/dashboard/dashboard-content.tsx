@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from '@/lib/router-compat';
 import { KPICards } from './kpi-cards';
@@ -18,6 +16,7 @@ export function DashboardContent() {
   const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [backendUnavailable, setBackendUnavailable] = useState(false);
   const { activeModel, loading: modelLoading } = useModelContext();
   const { models, loading: modelsLoading } = useUserModels();
 
@@ -28,10 +27,10 @@ export function DashboardContent() {
   const loadData = async () => {
     try {
       setError(null);
+      setBackendUnavailable(false);
       setLoading(true);
       clearStatsCache();
 
-      // Período global: diário, para o eixo X mostrar o dia da apólice
       const result = await Promise.all([
         api.templates.getAll().catch(() => []),
         api.submissions
@@ -68,20 +67,27 @@ export function DashboardContent() {
       setRecentSubmissions(sortedSubmissions);
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Erro ao carregar dados do dashboard');
+      setBackendUnavailable(true);
+      setTemplates([]);
+      setSalesStats(null);
+      setYearlyStats({ total: 0, totalValue: 0 });
+      setMonthlyStats({ total: 0, totalValue: 0 });
+      setComparativeStats(null);
+      setRecentSubmissions([]);
+      setError(null);
     } finally {
       setLoading(false);
     }
   };
 
-  // Se não há modelos após carregar, redirecionar para seleção (evita "Nenhum modelo" no dashboard)
+  // Redirecionar para seleção de modelos só quando há modelos carregados com sucesso e está vazio (não quando o backend está em baixo)
   useEffect(() => {
-    if (modelsLoading || modelLoading) return;
+    if (modelsLoading || modelLoading || backendUnavailable) return;
     if (!models || models.length === 0) {
       router.replace('/select-models');
       return;
     }
-  }, [modelsLoading, modelLoading, models, router]);
+  }, [modelsLoading, modelLoading, models, router, backendUnavailable]);
 
   // Carregamento inicial e ao mudar de modelo (período global único: mensal)
   useEffect(() => {
@@ -230,6 +236,12 @@ export function DashboardContent() {
 
   return (
     <div className="space-y-6">
+      {backendUnavailable && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40 px-4 py-2.5 text-sm text-amber-800 dark:text-amber-200">
+          Não foi possível ligar ao servidor. Os dados mostrados estão em modo offline. Verifique se o backend está a correr e recarregue a página.
+        </div>
+      )}
+
       {/* Professional Header */}
       <DashboardHeader />
 

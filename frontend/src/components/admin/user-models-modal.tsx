@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +10,6 @@ import {
 import {
   Loader2,
   AlertCircle,
-  Plus,
   Trash2,
   ToggleLeft,
   ToggleRight,

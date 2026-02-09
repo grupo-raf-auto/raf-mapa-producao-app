@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import { useUserModels } from '@/lib/hooks/use-user-models';
 import { useModelContext } from '@/lib/context/model-context';

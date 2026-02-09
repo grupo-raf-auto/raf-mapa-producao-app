@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from '@/lib/router-compat';
 import {
@@ -186,7 +184,10 @@ export function CreateTemplateDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col p-0 gap-0">
+      <DialogContent
+        className="max-h-[90vh] flex flex-col p-0 gap-0"
+        style={{ maxWidth: 'min(calc(100vw - 2rem), 72rem)' }}
+      >
         <DialogHeader className="shrink-0 px-8 pt-8 pb-5 border-b bg-muted/30">
           <DialogTitle className="text-xl">Novo Template</DialogTitle>
           <DialogDescription className="text-muted-foreground mt-1">

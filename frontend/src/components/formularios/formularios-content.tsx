@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useMemo } from "react";
 import {
   Card,
@@ -81,7 +79,7 @@ export function FormulariosContent() {
       <div className="space-y-6">
         <PageHeader
           title="Formulários"
-          description="Escolha um template para preencher e submeter. Preencha os campos necessários e envie para processamento."
+          description="Preencher e submeter formulários."
           icon={FileStack}
           iconGradient="from-red-600 via-red-500 to-red-700"
           decoratorIcon={<FileEdit className="w-5 h-5" />}
@@ -102,15 +100,14 @@ export function FormulariosContent() {
       <PageHeader
         title="Formulários"
         description={activeModel 
-          ? `Escolha um template para preencher. Modelo ativo: ${activeModel.modelType}.`
-          : "Escolha um template para preencher e submeter. Preencha os campos necessários e envie para processamento."
+          ? `Modelo ativo: ${activeModel.modelType}.`
+          : "Preencher e submeter formulários."
         }
         icon={FileStack}
         iconGradient="from-red-600 via-red-500 to-red-700"
         decoratorIcon={<FileEdit className="w-5 h-5" />}
         decoratorColor="text-red-500"
       />
-
       {!activeModel ? (
         <Card className="shadow-sm">
           <CardContent className="py-8 text-center">

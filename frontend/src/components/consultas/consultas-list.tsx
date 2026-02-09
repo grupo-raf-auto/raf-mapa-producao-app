@@ -1,5 +1,3 @@
-'use client';
-
 import { useMemo, useState, useEffect } from 'react';
 import { ConsultasDataTable } from './consultas-data-table';
 import type { ConsultasFiltersState } from './consultas-filters';

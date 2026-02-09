@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import { ConsultasFilters } from './consultas-filters';
 import { ConsultasList } from './consultas-list';

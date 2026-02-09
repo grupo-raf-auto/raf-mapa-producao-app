@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -324,16 +322,18 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
         </div>
       </div>
 
-      {/* Right side - Sparkline */}
-      <div className="shrink-0">
-        <Sparkline
-          data={sparklineData || []}
-          type={sparklineType}
-          color={colors.text}
-          width={56}
-          height={28}
-        />
-      </div>
+      {/* Right side - Sparkline (só quando há dados suficientes para evitar barras/linhas confusas) */}
+      {sparklineData && sparklineData.length > 2 && (
+        <div className="shrink-0" aria-hidden>
+          <Sparkline
+            data={sparklineData}
+            type={sparklineType}
+            color={colors.text}
+            width={56}
+            height={28}
+          />
+        </div>
+      )}
     </motion.div>
   );
 };

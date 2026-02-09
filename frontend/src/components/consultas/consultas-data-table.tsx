@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Table,
@@ -55,7 +53,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Edit, Save, Trash2 } from 'lucide-react';
+import { Edit, Euro, Save, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { useRouter } from '@/lib/router-compat';
@@ -520,6 +518,15 @@ export function ConsultasDataTable({
                     />
                   )}
                 </>
+              )}
+              {!showCommissionPaid && submission.commissionPaid && (
+                <span
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  title="Comissão paga"
+                  aria-label="Comissão paga"
+                >
+                  <Euro className="h-4 w-4" />
+                </span>
               )}
               <Button
                 variant="ghost"

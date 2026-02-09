@@ -1,27 +1,35 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
 import { ModalProvider } from '@/lib/contexts/modal-context';
 import { ModelContextProvider } from '@/lib/context/model-context';
-import { useSession } from '@/lib/auth-client';
+import { useAuth } from '@/hooks/use-auth';
+import { AuthProvider } from '@/contexts/auth-context';
 import { MainLayout } from '@/components/layout/main-layout';
 import TravelConnectSignIn from '@/components/ui/travel-connect-signin-1';
 import { DashboardWrapper } from '@/components/dashboard/dashboard-wrapper';
-import { AdminDashboard, useAdminRefresh } from '@/components/admin/admin-dashboard';
 import { UsersManagement } from '@/components/admin/users-management';
 import { AdminConsultasContent } from '@/components/admin/admin-consultas-content';
 import { UserPerformance } from '@/components/admin/user-performance';
 import { TemplatesManagement } from '@/components/admin/templates-management';
-import { DocumentsManager } from '@/components/mysabichao/documents-manager';
-import { Ticket } from 'lucide-react';
+import { AdminDocumentsContent } from '@/components/admin/admin-documents-content';
+import { AdminTicketsContent } from '@/components/admin/admin-tickets-content';
 import { TemplatesContent } from '@/components/templates/templates-content';
 import { FormulariosContent } from '@/components/formularios/formularios-content';
 import { ConsultasContent } from '@/components/consultas/consultas-content';
 import { DocumentScanner } from '@/components/document-scanner';
+import { PageHeader } from '@/components/ui/page-header';
+import { FileCheck } from 'lucide-react';
 import { MySabichaoContent } from '@/components/mysabichao/mysabichao-content';
-import { SupportChatFab } from '@/components/support/support-chat-fab';
 import { Spinner } from '@/components/ui/spinner';
 import SelectModelsPage from '@/pages/SelectModels';
+import { AdminLayout } from '@/components/admin/admin-layout';
+import { VerifyEmail } from '@/components/auth/verify-email';
+import { ApprovalStatus } from '@/components/auth/approval-status';
+import { ForgotPassword } from '@/components/auth/forgot-password';
+import { ResetPassword } from '@/components/auth/reset-password';
+import { SettingsContent } from '@/components/settings/settings-content';
+import { HelpContent } from '@/components/help/help-content';
 
 import '@/index.css';
 import '@/styles/scanner.css';
@@ -33,21 +41,55 @@ function ProtectedRoute({
   children: React.ReactNode;
   requireAdmin?: boolean;
 }) {
-  const { data: session, isPending } = useSession();
+  const { user, isLoading, emailVerified, approvalStatus, isAdmin } = useAuth();
+  const location = useLocation();
 
-  if (isPending) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Spinner className="h-8 w-8" />
+        <Spinner variant="bars" className="h-8 w-8" />
       </div>
     );
   }
-  if (!session?.user) {
+
+  // Not authenticated
+  if (!user) {
     return <Navigate to="/sign-in" replace />;
   }
-  if (requireAdmin && (session.user as { role?: string }).role !== 'admin') {
+
+  // Check email verification
+  if (!emailVerified && location.pathname !== '/verify-email') {
+    return <Navigate to="/verify-email" replace />;
+  }
+
+  // Check approval status (skip for admins). Só redirecionar quando o status já foi carregado e não é aprovado
+  if (
+    !isAdmin &&
+    approvalStatus != null &&
+    approvalStatus !== 'approved' &&
+    location.pathname !== '/approval-status' &&
+    location.pathname !== '/verify-email'
+  ) {
+    return <Navigate to="/approval-status" replace />;
+  }
+
+  // Admin-only routes
+  if (requireAdmin && !isAdmin) {
     return <Navigate to="/" replace />;
   }
+
+  // Redirect admins from user routes to admin dashboard
+  if (
+    isAdmin &&
+    !location.pathname.startsWith('/admin') &&
+    location.pathname !== '/approval-status' &&
+    location.pathname !== '/verify-email' &&
+    location.pathname !== '/settings' &&
+    location.pathname !== '/help'
+  ) {
+    return <Navigate to="/admin" replace />;
+  }
+
   return <>{children}</>;
 }
 
@@ -65,57 +107,41 @@ function AdminPage() {
   return (
     <ProtectedRoute requireAdmin>
       <MainLayout>
-        <AdminDashboard />
+        <AdminLayout>
+          <Outlet />
+        </AdminLayout>
       </MainLayout>
     </ProtectedRoute>
   );
 }
 
-function TicketsPlaceholder() {
-  return (
-    <div className="bg-card rounded-2xl p-8 shadow-sm border text-center">
-      <Ticket className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-      <h3 className="text-lg font-semibold mb-2">Tickets</h3>
-      <p className="text-muted-foreground">
-        Sistema de tickets em desenvolvimento.
-      </p>
-    </div>
-  );
-}
-
 function AdminUsersRoute() {
-  const { refreshKey } = useAdminRefresh();
-  return <UsersManagement key={`users-${refreshKey}`} />;
+  return <UsersManagement />;
 }
 
 function AdminConsultasRoute() {
-  const { refreshKey } = useAdminRefresh();
-  return <AdminConsultasContent key={`consultas-${refreshKey}`} />;
+  return <AdminConsultasContent />;
 }
 
 function AdminPerformanceRoute() {
-  const { refreshKey } = useAdminRefresh();
-  return <UserPerformance key={`performance-${refreshKey}`} />;
+  return <UserPerformance />;
 }
 
 function AdminTemplatesRoute() {
-  const { refreshKey } = useAdminRefresh();
-  return <TemplatesManagement key={`templates-${refreshKey}`} />;
+  return <TemplatesManagement />;
 }
 
 function AdminDocumentsRoute() {
-  const { refreshKey } = useAdminRefresh();
-  return <DocumentsManager key={`docs-${refreshKey}`} />;
+  return <AdminDocumentsContent />;
 }
 
 function AdminTicketsRoute() {
-  const { refreshKey } = useAdminRefresh();
-  return <TicketsPlaceholder key={`tickets-${refreshKey}`} />;
+  return <AdminTicketsContent />;
 }
 
 function TemplatesPage() {
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAdmin>
       <MainLayout>
         <TemplatesContent />
       </MainLayout>
@@ -147,7 +173,18 @@ function ScannerPage() {
   return (
     <ProtectedRoute>
       <MainLayout>
-        <DocumentScanner />
+        <div className="flex-1 flex flex-col min-h-0">
+          <PageHeader
+            title="MyScanner"
+            description="Deteção de fraudes e alterações em documentos."
+            icon={FileCheck}
+          />
+          <div className="flex-1 overflow-auto flex items-center justify-center min-h-[320px]">
+            <div className="p-6 max-w-4xl w-full">
+              <DocumentScanner />
+            </div>
+          </div>
+        </div>
       </MainLayout>
     </ProtectedRoute>
   );
@@ -163,6 +200,34 @@ function MysabichaoPage() {
   );
 }
 
+function SettingsPage() {
+  return (
+    <ProtectedRoute>
+      <MainLayout>
+        <SettingsContent />
+      </MainLayout>
+    </ProtectedRoute>
+  );
+}
+
+function HelpPage() {
+  return (
+    <ProtectedRoute>
+      <MainLayout>
+        <HelpContent variant="user" />
+      </MainLayout>
+    </ProtectedRoute>
+  );
+}
+
+function AdminDefinicoesRoute() {
+  return <SettingsContent />;
+}
+
+function AdminAjudaRoute() {
+  return <HelpContent variant="admin" />;
+}
+
 function SignInPage() {
   return <TravelConnectSignIn />;
 }
@@ -176,11 +241,29 @@ function App() {
       disableTransitionOnChange
     >
       <BrowserRouter>
-        <ModelContextProvider>
-          <ModalProvider>
-            <Routes>
+        <AuthProvider>
+          <ModelContextProvider>
+            <ModalProvider>
+              <Routes>
+              {/* Public auth routes */}
               <Route path="/sign-in" element={<SignInPage />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route path="/approval-status" element={<ApprovalStatus />} />
+
+              {/* User routes */}
               <Route path="/" element={<HomePage />} />
+              <Route path="/select-models" element={<SelectModelsPage />} />
+              <Route path="/templates" element={<TemplatesPage />} />
+              <Route path="/formularios" element={<FormulariosPage />} />
+              <Route path="/consultas" element={<ConsultasPage />} />
+              <Route path="/scanner" element={<ScannerPage />} />
+              <Route path="/mysabichao" element={<MysabichaoPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/help" element={<HelpPage />} />
+
+              {/* Admin routes */}
               <Route path="/admin" element={<AdminPage />}>
                 <Route index element={<Navigate to="users" replace />} />
                 <Route path="users" element={<AdminUsersRoute />} />
@@ -190,35 +273,17 @@ function App() {
                 <Route path="templates" element={<AdminTemplatesRoute />} />
                 <Route path="documents" element={<AdminDocumentsRoute />} />
                 <Route path="tickets" element={<AdminTicketsRoute />} />
+                <Route path="definicoes" element={<AdminDefinicoesRoute />} />
+                <Route path="ajuda" element={<AdminAjudaRoute />} />
               </Route>
-              <Route path="/select-models" element={<SelectModelsPage />} />
-              <Route path="/templates" element={<TemplatesPage />} />
-              <Route path="/formularios" element={<FormulariosPage />} />
-              <Route path="/consultas" element={<ConsultasPage />} />
-              <Route path="/scanner" element={<ScannerPage />} />
-              <Route path="/mysabichao" element={<MysabichaoPage />} />
-              <Route
-                path="/forgot-password"
-                element={<div>Forgot password (TODO: wrap component)</div>}
-              />
-              <Route
-                path="/reset-password"
-                element={<div>Reset password (TODO: wrap component)</div>}
-              />
-              <Route
-                path="/verify-email"
-                element={<div>Verify email (TODO: wrap component)</div>}
-              />
-              <Route
-                path="/approval-status"
-                element={<div>Approval status (TODO: wrap component)</div>}
-              />
+
+              {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-            <SupportChatFab />
-            <Toaster position="top-center" richColors />
-          </ModalProvider>
-        </ModelContextProvider>
+              </Routes>
+              <Toaster position="top-center" richColors />
+            </ModalProvider>
+          </ModelContextProvider>
+        </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>
   );

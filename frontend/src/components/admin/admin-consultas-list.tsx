@@ -1,9 +1,9 @@
-'use client';
-
 import { useMemo, useState, useEffect } from 'react';
 import { ConsultasDataTable } from '../consultas/consultas-data-table';
 import type { AdminConsultasFiltersState } from './admin-consultas-filters';
 import { apiClient as api } from '@/lib/api-client';
+import { Spinner } from '@/components/ui/spinner';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface Submission {
   _id?: string;
@@ -291,11 +291,12 @@ export function AdminConsultasList({
 
   if (loading) {
     return (
-      <div className="space-y-8 py-2">
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Carregando...</p>
-        </div>
-      </div>
+      <Card className="rounded-2xl">
+        <CardContent className="flex flex-col items-center justify-center gap-3 py-12">
+          <Spinner variant="bars" className="w-8 h-8 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">A carregar lista de consultas...</p>
+        </CardContent>
+      </Card>
     );
   }
 

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, FormEvent } from "react";
 import { MessageCircle } from "lucide-react";
 import {

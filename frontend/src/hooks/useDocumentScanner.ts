@@ -36,42 +36,53 @@ export function useDocumentScanner() {
     }
   }, []);
 
+  const pollOnce = useCallback(
+    async (scanId: string, attempt: number): Promise<boolean> => {
+      try {
+        const detailResponse = await fetch(`/api/scanner/scan?id=${scanId}`, {
+          signal: abortControllerRef.current?.signal,
+        });
+
+        if (detailResponse.ok) {
+          const scanDetail = await detailResponse.json();
+          if (scanDetail.scoreTotal !== undefined) {
+            setResult(scanDetail);
+            stopPolling();
+            setScanning(false);
+            return true;
+          }
+        } else if (detailResponse.status !== 404) {
+          const errorData = await detailResponse
+            .json()
+            .catch(() => ({ error: detailResponse.statusText }));
+          console.error(
+            `Error fetching scan (${detailResponse.status}):`,
+            errorData
+          );
+        }
+      } catch (err) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          console.error("Erro ao buscar resultado:", err);
+        }
+      }
+      if (attempt >= MAX_POLL_ATTEMPTS) {
+        stopPolling();
+        setError(POLL_TIMEOUT_ERROR);
+        setScanning(false);
+        return true;
+      }
+      return false;
+    },
+    [stopPolling]
+  );
+
   const pollForResult = useCallback(
     async (scanId: string) => {
       let attempts = 0;
-
+      if (await pollOnce(scanId, attempts)) return;
       pollIntervalRef.current = setInterval(async () => {
         attempts++;
-        try {
-          const detailResponse = await fetch(`/api/scanner/scan?id=${scanId}`, {
-            signal: abortControllerRef.current?.signal,
-          });
-
-          if (detailResponse.ok) {
-            const scanDetail = await detailResponse.json();
-            if (scanDetail.scoreTotal !== undefined) {
-              setResult(scanDetail);
-              stopPolling();
-              setScanning(false);
-              return;
-            }
-          } else if (detailResponse.status === 404) {
-            console.log(`[Attempt ${attempts}] Scan not ready yet, polling...`);
-          } else {
-            const errorData = await detailResponse
-              .json()
-              .catch(() => ({ error: detailResponse.statusText }));
-            console.error(
-              `Error fetching scan (${detailResponse.status}):`,
-              errorData
-            );
-          }
-        } catch (err) {
-          if (err instanceof Error && err.name !== "AbortError") {
-            console.error("Erro ao buscar resultado:", err);
-          }
-        }
-
+        if (await pollOnce(scanId, attempts)) return;
         if (attempts >= MAX_POLL_ATTEMPTS) {
           stopPolling();
           setError(POLL_TIMEOUT_ERROR);
@@ -79,7 +90,7 @@ export function useDocumentScanner() {
         }
       }, POLL_INTERVAL_MS);
     },
-    [stopPolling]
+    [pollOnce, stopPolling]
   );
 
   const uploadAndScan = useCallback(async (file: File) => {
@@ -124,5 +135,10 @@ export function useDocumentScanner() {
     unmountRef.current = true;
   }
 
-  return { scanning, error, result, uploadAndScan, cleanup };
+  const clearResult = useCallback(() => {
+    setResult(null);
+    setError(null);
+  }, []);
+
+  return { scanning, error, result, uploadAndScan, cleanup, clearResult };
 }

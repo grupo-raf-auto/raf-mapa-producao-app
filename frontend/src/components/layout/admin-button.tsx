@@ -1,5 +1,3 @@
-'use client';
-
 import { Shield, LogOut, Bug, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -51,13 +49,7 @@ export function AdminButton() {
     }
     setSubmittingBug(true);
     try {
-      console.log('Bug:', {
-        description: bugDescription,
-        userEmail: user?.email,
-        userRole,
-        timestamp: new Date().toISOString(),
-        url: typeof window !== 'undefined' ? window.location.href : '',
-      });
+      // TODO: enviar bug report para API (POST /api/tickets)
       toast.success('Bug reportado. Obrigado.');
       setBugDescription('');
       setBugReportOpen(false);

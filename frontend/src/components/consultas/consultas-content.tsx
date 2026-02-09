@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect, useMemo } from 'react';
 import { apiClient as api } from '@/lib/api-client';
 import { ConsultasWrapper } from './consultas-wrapper';
@@ -41,7 +39,6 @@ export function ConsultasContent() {
         api.submissions.getAll().catch(() => []),
         api.templates.getAll().catch(() => []),
       ]);
-      console.log('🚀 ~ loadData ~ submissionsData:', submissionsData);
       setSubmissions(submissionsData || []);
       setTemplates(templatesData || []);
     } catch (error: unknown) {
@@ -98,7 +95,7 @@ export function ConsultasContent() {
       <div className="space-y-6">
         <PageHeader
           title="Consultas"
-          description="Visualize os seus formulários registados e acompanhe o histórico de submissões."
+          description="Histórico das suas submissões."
           icon={Search}
           iconGradient="from-red-600 via-red-500 to-red-700"
           decoratorIcon={<FileSearch className="w-5 h-5" />}
@@ -119,7 +116,7 @@ export function ConsultasContent() {
       <div className="space-y-6">
         <PageHeader
           title="Consultas"
-          description="Visualize os seus formulários registados e acompanhe o histórico de submissões."
+          description="Histórico das suas submissões."
           icon={Search}
           iconGradient="from-red-600 via-red-500 to-red-700"
           decoratorIcon={<FileSearch className="w-5 h-5" />}
@@ -143,15 +140,14 @@ export function ConsultasContent() {
         title="Consultas"
         description={
           activeModel
-            ? `Visualize os seus formulários registados. Modelo ativo: ${getModelDisplayName(activeModel.modelType)}.`
-            : 'Visualize os seus formulários registados e acompanhe o histórico de submissões.'
+            ? `Modelo ativo: ${getModelDisplayName(activeModel.modelType)}.`
+            : 'Histórico das suas submissões.'
         }
         icon={Search}
         iconGradient="from-red-600 via-red-500 to-red-700"
         decoratorIcon={<FileSearch className="w-5 h-5" />}
         decoratorColor="text-red-500"
       />
-
       {!activeModel ? (
         <Card className="shadow-sm">
           <CardContent className="py-8 text-center">

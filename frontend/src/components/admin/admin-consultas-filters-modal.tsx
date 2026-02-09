@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
@@ -24,10 +22,7 @@ import { Separator } from '@/components/ui/separator';
 import {
   Search,
   X,
-  Building2,
-  MapPin,
   Briefcase,
-  Users,
   DollarSign,
   Calendar,
   Settings,

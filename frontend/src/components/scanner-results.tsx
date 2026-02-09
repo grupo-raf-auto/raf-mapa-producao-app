@@ -1,5 +1,3 @@
-"use client";
-
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   CheckCircle2,
@@ -186,7 +184,7 @@ export function ScannerResults({ result, onClose }: ScannerResultsProps) {
       </motion.div>
 
       {/* Main Grid Layout */}
-      <motion.div variants={itemVariants} className="grid grid-cols-3 gap-4 mb-4">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         {/* Trust Score - Left Column */}
         <div className="col-span-1 relative overflow-hidden rounded-2xl border-2 border-slate-200 bg-linear-to-br from-white to-slate-50 shadow-lg p-6">
           <div className="space-y-4">
@@ -355,7 +353,7 @@ export function ScannerResults({ result, onClose }: ScannerResultsProps) {
       </AnimatePresence>
 
       {/* Justification & File Info - Grid */}
-      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4 mb-4">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         {/* Detailed Analysis */}
         <AnimatePresence>
           {result.justification && (
@@ -402,7 +400,7 @@ export function ScannerResults({ result, onClose }: ScannerResultsProps) {
       {/* Action Buttons */}
       <motion.div
         variants={itemVariants}
-        className="flex gap-3"
+        className="flex flex-col sm:flex-row gap-3"
       >
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
           <Button

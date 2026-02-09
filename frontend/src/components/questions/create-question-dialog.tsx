@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import { useRouter } from '@/lib/router-compat';
 import {

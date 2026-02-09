@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Layers } from "lucide-react";
 import { CreateTemplateDialog } from "./create-template-dialog";
@@ -12,7 +10,7 @@ export function TemplatesContent() {
       <div className="relative">
         <PageHeader
           title="Templates"
-          description="Crie e gerencie templates de formulários. Configure modelos reutilizáveis para agilizar o processo de submissão."
+          description="Modelos reutilizáveis para submissão."
           icon={FileText}
           iconGradient="from-red-600 via-red-500 to-red-700"
           decoratorIcon={<Layers className="w-5 h-5" />}
@@ -27,7 +25,6 @@ export function TemplatesContent() {
           </CreateTemplateDialog>
         </div>
       </div>
-
       <TemplatesList />
     </div>
   );

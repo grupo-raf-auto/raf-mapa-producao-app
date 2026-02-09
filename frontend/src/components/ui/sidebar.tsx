@@ -1,5 +1,3 @@
-'use client';
-
 import { cn } from '@/lib/utils';
 import { Link, type LinkProps } from '@/lib/router-compat';
 import React, { useState, createContext, useContext, useCallback } from 'react';

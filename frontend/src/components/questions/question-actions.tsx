@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import {

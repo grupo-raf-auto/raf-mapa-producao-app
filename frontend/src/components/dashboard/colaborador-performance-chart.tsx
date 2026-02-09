@@ -1,5 +1,3 @@
-'use client';
-
 import { Trophy, TrendingUp, Target } from 'lucide-react';
 import { chartColors } from '@/lib/design-system';
 

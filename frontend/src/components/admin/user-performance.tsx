@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,7 +8,10 @@ import {
   MessageSquare,
   FileText,
   RefreshCw,
+  TrendingUp,
+  Shield,
 } from 'lucide-react';
+import { PageHeader } from '@/components/ui/page-header';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import {
@@ -161,9 +162,10 @@ export function UserPerformance() {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-10">
-          <Spinner variant="bars" className="w-6 h-6" />
+      <Card className="rounded-2xl">
+        <CardContent className="flex flex-col items-center justify-center gap-3 py-12">
+          <Spinner variant="bars" className="w-8 h-8 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">A carregar desempenho...</p>
         </CardContent>
       </Card>
     );
@@ -171,9 +173,10 @@ export function UserPerformance() {
 
   if (!data) {
     return (
-      <Card>
-        <CardContent className="py-10 text-center text-muted-foreground">
-          Nenhum dado disponível
+      <Card className="rounded-2xl">
+        <CardContent className="py-12 text-center text-muted-foreground">
+          <p className="font-medium">Nenhum dado disponível</p>
+          <p className="text-sm mt-1">Verifique a ligação ou tente mais tarde.</p>
         </CardContent>
       </Card>
     );
@@ -264,15 +267,18 @@ export function UserPerformance() {
       role="region"
       aria-label="Desempenho dos utilizadores"
     >
-      {/* Header com botão de refresh */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Desempenho dos Utilizadores</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Visão completa de todas as métricas e indicadores de desempenho
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <PageHeader
+            title="Desempenho"
+            description="Métricas e indicadores de desempenho."
+            icon={TrendingUp}
+            iconGradient="from-red-600 via-red-500 to-red-700"
+            decoratorIcon={<Shield className="w-5 h-5" />}
+            decoratorColor="text-red-500"
+          />
         </div>
-        <Button onClick={loadStats} variant="outline" size="sm">
+        <Button onClick={loadStats} variant="outline" size="sm" className="shrink-0">
           <RefreshCw className="w-4 h-4 mr-2" />
           Atualizar
         </Button>

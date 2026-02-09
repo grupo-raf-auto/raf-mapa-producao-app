@@ -1,13 +1,11 @@
 import { DashboardContent } from "./dashboard-content";
 
 /**
- * Dashboard Wrapper Component
- * Server component that renders dashboard content
+ * Dashboard Wrapper – wraps dashboard content (client component).
  */
-export async function DashboardWrapper() {
+export function DashboardWrapper() {
   return (
     <div>
-      {/* Dashboard Content */}
       <DashboardContent />
     </div>
   );

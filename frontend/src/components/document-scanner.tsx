@@ -1,10 +1,9 @@
-"use client";
-
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDocumentScanner } from "@/hooks/useDocumentScanner";
 import { ScannerResults } from "@/components/scanner-results";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Upload,
   X,
@@ -24,7 +23,7 @@ interface UploadingFile {
 type WizardStep = "upload" | "summary";
 
 export function DocumentScanner() {
-  const { scanning, error, result, uploadAndScan } = useDocumentScanner();
+  const { scanning, error, result, uploadAndScan, clearResult } = useDocumentScanner();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentStep, setCurrentStep] = useState<WizardStep>("upload");
   const [dragActive, setDragActive] = useState(false);
@@ -65,8 +64,9 @@ export function DocumentScanner() {
     setSelectedFiles((prev) => [...prev, ...newFiles]);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     addFiles(e.target.files);
+    e.target.value = "";
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -143,6 +143,8 @@ export function DocumentScanner() {
     setCurrentStep("upload");
     setSelectedFiles([]);
     setUploadingFiles([]);
+    clearResult();
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
 
@@ -250,7 +252,7 @@ export function DocumentScanner() {
                             ) : uf.status === "error" ? (
                               <AlertTriangle className="w-4 h-4 text-red-600" />
                             ) : (
-                              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                              <Spinner variant="bars" className="w-4 h-4 text-primary" />
                             )}
                             <span className="text-sm font-medium flex-1 truncate">
                               {uf.file.name}
@@ -315,23 +317,15 @@ export function DocumentScanner() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="space-y-6"
+                className="space-y-6 min-h-[360px]"
               >
                 <AnimatePresence>
                   {result && !scanning ? (
                     <ScannerResults result={result} onClose={handleReset} />
                   ) : (
-                    <div className="text-center py-12">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }}
-                        className="w-12 h-12 border-3 border-slate-200 border-t-slate-900 rounded-full mx-auto mb-4"
-                      />
-                      <p className="text-sm text-slate-600 font-medium">
+                    <div className="text-center py-12 flex flex-col items-center justify-center gap-4 min-h-[320px]">
+                      <Spinner variant="bars" className="w-10 h-10 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground font-medium">
                         Processando análise...
                       </p>
                     </div>

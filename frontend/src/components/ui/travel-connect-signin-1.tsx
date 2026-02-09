@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useRef, useEffect, useState } from 'react';
 import { useSearchParams } from '@/lib/router-compat';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';

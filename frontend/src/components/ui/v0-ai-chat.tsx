@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useRef, useCallback } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';

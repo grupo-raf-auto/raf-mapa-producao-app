@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from '@/lib/router-compat';
 import {
@@ -291,7 +289,10 @@ export function FillTemplateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent
+        className="h-[90vh] flex flex-col p-0 overflow-hidden"
+        style={{ maxWidth: 'min(calc(100vw - 2rem), 72rem)' }}
+      >
         <div className="px-6 pt-6 pb-4 shrink-0 border-b">
           <DialogHeader>
             <DialogTitle>{template.title}</DialogTitle>

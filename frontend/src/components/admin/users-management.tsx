@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,8 +39,10 @@ import {
   MailCheck,
   MailX,
   Settings2,
+  Shield,
 } from 'lucide-react';
 import { UserModelsModal } from './user-models-modal';
+import { PageHeader } from '@/components/ui/page-header';
 
 interface User {
   _id: string;
@@ -206,6 +206,14 @@ export function UsersManagement() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Utilizadores"
+        description="Gerir contas e modelos de produção."
+        icon={Users}
+        iconGradient="from-red-600 via-red-500 to-red-700"
+        decoratorIcon={<Shield className="w-5 h-5" />}
+        decoratorColor="text-red-500"
+      />
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="rounded-2xl border-2 border-transparent">

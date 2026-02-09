@@ -1,10 +1,10 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { apiClient as api } from "@/lib/api-client";
 import { AdminConsultasWrapper } from "./admin-consultas-wrapper";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { Search, Shield } from "lucide-react";
 
 interface User {
   _id?: string;
@@ -56,10 +56,18 @@ export function AdminConsultasContent() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <Card>
-          <CardContent className="py-8 text-center flex flex-col items-center gap-3">
-            <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
-            <p className="text-muted-foreground">Carregando consultas...</p>
+        <PageHeader
+          title="Consultas"
+          description="Todas as consultas do sistema. Filtre por data, utilizador e estado."
+          icon={Search}
+          iconGradient="from-red-600 via-red-500 to-red-700"
+          decoratorIcon={<Shield className="w-5 h-5" />}
+          decoratorColor="text-red-500"
+        />
+        <Card className="rounded-2xl">
+          <CardContent className="py-12 text-center flex flex-col items-center gap-3">
+            <Spinner variant="bars" className="w-8 h-8 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">A carregar consultas...</p>
           </CardContent>
         </Card>
       </div>
@@ -69,8 +77,16 @@ export function AdminConsultasContent() {
   if (error) {
     return (
       <div className="space-y-6">
-        <Card>
-          <CardContent className="py-8 text-center">
+        <PageHeader
+          title="Consultas"
+          description="Todas as consultas do sistema. Filtre por data, utilizador e estado."
+          icon={Search}
+          iconGradient="from-red-600 via-red-500 to-red-700"
+          decoratorIcon={<Shield className="w-5 h-5" />}
+          decoratorColor="text-red-500"
+        />
+        <Card className="rounded-2xl">
+          <CardContent className="py-12 text-center">
             <p className="text-destructive font-medium mb-2">
               Erro ao carregar consultas
             </p>
@@ -83,6 +99,14 @@ export function AdminConsultasContent() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Consultas"
+        description="Todas as consultas do sistema. Filtre por data, utilizador e estado."
+        icon={Search}
+        iconGradient="from-red-600 via-red-500 to-red-700"
+        decoratorIcon={<Shield className="w-5 h-5" />}
+        decoratorColor="text-red-500"
+      />
       <AdminConsultasWrapper
         submissions={submissions}
         templates={templates}

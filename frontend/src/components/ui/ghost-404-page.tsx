@@ -1,5 +1,3 @@
-'use client';
-
 import { Image, Link } from '@/lib/router-compat';
 import { motion, AnimatePresence } from 'framer-motion';
 

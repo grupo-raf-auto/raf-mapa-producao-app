@@ -250,7 +250,7 @@ export type SpinnerProps = LucideProps & {
     | "infinite";
 };
 
-export const Spinner = ({ variant, ...props }: SpinnerProps) => {
+export const Spinner = ({ variant = "bars", ...props }: SpinnerProps) => {
   switch (variant) {
     case "circle":
       return <Circle {...props} />;
@@ -267,6 +267,6 @@ export const Spinner = ({ variant, ...props }: SpinnerProps) => {
     case "infinite":
       return <Infinite {...props} />;
     default:
-      return <Default {...props} />;
+      return <Bars {...props} />;
   }
 };

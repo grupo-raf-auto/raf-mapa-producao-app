@@ -1,5 +1,3 @@
-'use client';
-
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { ChartTooltip } from '@/components/ui/chart-tooltip';
 import { chartColors } from '@/lib/design-system';

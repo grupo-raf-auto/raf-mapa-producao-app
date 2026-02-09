@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { apiClient as api } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -188,8 +186,8 @@ export function DocumentsManager() {
   return (
     <div className="space-y-6">
       {/* Statistics Cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <Card>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="rounded-2xl">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
@@ -203,7 +201,7 @@ export function DocumentsManager() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-2xl">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
@@ -219,7 +217,7 @@ export function DocumentsManager() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-2xl">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
@@ -235,7 +233,7 @@ export function DocumentsManager() {
       </div>
 
       {/* Upload Section */}
-      <Card>
+      <Card className="rounded-2xl">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -280,7 +278,7 @@ export function DocumentsManager() {
       </Card>
 
       {/* Documents Table */}
-      <Card>
+      <Card className="rounded-2xl overflow-hidden">
         <CardContent className="p-6">
           <div className="mb-4">
             <h3 className="text-lg font-semibold mb-1">

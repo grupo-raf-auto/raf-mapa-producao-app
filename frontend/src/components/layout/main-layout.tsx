@@ -1,57 +1,64 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { usePathname } from '@/lib/router-compat';
 import { Sidebar } from './sidebar';
 import { ModelSelector } from './model-selector';
-import { SupportChatFab } from '@/components/support/support-chat-fab';
+import { ReportBugDialog } from './report-bug-dialog';
+import { NotificationsDropdown } from './notifications-dropdown';
 import { PageAnimation } from '@/components/ui/page-animation';
 import { Sidebar as SidebarBase } from '@/components/ui/sidebar';
-import { Moon, Sun, Bug, Power, Users } from 'lucide-react';
-import { useSession, authClient } from '@/lib/auth-client';
+import { Search, Bug, ChevronDown, LayoutGrid } from 'lucide-react';
+import { useSession } from '@/lib/auth-client';
 import { useRouter } from '@/lib/router-compat';
 import { toast } from 'sonner';
-import { useTheme } from 'next-themes'; // works in any React app
-import { Link, Image } from '@/lib/router-compat';
+import { useTheme } from 'next-themes';
+import { SearchBar, type SearchItem } from '@/components/ui/search-bar';
+import { useSearch } from '@/hooks/use-search';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { authClient } from '@/lib/auth-client';
+import { Settings, HelpCircle, LogOut, Moon, Sun } from 'lucide-react';
 
-// Top bar with search and action buttons
+// Top bar with search, notifications and user profile
 function TopBar() {
   const { data: session } = useSession();
   const user = session?.user;
-  const isAdmin = (session?.user as { role?: string })?.role === 'admin';
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith('/admin');
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [reportBugOpen, setReportBugOpen] = useState(false);
+  const { isOpen: isSearchOpen, open: openSearch, setIsOpen: setSearchOpen } = useSearch({ enabled: true, shortcut: 'k' });
+  const isAdmin = (session?.user as { role?: string })?.role === 'admin';
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const displayName =
+    user?.name ||
+    (user as { firstName?: string })?.firstName ||
+    user?.email?.split('@')[0] ||
+    'Utilizador';
+  const initial = (displayName as string)?.[0]?.toUpperCase() || 'U';
+  const userEmail = user?.email || '';
+
   const handleSignOut = async () => {
     try {
-      // Clear client-side auth state BEFORE server call to prevent race conditions
-      // This ensures the UI updates immediately even if server is slow
       localStorage.removeItem('activeModelId');
       sessionStorage.clear();
-
-      // Sign out from Better Auth (clears server session + cookies)
       await authClient.signOut();
-
-      // Force refresh to ensure session state is completely cleared
-      // This also ensures middleware validation on next navigation
       toast.success('Sessão terminada com sucesso');
-
-      // Use replace() instead of push() to prevent back button navigation to dashboard
-      // This is more secure as it removes the dashboard from browser history
       router.replace('/sign-in');
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Erro ao terminar sessão');
-
-      // Even if logout fails, still redirect to sign-in for security
-      // User should not see dashboard if logout fails
       router.replace('/sign-in');
     }
   };
@@ -60,86 +67,304 @@ function TopBar() {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
-  const handleReportBug = () => {
-    // Opens a bug report - could be a modal or external link
-    toast.info('Funcionalidade de reportar bug em desenvolvimento');
+  // Search data based on app routes & user role (admin items only when isAdmin)
+  const searchData: SearchItem[] = [
+    {
+      id: 'dashboard',
+      title: 'Dashboard',
+      description: 'Visão geral e métricas principais do sistema',
+      category: 'horizon',
+      tags: ['Home', 'Principal', 'Visão Geral'],
+    },
+    ...(isAdmin
+      ? [
+          {
+            id: 'templates',
+            title: 'Templates',
+            description: 'Gerenciar templates de documentos e formulários',
+            category: 'horizon' as const,
+            tags: ['Documentos', 'Modelos'],
+          },
+        ]
+      : []),
+    {
+      id: 'formularios',
+      title: 'Formulários',
+      description: 'Criar e gerenciar formulários personalizados',
+      category: 'horizon',
+      tags: ['Forms', 'Cadastro'],
+    },
+    {
+      id: 'consultas',
+      title: 'Consultas',
+      description: 'Realizar consultas e buscas no sistema',
+      category: 'horizon',
+      tags: ['Busca', 'Pesquisa'],
+    },
+    {
+      id: 'scanner',
+      title: 'Scanner de Documentos',
+      description: 'Digitalizar e processar documentos',
+      category: 'actions',
+      tags: ['Scan', 'Documentos', 'Upload'],
+    },
+    {
+      id: 'mysabichao',
+      title: 'MySabichão',
+      description: 'Assistente inteligente e gestão de documentos',
+      category: 'knowledge',
+      tags: ['IA', 'Documentos', 'Assistente'],
+    },
+    ...(isAdmin ? [
+      {
+        id: 'admin',
+        title: 'Painel Administrativo',
+        description: 'Área administrativa do sistema',
+        category: 'horizon' as const,
+        tags: ['Admin', 'Gestão'],
+      },
+      {
+        id: 'admin/users',
+        title: 'Gestão de Utilizadores',
+        description: 'Gerenciar utilizadores e permissões',
+        category: 'horizon' as const,
+        tags: ['Utilizadores', 'Admin'],
+      },
+      {
+        id: 'admin/consultas',
+        title: 'Admin - Consultas',
+        description: 'Visualizar todas as consultas do sistema',
+        category: 'reports' as const,
+        tags: ['Admin', 'Relatórios'],
+      },
+      {
+        id: 'admin/performance',
+        title: 'Performance de Utilizadores',
+        description: 'Métricas e análise de performance',
+        category: 'reports' as const,
+        tags: ['Admin', 'Performance'],
+      },
+      {
+        id: 'admin/templates',
+        title: 'Gestão de Templates (Admin)',
+        description: 'Administrar templates do sistema',
+        category: 'horizon' as const,
+        tags: ['Admin', 'Templates'],
+      },
+      {
+        id: 'admin/documents',
+        title: 'Gestão de Documentos (Admin)',
+        description: 'Administrar documentos do sistema',
+        category: 'horizon' as const,
+        tags: ['Admin', 'Documentos'],
+      },
+    ] : []),
+    {
+      id: 'action-report-bug',
+      title: 'Reportar Bug',
+      description: 'Reportar um problema ou bug no sistema',
+      category: 'actions',
+      tags: ['Bug', 'Suporte'],
+    },
+    {
+      id: 'action-theme',
+      title: 'Alternar Tema (Claro / Escuro)',
+      description: 'Mudar entre tema claro e escuro',
+      category: 'actions',
+      tags: ['Tema', 'Dark Mode'],
+    },
+    {
+      id: 'action-signout',
+      title: 'Terminar Sessão',
+      description: 'Fazer logout do sistema',
+      category: 'actions',
+      tags: ['Logout', 'Sair'],
+    },
+  ];
+
+  const handleSearchSelect = (item: SearchItem) => {
+    if (item.id === 'action-report-bug') {
+      setReportBugOpen(true);
+      return;
+    }
+    if (item.id === 'action-theme') {
+      toggleTheme();
+      return;
+    }
+    if (item.id === 'action-signout') {
+      handleSignOut();
+      return;
+    }
+    // Segurança: rotas restritas a admin (admin/* e /templates)
+    const path = String(item.id);
+    const isAdminOnlyPath =
+      path === 'admin' ||
+      path.startsWith('admin/') ||
+      path === 'templates';
+    if (isAdminOnlyPath && !isAdmin) {
+      toast.error('Acesso negado.');
+      return;
+    }
+    router.push(`/${path}`);
   };
 
   return (
-    <div className="h-14 flex items-center justify-between px-6 border-b border-border bg-card/50 backdrop-blur-sm dark:bg-card/40">
-      {/* Logo RAF (esquerda) - visível no admin; spacer nas outras rotas */}
-      {isAdminRoute ? (
-        <Link to="/admin" className="flex items-center shrink-0 cursor-pointer">
-          <Image
-            src="/logo-raf.png"
-            alt="Grupo RAF"
-            width={80}
-            height={28}
-            className="h-7 w-auto object-contain"
-            priority
-          />
-        </Link>
-      ) : (
-        <div />
-      )}
+    <>
+    <div className="h-16 flex items-center justify-between px-6 border-b border-border/40 bg-card/80 backdrop-blur-sm">
+      {/* Left side - Search trigger */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={openSearch}
+          className="w-72 h-10 flex items-center gap-2 pl-3.5 pr-3 rounded-xl bg-muted/50 border border-border/50 text-sm text-muted-foreground hover:bg-muted/80 hover:border-border transition-all cursor-pointer"
+        >
+          <Search className="w-4 h-4 shrink-0" />
+          <span className="flex-1 text-left">Pesquisar...</span>
+          <kbd className="px-1.5 py-0.5 text-[10px] font-medium bg-background border border-border rounded">
+            {mounted && navigator.platform?.includes('Mac') ? '⌘' : 'Ctrl+'}K
+          </kbd>
+        </button>
+      </div>
 
-      {/* Right side - action buttons */}
-      <div className="flex items-center gap-2">
+      {/* Right side - Actions & Profile */}
+      <div className="flex items-center gap-3">
         {/* Model Selector - only show for users (not admins) */}
         {!isAdminRoute && <ModelSelector />}
 
-        {/* CRM MyCredit button */}
-        <Link
-          to="/crm"
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-medium hover:bg-emerald-600 transition-colors cursor-pointer"
-        >
-          <Users className="w-3.5 h-3.5" />
-          CRM MyCredit
-        </Link>
-
-        {/* Dark mode toggle */}
-        <button
-          onClick={toggleTheme}
-          className="p-2 rounded-full border border-border bg-card hover:bg-muted transition-colors dark:bg-card/80 dark:hover:bg-muted/80 cursor-pointer"
-          title="Alternar tema"
-        >
-          {mounted && theme === 'dark' ? (
-            <Sun className="w-3.5 h-3.5 text-foreground" />
-          ) : (
-            <Moon className="w-3.5 h-3.5 text-foreground" />
-          )}
-        </button>
-
-        {/* Reportar Bug button */}
-        <button
-          onClick={handleReportBug}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-warning/10 text-warning text-xs font-medium hover:bg-warning/20 transition-colors dark:bg-warning/15 dark:text-warning dark:hover:bg-warning/25 cursor-pointer"
-        >
-          <Bug className="w-3.5 h-3.5" />
-          Reportar Bug
-        </button>
-
-        {/* Sair button - icon only */}
-        {user && (
-          <button
-            onClick={handleSignOut}
-            className="p-2 rounded-full border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors dark:bg-destructive/15 dark:hover:bg-destructive/25 cursor-pointer"
-            title="Sair"
+        {/* CRM MyCredit - link verde conforme referência */}
+        {!isAdminRoute && (
+          <a
+            href={import.meta.env.VITE_CRM_MYCREDIT_URL || 'https://crm.my-credit.pt/'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 font-medium text-xs transition-colors cursor-pointer shadow-sm"
           >
-            <Power className="w-3.5 h-3.5" />
-          </button>
+            <LayoutGrid className="w-4 h-4 shrink-0" />
+            <span>CRM MyCredit</span>
+          </a>
+        )}
+
+        {/* Report bug - abre modal para utilizador reportar */}
+        <button
+          type="button"
+          title="Reportar um problema"
+          aria-label="Reportar um problema ou bug"
+          onClick={() => setReportBugOpen(true)}
+          className="relative p-2.5 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+        >
+          <Bug className="w-5 h-5 text-muted-foreground" />
+        </button>
+
+        {/* Notifications - contexto: admin = bugs; user = comissões pagas */}
+        <NotificationsDropdown />
+
+        {/* User Profile Dropdown */}
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer">
+                {/* Avatar */}
+                <Avatar className="w-9 h-9 shadow-lg">
+                  <AvatarImage
+                    src={user.image || undefined}
+                    alt={displayName}
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-800 text-white font-semibold text-sm">
+                    {initial}
+                  </AvatarFallback>
+                </Avatar>
+                {/* Name & Email */}
+                <div className="text-left hidden sm:block">
+                  <p className="text-sm font-semibold text-foreground leading-tight">
+                    {displayName}
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-tight">
+                    {userEmail}
+                  </p>
+                </div>
+                <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-3 py-2 border-b border-border">
+                <p className="text-sm font-medium">{displayName}</p>
+                <p className="text-xs text-muted-foreground">{userEmail}</p>
+              </div>
+              <DropdownMenuItem
+                onClick={toggleTheme}
+                className="cursor-pointer"
+              >
+                {mounted && theme === 'dark' ? (
+                  <>
+                    <Sun className="w-4 h-4 mr-2" />
+                    Modo Claro
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-4 h-4 mr-2" />
+                    Modo Escuro
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push('/settings')}
+                className="cursor-pointer"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Definições
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push('/help')}
+                className="cursor-pointer"
+              >
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Ajuda
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleSignOut}
+                className="cursor-pointer text-destructive focus:text-destructive"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Terminar Sessão
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
+
+      <ReportBugDialog open={reportBugOpen} onOpenChange={setReportBugOpen} />
     </div>
+
+    {/* Global Search Modal - só mostramos itens admin se isAdmin; filtro defensivo extra */}
+    <SearchBar
+      data={searchData.filter((item) => {
+        const id = String(item.id);
+        if (id === 'admin' || id.startsWith('admin/') || id === 'templates')
+          return isAdmin;
+        return true;
+      })}
+      placeholder="Pesquisar páginas, ações, funcionalidades..."
+      onSelect={handleSearchSelect}
+      isOpen={isSearchOpen}
+      onOpenChange={setSearchOpen}
+      emptyMessage="Sem resultados"
+    />
+    </>
   );
 }
 
 function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith('/admin');
 
-  // Use a stable key for admin routes so the layout (header + tabs) stays
-  // mounted and only the <Outlet /> content swaps on tab navigation.
-  const pageKey = pathname.startsWith('/admin') ? '/admin' : pathname;
+  // Admin has its own sidebar and layout - render directly without wrapper.
+  if (isAdminRoute) {
+    return (
+      <PageAnimation key="/admin" className="flex-1 h-full flex">
+        {children}
+      </PageAnimation>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
@@ -149,7 +374,7 @@ function MainContent({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <main className="flex-1 overflow-auto p-6">
         <div className="max-w-[1600px] mx-auto">
-          <PageAnimation key={pageKey}>{children}</PageAnimation>
+          <PageAnimation key={pathname}>{children}</PageAnimation>
         </div>
       </main>
     </div>
@@ -159,25 +384,22 @@ function MainContent({ children }: { children: React.ReactNode }) {
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const isAdminPage = pathname.startsWith('/admin');
-  const showSidebar = !isAdminPage;
+  const isAdminRoute = pathname.startsWith('/admin');
 
   return (
     <SidebarBase open={sidebarOpen} setOpen={setSidebarOpen}>
       {/* Background */}
       <div className="h-screen w-full p-4 md:p-6 lg:p-8 overflow-hidden bg-background">
         {/* Floating Dashboard Container */}
-        <div className="floating-dashboard h-[calc(100vh-2rem)] md:h-[calc(100vh-3rem)] lg:h-[calc(100vh-4rem)] flex overflow-hidden relative">
-          {/* Sidebar */}
-          {showSidebar && <Sidebar />}
+        <div
+          id="dashboard-container"
+          className="floating-dashboard h-[calc(100vh-2rem)] md:h-[calc(100vh-3rem)] lg:h-[calc(100vh-4rem)] flex overflow-hidden relative"
+        >
+          {/* Sidebar - only show user sidebar for non-admin routes */}
+          {!isAdminRoute && <Sidebar />}
 
           {/* Main Content */}
           <MainContent>{children}</MainContent>
-
-          {/* Support Chat FAB */}
-          <div className="absolute bottom-6 right-6">
-            <SupportChatFab />
-          </div>
         </div>
       </div>
     </SidebarBase>

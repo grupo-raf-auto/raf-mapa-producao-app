@@ -36,14 +36,25 @@ async function main() {
 
   app.set('trust proxy', 1);
 
-  if (isProduction) {
-    app.use(
-      helmet({
-        contentSecurityPolicy: false,
-        crossOriginEmbedderPolicy: false,
-      }),
-    );
-  }
+  app.use(
+    helmet({
+      contentSecurityPolicy: isProduction
+        ? {
+            directives: {
+              defaultSrc: ["'self'"],
+              scriptSrc: ["'self'"],
+              styleSrc: ["'self'", "'unsafe-inline'"],
+              imgSrc: ["'self'", 'data:', 'blob:'],
+              connectSrc: ["'self'", process.env.CLIENT_URL || 'http://localhost:3004'],
+              fontSrc: ["'self'"],
+              objectSrc: ["'none'"],
+              frameAncestors: ["'none'"],
+            },
+          }
+        : false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
 
   app.use(compression());
 
@@ -51,7 +62,7 @@ async function main() {
     process.env.RATE_LIMIT_WINDOW_MS || '900000',
   );
   const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX || '10000');
-  const SKIP_RATE_LIMIT = process.env.SKIP_RATE_LIMIT === 'true';
+  const SKIP_RATE_LIMIT = !isProduction && process.env.SKIP_RATE_LIMIT === 'true';
 
   if (!SKIP_RATE_LIMIT) {
     const limiter = rateLimit({

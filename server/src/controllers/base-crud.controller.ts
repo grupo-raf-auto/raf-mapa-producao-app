@@ -95,8 +95,12 @@ export abstract class BaseCRUDController<T> {
     if ('submittedBy' in itemData) return itemData.submittedBy === userId;
     if ('userId' in itemData) return itemData.userId === userId;
 
-    // Sem validação específica = permitir
-    return true;
+    // Sem campo de ownership identificado = negar por seguranca
+    logger.warn(
+      { userId, resourceName: this.resourceName },
+      `No ownership field found on ${this.resourceName} - denying access`,
+    );
+    return false;
   }
 
   /**

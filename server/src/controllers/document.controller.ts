@@ -125,8 +125,12 @@ export class DocumentController {
   static async listDocuments(req: Request, res: Response) {
     try {
       if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      const isAdmin = (req.user as { role?: string }).role === 'admin';
       const list = await prisma.document.findMany({
-        where: { isActive: true },
+        where: {
+          isActive: true,
+          ...(!isAdmin && { uploadedBy: req.user.id }),
+        },
         include: {
           chunks: true,
         },
@@ -152,6 +156,9 @@ export class DocumentController {
       const doc = await prisma.document.findUnique({ where: { id } });
       if (!doc)
         return res.status(404).json({ error: "Documento não encontrado" });
+      const isAdmin = (req.user as { role?: string }).role === 'admin';
+      if (!isAdmin && doc.uploadedBy !== req.user.id)
+        return res.status(403).json({ error: "Acesso negado" });
       res.json({ ...doc, _id: doc.id });
     } catch (error: unknown) {
       console.error("Erro ao buscar documento:", error);
@@ -166,6 +173,9 @@ export class DocumentController {
       const doc = await prisma.document.findUnique({ where: { id } });
       if (!doc)
         return res.status(404).json({ error: "Documento não encontrado" });
+      const isAdmin = (req.user as { role?: string }).role === 'admin';
+      if (!isAdmin && doc.uploadedBy !== req.user.id)
+        return res.status(403).json({ error: "Acesso negado" });
 
       await deleteDocumentChunks(id);
       await prisma.document.update({

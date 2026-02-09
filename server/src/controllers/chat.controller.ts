@@ -19,6 +19,10 @@ export class ChatController {
         return res.status(400).json({ error: 'Message is required' });
       }
 
+      if (conversationId && (typeof conversationId !== 'string' || conversationId.length > 200)) {
+        return res.status(400).json({ error: 'Invalid conversationId' });
+      }
+
       const chatContext: ChatContext =
         context === 'support' ? 'support' : 'sabichao';
       const baseConvId = conversationId || randomUUID();
@@ -138,17 +142,23 @@ export class ChatController {
       const { conversationId } = req.params;
       const userId = req.user.id;
 
-      const messages = await prisma.chatMessage.findMany({
-        where: { conversationId },
-        orderBy: { createdAt: 'asc' },
+      // Verify the user participates in this conversation before returning any data
+      const participantCheck = await prisma.chatMessage.findFirst({
+        where: { conversationId, userId },
+        select: { id: true },
       });
 
-      const userMessages = messages.filter((m) => m.userId === userId);
-      if (messages.length > 0 && userMessages.length === 0) {
+      if (!participantCheck) {
         return res.status(403).json({
           error: 'Forbidden: You do not have access to this conversation',
         });
       }
+
+      // User is a participant — return all messages in the conversation
+      const messages = await prisma.chatMessage.findMany({
+        where: { conversationId },
+        orderBy: { createdAt: 'asc' },
+      });
 
       res.json({
         conversationId,

@@ -1,6 +1,6 @@
 /**
  * Better Auth configuration for Express backend.
- * Same logic as the former Next.js client auth (email/password, verification, reset).
+ * Same logic as the React frontend auth (email/password, verification, reset).
  */
 
 import { betterAuth } from 'better-auth';
@@ -13,9 +13,14 @@ import {
 } from './utils/email-reset';
 
 const ALLOWED_DOMAIN = process.env.ALLOWED_EMAIL_DOMAIN;
-const BASE_URL =
-  process.env.API_URL || process.env.CLIENT_URL || 'http://localhost:3005';
+// Backend base URL (where /api/auth is served). Do not use CLIENT_URL here.
+const BASE_URL = process.env.API_URL || 'http://localhost:3005';
 const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:3004';
+
+if (!process.env.BETTER_AUTH_SECRET && process.env.NODE_ENV === 'production') {
+  console.error('FATAL: BETTER_AUTH_SECRET must be defined in production');
+  process.exit(1);
+}
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
@@ -116,7 +121,12 @@ export const auth = betterAuth({
     },
   },
 
-  trustedOrigins: [BASE_URL, FRONTEND_URL, process.env.CLIENT_URL].filter(
-    (x): x is string => Boolean(x),
-  ),
+  trustedOrigins: [
+    BASE_URL,
+    FRONTEND_URL,
+    process.env.CLIENT_URL,
+    ...(process.env.NODE_ENV !== 'production'
+      ? ['http://localhost:3004', 'http://localhost:3006', 'http://127.0.0.1:3004', 'http://127.0.0.1:3006']
+      : []),
+  ].filter((x): x is string => Boolean(x)),
 });

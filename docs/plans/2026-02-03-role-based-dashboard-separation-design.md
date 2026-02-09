@@ -31,16 +31,16 @@ This creates two completely separate scenarios where admins lose access to the u
 ### Current Files
 - `server/src/middleware/auth.middleware.ts`: JWT validation and role extraction
 - `server/src/controllers/submission.controller.ts`: Scope-based filtering (`scope=all` for admins)
-- `client/middleware.ts`: Basic session checking (needs enhancement)
-- `client/app/page.tsx`: User dashboard entry
-- `client/app/admin/page.tsx`: Admin panel entry
-- `client/components/layout/main-layout.tsx`: TopBar and layout components
+- `frontend/src/App.tsx`: Route protection (ProtectedRoute, requireAdmin) — no middleware file
+- `frontend/src/`: User dashboard entry (route `/`)
+- `frontend/src/`: Admin panel entry (route `/admin`)
+- `frontend/src/components/layout/main-layout.tsx`: TopBar and layout components
 
 ## Section 1: Authentication Flow
 
 ### Post-Login Redirect Logic
 
-**Location**: `client/app/sign-in/page.tsx` or post-authentication hook
+**Location**: `frontend/src/` (sign-in page or post-authentication hook)
 
 ```typescript
 // After successful authentication
@@ -62,7 +62,7 @@ if (userRole === 'admin') {
 ### Role Persistence
 - Role stored in database: `user.role: "admin" | "user"`
 - Default role: `"user"`
-- First user in system automatically receives `"admin"` role (via `client/lib/auth.ts` databaseHooks)
+- First user in system automatically receives `"admin"` role (via `server/src/auth.ts` databaseHooks)
 - Role changes require cache invalidation (5-minute TTL in `use-user-role.ts`)
 
 ### Session Management
@@ -74,7 +74,7 @@ if (userRole === 'admin') {
 
 ### Enhanced Middleware Implementation
 
-**Location**: `client/middleware.ts`
+**Location**: (Historically `client/middleware.ts`; in React frontend, equivalent logic is in `frontend/src/App.tsx` with `ProtectedRoute` and role-based redirects.)
 
 ```typescript
 import { NextResponse } from 'next/server';
@@ -162,7 +162,7 @@ async function getSession(token: string) {
 
 ### Admin TopBar Components
 
-**Location**: `client/components/layout/main-layout.tsx` (TopBar component)
+**Location**: `frontend/src/components/layout/main-layout.tsx` (TopBar component)
 
 **Admin TopBar includes:**
 - ❌ **NO Model Selector** (admins use filters in Consultas tab instead)
@@ -230,7 +230,7 @@ if (scope === "all" && req.user.role === "admin") {
 
 ### User TopBar Components
 
-**Location**: `client/components/layout/main-layout.tsx` (TopBar component)
+**Location**: `frontend/src/components/layout/main-layout.tsx` (TopBar component)
 
 **User TopBar includes:**
 - ✅ Model Selector (user's assigned models)
@@ -263,7 +263,7 @@ const response = await api.submissions.list({
 
 ### Model Selection Flow
 
-**Current Implementation** (`client/components/layout/model-selector.tsx`):
+**Current Implementation** (`frontend/src/components/layout/model-selector.tsx`):
 1. User logs in
 2. If no active model, show model selection modal
 3. Store selected model in `localStorage.activeModelId`
@@ -327,14 +327,14 @@ const response = await api.submissions.list({
 ## Implementation Plan
 
 ### Phase 1: Middleware Enhancement
-1. Update `client/middleware.ts` with role-based routing logic
+1. Update `frontend/src/App.tsx` (and route guards) with role-based routing logic
 2. Implement Edge Runtime-compatible session validation
 3. Add no-cache headers for all protected routes
 4. Test middleware with both user and admin roles
 
 ### Phase 2: Server-Side Validation
-1. Add role validation in `client/app/page.tsx` (user dashboard)
-2. Add role validation in `client/app/admin/page.tsx` (admin dashboard)
+1. Add role validation in user dashboard route (e.g. `frontend/src/`)
+2. Add role validation in admin dashboard route (e.g. `frontend/src/`)
 3. Verify redirect logic in both entry points
 4. Ensure defense-in-depth security
 
@@ -360,22 +360,22 @@ const response = await api.submissions.list({
 ## Files to Modify
 
 ### Critical Files
-- `client/middleware.ts` - Add role-based routing logic
-- `client/app/page.tsx` - Add server-side role validation for users
-- `client/app/admin/page.tsx` - Verify admin role validation
-- `client/components/layout/main-layout.tsx` - Update TopBar for both roles
-- `client/app/sign-in/page.tsx` - Add post-login redirect logic
+- `frontend/src/App.tsx` - Add role-based routing logic (ProtectedRoute, requireAdmin)
+- User dashboard route - Add role validation for users
+- Admin dashboard route - Verify admin role validation
+- `frontend/src/components/layout/main-layout.tsx` - Update TopBar for both roles
+- Sign-in page - Add post-login redirect logic
 
 ### Supporting Files
-- `client/app/admin/consultas/page.tsx` - Update to use `scope=all` and filters
-- `client/components/admin/*` - Update admin components to consume org-wide data
+- `frontend/src/` (admin consultas route) - Update to use `scope=all` and filters
+- `frontend/src/components/admin/*` - Update admin components to consume org-wide data
 - `server/src/controllers/*.controller.ts` - Verify scope filtering (already implemented)
 
 ## Dependencies
 
 ### Existing Dependencies (No Changes)
 - Better Auth: Session management
-- Next.js 14+ App Router: Server Components and middleware
+- React (Vite) + React Router: route guards and layout components
 - Prisma + PostgreSQL: Database and role storage
 - JWT: Backend API authentication
 

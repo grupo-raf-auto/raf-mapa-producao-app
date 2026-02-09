@@ -2,13 +2,13 @@
 
 ## Stack
 
-- **Frontend:** Next.js, Better Auth (email/password)
+- **Frontend:** React (Vite), Better Auth (email/password)
 - **Backend:** Express, Prisma, PostgreSQL (Neon)
 - **Autenticação:** Better Auth — email + senha; cadastro, login, logout, recuperação de senha (esqueci minha senha)
 
 ## Variáveis de ambiente
 
-Basta ter **`server/.env`**. O `client` em dev carrega essas variáveis a partir de `server/.env` ao correr `npm run dev`.
+Basta ter **`server/.env`**. O frontend em dev usa o proxy para o backend; as variáveis do servidor aplicam-se ao correr `npm run dev`.
 
 Exemplo para **server/.env** (ajusta os valores):
 
@@ -25,10 +25,8 @@ OPENAI_API_KEY=sk-...
 
 Opcionais:
 
-- **`ALLOWED_EMAIL_DOMAIN`** (ex: `gruporaf.pt`): se definido, apenas emails `@<domínio>` podem registar-se. Para desenvolvimento ou testes com outros emails (ex.: @hotmail.com), não definas esta variável ou deixa-a vazia no `server/.env` (ou no env do Next.js).
+- **`ALLOWED_EMAIL_DOMAIN`** (ex: `gruporaf.pt`): se definido, apenas emails `@<domínio>` podem registar-se. Para desenvolvimento ou testes com outros emails (ex.: @hotmail.com), não definas esta variável ou deixa-a vazia no `server/.env`.
 - **`RESEND_API_KEY`** e **`EMAIL_FROM`**: para enviar emails de recuperação de senha em produção. Sem `RESEND_API_KEY`, em dev o link é impresso no terminal.
-
-**Opcional – client/.env.local:** só é preciso se fizeres `npm run build` no client sem `server/.env` (ex. em CI). Nesse caso copia para `client/.env.local` as variáveis que o Next.js precisa: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `JWT_SECRET`, `NEXTAUTH_URL`, `CLIENT_URL`, `NEXT_PUBLIC_API_URL`.
 
 ### Base de dados (Neon)
 
@@ -45,9 +43,9 @@ Opcionais:
 ### URLs
 
 - `NEXTAUTH_URL`: URL do frontend (ex: `http://localhost:3004`).
-- `CLIENT_URL`: mesma ou a URL do client em produção.
+- `CLIENT_URL`: URL do frontend em produção ou desenvolvimento (ex: `http://localhost:3004`).
 - `NEXT_PUBLIC_API_URL`: URL do backend (ex: `http://localhost:3005`).
-- `PORT`: porta do Express (predefinido: 3005). O Next.js corre na 3004.
+- `PORT`: porta do Express (predefinido: 3005). O frontend (Vite) corre na 3004.
 
 ## Instalação
 
@@ -57,7 +55,7 @@ npm run install:all
 
 # Ou em cada pasta:
 cd server && npm install
-cd ../client && npm install
+cd ../frontend && npm install
 ```
 
 ## Base de dados
@@ -91,7 +89,7 @@ npm run dev
 cd server && npm run dev
 
 # Terminal 2 – frontend (porta 3004)
-cd client && npm run dev
+cd frontend && npm run dev
 ```
 
 ## Regras de acesso

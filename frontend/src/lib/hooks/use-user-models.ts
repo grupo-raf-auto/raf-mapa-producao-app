@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { useModelContext, type UserModel } from '@/lib/context/model-context';
@@ -24,8 +22,7 @@ export function useUserModels() {
     // Listen for model switch events from other tabs/windows
     const handleModelSwitch = (event: Event) => {
       const customEvent = event as CustomEvent;
-      console.log('Model switched from another tab:', customEvent.detail);
-      // Optionally reload models to sync
+      // Reload models to sync across tabs
       loadUserModels();
     };
 

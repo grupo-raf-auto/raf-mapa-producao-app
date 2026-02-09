@@ -1,5 +1,3 @@
-"use client";
-
 import { useSession } from "@/lib/auth-client";
 import { useState, useEffect } from "react";
 import { apiClient as api } from "@/lib/api-client";

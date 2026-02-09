@@ -31,13 +31,14 @@ export function usePathname() {
 
 export { useSearchParams };
 
-/** Simple img wrapper instead of next/image */
+/** Simple img wrapper instead of next/image – accepts priority (uses loading="eager") but does not pass it to DOM */
 export function Image({
   src,
   alt,
   width,
   height,
   className,
+  priority,
   ...rest
 }: {
   src: string;
@@ -45,6 +46,7 @@ export function Image({
   width?: number;
   height?: number;
   className?: string;
+  priority?: boolean;
   [key: string]: unknown;
 }) {
   return (
@@ -54,7 +56,7 @@ export function Image({
       width={width}
       height={height}
       className={className}
-      loading="lazy"
+      loading={priority ? 'eager' : 'lazy'}
       {...rest}
     />
   );

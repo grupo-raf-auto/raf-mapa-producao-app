@@ -1,5 +1,3 @@
-"use client";
-
 import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
 
 export type ModelType = "credito" | "imobiliaria" | "seguro";
@@ -12,11 +10,11 @@ export interface UserModel {
   activatedAt: string;
   activatedBy?: string | null;
   creditoProfileId?: string | null;
-  creditoProfile?: any;
+  creditoProfile?: Record<string, unknown>;
   imobiliariaProfileId?: string | null;
-  imobiliariaProfile?: any;
+  imobiliariaProfile?: Record<string, unknown>;
   seguroProfileId?: string | null;
-  seguroProfile?: any;
+  seguroProfile?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -49,8 +47,8 @@ export function ModelContextProvider({ children }: { children: ReactNode }) {
         throw new Error("Model not found");
       }
 
-      // Call API to switch model via the proxy route
-      const response = await fetch("/api/proxy/user-models/switch-model/" + modelId, {
+      // Call API to switch model (Vite proxy forwards /api to backend)
+      const response = await fetch("/api/user-models/switch-model/" + modelId, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

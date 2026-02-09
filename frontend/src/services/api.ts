@@ -342,6 +342,30 @@ export const apiClient = {
         invalidateCache('documents'),
       ),
   },
+  notifications: {
+    get: () => fetchWithAuth('notifications'),
+  },
+  tickets: {
+    create: (data: { title: string; description: string }) =>
+      fetchWithAuth('tickets', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }).then(() => invalidateCache('notifications')),
+    getAll: (params?: { status?: string; unreadOnly?: boolean }) => {
+      const search = new URLSearchParams();
+      if (params?.status && params.status !== 'all')
+        search.set('status', params.status);
+      if (params?.unreadOnly) search.set('unreadOnly', 'true');
+      const qs = search.toString();
+      return fetchWithAuth(qs ? `tickets?${qs}` : 'tickets');
+    },
+    getById: (id: string) => fetchWithAuth(`tickets/${id}`),
+    update: (id: string, data: { readAt?: boolean; status?: string }) =>
+      fetchWithAuth(`tickets/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }).then(() => invalidateCache('notifications')),
+  },
   userModels: {
     getMyModels: async () => {
       const raw = await fetchWithAuth('user-models/my-models');

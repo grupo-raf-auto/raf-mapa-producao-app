@@ -11,6 +11,23 @@ import {
 
 const uploadDir = path.join(process.cwd(), "uploads");
 
+/** Extrai originalName do filename gerado pelo multer: timestamp-random-originalName */
+function parseOriginalName(storedFilename: string): string {
+  const parts = storedFilename.split("-");
+  if (parts.length >= 3) return parts.slice(2).join("-");
+  return storedFilename;
+}
+
+function mimeFromExt(ext: string): string {
+  const map: Record<string, string> = {
+    ".pdf": "application/pdf",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".txt": "text/plain",
+    ".md": "text/markdown",
+  };
+  return map[ext.toLowerCase()] ?? "application/octet-stream";
+}
+
 async function ensureUploadDir() {
   try {
     await fs.mkdir(uploadDir, { recursive: true });
@@ -70,11 +87,8 @@ async function processDocumentAsync(
       data: { processedAt: new Date() },
     });
 
-    try {
-      await fs.unlink(filePath);
-    } catch (e) {
-      console.warn("Erro ao apagar ficheiro temporário:", e);
-    }
+    // Não apagar o ficheiro após processar: mantém-se em disco para persistência
+    // (útil em dev local quando se reinicia o PC e o diretório de uploads persiste)
   } catch (error: unknown) {
     console.error(`Erro ao processar documento ${documentId}:`, error);
     await prisma.document.update({
@@ -163,6 +177,58 @@ export class DocumentController {
     } catch (error: unknown) {
       console.error("Erro ao buscar documento:", error);
       res.status(500).json({ error: "Erro ao buscar documento" });
+    }
+  }
+
+  /** Sincroniza ficheiros em uploads/ com a DB: cria registos para ficheiros que ainda não existem (apenas admin). */
+  static async syncFromDisk(req: Request, res: Response) {
+    try {
+      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      const isAdmin = (req.user as { role?: string }).role === "admin";
+      if (!isAdmin) return res.status(403).json({ error: "Apenas administradores podem sincronizar" });
+
+      await ensureUploadDir();
+      const entries = await fs.readdir(uploadDir, { withFileTypes: true });
+      const files = entries.filter((e) => e.isFile());
+      const existing = await prisma.document.findMany({
+        where: { isActive: true },
+        select: { filename: true },
+      });
+      const existingFilenames = new Set(existing.map((d) => d.filename));
+
+      const created: { id: string; originalName: string }[] = [];
+      for (const f of files) {
+        if (existingFilenames.has(f.name)) continue;
+        const fullPath = path.join(uploadDir, f.name);
+        const stat = await fs.stat(fullPath);
+        const ext = path.extname(f.name);
+        const originalName = parseOriginalName(f.name);
+        const doc = await prisma.document.create({
+          data: {
+            filename: f.name,
+            originalName,
+            mimeType: mimeFromExt(ext),
+            size: stat.size,
+            uploadedBy: req.user.id,
+            isActive: true,
+          },
+        });
+        created.push({ id: doc.id, originalName });
+        processDocumentAsync(doc.id, fullPath, mimeFromExt(ext)).catch((e) =>
+          console.error("Erro ao processar documento após sync:", e),
+        );
+      }
+
+      res.json({
+        message: created.length > 0 ? `${created.length} ficheiro(s) registado(s) na base de dados.` : "Nenhum ficheiro novo para sincronizar.",
+        created: created.length,
+        items: created,
+      });
+    } catch (error: unknown) {
+      console.error("Erro ao sincronizar documentos:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Erro ao sincronizar documentos",
+      });
     }
   }
 

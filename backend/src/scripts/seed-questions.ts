@@ -1,7 +1,7 @@
 /**
- * Seed de questões a partir de server/src/scripts/seed-questions-data.ts
- *
- * Uso (no diretório server):
+* Seed de questões a partir de backend/src/scripts/seed-questions-data.ts
+ * 
+ * Uso (no diretório backend):
  *   npm run seed:questions
  *
  * Questões já existentes (mesmo título) são ignoradas. Para alterar a lista,
@@ -28,7 +28,7 @@ function isDatabaseUrlValid(url: string | undefined): boolean {
 export async function seedQuestions(): Promise<void> {
   if (!isDatabaseUrlValid(process.env.DATABASE_URL)) {
     console.warn(
-      '⚠️  Seed de questões ignorado: defina DATABASE_URL em server/.env ou na raiz do projeto.',
+      '⚠️  Seed de questões ignorado: defina DATABASE_URL em backend/.env ou na raiz do projeto.',
     );
     return;
   }

@@ -2,7 +2,7 @@
  * Lista de questões para seed da base de dados.
  * Edita este ficheiro para adicionar ou alterar questões iniciais.
  *
- * Para aplicar: no diretório server, corre:
+ * Para aplicar: no diretório backend, corre:
  *   npm run seed:questions
  *
  * Tipos de input: text | date | select | email | tel | number | radio

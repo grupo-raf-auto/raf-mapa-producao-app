@@ -8,7 +8,7 @@ function isDatabaseUrlValid(url: string | undefined): boolean {
 export async function seedUserModels() {
   if (!isDatabaseUrlValid(process.env.DATABASE_URL)) {
     console.warn(
-      '⚠️  Seed ignorado: defina DATABASE_URL em server/.env ou na raiz do projeto.',
+      '⚠️  Seed ignorado: defina DATABASE_URL em backend/.env ou na raiz do projeto.',
     );
     return;
   }

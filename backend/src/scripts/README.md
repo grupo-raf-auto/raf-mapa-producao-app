@@ -22,7 +22,7 @@ Exemplo:
 
 ### 2. Executar o seed
 
-No diretório **server**:
+No diretório **backend**:
 
 ```bash
 npm run seed:questions

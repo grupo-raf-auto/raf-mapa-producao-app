@@ -5,7 +5,7 @@
  * Cada utilizador afetado recebe uma password temporária: "Alterar123!"
  * Devem fazer login e alterar a senha (ou usar "Esqueci a minha senha").
  *
- * Uso: cd server && npx tsx src/scripts/fix-credential-accounts.ts
+ * Uso: cd backend && npx tsx src/scripts/fix-credential-accounts.ts
  */
 
 import { scrypt, randomBytes } from "crypto";
@@ -13,7 +13,7 @@ import { promisify } from "util";
 import path from "path";
 import dotenv from "dotenv";
 
-// Carregar .env (raiz e server)
+// Carregar .env (raiz e backend)
 const root = path.resolve(process.cwd(), "..");
 dotenv.config({ path: path.join(root, ".env") });
 dotenv.config({ path: path.join(root, ".env.local") });

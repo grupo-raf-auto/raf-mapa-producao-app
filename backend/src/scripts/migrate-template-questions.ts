@@ -4,7 +4,7 @@
  * Este script migra os dados do campo legado `questions` (array de IDs)
  * para a nova tabela de junção `template_question` com integridade referencial.
  *
- * Execução: npx tsx server/src/scripts/migrate-template-questions.ts
+ * Execução: npx tsx backend/src/scripts/migrate-template-questions.ts
  */
 
 import { PrismaClient } from "@prisma/client";

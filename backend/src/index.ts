@@ -1,7 +1,7 @@
 import path from 'path';
 import dotenv from 'dotenv';
 
-// Load .env: raiz do projeto e depois server/
+// Load .env: raiz do projeto e depois backend/
 const root = path.resolve(process.cwd(), '..');
 dotenv.config({ path: path.join(root, '.env') });
 dotenv.config({ path: path.join(root, '.env.local') });

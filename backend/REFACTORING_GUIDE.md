@@ -261,7 +261,7 @@ Prisma/Database
 ## 📦 Arquivos Novos Criados
 
 ```
-server/src/
+backend/src/
 ├── lib/
 │   └── logger.ts                          (Logger estruturado)
 ├── middleware/
@@ -665,7 +665,7 @@ describe('QuestionController extends BaseCRUDController', () => {
 
 ```bash
 # Setup
-cd server
+cd backend
 npm install
 
 # Run unit tests

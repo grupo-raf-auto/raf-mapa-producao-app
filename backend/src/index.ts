@@ -25,6 +25,7 @@ import documentRoutes from './routes/document.routes';
 import scannerRoutes from './routes/documentScanner.routes';
 import ticketRoutes from './routes/ticket.routes';
 import notificationsRoutes from './routes/notifications.routes';
+import messageGeneratorRoutes from './routes/message-generator.routes';
 import { seedUserModels } from './scripts/seed-user-models';
 import { authenticateUser } from './middleware/auth.middleware';
 
@@ -134,6 +135,7 @@ async function main() {
   app.use('/api/scanner', authenticateUser, scannerRoutes);
   app.use('/api/tickets', authenticateUser, ticketRoutes);
   app.use('/api/notifications', authenticateUser, notificationsRoutes);
+  app.use('/api/message-generator', messageGeneratorRoutes);
 
   app.use((_req, res) => {
     res.status(404).json({ error: 'Route not found' });

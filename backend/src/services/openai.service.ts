@@ -13,12 +13,18 @@ export interface ChatMessage {
   content: string;
 }
 
+export interface GenerateChatOptions {
+  max_tokens?: number;
+  temperature?: number;
+}
+
 /**
  * Gera resposta usando OpenAI Chat API
  */
 export async function generateChatResponse(
   messages: ChatMessage[],
   systemPrompt?: string,
+  options?: GenerateChatOptions,
 ): Promise<string> {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error(
@@ -44,8 +50,8 @@ export async function generateChatResponse(
     const completion = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages: messagesToSend,
-      temperature: 0.5,
-      max_tokens: 300,
+      temperature: options?.temperature ?? 0.5,
+      max_tokens: options?.max_tokens ?? 300,
     });
 
     const response = completion.choices[0]?.message?.content;

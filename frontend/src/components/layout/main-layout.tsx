@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from '@/lib/router-compat';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './sidebar';
 import { ModelSelector } from './model-selector';
+import { SupportChatProvider } from '@/contexts/support-chat-context';
+import { SupportChatPanel } from './support-chat-panel';
 import { ReportBugDialog } from './report-bug-dialog';
 import { NotificationsDropdown } from './notifications-dropdown';
 import { PageAnimation } from '@/components/ui/page-animation';
 import { Sidebar as SidebarBase } from '@/components/ui/sidebar';
-import { Search, Bug, ChevronDown, LayoutGrid } from 'lucide-react';
+import { useSidebar } from '@/components/ui/sidebar';
+import { Search, Bug, ChevronDown, LayoutGrid, Menu, X } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 import { useRouter } from '@/lib/router-compat';
 import { toast } from 'sonner';
@@ -32,6 +36,7 @@ function TopBar() {
   const isAdminRoute = pathname.startsWith('/admin');
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { setOpen: setSidebarOpen } = useSidebar();
   const [mounted, setMounted] = useState(false);
   const [reportBugOpen, setReportBugOpen] = useState(false);
   const { isOpen: isSearchOpen, open: openSearch, setIsOpen: setSearchOpen } = useSearch({ enabled: true, shortcut: 'k' });
@@ -210,46 +215,62 @@ function TopBar() {
 
   return (
     <>
-    <div className="h-16 flex items-center justify-between px-6 border-b border-border/40 bg-card/80 backdrop-blur-sm">
-      {/* Left side - Search trigger */}
-      <div className="flex items-center gap-4">
+    {/* Top bar: igual ao painel admin — search bar completa com placeholder visível */}
+    <header
+      role="banner"
+      className="flex items-center justify-between gap-1.5 sm:gap-2 px-3 py-2 min-h-[52px] sm:min-h-[56px] sm:px-4 md:px-5 lg:px-6 border-b border-border/40 bg-card/80 backdrop-blur-sm shrink-0 min-w-0 overflow-x-hidden"
+    >
+      {/* Left: hamburger (mobile) + search — mesma estrutura do admin */}
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1 overflow-hidden">
         <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          className="md:hidden flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl bg-muted/50 hover:bg-muted border border-border/50 text-foreground cursor-pointer touch-manipulation shrink-0"
+          aria-label="Abrir menu de navegação"
+        >
+          <Menu className="w-5 h-5 shrink-0" />
+        </button>
+        <button
+          type="button"
           onClick={openSearch}
-          className="w-72 h-10 flex items-center gap-2 pl-3.5 pr-3 rounded-xl bg-muted/50 border border-border/50 text-sm text-muted-foreground hover:bg-muted/80 hover:border-border transition-all cursor-pointer"
+          className="flex-1 min-w-0 max-w-72 min-h-[44px] h-11 sm:h-10 sm:min-h-0 flex items-center gap-2 pl-3.5 pr-2 sm:pr-3 rounded-xl bg-muted/50 border border-border/50 text-sm text-muted-foreground hover:bg-muted/80 hover:border-border transition-all cursor-pointer touch-manipulation overflow-hidden"
+          aria-label="Pesquisar"
+          title="Pesquisar (Ctrl+K)"
         >
           <Search className="w-4 h-4 shrink-0" />
-          <span className="flex-1 text-left">Pesquisar...</span>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-medium bg-background border border-border rounded">
+          <span className="flex-1 text-left truncate">Pesquisar...</span>
+          <kbd className="hidden sm:inline-flex px-1.5 py-0.5 text-[10px] font-medium bg-background border border-border rounded">
             {mounted && navigator.platform?.includes('Mac') ? '⌘' : 'Ctrl+'}K
           </kbd>
         </button>
       </div>
 
-      {/* Right side - Actions & Profile */}
-      <div className="flex items-center gap-3">
+      {/* Right side - Model selector, CRM, Bug, Notifications, Profile */}
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
         {/* Model Selector - only show for users (not admins) */}
         {!isAdminRoute && <ModelSelector />}
 
-        {/* CRM MyCredit - link verde conforme referência */}
+        {/* CRM MyCredit - só ícone em mobile */}
         {!isAdminRoute && (
           <a
             href={import.meta.env.VITE_CRM_MYCREDIT_URL || 'https://crm.my-credit.pt/'}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 font-medium text-xs transition-colors cursor-pointer shadow-sm"
+            className="flex items-center justify-center shrink-0 w-10 h-10 sm:w-auto sm:min-h-0 sm:px-3 sm:py-2 min-h-[44px] rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 font-medium text-xs transition-colors cursor-pointer shadow-sm touch-manipulation"
+            title="CRM MyCredit"
           >
             <LayoutGrid className="w-4 h-4 shrink-0" />
-            <span>CRM MyCredit</span>
+            <span className="hidden sm:inline ml-1">CRM MyCredit</span>
           </a>
         )}
 
-        {/* Report bug - abre modal para utilizador reportar */}
+        {/* Report bug */}
         <button
           type="button"
           title="Reportar um problema"
           aria-label="Reportar um problema ou bug"
           onClick={() => setReportBugOpen(true)}
-          className="relative p-2.5 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+          className="relative flex items-center justify-center shrink-0 min-w-[44px] min-h-[44px] sm:min-w-9 sm:min-h-9 p-2.5 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer touch-manipulation"
         >
           <Bug className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -261,7 +282,7 @@ function TopBar() {
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer">
+              <button className="flex items-center gap-1.5 sm:gap-3 pl-1.5 sm:pl-3 pr-2 py-2 min-h-[44px] sm:min-h-0 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer touch-manipulation shrink-0">
                 {/* Avatar */}
                 <Avatar className="w-9 h-9 shadow-lg">
                   <AvatarImage
@@ -333,7 +354,7 @@ function TopBar() {
       </div>
 
       <ReportBugDialog open={reportBugOpen} onOpenChange={setReportBugOpen} />
-    </div>
+    </header>
 
     {/* Global Search Modal - só mostramos itens admin se isAdmin; filtro defensivo extra */}
     <SearchBar
@@ -360,20 +381,19 @@ function MainContent({ children }: { children: React.ReactNode }) {
   // Admin has its own sidebar and layout - render directly without wrapper.
   if (isAdminRoute) {
     return (
-      <PageAnimation key="/admin" className="flex-1 h-full flex">
+      <PageAnimation key="/admin" className="flex-1 min-w-0 h-full flex overflow-hidden">
         {children}
       </PageAnimation>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-      {/* Top Bar */}
+    <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
       <TopBar />
 
-      {/* Main Content Area */}
-      <main className="flex-1 overflow-auto p-6">
-        <div className="max-w-[1600px] mx-auto">
+      {/* Main: mobile-first padding; generous spacing from 320px up */}
+      <main className="flex-1 overflow-auto overflow-x-hidden p-4 sm:p-5 md:p-6 min-w-0" role="main">
+        <div className="max-w-[1600px] mx-auto w-full min-w-0">
           <PageAnimation key={pathname}>{children}</PageAnimation>
         </div>
       </main>
@@ -386,22 +406,75 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith('/admin');
 
+  // Fechar drawer ao mudar de rota (mobile)
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
   return (
     <SidebarBase open={sidebarOpen} setOpen={setSidebarOpen}>
-      {/* Background */}
-      <div className="h-screen w-full p-4 md:p-6 lg:p-8 overflow-hidden bg-background">
-        {/* Floating Dashboard Container */}
-        <div
-          id="dashboard-container"
-          className="floating-dashboard h-[calc(100vh-2rem)] md:h-[calc(100vh-3rem)] lg:h-[calc(100vh-4rem)] flex overflow-hidden relative"
-        >
-          {/* Sidebar - only show user sidebar for non-admin routes */}
-          {!isAdminRoute && <Sidebar />}
+      <SupportChatProvider>
+        {/* Mobile-first outer padding: 12px → 16px → 24px → 32px */}
+        <div className="h-screen w-full max-w-full p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 overflow-hidden bg-background">
+          {/* Floating Dashboard Container — min-height safe for 320px; min-w-0 so flex children can shrink */}
+          <div
+            id="dashboard-container"
+            className="floating-dashboard min-h-[280px] min-w-0 h-[calc(100vh-1.5rem)] sm:h-[calc(100vh-2rem)] md:h-[calc(100vh-2.5rem)] lg:h-[calc(100vh-3rem)] xl:h-[calc(100vh-4rem)] flex overflow-hidden relative w-full"
+          >
+          {/* Sidebar desktop: visível apenas em md+ */}
+          {!isAdminRoute && (
+            <div className="hidden md:flex shrink-0">
+              <Sidebar />
+            </div>
+          )}
+
+          {/* Drawer mobile: overlay + painel lateral (apenas user, não admin) */}
+          {!isAdminRoute && (
+            <AnimatePresence>
+              {sidebarOpen && (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                    aria-hidden
+                  />
+                  <motion.div
+                    initial={{ x: '-100%' }}
+                    animate={{ x: 0 }}
+                    exit={{ x: '-100%' }}
+                    transition={{ type: 'tween', duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                    className="fixed left-0 top-0 h-full w-[min(280px,calc(100vw-2rem))] max-w-[280px] sidebar-donezo border-r-0 z-50 flex flex-col md:hidden shadow-xl"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Menu de navegação"
+                  >
+                    <div className="relative flex-1 overflow-y-auto overflow-x-hidden touch-manipulation">
+                      <Sidebar />
+                      <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="absolute top-3 right-3 z-100 flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl bg-white/10 hover:bg-white/20 text-white cursor-pointer touch-manipulation"
+                        aria-label="Fechar menu"
+                      >
+                        <X className="w-5 h-5 pointer-events-none" />
+                      </button>
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          )}
 
           {/* Main Content */}
           <MainContent>{children}</MainContent>
+          </div>
+          <SupportChatPanel />
         </div>
-      </div>
+      </SupportChatProvider>
     </SidebarBase>
   );
 }

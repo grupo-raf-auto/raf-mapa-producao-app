@@ -85,7 +85,7 @@ raf-mapa-producao-app/
 │       ├── api-client.ts    # Cliente API
 │       └── ...
 │
-└── server/                   # Backend Express
+└── backend/                   # Backend Express
     ├── src/
     │   ├── config/          # Configurações (DB, etc)
     │   ├── controllers/      # Lógica de negócio
@@ -722,7 +722,7 @@ novo-projeto/
 │   │   ├── ui/
 │   │   └── ...
 │   └── lib/
-└── server/
+└── backend/
     └── src/
         ├── config/
         ├── controllers/
@@ -767,7 +767,7 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 NEXT_PUBLIC_API_URL=http://localhost:3001
 
 2.2 Configuração do banco:
-Copiar server/src/config/database.ts e adaptar nome da base de dados.
+Copiar backend/src/config/database.ts e adaptar nome da base de dados.
 
 PASSO 3: COMPONENTES REUTILIZÁVEIS
 ---------------------------------
@@ -788,33 +788,33 @@ PASSO 4: BACKEND - SERVIÇOS
 ----------------------------
 
 4.1 Serviço OpenAI:
-Copiar server/src/services/openai.service.ts:
+Copiar backend/src/services/openai.service.ts:
 - Adaptar system prompts ao novo contexto
 - Ajustar configurações (temperature, max_tokens)
 
 4.2 Serviço RAG (se necessário):
-Copiar server/src/services/rag.service.ts:
+Copiar backend/src/services/rag.service.ts:
 - Ajustar CHUNK_SIZE e CHUNK_OVERLAP se necessário
 - Manter lógica de similaridade
 
 4.3 Processador de documentos (se necessário):
-Copiar server/src/services/document-processor.service.ts:
+Copiar backend/src/services/document-processor.service.ts:
 - Adicionar suporte a outros tipos de ficheiro se necessário
 
 PASSO 5: BACKEND - CONTROLLERS E ROTAS
 ---------------------------------------
 
 5.1 Chat Controller:
-Copiar server/src/controllers/chat.controller.ts:
+Copiar backend/src/controllers/chat.controller.ts:
 - Adaptar lógica de contexto
 - Ajustar validações
 
 5.2 Rotas:
-Copiar server/src/routes/chat.routes.ts:
+Copiar backend/src/routes/chat.routes.ts:
 - Manter estrutura de autenticação
 
 5.3 Middleware de autenticação:
-Copiar server/src/middleware/auth.middleware.ts:
+Copiar backend/src/middleware/auth.middleware.ts:
 - Ajustar lista de adminEmails se necessário
 - Manter lógica de criação de utilizador
 
@@ -864,12 +864,12 @@ PASSO 7: MODELOS DE DADOS
 -------------------------
 
 7.1 Copiar modelos:
-- ChatModel → server/src/models/chat.model.ts
-- DocumentModel → server/src/models/document.model.ts (se necessário)
-- DocumentChunkModel → server/src/models/document-chunk.model.ts (se necessário)
+- ChatModel → backend/src/models/chat.model.ts
+- DocumentModel → backend/src/models/document.model.ts (se necessário)
+- DocumentChunkModel → backend/src/models/document-chunk.model.ts (se necessário)
 
 7.2 Adaptar tipos:
-Copiar server/src/types/index.ts e adaptar:
+Copiar backend/src/types/index.ts e adaptar:
 - Remover tipos não utilizados
 - Adicionar tipos específicos do novo projeto
 
@@ -877,7 +877,7 @@ PASSO 8: CONFIGURAÇÃO DO SERVIDOR
 ---------------------------------
 
 8.1 index.ts:
-Copiar estrutura de server/src/index.ts:
+Copiar estrutura de backend/src/index.ts:
 - Ajustar rotas
 - Manter middlewares de segurança
 - Ajustar inicialização do banco

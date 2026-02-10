@@ -8,7 +8,7 @@ This project uses Jest for unit testing and Supertest for E2E testing. All new f
 
 ### Unit Tests
 ```bash
-cd server
+cd backend
 npm run test                 # Run all unit tests
 npm run test:watch         # Run tests in watch mode
 npm run test:coverage      # Run tests with coverage report
@@ -16,7 +16,7 @@ npm run test:coverage      # Run tests with coverage report
 
 ### E2E Tests
 ```bash
-cd server
+cd backend
 npm run test:e2e           # Run all E2E tests
 npm run test:e2e -- --watch  # Run E2E tests in watch mode
 ```

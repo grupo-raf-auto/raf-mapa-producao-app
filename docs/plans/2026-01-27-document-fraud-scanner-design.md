@@ -199,7 +199,7 @@ scoreTotal = (scoreTecnico × 0.35) + (scoreIA × 0.65)
 
 ### Estrutura de Ficheiros
 ```
-server/
+backend/
 ├── src/
 │   ├── services/
 │   │   ├── documentScanner/

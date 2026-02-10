@@ -29,8 +29,8 @@ This creates two completely separate scenarios where admins lose access to the u
 - **Session Management**: Better Auth handles server-side sessions
 
 ### Current Files
-- `server/src/middleware/auth.middleware.ts`: JWT validation and role extraction
-- `server/src/controllers/submission.controller.ts`: Scope-based filtering (`scope=all` for admins)
+- `backend/src/middleware/auth.middleware.ts`: JWT validation and role extraction
+- `backend/src/controllers/submission.controller.ts`: Scope-based filtering (`scope=all` for admins)
 - `frontend/src/App.tsx`: Route protection (ProtectedRoute, requireAdmin) — no middleware file
 - `frontend/src/`: User dashboard entry (route `/`)
 - `frontend/src/`: Admin panel entry (route `/admin`)
@@ -62,7 +62,7 @@ if (userRole === 'admin') {
 ### Role Persistence
 - Role stored in database: `user.role: "admin" | "user"`
 - Default role: `"user"`
-- First user in system automatically receives `"admin"` role (via `server/src/auth.ts` databaseHooks)
+- First user in system automatically receives `"admin"` role (via `backend/src/auth.ts` databaseHooks)
 - Role changes require cache invalidation (5-minute TTL in `use-user-role.ts`)
 
 ### Session Management
@@ -186,7 +186,7 @@ const response = await api.submissions.list({
 });
 ```
 
-**Existing Backend Pattern** (`server/src/controllers/submission.controller.ts:227-276`):
+**Existing Backend Pattern** (`backend/src/controllers/submission.controller.ts:227-276`):
 
 ```typescript
 if (scope === "all" && req.user.role === "admin") {
@@ -369,7 +369,7 @@ const response = await api.submissions.list({
 ### Supporting Files
 - `frontend/src/` (admin consultas route) - Update to use `scope=all` and filters
 - `frontend/src/components/admin/*` - Update admin components to consume org-wide data
-- `server/src/controllers/*.controller.ts` - Verify scope filtering (already implemented)
+- `backend/src/controllers/*.controller.ts` - Verify scope filtering (already implemented)
 
 ## Dependencies
 

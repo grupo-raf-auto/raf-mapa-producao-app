@@ -230,7 +230,7 @@
 **Ator:** Sistema  
 **Descrição:** Inicializar templates padrão no sistema  
 **Execução:** Automática no startup do servidor  
-**Arquivo:** `server/src/scripts/seed-templates.ts`
+**Arquivo:** `backend/src/scripts/seed-templates.ts`
 
 ---
 

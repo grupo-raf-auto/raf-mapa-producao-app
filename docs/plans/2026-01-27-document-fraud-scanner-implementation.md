@@ -15,25 +15,25 @@ Node.js/Express backend, Prisma ORM, OpenAI Vision API (gpt-4o-mini), pdf-parse/
 ## Task 1: Setup - Add Dependencies and Types
 
 **Files:**
-- Modify: `server/package.json`
-- Create: `server/src/services/documentScanner/types.ts`
-- Modify: `server/.env.example`
+- Modify: `backend/package.json`
+- Create: `backend/src/services/documentScanner/types.ts`
+- Modify: `backend/.env.example`
 
 **Step 1: Add dependencies to package.json**
 
 Current dependencies already include `pdf-parse` and `openai`. Add the missing ones:
 
 ```bash
-cd server
+cd backend
 npm install pdfjs-dist sharp tesseract.js
 npm install --save-dev @types/sharp
 ```
 
-Verify in [server/package.json](server/package.json) that these are added to dependencies.
+Verify in [backend/package.json](backend/package.json) that these are added to dependencies.
 
 **Step 2: Create types file for document scanner**
 
-Create `server/src/services/documentScanner/types.ts`:
+Create `backend/src/services/documentScanner/types.ts`:
 
 ```typescript
 // Document Scanner Types
@@ -112,7 +112,7 @@ export interface FileScannerConfig {
 
 **Step 3: Update .env.example**
 
-Add to `server/.env.example`:
+Add to `backend/.env.example`:
 
 ```
 # Document Scanner
@@ -125,7 +125,7 @@ AI_MODEL_FOR_SCANNER=gpt-4o-mini
 **Step 4: Commit**
 
 ```bash
-git add server/package.json server/src/services/documentScanner/types.ts server/.env.example
+git add backend/package.json backend/src/services/documentScanner/types.ts backend/.env.example
 git commit -m "feat: add document scanner dependencies and type definitions
 
 - Install pdfjs-dist, sharp, tesseract.js for document analysis
@@ -138,12 +138,12 @@ git commit -m "feat: add document scanner dependencies and type definitions
 ## Task 2: Create Technical Validator - PDF Analysis
 
 **Files:**
-- Create: `server/src/services/documentScanner/technicalValidator.ts`
-- Create: `server/src/utils/pdfAnalyzer.ts`
+- Create: `backend/src/services/documentScanner/technicalValidator.ts`
+- Create: `backend/src/utils/pdfAnalyzer.ts`
 
 **Step 1: Create PDF analyzer utility**
 
-Create `server/src/utils/pdfAnalyzer.ts`:
+Create `backend/src/utils/pdfAnalyzer.ts`:
 
 ```typescript
 import * as fs from "fs";
@@ -245,7 +245,7 @@ export async function analyzePDF(filePath: string): Promise<PDFAnalysisResult> {
 
 **Step 2: Create technical validator service**
 
-Create `server/src/services/documentScanner/technicalValidator.ts`:
+Create `backend/src/services/documentScanner/technicalValidator.ts`:
 
 ```typescript
 import * as fs from "fs";
@@ -429,7 +429,7 @@ export class TechnicalValidator {
 **Step 3: Run and verify PDF analyzer works**
 
 ```bash
-cd server
+cd backend
 npm run build
 ```
 
@@ -438,7 +438,7 @@ Expected: No TypeScript errors.
 **Step 4: Commit**
 
 ```bash
-git add server/src/utils/pdfAnalyzer.ts server/src/services/documentScanner/technicalValidator.ts
+git add backend/src/utils/pdfAnalyzer.ts backend/src/services/documentScanner/technicalValidator.ts
 git commit -m "feat: implement technical PDF and image analysis
 
 - Analyze PDF metadata, pages, compression, versions
@@ -452,12 +452,12 @@ git commit -m "feat: implement technical PDF and image analysis
 ## Task 3: Create OCR Text Extraction Service
 
 **Files:**
-- Create: `server/src/utils/ocrExtractor.ts`
-- Modify: `server/src/services/documentScanner/technicalValidator.ts`
+- Create: `backend/src/utils/ocrExtractor.ts`
+- Modify: `backend/src/services/documentScanner/technicalValidator.ts`
 
 **Step 1: Create OCR extractor**
 
-Create `server/src/utils/ocrExtractor.ts`:
+Create `backend/src/utils/ocrExtractor.ts`:
 
 ```typescript
 import Tesseract from "tesseract.js";
@@ -486,7 +486,7 @@ export class OCRExtractor {
 
 **Step 2: Update technical validator to use OCR for images**
 
-In `server/src/services/documentScanner/technicalValidator.ts`, update the `validateImage` method:
+In `backend/src/services/documentScanner/technicalValidator.ts`, update the `validateImage` method:
 
 ```typescript
 import { OCRExtractor } from "../../utils/ocrExtractor";
@@ -527,7 +527,7 @@ static async validateImage(filePath: string): Promise<TechnicalValidationResult>
 **Step 3: Build and verify**
 
 ```bash
-cd server
+cd backend
 npm run build
 ```
 
@@ -536,7 +536,7 @@ Expected: No TypeScript errors.
 **Step 4: Commit**
 
 ```bash
-git add server/src/utils/ocrExtractor.ts server/src/services/documentScanner/technicalValidator.ts
+git add backend/src/utils/ocrExtractor.ts backend/src/services/documentScanner/technicalValidator.ts
 git commit -m "feat: add OCR text extraction for image documents
 
 - Use Tesseract.js for Portuguese text recognition
@@ -549,12 +549,12 @@ git commit -m "feat: add OCR text extraction for image documents
 ## Task 4: Create AI Validator - OpenAI Integration
 
 **Files:**
-- Create: `server/src/utils/openaiClient.ts`
-- Create: `server/src/services/documentScanner/aiValidator.ts`
+- Create: `backend/src/utils/openaiClient.ts`
+- Create: `backend/src/services/documentScanner/aiValidator.ts`
 
 **Step 1: Create OpenAI client wrapper**
 
-Create `server/src/utils/openaiClient.ts`:
+Create `backend/src/utils/openaiClient.ts`:
 
 ```typescript
 import OpenAI from "openai";
@@ -669,7 +669,7 @@ Responde em JSON com este formato EXATO:
 
 **Step 2: Create AI validator service**
 
-Create `server/src/services/documentScanner/aiValidator.ts`:
+Create `backend/src/services/documentScanner/aiValidator.ts`:
 
 ```typescript
 import { analyzeFraudWithOpenAI } from "../../utils/openaiClient";
@@ -747,7 +747,7 @@ export class AIValidator {
 **Step 3: Build and verify**
 
 ```bash
-cd server
+cd backend
 npm run build
 ```
 
@@ -756,7 +756,7 @@ Expected: No TypeScript errors.
 **Step 4: Commit**
 
 ```bash
-git add server/src/utils/openaiClient.ts server/src/services/documentScanner/aiValidator.ts
+git add backend/src/utils/openaiClient.ts backend/src/services/documentScanner/aiValidator.ts
 git commit -m "feat: implement OpenAI Vision-based fraud detection
 
 - Create wrapper for OpenAI API calls with vision capability
@@ -770,11 +770,11 @@ git commit -m "feat: implement OpenAI Vision-based fraud detection
 ## Task 5: Create Score Compiler Service
 
 **Files:**
-- Create: `server/src/services/documentScanner/scoreCompiler.ts`
+- Create: `backend/src/services/documentScanner/scoreCompiler.ts`
 
 **Step 1: Implement score compilation logic**
 
-Create `server/src/services/documentScanner/scoreCompiler.ts`:
+Create `backend/src/services/documentScanner/scoreCompiler.ts`:
 
 ```typescript
 import type {
@@ -947,7 +947,7 @@ export class ScoreCompiler {
 **Step 2: Build and verify**
 
 ```bash
-cd server
+cd backend
 npm run build
 ```
 
@@ -956,7 +956,7 @@ Expected: No TypeScript errors.
 **Step 3: Commit**
 
 ```bash
-git add server/src/services/documentScanner/scoreCompiler.ts
+git add backend/src/services/documentScanner/scoreCompiler.ts
 git commit -m "feat: implement score compilation and risk assessment
 
 - Combine technical (35%) and AI (65%) scores
@@ -970,11 +970,11 @@ git commit -m "feat: implement score compilation and risk assessment
 ## Task 6: Create Main Scanner Service
 
 **Files:**
-- Create: `server/src/services/documentScanner/index.ts`
+- Create: `backend/src/services/documentScanner/index.ts`
 
 **Step 1: Implement main document scanner service**
 
-Create `server/src/services/documentScanner/index.ts`:
+Create `backend/src/services/documentScanner/index.ts`:
 
 ```typescript
 import { TechnicalValidator } from "./technicalValidator";
@@ -1044,7 +1044,7 @@ export * from "./types";
 **Step 2: Build and verify**
 
 ```bash
-cd server
+cd backend
 npm run build
 ```
 
@@ -1053,7 +1053,7 @@ Expected: No TypeScript errors.
 **Step 3: Commit**
 
 ```bash
-git add server/src/services/documentScanner/index.ts
+git add backend/src/services/documentScanner/index.ts
 git commit -m "feat: create main document scanner orchestration service
 
 - Coordinate technical validation, AI analysis, score compilation
@@ -1127,7 +1127,7 @@ model User {
 **Step 2: Run migration**
 
 ```bash
-cd server
+cd backend
 npm run db:migrate -- --name add_document_scan_model
 ```
 
@@ -1150,13 +1150,13 @@ git commit -m "feat: add DocumentScan model to store fraud detection results
 ## Task 8: Create API Routes and Controller
 
 **Files:**
-- Create: `server/src/controllers/documentScanner.controller.ts`
-- Create: `server/src/routes/documentScanner.routes.ts`
-- Modify: `server/src/index.ts`
+- Create: `backend/src/controllers/documentScanner.controller.ts`
+- Create: `backend/src/routes/documentScanner.routes.ts`
+- Modify: `backend/src/index.ts`
 
 **Step 1: Create scanner controller**
 
-Create `server/src/controllers/documentScanner.controller.ts`:
+Create `backend/src/controllers/documentScanner.controller.ts`:
 
 ```typescript
 import { Request, Response } from "express";
@@ -1275,7 +1275,7 @@ export class DocumentScannerController {
 
 **Step 2: Create scanner routes**
 
-Create `server/src/routes/documentScanner.routes.ts`:
+Create `backend/src/routes/documentScanner.routes.ts`:
 
 ```typescript
 import { Router } from "express";
@@ -1302,7 +1302,7 @@ export default router;
 
 **Step 3: Register routes in main app**
 
-Edit `server/src/index.ts` and add before the error handler:
+Edit `backend/src/index.ts` and add before the error handler:
 
 ```typescript
 import scannerRoutes from "./routes/documentScanner.routes";
@@ -1325,7 +1325,7 @@ app.use("/api/scanner", authenticateUser, scannerRoutes); // ADD THIS LINE
 **Step 4: Build and verify**
 
 ```bash
-cd server
+cd backend
 npm run build
 ```
 
@@ -1334,7 +1334,7 @@ Expected: No TypeScript errors.
 **Step 5: Commit**
 
 ```bash
-git add server/src/controllers/documentScanner.controller.ts server/src/routes/documentScanner.routes.ts server/src/index.ts
+git add backend/src/controllers/documentScanner.controller.ts backend/src/routes/documentScanner.routes.ts backend/src/index.ts
 git commit -m "feat: create API endpoints for document fraud scanning
 
 - POST /api/scanner/scan - Upload and scan document
@@ -1611,7 +1611,7 @@ git commit -m "feat: add frontend UI for document fraud scanning
 
 ```bash
 # Terminal 1
-cd server
+cd backend
 npm run dev
 
 # Terminal 2
@@ -1637,7 +1637,7 @@ Expected: Both services running on http://localhost:3005 and http://localhost:30
 **Step 3: Verify database storage**
 
 ```bash
-cd server
+cd backend
 npm run db:studio
 ```
 

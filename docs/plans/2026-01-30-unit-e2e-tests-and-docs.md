@@ -17,20 +17,20 @@
 ## Task 1: Setup Jest Configuration & Dependencies
 
 **Files:**
-- Modify: `server/package.json`
-- Create: `server/jest.config.js`
-- Create: `server/tsconfig.test.json`
-- Create: `server/src/__tests__/setup.ts`
+- Modify: `backend/package.json`
+- Create: `backend/jest.config.js`
+- Create: `backend/tsconfig.test.json`
+- Create: `backend/src/__tests__/setup.ts`
 
-**Step 1: Add Jest & testing dependencies to server**
+**Step 1: Add Jest & testing dependencies to backend**
 
-Run: `cd server && npm install --save-dev jest @types/jest ts-jest supertest @types/supertest`
+Run: `cd backend && npm install --save-dev jest @types/jest ts-jest supertest @types/supertest`
 
 Expected: Dependencies installed, no errors
 
 **Step 2: Create Jest configuration**
 
-Create `server/jest.config.js`:
+Create `backend/jest.config.js`:
 
 ```javascript
 module.exports = {
@@ -55,7 +55,7 @@ module.exports = {
 
 **Step 3: Create test TypeScript configuration**
 
-Create `server/tsconfig.test.json`:
+Create `backend/tsconfig.test.json`:
 
 ```json
 {
@@ -70,7 +70,7 @@ Create `server/tsconfig.test.json`:
 
 **Step 4: Create test setup file**
 
-Create `server/src/__tests__/setup.ts`:
+Create `backend/src/__tests__/setup.ts`:
 
 ```typescript
 import { prisma } from '../lib/prisma';
@@ -87,7 +87,7 @@ process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || process.env.DATABASE
 
 **Step 5: Update package.json with test scripts**
 
-Modify `server/package.json` to add:
+Modify `backend/package.json` to add:
 
 ```json
 {
@@ -103,14 +103,14 @@ Modify `server/package.json` to add:
 
 **Step 6: Verify Jest is configured**
 
-Run: `cd server && npm run test -- --listTests`
+Run: `cd backend && npm run test -- --listTests`
 
 Expected: Lists test files (empty for now), no configuration errors
 
 **Step 7: Commit**
 
 ```bash
-cd server && git add package.json jest.config.js tsconfig.test.json src/__tests__/setup.ts
+cd backend && git add package.json jest.config.js tsconfig.test.json src/__tests__/setup.ts
 git commit -m "test: setup jest configuration and dependencies"
 ```
 
@@ -119,12 +119,12 @@ git commit -m "test: setup jest configuration and dependencies"
 ## Task 2: Write Unit Tests for BaseRepository
 
 **Files:**
-- Create: `server/src/__tests__/repositories/base.repository.test.ts`
-- Reference: `server/src/repositories/base.repository.ts`
+- Create: `backend/src/__tests__/repositories/base.repository.test.ts`
+- Reference: `backend/src/repositories/base.repository.ts`
 
 **Step 1: Write test file structure**
 
-Create `server/src/__tests__/repositories/base.repository.test.ts`:
+Create `backend/src/__tests__/repositories/base.repository.test.ts`:
 
 ```typescript
 import { BaseRepository } from '../../repositories/base.repository';
@@ -282,14 +282,14 @@ describe('BaseRepository', () => {
 
 **Step 2: Run tests to verify they pass**
 
-Run: `cd server && npm run test -- src/__tests__/repositories/base.repository.test.ts`
+Run: `cd backend && npm run test -- src/__tests__/repositories/base.repository.test.ts`
 
 Expected: All tests PASS (6 test suites, 10+ tests)
 
 **Step 3: Commit**
 
 ```bash
-cd server && git add src/__tests__/repositories/base.repository.test.ts
+cd backend && git add src/__tests__/repositories/base.repository.test.ts
 git commit -m "test: add unit tests for BaseRepository CRUD operations"
 ```
 
@@ -298,12 +298,12 @@ git commit -m "test: add unit tests for BaseRepository CRUD operations"
 ## Task 3: Write Unit Tests for UserStatsService
 
 **Files:**
-- Create: `server/src/__tests__/services/user-stats.service.test.ts`
-- Reference: `server/src/services/user-stats.service.ts`
+- Create: `backend/src/__tests__/services/user-stats.service.test.ts`
+- Reference: `backend/src/services/user-stats.service.ts`
 
 **Step 1: Write test file**
 
-Create `server/src/__tests__/services/user-stats.service.test.ts`:
+Create `backend/src/__tests__/services/user-stats.service.test.ts`:
 
 ```typescript
 import { UserStatsService } from '../../services/user-stats.service';
@@ -409,14 +409,14 @@ describe('UserStatsService', () => {
 
 **Step 2: Run tests**
 
-Run: `cd server && npm run test -- src/__tests__/services/user-stats.service.test.ts`
+Run: `cd backend && npm run test -- src/__tests__/services/user-stats.service.test.ts`
 
 Expected: All tests PASS (4 test suites, 5+ tests)
 
 **Step 3: Commit**
 
 ```bash
-cd server && git add src/__tests__/services/user-stats.service.test.ts
+cd backend && git add src/__tests__/services/user-stats.service.test.ts
 git commit -m "test: add unit tests for UserStatsService aggregation methods"
 ```
 
@@ -425,12 +425,12 @@ git commit -m "test: add unit tests for UserStatsService aggregation methods"
 ## Task 4: Write Unit Tests for BaseCRUDController
 
 **Files:**
-- Create: `server/src/__tests__/controllers/base-crud.controller.test.ts`
-- Reference: `server/src/controllers/base-crud.controller.ts`
+- Create: `backend/src/__tests__/controllers/base-crud.controller.test.ts`
+- Reference: `backend/src/controllers/base-crud.controller.ts`
 
 **Step 1: Write test file**
 
-Create `server/src/__tests__/controllers/base-crud.controller.test.ts`:
+Create `backend/src/__tests__/controllers/base-crud.controller.test.ts`:
 
 ```typescript
 import { BaseCRUDController } from '../../controllers/base-crud.controller';
@@ -648,14 +648,14 @@ describe('BaseCRUDController', () => {
 
 **Step 2: Run tests**
 
-Run: `cd server && npm run test -- src/__tests__/controllers/base-crud.controller.test.ts`
+Run: `cd backend && npm run test -- src/__tests__/controllers/base-crud.controller.test.ts`
 
 Expected: All tests PASS (5 test suites, 10+ tests)
 
 **Step 3: Commit**
 
 ```bash
-cd server && git add src/__tests__/controllers/base-crud.controller.test.ts
+cd backend && git add src/__tests__/controllers/base-crud.controller.test.ts
 git commit -m "test: add unit tests for BaseCRUDController CRUD operations and access control"
 ```
 
@@ -664,13 +664,13 @@ git commit -m "test: add unit tests for BaseCRUDController CRUD operations and a
 ## Task 5: Write E2E Tests for Question Controller
 
 **Files:**
-- Create: `server/src/__tests__/e2e/question.controller.e2e.test.ts`
-- Reference: `server/src/controllers/question.controller.refactored.ts`
-- Reference: `server/src/routes/` (to understand endpoints)
+- Create: `backend/src/__tests__/e2e/question.controller.e2e.test.ts`
+- Reference: `backend/src/controllers/question.controller.refactored.ts`
+- Reference: `backend/src/routes/` (to understand endpoints)
 
 **Step 1: Write E2E test file**
 
-Create `server/src/__tests__/e2e/question.controller.e2e.test.ts`:
+Create `backend/src/__tests__/e2e/question.controller.e2e.test.ts`:
 
 ```typescript
 import request from 'supertest';
@@ -939,7 +939,7 @@ describe('Question Controller E2E', () => {
 
 **Step 2: Create auth helper for E2E tests**
 
-Create `server/src/__tests__/helpers/auth.helper.ts`:
+Create `backend/src/__tests__/helpers/auth.helper.ts`:
 
 ```typescript
 import jwt from 'jsonwebtoken';
@@ -964,7 +964,7 @@ export function verifyAuthToken(token: string) {
 
 **Step 3: Verify app export in index.ts**
 
-Ensure `server/src/index.ts` exports the Express app for testing:
+Ensure `backend/src/index.ts` exports the Express app for testing:
 
 ```typescript
 export const app = app; // Add this line at the end of index.ts if not present
@@ -972,14 +972,14 @@ export const app = app; // Add this line at the end of index.ts if not present
 
 **Step 4: Run E2E tests**
 
-Run: `cd server && npm run test:e2e -- src/__tests__/e2e/question.controller.e2e.test.ts`
+Run: `cd backend && npm run test:e2e -- src/__tests__/e2e/question.controller.e2e.test.ts`
 
 Expected: All tests PASS (5 test suites, 15+ tests)
 
 **Step 5: Commit**
 
 ```bash
-cd server && git add src/__tests__/e2e/question.controller.e2e.test.ts src/__tests__/helpers/auth.helper.ts
+cd backend && git add src/__tests__/e2e/question.controller.e2e.test.ts src/__tests__/helpers/auth.helper.ts
 git commit -m "test: add E2E tests for Question controller CRUD endpoints"
 ```
 
@@ -988,12 +988,12 @@ git commit -m "test: add E2E tests for Question controller CRUD endpoints"
 ## Task 6: Write E2E Tests for User Controller
 
 **Files:**
-- Create: `server/src/__tests__/e2e/user.controller.e2e.test.ts`
-- Reference: `server/src/controllers/user.controller.refactored.ts`
+- Create: `backend/src/__tests__/e2e/user.controller.e2e.test.ts`
+- Reference: `backend/src/controllers/user.controller.refactored.ts`
 
 **Step 1: Write E2E test file**
 
-Create `server/src/__tests__/e2e/user.controller.e2e.test.ts`:
+Create `backend/src/__tests__/e2e/user.controller.e2e.test.ts`:
 
 ```typescript
 import request from 'supertest';
@@ -1236,14 +1236,14 @@ describe('User Controller E2E', () => {
 
 **Step 2: Run E2E tests**
 
-Run: `cd server && npm run test:e2e -- src/__tests__/e2e/user.controller.e2e.test.ts`
+Run: `cd backend && npm run test:e2e -- src/__tests__/e2e/user.controller.e2e.test.ts`
 
 Expected: All tests PASS (5 test suites, 15+ tests)
 
 **Step 3: Commit**
 
 ```bash
-cd server && git add src/__tests__/e2e/user.controller.e2e.test.ts
+cd backend && git add src/__tests__/e2e/user.controller.e2e.test.ts
 git commit -m "test: add E2E tests for User controller CRUD endpoints and stats"
 ```
 
@@ -1270,7 +1270,7 @@ This project uses Jest for unit testing and Supertest for E2E testing. All new f
 
 ### Unit Tests
 ```bash
-cd server
+cd backend
 npm run test                 # Run all unit tests
 npm run test:watch         # Run tests in watch mode
 npm run test:coverage      # Run tests with coverage report
@@ -1278,7 +1278,7 @@ npm run test:coverage      # Run tests with coverage report
 
 ### E2E Tests
 ```bash
-cd server
+cd backend
 npm run test:e2e           # Run all E2E tests
 npm run test:e2e -- --watch  # Run E2E tests in watch mode
 ```
@@ -1575,42 +1575,42 @@ git commit -m "docs: add comprehensive testing guide and update implementation c
 ## Task 8: Verify Build & Run All Tests
 
 **Files:**
-- Reference: `server/package.json` (test scripts)
-- Reference: `server/tsconfig.json` (TypeScript config)
+- Reference: `backend/package.json` (test scripts)
+- Reference: `backend/tsconfig.json` (TypeScript config)
 
 **Step 1: Run type checking**
 
-Run: `cd server && npm run type-check`
+Run: `cd backend && npm run type-check`
 
 Expected: No TypeScript errors, message "Successfully compiled"
 
 **Step 2: Run all unit tests**
 
-Run: `cd server && npm run test`
+Run: `cd backend && npm run test`
 
 Expected: All tests PASS with summary like "Tests: 30 passed, 30 total"
 
 **Step 3: Run all E2E tests**
 
-Run: `cd server && npm run test:e2e`
+Run: `cd backend && npm run test:e2e`
 
 Expected: All E2E tests PASS with summary like "Tests: 20 passed, 20 total"
 
 **Step 4: Run comprehensive test suite**
 
-Run: `cd server && npm run test:all`
+Run: `cd backend && npm run test:all`
 
 Expected: All three steps pass (type-check, test, test:e2e)
 
 **Step 5: Build the project**
 
-Run: `cd server && npm run build`
+Run: `cd backend && npm run build`
 
 Expected: Successfully compiles TypeScript to dist/ directory, no errors
 
 **Step 6: Verify dist directory**
 
-Run: `ls -la server/dist/`
+Run: `ls -la backend/dist/`
 
 Expected: All TypeScript files compiled to .js files
 
@@ -1729,7 +1729,7 @@ Create `docs/TEST_ARCHITECTURE.md`:
 ## Directory Structure
 
 ```
-server/src/__tests__/
+backend/src/__tests__/
 ├── repositories/          # Repository unit tests
 │   └── base.repository.test.ts
 ├── services/              # Service unit tests

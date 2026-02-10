@@ -7,7 +7,7 @@ This document describes the testing architecture for RAF Mapa de Produção, inc
 ## Directory Structure
 
 ```
-server/src/__tests__/
+backend/src/__tests__/
 ├── repositories/          # Repository unit tests
 │   └── base.repository.test.ts
 ├── services/              # Service unit tests
@@ -318,7 +318,7 @@ describe('POST /api/questions (validation)', () => {
 
 ```bash
 # Setup
-cd server
+cd backend
 npm install
 
 # Run all unit tests

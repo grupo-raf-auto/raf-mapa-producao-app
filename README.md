@@ -8,9 +8,9 @@
 
 ## Variáveis de ambiente
 
-Basta ter **`server/.env`**. O frontend em dev usa o proxy para o backend; as variáveis do servidor aplicam-se ao correr `npm run dev`.
+Basta ter **`backend/.env`**. O frontend em dev usa o proxy para o backend; as variáveis do servidor aplicam-se ao correr `npm run dev`.
 
-Exemplo para **server/.env** (ajusta os valores):
+Exemplo para **backend/.env** (ajusta os valores):
 
 ```env
 DATABASE_URL=postgresql://...?sslmode=require
@@ -25,7 +25,7 @@ OPENAI_API_KEY=sk-...
 
 Opcionais:
 
-- **`ALLOWED_EMAIL_DOMAIN`** (ex: `gruporaf.pt`): se definido, apenas emails `@<domínio>` podem registar-se. Para desenvolvimento ou testes com outros emails (ex.: @hotmail.com), não definas esta variável ou deixa-a vazia no `server/.env`.
+- **`ALLOWED_EMAIL_DOMAIN`** (ex: `gruporaf.pt`): se definido, apenas emails `@<domínio>` podem registar-se. Para desenvolvimento ou testes com outros emails (ex.: @hotmail.com), não definas esta variável ou deixa-a vazia no `backend/.env`.
 - **`RESEND_API_KEY`** e **`EMAIL_FROM`**: para enviar emails de recuperação de senha em produção. Sem `RESEND_API_KEY`, em dev o link é impresso no terminal.
 
 ### Base de dados (Neon)
@@ -54,25 +54,25 @@ Opcionais:
 npm run install:all
 
 # Ou em cada pasta:
-cd server && npm install
+cd backend && npm install
 cd ../frontend && npm install
 ```
 
 ## Base de dados
 
 ```bash
-cd server
+cd backend
 # Aplicar migrações (cria tabelas)
-npx prisma migrate dev --schema=../prisma/schema.prisma
+npx prisma migrate dev --schema=./src/prisma/schema.prisma
 
-# (Opcional) abrir Prisma Studio (a partir da raiz do projeto; usa server/.env)
+# (Opcional) abrir Prisma Studio (a partir da raiz do projeto; usa backend/.env)
 npm run db:studio
 ```
 
 O seed de templates é executado ao arrancar o servidor. Para definir um admin:
 
 ```bash
-cd server
+cd backend
 npm run set-admin -- email@gruporaf.pt
 ```
 
@@ -86,7 +86,7 @@ npm run dev
 
 # Ou em terminais separados:
 # Terminal 1 – backend (porta 3005)
-cd server && npm run dev
+cd backend && npm run dev
 
 # Terminal 2 – frontend (porta 3004)
 cd frontend && npm run dev

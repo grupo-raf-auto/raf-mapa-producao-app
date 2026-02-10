@@ -197,7 +197,7 @@ function AdminTopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
         <button
           type="button"
           onClick={openSearch}
-          className="flex-1 min-w-0 min-h-[44px] h-11 sm:h-10 sm:min-h-0 flex items-center gap-1.5 sm:gap-2 pl-3 pr-2 sm:pl-3.5 sm:pr-3 rounded-xl bg-muted/50 border border-border/50 text-sm text-muted-foreground hover:bg-muted/80 hover:border-border transition-all cursor-pointer touch-manipulation overflow-hidden"
+          className="w-full max-w-56 min-w-0 min-h-[44px] h-9 sm:h-8 sm:min-h-0 flex items-center gap-1.5 sm:gap-2 pl-2.5 pr-2 sm:pl-3 sm:pr-2.5 rounded-lg bg-muted/50 border border-border/50 text-sm text-muted-foreground hover:bg-muted/80 hover:border-border transition-all cursor-pointer touch-manipulation overflow-hidden"
         >
           <Search className="w-4 h-4 shrink-0" />
           <span className="flex-1 text-left truncate">Pesquisar no painel...</span>

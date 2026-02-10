@@ -55,9 +55,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Edit, Euro, Save, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useRouter } from '@/lib/router-compat';
-import { useModal } from '@/lib/contexts/modal-context';
+import { useModal } from '@/contexts/modal-context';
 import {
   ColumnDef,
   PaginationState,
@@ -576,10 +577,105 @@ export function ConsultasDataTable({
     paginationItemsToDisplay: 5,
   });
 
+  const rows = table.getRowModel().rows ?? [];
+  const isEmpty = rows.length === 0;
+
   return (
-    <div className="space-y-6">
-      <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
-        <Table>
+    <div className="space-y-4 sm:space-y-6 min-w-0 max-w-full overflow-hidden">
+      {/* Mobile e tablet: lista em cards (até lg) */}
+      <div className="lg:hidden space-y-3 min-w-0">
+        {isEmpty ? (
+          <Card className="rounded-2xl border border-border/60 shadow-sm">
+            <CardContent className="py-10 text-center text-sm text-muted-foreground">
+              Nenhum formulário encontrado com os filtros aplicados
+            </CardContent>
+          </Card>
+        ) : (
+          rows.map((row) => {
+            const s = row.original;
+            const dateStr = s.formDate || s.submittedAt;
+            const date = new Date(dateStr);
+            return (
+              <Card key={row.id} className="rounded-2xl border border-border/60 shadow-sm overflow-hidden min-w-0 max-w-full">
+                <CardContent className="p-4 space-y-3 min-w-0">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground truncate">
+                      {s.templateTitle || 'Template'}
+                    </p>
+                    {(s.nomeClienteAnswer || s.bancoAnswer || s.seguradoraAnswer) && (
+                      <p className="text-sm text-muted-foreground truncate mt-0.5">
+                        {[s.nomeClienteAnswer, s.bancoAnswer, s.seguradoraAnswer].filter(Boolean).join(' · ')}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap min-w-0 flex-1">
+                      {s.valorAnswer && (
+                        <span className="font-medium text-foreground">
+                          {Number(s.valorAnswer).toLocaleString('pt-PT', {
+                            style: 'currency',
+                            currency: 'EUR',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      )}
+                      <time dateTime={date.toISOString().slice(0, 10)} className="text-sm text-muted-foreground">
+                        {format(date, 'dd/MM/yyyy')}
+                      </time>
+                      {showCommissionPaid && (
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          {s._id === updatingCommissionId ? (
+                            <Spinner variant="bars" className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Checkbox
+                              checked={Boolean(s.commissionPaid)}
+                              onCheckedChange={(value) => handleCommissionPaidChange(s, value === true)}
+                              aria-label={s.commissionPaid ? 'Comissão paga' : 'Comissão não paga'}
+                              className="rounded border-green-600 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                            />
+                          )}
+                          <span className="text-xs text-muted-foreground">Comissão paga</span>
+                        </label>
+                      )}
+                      {!showCommissionPaid && s.commissionPaid && (
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" title="Comissão paga" aria-label="Comissão paga">
+                          <Euro className="h-4 w-4" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleView(s)}
+                        className="min-h-[44px] min-w-[44px] rounded-xl p-0"
+                        aria-label="Ver formulário"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(s)}
+                        className="min-h-[44px] min-w-[44px] rounded-xl p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        aria-label="Remover formulário"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop (lg+): tabela com scroll horizontal se necessário */}
+      <div className="hidden lg:block rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden min-w-0">
+        <div className="overflow-x-auto overscroll-x-contain min-w-0" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <Table className="min-w-[920px]">
           <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
@@ -589,7 +685,7 @@ export function ConsultasDataTable({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="h-12 px-4 align-middle font-semibold text-foreground text-left"
+                    className="h-12 px-4 align-middle font-semibold text-foreground text-left whitespace-nowrap"
                   >
                     {header.isPlaceholder ? null : header.column.getCanSort() ? (
                       <div
@@ -667,7 +763,7 @@ export function ConsultasDataTable({
                   className="hover:bg-muted/30 transition-colors border-b border-border/50"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-4 py-3 align-middle">
+                    <TableCell key={cell.id} className="px-4 py-3 align-middle min-w-0">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),
@@ -688,26 +784,18 @@ export function ConsultasDataTable({
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between gap-4 max-sm:flex-col max-sm:gap-3">
-        <p
-          className="flex-1 whitespace-nowrap text-sm text-muted-foreground"
-          aria-live="polite"
-        >
-          Página{' '}
-          <span className="font-medium text-foreground">
-            {table.getState().pagination.pageIndex + 1}
-          </span>{' '}
-          de{' '}
-          <span className="font-medium text-foreground">
-            {table.getPageCount()}
-          </span>
+      {/* Pagination — partilhada entre mobile e desktop */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <p className="text-sm text-muted-foreground" aria-live="polite">
+          Página <span className="font-medium text-foreground">{table.getState().pagination.pageIndex + 1}</span> de{' '}
+          <span className="font-medium text-foreground">{table.getPageCount()}</span>
         </p>
 
-        <div className="grow">
-          <Pagination>
+        <div className="flex flex-wrap items-center gap-3">
+          <Pagination className="flex-wrap">
             <PaginationContent>
               <PaginationItem>
                 <Button
@@ -765,21 +853,17 @@ export function ConsultasDataTable({
               </PaginationItem>
             </PaginationContent>
           </Pagination>
-        </div>
 
-        <div className="flex flex-1 justify-end">
           <Select
             value={table.getState().pagination.pageSize.toString()}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
+            onValueChange={(value) => table.setPageSize(Number(value))}
             aria-label="Resultados por página"
           >
             <SelectTrigger
               id="results-per-page"
-              className="w-fit whitespace-nowrap bg-background border-border"
+              className="w-full sm:w-[140px] min-h-[44px] sm:min-h-0 rounded-xl bg-background border-border"
             >
-              <SelectValue placeholder="Selecionar número de resultados" />
+              <SelectValue placeholder="Por página" />
             </SelectTrigger>
             <SelectContent>
               {[5, 10, 25, 50].map((pageSize) => (
@@ -806,10 +890,10 @@ export function ConsultasDataTable({
           }}
         >
           <DialogContent
-            className="!max-w-[90vw] !w-[90vw] h-[90vh] flex flex-col p-0 overflow-hidden !z-[200] max-h-[90vh]"
+            className="max-w-[min(90vw,calc(100vw-2rem))]! w-[min(90vw,calc(100vw-2rem))]! h-[90vh] flex flex-col p-0 overflow-hidden z-200! max-h-[90vh]"
             overlayClassName="!z-[150]"
           >
-            <div className="px-6 pt-6 pb-4 shrink-0 border-b">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 shrink-0 border-b">
               <DialogHeader>
                 <DialogTitle className="text-2xl">
                   {templateData?.title || 'Formulário'}
@@ -856,7 +940,7 @@ export function ConsultasDataTable({
               </div>
             ) : (
               <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-                <div className="flex-1 overflow-y-auto px-6 py-6">
+                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
                   {questionsData.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       Nenhuma questão encontrada

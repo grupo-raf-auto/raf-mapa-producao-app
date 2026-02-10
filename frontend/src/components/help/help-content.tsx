@@ -113,7 +113,7 @@ export function HelpContent({ variant = 'user' }: HelpContentProps) {
   const isAdmin = variant === 'admin';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <PageHeader
         title="Centro de Ajuda"
@@ -125,11 +125,11 @@ export function HelpContent({ variant = 'user' }: HelpContentProps) {
         icon={HelpCircle}
         decoratorIcon={<Sparkles className="w-5 h-5" />}
       />
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Main Content — min-w-0 evita overflow em tablet */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 min-w-0">
         {/* Contact Card - Left Side */}
-        <div className="lg:col-span-1">
-          <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 rounded-2xl p-6 border border-red-100 dark:border-red-900/30">
+        <div className="lg:col-span-1 min-w-0">
+          <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-red-100 dark:border-red-900/30 min-w-0 overflow-hidden">
             {/* FAQ Badge */}
             <div className="flex items-center gap-2 mb-6">
               <span className="w-2 h-2 rounded-full bg-red-500"></span>
@@ -139,10 +139,8 @@ export function HelpContent({ variant = 'user' }: HelpContentProps) {
             </div>
 
             {/* Title */}
-            <h2 className="text-2xl font-bold text-foreground mb-8">
-              Perguntas
-              <br />
-              Frequentes
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-6 sm:mb-8 break-words">
+              Perguntas Frequentes
             </h2>
 
             {/* Avatar & Contact */}
@@ -162,7 +160,7 @@ export function HelpContent({ variant = 'user' }: HelpContentProps) {
 
             {/* Contact Button */}
             <Button
-              className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-xl h-12 font-medium shadow-lg shadow-red-500/20"
+              className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-xl min-h-[48px] h-12 font-medium shadow-lg shadow-red-500/20 touch-manipulation"
               onClick={() =>
                 window.open('mailto:suporte@gruporaf.pt', '_blank')
               }
@@ -175,12 +173,12 @@ export function HelpContent({ variant = 'user' }: HelpContentProps) {
             <div className="mt-6 space-y-3">
               <a
                 href="tel:+351123456789"
-                className="flex items-center gap-3 p-3 rounded-xl bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors group"
+                className="flex items-center gap-3 p-3 min-h-[44px] rounded-xl bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors group touch-manipulation"
               >
-                <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
                   <Phone className="w-5 h-5 text-red-600 dark:text-red-400" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground">
                     Telefone
                   </p>
@@ -188,37 +186,37 @@ export function HelpContent({ variant = 'user' }: HelpContentProps) {
                     +351 123 456 789
                   </p>
                 </div>
-                <ExternalLink className="w-4 h-4 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ExternalLink className="w-4 h-4 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </a>
 
               <a
                 href="mailto:suporte@gruporaf.pt"
-                className="flex items-center gap-3 p-3 rounded-xl bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors group"
+                className="flex items-center gap-3 p-3 min-h-[44px] rounded-xl bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors group touch-manipulation"
               >
                 <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
                   <MessageCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground">Email</p>
                   <p className="text-xs text-muted-foreground">
                     suporte@gruporaf.pt
                   </p>
                 </div>
-                <ExternalLink className="w-4 h-4 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ExternalLink className="w-4 h-4 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </a>
             </div>
           </div>
         </div>
 
         {/* FAQs - Right Side */}
-        <div className="lg:col-span-2">
-          <div className="space-y-3">
+        <div className="lg:col-span-2 min-w-0">
+          <div className="space-y-3 min-w-0">
             {faqs.map((faq) => {
               const isOpen = openItem === faq.id;
               return (
                 <div
                   key={faq.id}
-                  className={`rounded-2xl transition-all duration-300 border ${
+                  className={`rounded-xl sm:rounded-2xl transition-all duration-300 border min-w-0 ${
                     isOpen
                       ? 'bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 border-red-200 dark:border-red-900/50 shadow-sm'
                       : 'bg-white dark:bg-card border-border hover:border-red-200 dark:hover:border-red-900/30 hover:bg-red-50/30 dark:hover:bg-red-950/10'
@@ -226,7 +224,7 @@ export function HelpContent({ variant = 'user' }: HelpContentProps) {
                 >
                   <button
                     onClick={() => setOpenItem(isOpen ? '' : faq.id)}
-                    className="w-full flex items-center justify-between p-5 text-left"
+                    className="w-full flex items-center justify-between p-4 sm:p-5 text-left min-h-[48px] touch-manipulation rounded-xl sm:rounded-2xl"
                   >
                     <span className="font-medium text-foreground pr-4">
                       {faq.question}

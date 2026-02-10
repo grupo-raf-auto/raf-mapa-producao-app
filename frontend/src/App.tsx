@@ -13,6 +13,7 @@ import TemplatesPage from '@/pages/Templates';
 import FormulariosPage from '@/pages/Formularios';
 import ConsultasPage from '@/pages/Consultas';
 import ScannerPage from '@/pages/Scanner';
+import GeradorMensagensPage from '@/pages/GeradorMensagens';
 import MysabichaoPage from '@/pages/Mysabichao';
 import SettingsPage from '@/pages/Settings';
 import HelpPage from '@/pages/Help';
@@ -62,6 +63,7 @@ function App() {
                 <Route path="/formularios" element={<FormulariosPage />} />
                 <Route path="/consultas" element={<ConsultasPage />} />
                 <Route path="/scanner" element={<ScannerPage />} />
+                <Route path="/gerador-mensagens" element={<GeradorMensagensPage />} />
                 <Route path="/mysabichao" element={<MysabichaoPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/help" element={<HelpPage />} />

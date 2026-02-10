@@ -320,6 +320,22 @@ export const apiClient = {
     getConversation: (conversationId: string) =>
       fetchWithAuth(`chat/conversation/${conversationId}`),
   },
+  messageGenerator: {
+    getContexts: () => fetchWithAuth('message-generator/contexts'),
+    getTemplates: (contextId?: string) => {
+      const q = contextId ? `?contextId=${encodeURIComponent(contextId)}` : '';
+      return fetchWithAuth(`message-generator/templates${q}`);
+    },
+    generate: (body: {
+      contextId: string;
+      templateId?: string;
+      userInput: string;
+    }) =>
+      fetchWithAuth('message-generator/generate', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+  },
   documents: {
     upload: async (file: File) => {
       const formData = new FormData();

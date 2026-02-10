@@ -38,6 +38,12 @@ const userFaqs = [
       'O MyScanner é uma ferramenta de análise de documentos com IA que ajuda a verificar a autenticidade e conformidade de documentos submetidos pelos clientes, como comprovativos de rendimentos e identificação.',
   },
   {
+    id: 'faq-4b',
+    question: 'O que é o Gerador de Mensagens?',
+    answer:
+      'O Gerador de Mensagens usa IA para criar textos prontos a usar em emails e WhatsApp. Escolha o contexto (ex.: pedido de documentação, follow-up, lembrete) e, se quiser, um template (formal, curto, etc.). Descreva a situação ou dados do cliente e clique em "Gerar mensagem". Pode copiar o texto e colar no seu email ou WhatsApp.',
+  },
+  {
     id: 'faq-5',
     question: 'Como posso ver as minhas métricas de produção?',
     answer:

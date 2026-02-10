@@ -5,6 +5,7 @@ import {
   FileStack,
   Brain,
   FileCheck,
+  MessageSquare,
   Settings,
   HelpCircle,
   User,
@@ -41,6 +42,12 @@ const intelligentTools = [
     href: '/scanner',
     icon: FileCheck,
     description: 'Análise de fraudes em documentos',
+  },
+  {
+    label: 'MyTexto',
+    href: '/gerador-mensagens',
+    icon: MessageSquare,
+    description: 'Gerar textos para email e WhatsApp com IA',
   },
   {
     label: 'MySabichão',
@@ -110,7 +117,9 @@ export function Sidebar() {
                 <User className="w-4 h-4 text-white" aria-hidden />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-white truncate">Painel Utilizador</p>
+                <p className="text-sm font-semibold text-white truncate">
+                  Painel Utilizador
+                </p>
                 <p className="text-xs text-white/60">Mapa de Produção</p>
               </div>
             </div>
@@ -118,7 +127,7 @@ export function Sidebar() {
         </div>
 
         {/* Navigation — mobile-first padding and spacing */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 sm:py-6">
+        <div className="sidebar-nav-scroll flex-1 overflow-y-auto overflow-x-hidden py-4 sm:py-6">
           <nav className="space-y-1 px-3 sm:px-4" aria-label="Menu">
             <p className={sectionLabel}>Menu</p>
             {mainNavigation.map((item) => {
@@ -145,7 +154,10 @@ export function Sidebar() {
             })}
           </nav>
 
-          <nav className="space-y-1 px-3 sm:px-4 mt-6 sm:mt-8" aria-label="Ferramentas">
+          <nav
+            className="space-y-1 px-3 sm:px-4 mt-6 sm:mt-8"
+            aria-label="Ferramentas"
+          >
             <p className={sectionLabel}>Ferramentas</p>
             {intelligentTools.map((item) => {
               const Icon = item.icon;
@@ -171,7 +183,10 @@ export function Sidebar() {
             })}
           </nav>
 
-          <nav className="space-y-1 px-3 sm:px-4 mt-6 sm:mt-8" aria-label="Geral">
+          <nav
+            className="space-y-1 px-3 sm:px-4 mt-6 sm:mt-8"
+            aria-label="Geral"
+          >
             <p className={sectionLabel}>Geral</p>
             {generalNavigation.map((item) => {
               const Icon = item.icon;

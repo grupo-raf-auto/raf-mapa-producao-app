@@ -41,57 +41,57 @@ export function SystemStats() {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-10">
-          <Spinner variant="bars" className="w-6 h-6" />
+      <Card className="rounded-2xl border border-border/60 shadow-sm">
+        <CardContent className="flex items-center justify-center py-10 sm:py-12">
+          <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <Card className="rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+        <CardHeader className="p-4 sm:p-5 pb-0">
+          <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground truncate">
             Total de Utilizadores
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-semibold">{stats.totalUsers}</div>
+        <CardContent className="p-4 sm:p-5 pt-2">
+          <div className="text-xl sm:text-2xl font-semibold tabular-nums">{stats.totalUsers}</div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+      <Card className="rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+        <CardHeader className="p-4 sm:p-5 pb-0">
+          <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground truncate">
             Total de Templates
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-semibold">{stats.totalTemplates}</div>
+        <CardContent className="p-4 sm:p-5 pt-2">
+          <div className="text-xl sm:text-2xl font-semibold tabular-nums">{stats.totalTemplates}</div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+      <Card className="rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+        <CardHeader className="p-4 sm:p-5 pb-0">
+          <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground truncate">
             Total de Submissões
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-semibold">{stats.totalSubmissions}</div>
+        <CardContent className="p-4 sm:p-5 pt-2">
+          <div className="text-xl sm:text-2xl font-semibold tabular-nums">{stats.totalSubmissions}</div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+      <Card className="rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+        <CardHeader className="p-4 sm:p-5 pb-0">
+          <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground truncate">
             Total de Questões
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-semibold">{stats.totalQuestions}</div>
+        <CardContent className="p-4 sm:p-5 pt-2">
+          <div className="text-xl sm:text-2xl font-semibold tabular-nums">{stats.totalQuestions}</div>
         </CardContent>
       </Card>
     </div>

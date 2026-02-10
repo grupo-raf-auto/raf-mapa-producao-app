@@ -131,84 +131,90 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   LIGHT MODE - DATASOFT THEME
-   Cyan gradient background with floating white dashboard
+   LIGHT MODE — Modern professional theme
+   Neutral base with primary accent; refined elevation and radius
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
-  /* Gradient Background Colors */
-  --gradient-start: #f4f8fe;
-  --gradient-middle: #f4f8fe;
-  --gradient-end: #f4f8fe;
+  /* Gradient Background — subtle cool neutral */
+  --gradient-start: #f8fafc;
+  --gradient-middle: #f1f5f9;
+  --gradient-end: #f8fafc;
 
-  /* Main Background - Light Blue */
-  --background: #f4f8fe;
-  --background-solid: #f4f8fe;
+  /* Main Background */
+  --background: #f8fafc;
+  --background-solid: #f8fafc;
 
-  /* Foreground */
-  --foreground: #1f2937;
+  /* Foreground — strong contrast for readability */
+  --foreground: #0f172a;
 
-  /* Cards - Pure White for Floating Effect */
+  /* Cards — elevated surface */
   --card: #ffffff;
-  --card-foreground: #1f2937;
+  --card-foreground: #0f172a;
 
   /* Popover */
   --popover: #ffffff;
-  --popover-foreground: #1f2937;
+  --popover-foreground: #0f172a;
 
-  /* Primary - Company Red */
-  --primary: #e14840;
+  /* Primary — brand red */
+  --primary: #dc2626;
   --primary-foreground: #ffffff;
 
-  /* Secondary - Light Red */
-  --secondary: #fee2e2;
+  /* Secondary */
+  --secondary: #fef2f2;
   --secondary-foreground: #991b1b;
 
   /* Muted */
-  --muted: #f8fafc;
+  --muted: #f1f5f9;
   --muted-foreground: #64748b;
 
-  /* Accent - Teal */
-  --accent: #14b8a6;
+  /* Accent — teal */
+  --accent: #0d9488;
   --accent-foreground: #ffffff;
 
-  /* Status Colors */
-  --destructive: #ef4444;
+  /* Status */
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --success: #10b981;
+  --success: #059669;
   --success-foreground: #ffffff;
-  --warning: #f59e0b;
+  --warning: #d97706;
   --warning-foreground: #ffffff;
 
   /* Borders & Inputs */
   --border: #e2e8f0;
   --input: #e2e8f0;
-  --ring: #e14840;
+  --ring: #dc2626;
 
-  /* Chart Colors - Professional palette (brand + teal + neutrals) */
+  /* Elevation — modern shadow scale */
+  --shadow-surface: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  --shadow-overlay: 0 12px 28px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
+
+  /* Chart Colors */
   --chart-1: #b91c1c;
   --chart-2: #0d9488;
   --chart-3: #475569;
   --chart-4: #6366f1;
   --chart-5: #0f766e;
 
-  /* Sidebar - Clean White */
+  /* Sidebar */
   --sidebar: #ffffff;
-  --sidebar-foreground: #374151;
-  --sidebar-primary: #e14840;
+  --sidebar-foreground: #334155;
+  --sidebar-primary: #dc2626;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #fee2e2;
+  --sidebar-accent: #fef2f2;
   --sidebar-accent-foreground: #991b1b;
   --sidebar-border: #e2e8f0;
-  --sidebar-ring: #e14840;
+  --sidebar-ring: #dc2626;
 
-  /* Dashboard Specific */
+  /* Dashboard */
   --dashboard-bg: #ffffff;
   --dashboard-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    0 20px 40px -12px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.02);
 
-  /* KPI Card Colors - Professional tones */
+  /* KPI / accents */
   --kpi-red: #b91c1c;
   --kpi-teal: #0d9488;
   --kpi-orange: #c2413a;
@@ -282,12 +288,18 @@
   --sidebar-border: #2a3441;
   --sidebar-ring: #ff6b5b;
 
-  /* Dashboard - premium shadows and surfaces */
+  /* Dashboard */
   --dashboard-bg: #1a2332;
   --dashboard-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    0 20px 40px -12px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
 
-  /* Chart Colors - Professional (adjusted for dark background) */
+  /* Elevation — dark */
+  --shadow-surface: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-overlay: 0 12px 28px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+
+  /* Chart Colors */
   --chart-1: #ef4444;
   --chart-2: #2dd4bf;
   --chart-3: #94a3b8;
@@ -301,7 +313,12 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   BASE STYLES
+   MOBILE-FIRST BREAKPOINTS (Tailwind defaults, for reference)
+   Base: 320px → sm: 640px → md: 768px → lg: 1024px → xl: 1280px → 2xl: 1536px
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE STYLES — Mobile-first (starts at 320px)
    ═══════════════════════════════════════════════════════════════════════════ */
 @layer base {
   * {
@@ -310,44 +327,118 @@
 
   html {
     scroll-behavior: smooth;
+    /* Safe minimum for very small devices */
+    min-width: 320px;
+    overflow-x: hidden;
   }
 
   body {
     @apply text-foreground font-sans antialiased;
-    background: var(--background);
+    background: var(--background-solid);
     min-height: 100vh;
+    min-height: 100dvh;
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Typography */
+  #root {
+    overflow-x: hidden;
+    min-width: 0;
+  }
+
+  /* Typography scale — readable from 320px up */
   h1 {
     font-weight: 600;
     letter-spacing: -0.025em;
     color: var(--foreground);
+    font-size: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 1.75rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    h1 {
+      font-size: 1.875rem;
+    }
   }
 
   h2 {
     font-weight: 600;
     letter-spacing: -0.02em;
     color: var(--foreground);
+    font-size: 1.125rem;
+  }
+
+  @media (min-width: 640px) {
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    h2 {
+      font-size: 1.375rem;
+    }
   }
 
   h3 {
     font-weight: 500;
     letter-spacing: -0.01em;
     color: var(--foreground);
+    font-size: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    h3 {
+      font-size: 1.125rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    h3 {
+      font-size: 1.2rem;
+    }
+  }
+
+  /* Touch-friendly: minimum 44px tap targets for interactive elements */
+  @media (pointer: coarse) {
+    button:not([class*='size-']):not([class*='min-h-']),
+    a[role='button']:not([class*='min-h-']),
+    [role='button']:not([class*='min-h-']) {
+      min-height: 44px;
+      min-width: 44px;
+    }
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    FLOATING DASHBOARD CONTAINER
-   Main wrapper that creates the floating card effect
+   Modern elevated surface with refined radius and shadow
    ═══════════════════════════════════════════════════════════════════════════ */
 .floating-dashboard {
   background: var(--dashboard-bg);
-  border-radius: 1.25rem;
+  border-radius: 1.5rem;
   box-shadow: var(--dashboard-shadow);
   overflow: hidden;
   position: relative;
+  border: 1px solid var(--border);
+}
+
+.dark .floating-dashboard {
+  border-color: rgba(255, 255, 255, 0.04);
 }
 
 .floating-dashboard::before {
@@ -360,16 +451,17 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0.6),
     transparent
   );
+  pointer-events: none;
 }
 
 .dark .floating-dashboard::before {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.06),
     transparent
   );
 }
@@ -443,30 +535,31 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 .kpi-card {
   background: var(--card);
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   padding: 0.875rem 1rem;
   position: relative;
   overflow: hidden;
   border: 1px solid var(--border);
-  transition: all 0.2s ease;
+  box-shadow: var(--shadow-surface);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 
 .kpi-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-1px);
 }
 
 .dark .kpi-card {
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-surface);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
 }
 
 .dark .kpi-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  border-color: #ff6b5b;
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  border-color: rgba(255, 107, 91, 0.25);
+  transform: translateY(-1px);
 }
 
 .kpi-card-icon {
@@ -546,21 +639,27 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 .chart-card {
   background: var(--card);
-  border-radius: 0.875rem;
+  border-radius: 1rem;
   padding: 1.5rem;
   border: 1px solid var(--border);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-surface);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .dark .chart-card {
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-surface);
+}
+
+.chart-card:hover,
+.dark .chart-card:hover {
+  box-shadow: var(--shadow-elevated);
+  border-color: rgba(220, 38, 38, 0.15);
 }
 
 .dark .chart-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 107, 91, 0.3);
+  border-color: rgba(255, 107, 91, 0.2);
 }
 
 .chart-card-header {
@@ -877,21 +976,30 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    DASHBOARD GRID SYSTEM
    ═══════════════════════════════════════════════════════════════════════════ */
+/* Mobile-first: 1 col → 2 cols (md) → 4 cols (lg). Generous gap for clarity. */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.25rem;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .dashboard-grid {
+    gap: 1.25rem;
+  }
 }
 
 @media (min-width: 768px) {
   .dashboard-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
   .dashboard-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
   }
 }
 
@@ -979,15 +1087,25 @@
   border-bottom: 1px solid var(--border);
 }
 
+/* Mobile-first search: full width on small screens, fixed width from sm */
 .search-input {
   background: var(--muted);
   border: none;
   border-radius: 0.5rem;
-  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  padding: 0.625rem 1rem 0.625rem 2.5rem;
   font-size: 0.875rem;
-  width: 280px;
+  min-height: 44px;
+  width: 100%;
+  max-width: 100%;
   color: var(--foreground);
   transition: all 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .search-input {
+    width: 280px;
+    max-width: 20rem;
+  }
 }
 
 .search-input:focus {
@@ -1034,18 +1152,27 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    BUTTONS
    ═══════════════════════════════════════════════════════════════════════════ */
+/* Touch-friendly minimum height; padding scales with breakpoints */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  min-height: 44px;
+  padding: 0.625rem 1rem;
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.2s ease;
   cursor: pointer;
   border: none;
+}
+
+@media (min-width: 640px) {
+  .btn {
+    min-height: 2.5rem;
+    padding: 0.5rem 1rem;
+  }
 }
 
 .btn-primary {
@@ -1078,7 +1205,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   UTILITY CLASSES
+   UTILITY CLASSES — Modern elevation and surfaces
    ═══════════════════════════════════════════════════════════════════════════ */
 .text-gradient {
   background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -1087,22 +1214,27 @@
   background-clip: text;
 }
 
+/* Surface elevations — use for cards and panels */
+.surface-elevated {
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--border);
+}
+
+.surface-overlay {
+  box-shadow: var(--shadow-overlay);
+  border: 1px solid var(--border);
+}
+
 .shadow-soft {
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-surface);
 }
 
 .shadow-medium {
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.06),
-    0 2px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-elevated);
 }
 
 .shadow-large {
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 4px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-overlay);
 }
 
 /* Scrollbar Styling */

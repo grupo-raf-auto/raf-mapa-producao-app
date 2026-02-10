@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useUserModels } from "@/lib/hooks/use-user-models";
-import { useModelContext } from "@/lib/context/model-context";
+import { useUserModels } from "@/hooks/use-user-models";
+import { useModelContext } from "@/contexts/model-context";
 import {
   DropdownMenu,
   DropdownMenuContent,

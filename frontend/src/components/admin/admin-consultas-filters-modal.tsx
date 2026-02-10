@@ -371,16 +371,16 @@ export function AdminConsultasFiltersModal({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="max-w-[95vw] lg:max-w-7xl xl:max-w-[90vw] 2xl:max-w-[1400px] h-[90vh] lg:h-[85vh] flex flex-col p-0"
+        className="max-w-[95vw] md:max-w-4xl lg:max-w-7xl xl:max-w-[90vw] 2xl:max-w-[1400px] h-[90vh] lg:h-[85vh] flex flex-col p-0 overflow-hidden min-h-0"
         showCloseButton={true}
       >
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <div className="flex items-start justify-between">
-            <div>
-              <DialogTitle className="text-xl font-semibold">
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b shrink-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <DialogTitle className="text-lg sm:text-xl font-semibold">
                 Filtros para: Todas as consultas
               </DialogTitle>
-              <DialogDescription className="mt-1">
+              <DialogDescription className="mt-1 text-sm">
                 Veja resultados na sua visualização com base nos filtros que
                 selecionar aqui.
               </DialogDescription>
@@ -388,9 +388,9 @@ export function AdminConsultasFiltersModal({
           </div>
         </DialogHeader>
 
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
           {/* Painel Esquerdo - Categorias */}
-          <div className="w-64 lg:w-80 xl:w-96 border-r bg-muted/30 flex flex-col shrink-0">
+          <div className="w-full md:w-64 lg:w-80 xl:w-96 md:border-r border-b md:border-b-0 bg-muted/30 flex flex-col shrink-0 max-h-[35vh] md:max-h-none overflow-hidden">
             <div className="p-4 border-b">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-semibold">Filtros</span>
@@ -411,7 +411,7 @@ export function AdminConsultasFiltersModal({
                   setSelectedCategory('main');
                   setSelectedQuestionId(null);
                 }}
-                className={`w-full flex items-center justify-between p-3 text-left hover:bg-muted/50 transition-colors cursor-pointer ${
+                className={`w-full flex items-center justify-between p-3 min-h-[44px] text-left hover:bg-muted/50 transition-colors cursor-pointer touch-manipulation ${
                   selectedCategory === 'main'
                     ? 'bg-muted border-r-2 border-primary'
                     : ''
@@ -521,27 +521,27 @@ export function AdminConsultasFiltersModal({
           </div>
 
           {/* Painel Direito - Detalhes */}
-          <div className="flex-1 overflow-y-auto p-6 lg:p-8">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 lg:p-8">
             {selectedCategory === 'main'
               ? renderMainFilters()
               : renderQuestionFilters()}
           </div>
         </div>
 
-        <DialogFooter className="px-6 py-4 border-t">
-          <Button variant="outline" onClick={handleCancel}>
+        <DialogFooter className="px-4 sm:px-6 py-4 border-t flex-col-reverse sm:flex-row gap-2 sm:gap-2">
+          <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto min-h-[44px] touch-manipulation">
             Cancelar
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             {activeFiltersCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={handleReset}>
+              <Button variant="ghost" size="sm" onClick={handleReset} className="min-h-[44px] touch-manipulation">
                 <X className="w-4 h-4 mr-1" />
                 Limpar
               </Button>
             )}
             <Button
               onClick={handleApply}
-              className="bg-primary hover:bg-primary/90"
+              className="bg-primary hover:bg-primary/90 flex-1 sm:flex-none min-h-[44px] touch-manipulation"
             >
               Aplicar filtros
             </Button>

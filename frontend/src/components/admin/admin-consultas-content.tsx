@@ -55,7 +55,7 @@ export function AdminConsultasContent() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <PageHeader
           title="Consultas"
           description="Todas as consultas do sistema. Filtre por data, utilizador e estado."
@@ -64,8 +64,8 @@ export function AdminConsultasContent() {
           decoratorIcon={<Shield className="w-5 h-5" />}
           decoratorColor="text-red-500"
         />
-        <Card className="rounded-2xl">
-          <CardContent className="py-12 text-center flex flex-col items-center gap-3">
+        <Card className="rounded-2xl border border-border/60 shadow-sm">
+          <CardContent className="py-12 sm:py-16 px-4 text-center flex flex-col items-center gap-3">
             <Spinner variant="bars" className="w-8 h-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">A carregar consultas...</p>
           </CardContent>
@@ -76,7 +76,7 @@ export function AdminConsultasContent() {
 
   if (error) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <PageHeader
           title="Consultas"
           description="Todas as consultas do sistema. Filtre por data, utilizador e estado."
@@ -85,11 +85,9 @@ export function AdminConsultasContent() {
           decoratorIcon={<Shield className="w-5 h-5" />}
           decoratorColor="text-red-500"
         />
-        <Card className="rounded-2xl">
-          <CardContent className="py-12 text-center">
-            <p className="text-destructive font-medium mb-2">
-              Erro ao carregar consultas
-            </p>
+        <Card className="rounded-2xl border border-border/60 shadow-sm">
+          <CardContent className="py-10 sm:py-12 px-4 text-center">
+            <p className="text-destructive font-medium mb-2">Erro ao carregar consultas</p>
             <p className="text-sm text-muted-foreground">{error}</p>
           </CardContent>
         </Card>
@@ -98,7 +96,7 @@ export function AdminConsultasContent() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 min-w-0 max-w-full overflow-hidden">
       <PageHeader
         title="Consultas"
         description="Todas as consultas do sistema. Filtre por data, utilizador e estado."

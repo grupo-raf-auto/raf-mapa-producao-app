@@ -22,43 +22,41 @@ export function PageHeader({
   decoratorColor = 'text-red-500',
 }: PageHeaderProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
+    <motion.header
+      initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="mb-6 pb-6 border-b border-border/60"
+      transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="mb-4 pb-4 sm:mb-5 sm:pb-5 md:mb-6 md:pb-6 border-b border-border/70"
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <div className="shrink-0">
           <div
-            className={`w-12 h-12 rounded-xl bg-gradient-to-br ${iconGradient} flex items-center justify-center shadow-lg shadow-red-500/20`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${iconGradient} flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.08)] ring-1 ring-black/5`}
+            aria-hidden
           >
-            <Icon className={`w-6 h-6 ${iconColor}`} />
+            <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColor}`} />
           </div>
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">
+          <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
               {title}
             </h1>
             {decoratorIcon && (
               <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: 3,
-                }}
+                animate={{ rotate: [0, 8, -8, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                aria-hidden
               >
                 <div className={decoratorColor}>{decoratorIcon}</div>
               </motion.div>
             )}
           </div>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
             {description}
           </p>
         </div>
       </div>
-    </motion.div>
+    </motion.header>
   );
 }

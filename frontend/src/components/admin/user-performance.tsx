@@ -263,11 +263,11 @@ export function UserPerformance() {
 
   return (
     <div
-      className="space-y-5"
+      className="space-y-4 sm:space-y-5"
       role="region"
       aria-label="Desempenho dos utilizadores"
     >
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
         <div className="min-w-0 flex-1">
           <PageHeader
             title="Desempenho"
@@ -278,14 +278,14 @@ export function UserPerformance() {
             decoratorColor="text-red-500"
           />
         </div>
-        <Button onClick={loadStats} variant="outline" size="sm" className="shrink-0">
+        <Button onClick={loadStats} variant="outline" size="sm" className="shrink-0 min-h-[44px] sm:min-h-0 w-full sm:w-auto touch-manipulation">
           <RefreshCw className="w-4 h-4 mr-2" />
           Atualizar
         </Button>
       </div>
 
       {/* KPI Cards — mesmo padrão do dashboard de user */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <DashboardMetricCard
           title="Total de Utilizadores"
           value={data.stats.totalUsers}
@@ -339,9 +339,9 @@ export function UserPerformance() {
         </SectionTitle>
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-5">
           <AnimatedSection delay={0}>
-            <div className="chart-card h-full relative min-h-[320px]">
-              <div className="flex items-center justify-between mb-4">
-                <div>
+            <div className="chart-card h-full relative min-h-[260px] sm:min-h-[320px] max-w-full overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                <div className="min-w-0">
                   <h3 className="chart-card-title">
                     Atividade ao Longo do Tempo
                   </h3>
@@ -373,7 +373,7 @@ export function UserPerformance() {
                   </div>
                 </div>
               </div>
-              <div className="h-[260px] relative bg-white rounded">
+              <div className="h-[220px] sm:h-[260px] relative bg-white rounded">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={activityChartData}
@@ -491,9 +491,9 @@ export function UserPerformance() {
         </SectionTitle>
         <div className="grid grid-cols-1 gap-5">
           <AnimatedSection delay={0.1}>
-            <div className="chart-card h-full min-h-[360px]">
+            <div className="chart-card h-full min-h-[280px] sm:min-h-[360px] max-w-full overflow-hidden">
               <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
+                <div className="min-w-0">
                   <h3 className="chart-card-title">
                     Indicadores de desempenho por utilizador
                   </h3>
@@ -521,11 +521,12 @@ export function UserPerformance() {
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 touch-manipulation">
                   <Button
                     variant={sortBy === 'submissions' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSortBy('submissions')}
+                    className="min-h-[44px] sm:min-h-0"
                   >
                     Submissões
                   </Button>
@@ -533,6 +534,7 @@ export function UserPerformance() {
                     variant={sortBy === 'documents' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSortBy('documents')}
+                    className="min-h-[44px] sm:min-h-0"
                   >
                     Documentos
                   </Button>
@@ -540,6 +542,7 @@ export function UserPerformance() {
                     variant={sortBy === 'chat' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSortBy('chat')}
+                    className="min-h-[44px] sm:min-h-0"
                   >
                     Chat
                   </Button>
@@ -547,12 +550,13 @@ export function UserPerformance() {
                     variant={sortBy === 'activity' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSortBy('activity')}
+                    className="min-h-[44px] sm:min-h-0"
                   >
                     Atividade
                   </Button>
                 </div>
               </div>
-              <div className="h-[320px] relative bg-white rounded">
+              <div className="h-[260px] sm:h-[320px] relative bg-white rounded">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={barChartData}
@@ -654,149 +658,122 @@ export function UserPerformance() {
           Tabela completa de desempenho
         </SectionTitle>
         <AnimatedSection delay={0.2}>
-          <div className="performance-table-card">
-            <div className="performance-table-header">
-              <span className="performance-table-count">
+          <div className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
+            <div className="px-4 py-3 sm:px-5 border-b border-border/60 bg-muted/20">
+              <span className="text-sm font-medium text-muted-foreground">
                 {sortedUsers.length} utilizadores
               </span>
             </div>
-            <div className="performance-table-scroll">
+
+            {/* Mobile: cards por utilizador */}
+            <div className="md:hidden divide-y divide-border/60">
+              {sortedUsers.map((user) => (
+                <div
+                  key={user.userId}
+                  className="p-4 space-y-3"
+                >
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-foreground">
+                        {user.firstName && user.lastName
+                          ? `${user.firstName} ${user.lastName}`
+                          : user.email}
+                      </span>
+                      {user.role === 'admin' ? (
+                        <Badge variant="default" className="text-xs">Admin</Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-xs">User</Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground truncate mt-0.5">{user.email}</p>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Submissões</p>
+                      <p className="font-medium tabular-nums">{user.totalSubmissions}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Documentos</p>
+                      <p className="font-medium tabular-nums">{user.totalDocuments}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Mensagens</p>
+                      <p className="font-medium tabular-nums">{user.totalUserMessages}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Dias ativos</p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-medium tabular-nums">{user.activeDaysLast30}</span>
+                        {user.activeDaysLast30 >= 20 && <Badge variant="default" className="text-[10px] px-1.5">Alto</Badge>}
+                        {user.activeDaysLast30 >= 10 && user.activeDaysLast30 < 20 && <Badge variant="secondary" className="text-[10px] px-1.5">Médio</Badge>}
+                        {user.activeDaysLast30 < 10 && user.activeDaysLast30 > 0 && <Badge variant="outline" className="text-[10px] px-1.5">Baixo</Badge>}
+                        {user.activeDaysLast30 === 0 && <Badge variant="destructive" className="text-[10px] px-1.5">Inativo</Badge>}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Registado: {format(new Date(user.createdAt), 'dd/MM/yyyy')}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: tabela com scroll horizontal */}
+            <div className="hidden md:block performance-table-scroll">
               <Table className="performance-table">
                 <TableHeader>
                   <TableRow className="performance-table-header-row">
-                    <TableHead className="performance-table-head performance-table-head-user">
-                      Utilizador
-                    </TableHead>
-                    <TableHead className="performance-table-head performance-table-head-num text-right">
-                      Submissões
-                    </TableHead>
-                    <TableHead className="performance-table-head performance-table-head-num text-right">
-                      Documentos
-                    </TableHead>
-                    <TableHead className="performance-table-head performance-table-head-num text-right">
-                      Processados
-                    </TableHead>
-                    <TableHead className="performance-table-head performance-table-head-num text-right">
-                      Chunks
-                    </TableHead>
-                    <TableHead className="performance-table-head performance-table-head-num text-right">
-                      Mensagens
-                    </TableHead>
-                    <TableHead className="performance-table-head performance-table-head-num text-right">
-                      Conversas
-                    </TableHead>
-                    <TableHead className="performance-table-head performance-table-head-num text-right">
-                      Dias ativos
-                    </TableHead>
-                    <TableHead className="performance-table-head performance-table-head-num text-right">
-                      Registado
-                    </TableHead>
+                    <TableHead className="performance-table-head performance-table-head-user">Utilizador</TableHead>
+                    <TableHead className="performance-table-head performance-table-head-num text-right">Submissões</TableHead>
+                    <TableHead className="performance-table-head performance-table-head-num text-right">Documentos</TableHead>
+                    <TableHead className="performance-table-head performance-table-head-num text-right">Processados</TableHead>
+                    <TableHead className="performance-table-head performance-table-head-num text-right">Chunks</TableHead>
+                    <TableHead className="performance-table-head performance-table-head-num text-right">Mensagens</TableHead>
+                    <TableHead className="performance-table-head performance-table-head-num text-right">Conversas</TableHead>
+                    <TableHead className="performance-table-head performance-table-head-num text-right">Dias ativos</TableHead>
+                    <TableHead className="performance-table-head performance-table-head-num text-right">Registado</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {sortedUsers.map((user) => (
-                    <TableRow
-                      key={user.userId}
-                      className="performance-table-row"
-                    >
+                    <TableRow key={user.userId} className="performance-table-row">
                       <TableCell className="performance-table-cell performance-table-cell-user">
                         <div className="performance-table-user">
                           <div className="performance-table-user-name-row">
                             <span className="performance-table-user-name">
-                              {user.firstName && user.lastName
-                                ? `${user.firstName} ${user.lastName}`
-                                : user.email}
+                              {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}
                             </span>
                             {user.role === 'admin' ? (
-                              <Badge
-                                variant="default"
-                                className="performance-table-badge-role"
-                              >
-                                Admin
-                              </Badge>
+                              <Badge variant="default" className="performance-table-badge-role">Admin</Badge>
                             ) : (
-                              <Badge
-                                variant="outline"
-                                className="performance-table-badge-role"
-                              >
-                                User
-                              </Badge>
+                              <Badge variant="outline" className="performance-table-badge-role">User</Badge>
                             )}
                           </div>
-                          <span className="performance-table-user-email">
-                            {user.email}
-                          </span>
+                          <span className="performance-table-user-email">{user.email}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">
-                        {user.totalSubmissions}
-                      </TableCell>
-                      <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">
-                        {user.totalDocuments}
-                      </TableCell>
+                      <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">{user.totalSubmissions}</TableCell>
+                      <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">{user.totalDocuments}</TableCell>
                       <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">
                         <span>
                           {user.processedDocuments}
                           {user.totalDocuments > 0 && (
                             <span className="performance-table-meta">
-                              {Math.round(
-                                (user.processedDocuments /
-                                  user.totalDocuments) *
-                                  100,
-                              )}
-                              %
+                              {Math.round((user.processedDocuments / user.totalDocuments) * 100)}%
                             </span>
                           )}
                         </span>
                       </TableCell>
-                      <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">
-                        {user.totalChunks}
-                      </TableCell>
-                      <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">
-                        {user.totalUserMessages}
-                      </TableCell>
-                      <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">
-                        {user.totalConversations}
-                      </TableCell>
+                      <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">{user.totalChunks}</TableCell>
+                      <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">{user.totalUserMessages}</TableCell>
+                      <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">{user.totalConversations}</TableCell>
                       <TableCell className="performance-table-cell performance-table-cell-num text-right">
                         <div className="performance-table-activity">
-                          <span className="tabular-nums">
-                            {user.activeDaysLast30}
-                          </span>
-                          {user.activeDaysLast30 >= 20 && (
-                            <Badge
-                              variant="default"
-                              className="performance-table-badge"
-                            >
-                              Alto
-                            </Badge>
-                          )}
-                          {user.activeDaysLast30 >= 10 &&
-                            user.activeDaysLast30 < 20 && (
-                              <Badge
-                                variant="secondary"
-                                className="performance-table-badge"
-                              >
-                                Médio
-                              </Badge>
-                            )}
-                          {user.activeDaysLast30 < 10 &&
-                            user.activeDaysLast30 > 0 && (
-                              <Badge
-                                variant="outline"
-                                className="performance-table-badge"
-                              >
-                                Baixo
-                              </Badge>
-                            )}
-                          {user.activeDaysLast30 === 0 && (
-                            <Badge
-                              variant="destructive"
-                              className="performance-table-badge"
-                            >
-                              Inativo
-                            </Badge>
-                          )}
+                          <span className="tabular-nums">{user.activeDaysLast30}</span>
+                          {user.activeDaysLast30 >= 20 && <Badge variant="default" className="performance-table-badge">Alto</Badge>}
+                          {user.activeDaysLast30 >= 10 && user.activeDaysLast30 < 20 && <Badge variant="secondary" className="performance-table-badge">Médio</Badge>}
+                          {user.activeDaysLast30 < 10 && user.activeDaysLast30 > 0 && <Badge variant="outline" className="performance-table-badge">Baixo</Badge>}
+                          {user.activeDaysLast30 === 0 && <Badge variant="destructive" className="performance-table-badge">Inativo</Badge>}
                         </div>
                       </TableCell>
                       <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums performance-table-date">

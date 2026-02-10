@@ -38,12 +38,12 @@ export const chartColors = {
   medal: ['#B45309', '#64748B', '#92400E'] as const,
 } as const;
 
-// Design System Spacing
+// Design System Spacing — mobile-first (base 320px, scale up)
 export const spacing = {
-  pagePadding: 'px-8 md:px-12 lg:px-16 xl:px-20 py-6',
-  sectionGap: 'space-y-6',
-  cardPadding: 'p-4',
-  gridGap: 'gap-4',
+  pagePadding: 'px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-6 lg:px-12 lg:py-8',
+  sectionGap: 'space-y-4 sm:space-y-5 md:space-y-6',
+  cardPadding: 'p-4 sm:p-5',
+  gridGap: 'gap-4 sm:gap-5',
 } as const;
 
 // Design System Radius

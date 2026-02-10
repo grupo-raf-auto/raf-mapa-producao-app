@@ -1,4 +1,4 @@
-import { useUserModels } from "@/lib/hooks/use-user-models";
+import { useUserModels } from "@/hooks/use-user-models";
 import { Loader2 } from "lucide-react";
 
 /**

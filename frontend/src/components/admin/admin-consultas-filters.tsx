@@ -94,10 +94,10 @@ export function AdminConsultasFilters({
 
   return (
     <>
-      <Card className="mb-6">
-        <CardHeader className="pb-3">
+      <Card className="mb-4 sm:mb-6 rounded-xl sm:rounded-2xl overflow-hidden min-w-0 max-w-full">
+        <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="text-base font-semibold">Filtros</h2>
+            <h2 className="text-sm sm:text-base font-semibold">Filtros</h2>
             {hasActiveFilters && (
               <Button
                 type="button"
@@ -112,8 +112,8 @@ export function AdminConsultasFilters({
             )}
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6 pb-4 sm:pb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 items-end">
             {/* Template */}
             <div className="space-y-2">
               <Label htmlFor="filter-template" className="text-sm font-medium">
@@ -125,7 +125,7 @@ export function AdminConsultasFilters({
                   onFilterChange?.({ ...filters, templateId: value })
                 }
               >
-                <SelectTrigger id="filter-template" className="w-full h-9">
+                <SelectTrigger id="filter-template" className="w-full h-10 min-h-[44px] sm:min-h-9 sm:h-9">
                   <SelectValue placeholder="Todos os templates" />
                 </SelectTrigger>
                 <SelectContent>
@@ -150,7 +150,7 @@ export function AdminConsultasFilters({
                   onFilterChange?.({ ...filters, userId: value })
                 }
               >
-                <SelectTrigger id="filter-user" className="w-full h-9">
+                <SelectTrigger id="filter-user" className="w-full h-10 min-h-[44px] sm:min-h-9 sm:h-9">
                   <SelectValue placeholder="Todos os utilizadores" />
                 </SelectTrigger>
                 <SelectContent>
@@ -177,7 +177,7 @@ export function AdminConsultasFilters({
                   placeholder="Na lista..."
                   value={filters.search}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-9 pr-9 h-9"
+                  className="pl-9 pr-9 h-10 min-h-[44px] sm:min-h-9 sm:h-9"
                 />
                 {filters.search && (
                   <button
@@ -196,7 +196,7 @@ export function AdminConsultasFilters({
               <Button
                 variant="outline"
                 onClick={() => setIsModalOpen(true)}
-                className="gap-2 w-full sm:w-auto h-9"
+                className="gap-2 w-full sm:w-auto h-10 min-h-[44px] sm:min-h-9 sm:h-9 touch-manipulation"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filtros avançados

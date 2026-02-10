@@ -337,6 +337,11 @@ export const apiClient = {
     },
     getAll: () => fetchWithAuth('documents'),
     getById: (id: string) => fetchWithAuth(`documents/${id}`),
+    syncFromDisk: () =>
+      fetchWithAuth('documents/sync', { method: 'POST' }).then((data) => {
+        invalidateCache('documents');
+        return data;
+      }),
     delete: (id: string) =>
       fetchWithAuth(`documents/${id}`, { method: 'DELETE' }).then(() =>
         invalidateCache('documents'),

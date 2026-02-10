@@ -14,8 +14,8 @@ import { useRouter } from '@/lib/router-compat';
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
-import { useUserRole } from '@/lib/hooks/use-user-role';
-import { useModal } from '@/lib/contexts/modal-context';
+import { useUserRole } from '@/hooks/use-user-role';
+import { useModal } from '@/contexts/modal-context';
 import { authClient } from '@/lib/auth-client';
 import { useSession } from '@/lib/auth-client';
 

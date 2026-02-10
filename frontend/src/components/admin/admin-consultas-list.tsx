@@ -4,6 +4,20 @@ import type { AdminConsultasFiltersState } from './admin-consultas-filters';
 import { apiClient as api } from '@/lib/api-client';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ChevronDown, FileDown, FileSpreadsheet, FileText } from 'lucide-react';
+import {
+  exportConsultasToCsv,
+  exportConsultasToPdf,
+  type ConsultasExportRow,
+} from '@/lib/export-consultas';
+import { toast } from 'sonner';
 
 interface Submission {
   _id?: string;
@@ -47,6 +61,7 @@ interface SubmissionWithDetails extends Submission {
   nomeClienteQuestionId?: string;
   bancoQuestionId?: string;
   seguradoraQuestionId?: string;
+  commissionPaid?: boolean;
 }
 
 interface AdminConsultasListProps {
@@ -72,6 +87,7 @@ export function AdminConsultasList({
     SubmissionWithDetails[]
   >([]);
   const [loading, setLoading] = useState(true);
+  const [exportPdfLoading, setExportPdfLoading] = useState(false);
 
   useEffect(() => {
     const enrichSubmissions = async () => {
@@ -291,8 +307,8 @@ export function AdminConsultasList({
 
   if (loading) {
     return (
-      <Card className="rounded-2xl">
-        <CardContent className="flex flex-col items-center justify-center gap-3 py-12">
+      <Card className="rounded-2xl border border-border/60 shadow-sm">
+        <CardContent className="flex flex-col items-center justify-center gap-3 py-12 sm:py-16 px-4">
           <Spinner variant="bars" className="w-8 h-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">A carregar lista de consultas...</p>
         </CardContent>
@@ -312,17 +328,102 @@ export function AdminConsultasList({
     valorMax: '',
   };
 
+  const handleExportCsv = () => {
+    if (filteredSubmissions.length === 0) {
+      toast.error('Não há dados para exportar. Aplique filtros ou aguarde o carregamento.');
+      return;
+    }
+    try {
+      const rows: ConsultasExportRow[] = filteredSubmissions.map((s) => ({
+        templateTitle: s.templateTitle,
+        agentName: s.agentName,
+        nomeClienteAnswer: s.nomeClienteAnswer,
+        bancoAnswer: s.bancoAnswer,
+        seguradoraAnswer: s.seguradoraAnswer,
+        valorAnswer: s.valorAnswer,
+        formDate: s.formDate,
+        submittedAt: s.submittedAt,
+        commissionPaid: s.commissionPaid,
+      }));
+      exportConsultasToCsv(rows);
+      toast.success('Exportação CSV concluída.');
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao exportar CSV.');
+    }
+  };
+
+  const handleExportPdf = () => {
+    if (filteredSubmissions.length === 0) {
+      toast.error('Não há dados para exportar. Aplique filtros ou aguarde o carregamento.');
+      return;
+    }
+    setExportPdfLoading(true);
+    try {
+      const rows: ConsultasExportRow[] = filteredSubmissions.map((s) => ({
+        templateTitle: s.templateTitle,
+        agentName: s.agentName,
+        nomeClienteAnswer: s.nomeClienteAnswer,
+        bancoAnswer: s.bancoAnswer,
+        seguradoraAnswer: s.seguradoraAnswer,
+        valorAnswer: s.valorAnswer,
+        formDate: s.formDate,
+        submittedAt: s.submittedAt,
+        commissionPaid: s.commissionPaid,
+      }));
+      exportConsultasToPdf(rows);
+      toast.success('Exportação PDF concluída.');
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao exportar PDF.');
+    } finally {
+      setExportPdfLoading(false);
+    }
+  };
+
   return (
-    <div className="space-y-8 py-2">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">
+    <div className="space-y-4 sm:space-y-8 py-2 min-w-0 max-w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 sm:gap-4 min-w-0">
+        <div className="min-w-0">
+          <h2 className="text-base sm:text-lg font-semibold">
             {filteredSubmissions.length}{' '}
             {filteredSubmissions.length === 1
               ? 'formulário encontrado'
               : 'formulários encontrados'}
           </h2>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 rounded-xl border-teal-600/40 bg-teal-600 text-white shadow-sm hover:bg-teal-700 hover:text-white hover:border-teal-700 focus-visible:ring-teal-500 disabled:opacity-50 disabled:pointer-events-none min-h-[44px] sm:min-h-0 w-full sm:w-auto touch-manipulation"
+              disabled={filteredSubmissions.length === 0 || exportPdfLoading}
+            >
+              <FileDown className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="font-medium">Exportar</span>
+              <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-40 border-border/80 shadow-lg">
+            <DropdownMenuItem onClick={handleExportCsv} className="gap-2">
+              <FileSpreadsheet className="h-4 w-4" />
+              Exportar CSV
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleExportPdf}
+              disabled={exportPdfLoading}
+              className="gap-2"
+            >
+              {exportPdfLoading ? (
+                <Spinner variant="bars" className="h-4 w-4" />
+              ) : (
+                <FileText className="h-4 w-4" />
+              )}
+              {exportPdfLoading ? 'A exportar...' : 'Exportar PDF'}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <ConsultasDataTable

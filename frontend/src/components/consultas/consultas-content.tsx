@@ -5,7 +5,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Search, FileSearch, Lock } from 'lucide-react';
-import { useModelContext } from '@/lib/context/model-context';
+import { useModelContext } from '@/contexts/model-context';
 
 interface Template {
   _id?: string;
@@ -90,9 +90,11 @@ export function ConsultasContent() {
     loadData();
   }, [activeModel?.id]);
 
+  const pageSpacing = 'space-y-4 sm:space-y-6';
+
   if (loading || modelLoading) {
     return (
-      <div className="space-y-6">
+      <div className={pageSpacing}>
         <PageHeader
           title="Consultas"
           description="Histórico das suas submissões."
@@ -101,10 +103,10 @@ export function ConsultasContent() {
           decoratorIcon={<FileSearch className="w-5 h-5" />}
           decoratorColor="text-red-500"
         />
-        <Card>
-          <CardContent className="py-8 text-center flex flex-col items-center gap-3">
+        <Card className="rounded-2xl border border-border/60 shadow-sm">
+          <CardContent className="py-10 sm:py-12 px-4 text-center flex flex-col items-center gap-3">
             <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
-            <p className="text-muted-foreground">Carregando formulários...</p>
+            <p className="text-sm text-muted-foreground">Carregando formulários...</p>
           </CardContent>
         </Card>
       </div>
@@ -113,7 +115,7 @@ export function ConsultasContent() {
 
   if (error) {
     return (
-      <div className="space-y-6">
+      <div className={pageSpacing}>
         <PageHeader
           title="Consultas"
           description="Histórico das suas submissões."
@@ -122,11 +124,9 @@ export function ConsultasContent() {
           decoratorIcon={<FileSearch className="w-5 h-5" />}
           decoratorColor="text-red-500"
         />
-        <Card>
-          <CardContent className="py-8 text-center">
-            <p className="text-destructive font-medium mb-2">
-              Erro ao carregar formulários
-            </p>
+        <Card className="rounded-2xl border border-border/60 shadow-sm">
+          <CardContent className="py-10 sm:py-12 px-4 text-center">
+            <p className="text-destructive font-medium mb-2">Erro ao carregar formulários</p>
             <p className="text-sm text-muted-foreground">{error}</p>
           </CardContent>
         </Card>
@@ -135,7 +135,7 @@ export function ConsultasContent() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={pageSpacing}>
       <PageHeader
         title="Consultas"
         description={
@@ -149,29 +149,24 @@ export function ConsultasContent() {
         decoratorColor="text-red-500"
       />
       {!activeModel ? (
-        <Card className="shadow-sm">
-          <CardContent className="py-8 text-center">
+        <Card className="rounded-2xl border border-border/60 shadow-sm">
+          <CardContent className="py-10 sm:py-12 px-4 text-center">
             <Lock className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              Nenhum modelo ativo selecionado
-            </p>
+            <p className="text-muted-foreground">Nenhum modelo ativo selecionado</p>
             <p className="text-sm text-muted-foreground mt-2">
-              Por favor, selecione um modelo para visualizar as consultas
-              disponíveis
+              Selecione um modelo para visualizar as consultas disponíveis.
             </p>
           </CardContent>
         </Card>
       ) : filteredSubmissions.length === 0 ? (
-        <Card className="shadow-sm">
-          <CardContent className="py-8 text-center">
+        <Card className="rounded-2xl border border-border/60 shadow-sm">
+          <CardContent className="py-10 sm:py-12 px-4 text-center">
             <FileSearch className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">
-              Nenhuma consulta disponível para o modelo &quot;
-              {getModelDisplayName(activeModel.modelType)}&quot;
+              Nenhuma consulta para o modelo &quot;{getModelDisplayName(activeModel.modelType)}&quot;
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-              As submissões serão exibidas aqui quando houver formulários
-              preenchidos para este modelo
+              As submissões aparecerão aqui quando preencher formulários para este modelo.
             </p>
           </CardContent>
         </Card>

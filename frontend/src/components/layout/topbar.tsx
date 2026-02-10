@@ -2,7 +2,7 @@ import { Search, User, Shield } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRouter } from '@/lib/router-compat';
-import { useUserRole } from '@/lib/hooks/use-user-role';
+import { useUserRole } from '@/hooks/use-user-role';
 import { ModelSwitcher } from './model-switcher';
 
 export function Topbar() {

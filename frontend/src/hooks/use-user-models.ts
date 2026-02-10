@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSession } from '@/lib/auth-client';
-import { useModelContext, type UserModel } from '@/lib/context/model-context';
+import { useModelContext, type UserModel } from '@/contexts/model-context';
 import { apiClient } from '@/lib/api-client';
 
 /**

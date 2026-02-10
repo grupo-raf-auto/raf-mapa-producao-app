@@ -262,7 +262,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
         : 'text-muted-foreground';
 
   return (
-    <motion.div
+    <motion.article
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -271,30 +271,28 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
         ease: [0.25, 0.46, 0.45, 0.94],
       }}
       className={cn(
-        'kpi-card relative flex items-center justify-between gap-4',
+        'kpi-card relative flex items-center justify-between gap-3 sm:gap-4',
         className,
       )}
     >
       {/* Left side - Icon, Value, Title */}
-      <div className="flex items-center gap-3 min-w-0">
-        {/* Icon */}
+      <div className="flex items-center gap-3 min-w-0 flex-1">
         {IconComponent && (
           <div
-            className="kpi-card-icon shrink-0"
+            className="kpi-card-icon shrink-0 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg"
             style={{ backgroundColor: colors.bg }}
           >
             <IconComponent
               className="h-4 w-4"
               style={{ color: colors.icon }}
-              aria-hidden="true"
+              aria-hidden
             />
           </div>
         )}
 
-        {/* Text content: value prominent, then title, then context */}
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <span
-            className="block text-xl font-bold tracking-tight leading-tight"
+            className="block text-lg sm:text-xl font-bold tracking-tight leading-tight truncate"
             style={{ color: colors.text }}
           >
             {typeof value === 'number' ? value.toLocaleString('pt-PT') : value}
@@ -305,7 +303,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
           {(trendChange || description) && (
             <p
               className={cn(
-                'text-[11px] mt-0.5 truncate',
+                'text-xs mt-0.5 truncate',
                 trendChange ? trendColorClass : 'text-muted-foreground',
               )}
             >
@@ -322,9 +320,8 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
         </div>
       </div>
 
-      {/* Right side - Sparkline (só quando há dados suficientes para evitar barras/linhas confusas) */}
       {sparklineData && sparklineData.length > 2 && (
-        <div className="shrink-0" aria-hidden>
+        <div className="shrink-0 hidden min-[480px]:block" aria-hidden>
           <Sparkline
             data={sparklineData}
             type={sparklineType}
@@ -334,7 +331,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
           />
         </div>
       )}
-    </motion.div>
+    </motion.article>
   );
 };
 

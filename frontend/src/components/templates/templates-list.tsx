@@ -205,7 +205,7 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {templates.map((template) => (
             <Card
               key={template._id}
@@ -270,12 +270,12 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
                     })}
                   </span>
                 </div>
-                <div className="flex gap-2 border-t border-border/60 pt-4">
+                <div className="flex flex-wrap gap-2 border-t border-border/60 pt-4">
                   {showFillButton && (
                     <Button
                       variant="default"
                       size="sm"
-                      className="flex-1 font-medium shadow-sm"
+                      className="flex-1 font-medium shadow-sm min-h-[44px] touch-manipulation"
                       onClick={() => {
                         setFillingTemplate(template);
                         setIsFillDialogOpen(true);
@@ -287,7 +287,7 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
                   <Button
                     variant="outline"
                     size="default"
-                    className="min-w-[2.75rem] font-medium md:min-w-0"
+                    className="min-w-[2.75rem] min-h-[44px] font-medium md:min-w-0 touch-manipulation"
                     onClick={() => handleEdit(template)}
                   >
                     <Edit className="h-4 w-4 shrink-0 md:mr-1.5" />
@@ -299,7 +299,7 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          className="min-h-[44px] min-w-[44px] text-destructive hover:bg-destructive/10 hover:text-destructive touch-manipulation"
                           aria-label="Excluir template"
                         >
                           <Trash2 className="h-4 w-4" />

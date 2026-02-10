@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from '@/lib/router-compat';
+import { useRouter, usePathname } from '@/lib/router-compat';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AdminSidebar } from './admin-sidebar';
 import { ReportBugDialog } from '@/components/layout/report-bug-dialog';
 import { NotificationsDropdown } from '@/components/layout/notifications-dropdown';
@@ -25,6 +26,9 @@ import {
   LogOut,
   Moon,
   Sun,
+  LayoutGrid,
+  Menu,
+  X,
 } from 'lucide-react';
 
 // Dados de pesquisa apenas do contexto admin (secções do painel + ações)
@@ -108,7 +112,7 @@ const adminSearchData: SearchItem[] = [
   },
 ];
 
-function AdminTopBar() {
+function AdminTopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   const { data: session } = useSession();
   const user = session?.user;
   const router = useRouter();
@@ -177,28 +181,49 @@ function AdminTopBar() {
 
   return (
     <>
-    <div className="h-16 flex items-center justify-between px-6 border-b border-border/40 bg-card/80 backdrop-blur-sm shrink-0">
-      <div className="flex items-center gap-4">
+    <header
+      role="banner"
+      className="flex items-center justify-between gap-1.5 sm:gap-2 px-3 py-2 min-h-[52px] sm:min-h-[56px] sm:px-4 md:px-5 lg:px-6 border-b border-border/40 bg-card/80 backdrop-blur-sm shrink-0 min-w-0 overflow-x-hidden"
+    >
+      <div className="flex items-center gap-1.5 sm:gap-4 min-w-0 flex-1 overflow-hidden">
+        <button
+          type="button"
+          onClick={onOpenSidebar}
+          className="md:hidden flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl bg-muted/50 hover:bg-muted border border-border/50 text-foreground cursor-pointer touch-manipulation shrink-0"
+          aria-label="Abrir menu do painel"
+        >
+          <Menu className="w-5 h-5 shrink-0" />
+        </button>
         <button
           type="button"
           onClick={openSearch}
-          className="w-72 h-10 flex items-center gap-2 pl-3.5 pr-3 rounded-xl bg-muted/50 border border-border/50 text-sm text-muted-foreground hover:bg-muted/80 hover:border-border transition-all cursor-pointer"
+          className="flex-1 min-w-0 min-h-[44px] h-11 sm:h-10 sm:min-h-0 flex items-center gap-1.5 sm:gap-2 pl-3 pr-2 sm:pl-3.5 sm:pr-3 rounded-xl bg-muted/50 border border-border/50 text-sm text-muted-foreground hover:bg-muted/80 hover:border-border transition-all cursor-pointer touch-manipulation overflow-hidden"
         >
           <Search className="w-4 h-4 shrink-0" />
-          <span className="flex-1 text-left">Pesquisar no painel...</span>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-medium bg-background border border-border rounded">
+          <span className="flex-1 text-left truncate">Pesquisar no painel...</span>
+          <kbd className="hidden sm:inline-flex px-1.5 py-0.5 text-[10px] font-medium bg-background border border-border rounded">
             {mounted && navigator.platform?.includes('Mac') ? '⌘' : 'Ctrl+'}K
           </kbd>
         </button>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <a
+          href={import.meta.env.VITE_CRM_MYCREDIT_URL || 'https://crm.my-credit.pt/'}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2 px-2 sm:px-3 py-2 min-h-[44px] sm:min-h-0 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 font-medium text-xs transition-colors cursor-pointer shadow-sm touch-manipulation"
+          title="CRM MyCredit"
+        >
+          <LayoutGrid className="w-4 h-4 shrink-0" />
+          <span className="hidden sm:inline">CRM MyCredit</span>
+        </a>
         <button
           type="button"
           title="Reportar um problema"
           aria-label="Reportar um problema ou bug"
           onClick={() => setReportBugOpen(true)}
-          className="relative p-2.5 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+          className="relative flex items-center justify-center min-w-[44px] min-h-[44px] sm:min-w-9 sm:min-h-9 p-2.5 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer touch-manipulation"
         >
           <Bug className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -207,7 +232,7 @@ function AdminTopBar() {
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer">
+              <button className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 pr-2 py-2 min-h-[44px] sm:min-h-0 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer touch-manipulation">
                 <Avatar className="w-9 h-9 shadow-lg">
                   <AvatarImage
                     src={user.image || undefined}
@@ -277,7 +302,7 @@ function AdminTopBar() {
       </div>
 
       <ReportBugDialog open={reportBugOpen} onOpenChange={setReportBugOpen} />
-    </div>
+    </header>
 
     <SearchBar
       data={adminSearchData}
@@ -296,13 +321,63 @@ interface AdminLayoutProps {
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
   return (
     <>
-      <AdminSidebar />
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <AdminTopBar />
-        <main className="flex-1 overflow-auto p-6 min-h-0">
-          <div className="max-w-[1600px] mx-auto w-full">{children}</div>
+      {/* Sidebar desktop: visível apenas em md+ */}
+      <div className="hidden md:flex shrink-0">
+        <AdminSidebar />
+      </div>
+
+      {/* Drawer mobile admin */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+              aria-hidden
+            />
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'tween', duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              className="fixed left-0 top-0 h-full w-[min(280px,calc(100vw-2rem))] max-w-[280px] sidebar-donezo border-r-0 z-50 flex flex-col md:hidden shadow-xl"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu do painel administrativo"
+            >
+              <div className="relative flex-1 overflow-y-auto overflow-x-hidden touch-manipulation">
+                <AdminSidebar />
+                <button
+                  type="button"
+                  onClick={() => setSidebarOpen(false)}
+                  className="absolute top-3 right-3 z-100 flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl bg-white/10 hover:bg-white/20 text-white cursor-pointer touch-manipulation"
+                  aria-label="Fechar menu"
+                >
+                  <X className="w-5 h-5 pointer-events-none" />
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
+        <AdminTopBar onOpenSidebar={() => setSidebarOpen(true)} />
+        <main className="flex-1 overflow-auto overflow-x-hidden p-4 sm:p-5 md:p-6 min-h-0 min-w-0" role="main">
+          <div className="max-w-[1600px] mx-auto w-full min-w-0">{children}</div>
         </main>
       </div>
     </>

@@ -4,8 +4,8 @@ import { KPICards } from './kpi-cards';
 import { DashboardChartsWrapper } from './dashboard-charts-wrapper';
 import { apiClient as api, clearStatsCache } from '@/lib/api-client';
 import { DashboardHeader } from '@/components/ui/dashboard-header';
-import { useModelContext } from '@/lib/context/model-context';
-import { useUserModels } from '@/lib/hooks/use-user-models';
+import { useModelContext } from '@/contexts/model-context';
+import { useUserModels } from '@/hooks/use-user-models';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 
@@ -94,6 +94,9 @@ export function DashboardContent() {
     if (modelLoading) return;
     loadData();
   }, [activeModel?.id, modelLoading]);
+
+  /* Mobile-first spacing: base 1rem, scale up on larger screens */
+  const contentSpacing = 'space-y-4 sm:space-y-5 md:space-y-6';
 
   const stats = {
     totalTemplates: templates.length,
@@ -206,12 +209,12 @@ export function DashboardContent() {
 
   if (loading || modelLoading) {
     return (
-      <div className="space-y-6">
+      <div className={contentSpacing}>
         <DashboardHeader />
         <Card>
-          <CardContent className="py-8 text-center flex flex-col items-center gap-3">
+          <CardContent className="py-8 sm:py-10 text-center flex flex-col items-center gap-3">
             <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
-            <p className="text-muted-foreground">Carregando dashboard...</p>
+            <p className="text-sm text-muted-foreground">Carregando dashboard...</p>
           </CardContent>
         </Card>
       </div>
@@ -220,10 +223,10 @@ export function DashboardContent() {
 
   if (error) {
     return (
-      <div className="space-y-6">
+      <div className={contentSpacing}>
         <DashboardHeader />
         <Card>
-          <CardContent className="py-8 text-center">
+          <CardContent className="py-8 sm:py-10 text-center px-4">
             <p className="text-destructive font-medium mb-2">
               Erro ao carregar dashboard
             </p>
@@ -235,20 +238,22 @@ export function DashboardContent() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={contentSpacing}>
       {backendUnavailable && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40 px-4 py-2.5 text-sm text-amber-800 dark:text-amber-200">
+        <div
+          role="alert"
+          className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40 px-4 py-3 sm:px-5 sm:py-3.5 text-sm text-amber-800 dark:text-amber-200"
+        >
           Não foi possível ligar ao servidor. Os dados mostrados estão em modo offline. Verifique se o backend está a correr e recarregue a página.
         </div>
       )}
 
-      {/* Professional Header */}
       <DashboardHeader />
 
-      {/* KPI Cards Row */}
-      <KPICards cards={kpiCards} />
+      <section aria-label="Indicadores principais">
+        <KPICards cards={kpiCards} />
+      </section>
 
-      {/* Charts Section */}
       <DashboardChartsWrapper
         salesStats={salesStats}
         comparativeStats={comparativeStats}

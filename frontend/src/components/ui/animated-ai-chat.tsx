@@ -98,22 +98,22 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
         <ul
           key={`list-${listKeyCounter++}`}
           className={cn(
-            'my-3 space-y-1.5',
-            isNumbered ? 'list-decimal' : 'list-none',
+            'my-3 space-y-2',
+            isNumbered ? 'list-decimal list-inside' : 'list-none space-y-1.5',
           )}
         >
           {currentListItems.map((item, idx) => (
             <li
               key={item.key}
               className={cn(
-                'text-sm leading-relaxed pl-1',
-                isNumbered ? 'ml-4' : 'ml-2',
+                'text-[15px] leading-relaxed pl-0.5',
+                isNumbered ? 'ml-0 pl-1' : 'ml-2 flex gap-2 items-baseline',
               )}
             >
               {!isNumbered && (
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60 mr-2 align-middle"></span>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60 shrink-0 mt-[0.4em]" aria-hidden />
               )}
-              {item.text}
+              <span className="min-w-0">{item.text}</span>
             </li>
           ))}
         </ul>,
@@ -129,7 +129,7 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
       result.push(
         <h3
           key={index}
-          className="font-semibold text-base mt-4 mb-2 text-foreground"
+          className="font-semibold text-[15px] mt-4 mb-1.5 text-foreground leading-tight"
         >
           {line.replace('### ', '')}
         </h3>,
@@ -139,7 +139,7 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
     if (line.startsWith('## ')) {
       flushList();
       result.push(
-        <h2 key={index} className="font-bold text-lg mt-4 mb-2 text-foreground">
+        <h2 key={index} className="font-bold text-base mt-4 mb-1.5 text-foreground leading-tight">
           {line.replace('## ', '')}
         </h2>,
       );
@@ -148,7 +148,7 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
     if (line.startsWith('# ')) {
       flushList();
       result.push(
-        <h1 key={index} className="font-bold text-xl mt-4 mb-2 text-foreground">
+        <h1 key={index} className="font-bold text-lg mt-4 mb-1.5 text-foreground leading-tight">
           {line.replace('# ', '')}
         </h1>,
       );
@@ -191,7 +191,7 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
       result.push(
         <blockquote
           key={index}
-          className="border-l-2 border-primary/50 pl-4 my-3 text-sm text-muted-foreground italic"
+          className="border-l-2 border-primary/50 pl-4 my-3 text-[15px] text-muted-foreground italic leading-relaxed"
         >
           {line.substring(2)}
         </blockquote>,
@@ -207,9 +207,9 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
         result.push(
           <pre
             key={index}
-            className="my-3 p-4 bg-muted/50 rounded-xl overflow-x-auto border border-border/50"
+            className="my-3 p-4 bg-muted/60 rounded-xl overflow-x-auto border border-border/50 text-[13px] font-mono leading-relaxed"
           >
-            <code className="text-xs font-mono text-foreground/90">
+            <code className="text-foreground/90 break-words">
               {codeContent.slice(0, -3)}
             </code>
           </pre>,
@@ -227,7 +227,7 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
       result.push(
         <p
           key={index}
-          className="my-2 text-sm leading-relaxed text-foreground/90"
+          className="my-2 text-[15px] leading-relaxed text-foreground/90 break-words"
         >
           {textParts}
         </p>,
@@ -264,7 +264,7 @@ function parseInlineFormatting(text: string): (string | JSX.Element)[] {
       parts.push(
         <code
           key={match.index}
-          className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono text-foreground"
+          className="px-1.5 py-0.5 bg-muted/80 rounded text-[13px] font-mono text-foreground"
         >
           {matched.slice(1, -1)}
         </code>,
@@ -573,14 +573,14 @@ export function AnimatedAIChat({
             </div>
           </div>
         ) : (
-          <div className="max-w-3xl mx-auto space-y-6">
+          <div className="max-w-3xl mx-auto space-y-5">
             {/* Clear Button - Inline with messages */}
             {onClearHistory && (
               <div className="flex justify-end">
                 <button
                   type="button"
                   onClick={onClearHistory}
-                  className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors cursor-pointer"
+                  className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors cursor-pointer"
                   title="Limpar histórico"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -591,8 +591,10 @@ export function AnimatedAIChat({
               <motion.div
                 key={message.id}
                 className={cn(
-                  'flex gap-3',
-                  message.role === 'user' ? 'flex-row-reverse' : 'flex-row',
+                  'flex gap-3 sm:gap-4',
+                  message.role === 'user'
+                    ? 'flex-row-reverse items-end'
+                    : 'flex-row items-start',
                 )}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -602,14 +604,15 @@ export function AnimatedAIChat({
                   ease: 'easeOut',
                 }}
               >
-                {/* Avatar */}
+                {/* Avatar - 40px, consistent with chat UI standards */}
                 <div
                   className={cn(
-                    'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border font-semibold text-sm',
+                    'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border',
                     message.role === 'user'
-                      ? 'bg-gradient-to-br from-red-600 to-red-700 text-white border-red-500/30 shadow-md'
-                      : 'bg-gradient-to-br from-slate-50 to-slate-100 text-slate-600 border-slate-200 shadow-sm',
+                      ? 'bg-gradient-to-br from-red-600 to-red-700 text-white border-red-500/30 shadow-sm'
+                      : 'bg-gradient-to-br from-slate-50 to-slate-100 text-slate-600 border-slate-200/80 shadow-sm',
                   )}
+                  aria-hidden
                 >
                   {message.role === 'user' ? (
                     <User className="w-5 h-5" />
@@ -618,29 +621,36 @@ export function AnimatedAIChat({
                   )}
                 </div>
 
-                {/* Message */}
-                <div className="flex flex-col gap-1.5">
+                {/* Message bubble - max-width for readability, consistent padding */}
+                <div
+                  className={cn(
+                    'flex flex-col gap-1 min-w-0',
+                    message.role === 'user' ? 'items-end' : 'items-start',
+                  )}
+                >
                   {message.role === 'assistant' && (
-                    <span className="text-xs text-muted-foreground/60 font-medium ml-1">
+                    <span className="text-xs text-muted-foreground font-medium px-0.5">
                       MySabichão
                     </span>
                   )}
                   <div
                     className={cn(
-                      'max-w-[85%] sm:max-w-[75%] rounded-2xl px-5 py-4',
+                      'rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4',
+                      'max-w-[min(90%,22rem)] sm:max-w-[min(85%,26rem)]',
+                      'shadow-sm',
                       message.role === 'user'
-                        ? 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg'
-                        : 'bg-gradient-to-br from-white to-slate-50 text-foreground border border-border/50 shadow-sm',
+                        ? 'bg-gradient-to-br from-red-600 to-red-700 text-white'
+                        : 'bg-white text-foreground border border-border/60',
                     )}
                   >
-                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                    <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
                       {formatMessageContent(message.content, message.role)}
                     </div>
                   </div>
                   <span
                     className={cn(
-                      'text-[10px] text-muted-foreground/50',
-                      message.role === 'user' ? 'text-right mr-1' : 'ml-1',
+                      'text-[11px] text-muted-foreground/60 px-0.5',
+                      message.role === 'user' ? 'text-right' : 'text-left',
                     )}
                   >
                     {message.timestamp.toLocaleTimeString('pt-PT', {
@@ -654,18 +664,18 @@ export function AnimatedAIChat({
 
             {loading && (
               <motion.div
-                className="flex gap-3"
+                className="flex gap-3 sm:gap-4 items-start"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 text-slate-600 border border-slate-200 shadow-sm flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 text-slate-600 border border-slate-200/80 shadow-sm flex items-center justify-center shrink-0">
                   <Bot className="w-5 h-5" />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-xs text-muted-foreground/60 font-medium ml-1">
+                <div className="flex flex-col gap-1 min-w-0">
+                  <span className="text-xs text-muted-foreground font-medium px-0.5">
                     MySabichão
                   </span>
-                  <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl px-5 py-4 border border-border/50 shadow-sm">
+                  <div className="rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 max-w-[min(90%,22rem)] sm:max-w-[min(85%,26rem)] bg-white border border-border/60 shadow-sm min-h-14 flex items-center">
                     <TypingDots />
                   </div>
                 </div>

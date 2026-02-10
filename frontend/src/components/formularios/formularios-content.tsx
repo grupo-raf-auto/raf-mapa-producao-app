@@ -15,7 +15,7 @@ import { FileStack, Calendar, FileEdit, Lock } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { FillTemplateDialog } from "@/components/templates/fill-template-dialog";
 import { PageHeader } from "@/components/ui/page-header";
-import { useModelContext } from "@/lib/context/model-context";
+import { useModelContext } from "@/contexts/model-context";
 
 interface Template {
   _id?: string;

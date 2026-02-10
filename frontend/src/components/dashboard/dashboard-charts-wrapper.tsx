@@ -18,7 +18,7 @@ import { AgentePerformanceChart } from './agente-performance-chart';
 import { RatingDistributionChart } from './rating-distribution-chart';
 import { TicketMedioAgenteChart } from './ticket-medio-agente-chart';
 import { FracionamentoChart } from './fracionamento-chart';
-import { useModelContext } from '@/lib/context/model-context';
+import { useModelContext } from '@/contexts/model-context';
 
 interface Submission {
   id: string;
@@ -211,8 +211,8 @@ export function DashboardChartsWrapper({
         aria-label="Dashboard de seguros — gráficos e métricas"
       >
         {/* Row 1: Evolução das Apólices (3 col, full width) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <AnimatedSection className="lg:col-span-3" delay={0}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <AnimatedSection className="md:col-span-2 lg:col-span-3" delay={0}>
             <div className="chart-card h-full relative">
               <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -267,8 +267,8 @@ export function DashboardChartsWrapper({
         </div>
 
         {/* Row 2: Apólices por Seguradora + Taxa de Crescimento (3 col) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <AnimatedSection className="lg:col-span-2" delay={0.1}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <AnimatedSection className="md:col-span-2 lg:col-span-2" delay={0.1}>
             <div className="chart-card h-full">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="chart-card-title">Apólices por Seguradora</h3>
@@ -297,7 +297,7 @@ export function DashboardChartsWrapper({
         </div>
 
         {/* Row 3: Performance por Colaborador (1 col) + Valor Médio por Agente (2 col) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection delay={0.2}>
             <div className="chart-card h-full">
               <div className="flex items-center justify-between mb-4">
@@ -314,7 +314,7 @@ export function DashboardChartsWrapper({
               />
             </div>
           </AnimatedSection>
-          <AnimatedSection className="lg:col-span-2" delay={0.25}>
+          <AnimatedSection className="md:col-span-2 lg:col-span-2" delay={0.25}>
             <div className="chart-card h-full">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="chart-card-title">Valor Médio por Agente</h3>
@@ -334,7 +334,7 @@ export function DashboardChartsWrapper({
         </div>
 
         {/* Row 4: Rating de Clientes, Distribuição por Distrito, Distribuição por Fracionamento (3 col) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection delay={0.35}>
             <div className="chart-card h-full">
               <div className="flex items-center justify-between mb-4">
@@ -396,8 +396,8 @@ export function DashboardChartsWrapper({
       {/* ——— 1. Evolução e tendência ——— */}
       <section aria-labelledby="topic-evolucao">
         <SectionTitle id="topic-evolucao">Evolução e tendência</SectionTitle>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <AnimatedSection className="lg:col-span-2" delay={0}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <AnimatedSection className="md:col-span-2 lg:col-span-2" delay={0}>
             <div className="chart-card h-full relative min-h-[320px]">
               <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -468,7 +468,7 @@ export function DashboardChartsWrapper({
       {/* ——— 2. Produção por entidade (3 col: 1 gráfico por coluna) ——— */}
       <section aria-labelledby="topic-entidade">
         <SectionTitle id="topic-entidade">Produção por entidade</SectionTitle>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection delay={0.1}>
             <div className="chart-card h-full min-h-[280px]">
               <div className="flex items-center justify-between mb-4">
@@ -520,7 +520,7 @@ export function DashboardChartsWrapper({
         <SectionTitle id="topic-performance">
           Performance da equipa
         </SectionTitle>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection delay={0.25}>
             <div className="chart-card h-full min-h-[280px]">
               <div className="flex items-center justify-between mb-4">
@@ -576,7 +576,7 @@ export function DashboardChartsWrapper({
         <SectionTitle id="topic-distribuicao">
           Distribuição e perfil
         </SectionTitle>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection delay={0.4}>
             <div className="chart-card h-full min-h-[280px]">
               <div className="flex items-center justify-between mb-4">

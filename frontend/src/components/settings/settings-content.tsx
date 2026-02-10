@@ -268,23 +268,23 @@ export function SettingsContent() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-1 sm:px-0">
       <PageHeader
         title="Definições"
         description="Conta e preferências."
         icon={Settings}
       />
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto w-full">
         {/* My Profile Section */}
-        <Card className="p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
-            <User className="h-5 w-5 text-red-700" />
+        <Card className="p-4 sm:p-6 mb-4 sm:mb-6 rounded-2xl border border-border/60">
+          <h2 className="text-lg font-semibold mb-4 sm:mb-6 flex items-center gap-2">
+            <User className="h-5 w-5 text-red-700 shrink-0" />
             O Meu Perfil
           </h2>
 
           {/* Profile Picture */}
-          <div className="flex items-center gap-6 mb-6">
-            <div className="relative">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
+            <div className="relative shrink-0">
               <Avatar className="h-20 w-20">
                 <AvatarImage src={user?.image || undefined} />
                 <AvatarFallback className="bg-red-100 text-red-700 text-xl font-semibold">
@@ -297,13 +297,14 @@ export function SettingsContent() {
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
+            <div className="flex flex-col gap-2 min-w-0 w-full sm:w-auto">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isLoading}
+                  className="min-h-[44px] touch-manipulation"
                 >
                   <Camera className="h-4 w-4 mr-2" />
                   Alterar Imagem
@@ -314,6 +315,7 @@ export function SettingsContent() {
                     size="sm"
                     onClick={handleRemoveImage}
                     disabled={isLoading}
+                    className="min-h-[44px] touch-manipulation"
                   >
                     <X className="h-4 w-4 mr-2" />
                     Remover
@@ -333,10 +335,10 @@ export function SettingsContent() {
             </div>
           </div>
 
-          <Separator className="my-6" />
+          <Separator className="my-4 sm:my-6" />
 
           {/* Name Fields */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 sm:mb-6">
             <div className="space-y-2">
               <Label htmlFor="firstName">Primeiro Nome</Label>
               <Input
@@ -344,6 +346,7 @@ export function SettingsContent() {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="João"
+                className="min-h-[44px] sm:min-h-0"
               />
             </div>
             <div className="space-y-2">
@@ -353,11 +356,12 @@ export function SettingsContent() {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Silva"
+                className="min-h-[44px] sm:min-h-0"
               />
             </div>
           </div>
 
-          <Button onClick={handleSaveProfile} disabled={isSaving}>
+          <Button onClick={handleSaveProfile} disabled={isSaving} className="min-h-[44px] touch-manipulation">
             {isSaving ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : (
@@ -368,38 +372,38 @@ export function SettingsContent() {
         </Card>
 
         {/* Account Security Section */}
-        <Card className="p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
-            <Lock className="h-5 w-5 text-red-700" />
+        <Card className="p-4 sm:p-6 mb-4 sm:mb-6 rounded-2xl border border-border/60">
+          <h2 className="text-lg font-semibold mb-4 sm:mb-6 flex items-center gap-2">
+            <Lock className="h-5 w-5 text-red-700 shrink-0" />
             Segurança da Conta
           </h2>
 
           {/* Email */}
-          <div className="flex items-center justify-between py-4 border-b">
-            <div className="flex items-center gap-3">
-              <Mail className="h-5 w-5 text-muted-foreground" />
-              <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4 border-b">
+            <div className="flex items-center gap-3 min-w-0">
+              <Mail className="h-5 w-5 text-muted-foreground shrink-0" />
+              <div className="min-w-0">
                 <p className="font-medium">Email</p>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
+                <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" disabled>
+            <Button variant="outline" size="sm" disabled className="min-h-[44px] sm:min-h-0 w-full sm:w-auto touch-manipulation shrink-0">
               Alterar email
             </Button>
           </div>
 
           {/* Password */}
           <div className="py-4">
-            <div className="flex items-center gap-3 mb-4">
-              <Lock className="h-5 w-5 text-muted-foreground" />
-              <div>
+            <div className="flex items-start gap-3 mb-4">
+              <Lock className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+              <div className="min-w-0">
                 <p className="font-medium">Palavra-passe</p>
                 <p className="text-sm text-muted-foreground">
                   Altere a sua palavra-passe para manter a conta segura
                 </p>
               </div>
             </div>
-            <div className="space-y-4 pl-8">
+            <div className="space-y-4 pl-0 sm:pl-8">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">Palavra-passe Atual</Label>
                 <Input
@@ -408,9 +412,10 @@ export function SettingsContent() {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="••••••••"
+                  className="min-h-[44px] sm:min-h-0"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="newPassword">Nova Palavra-passe</Label>
                   <Input
@@ -419,6 +424,7 @@ export function SettingsContent() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="••••••••"
+                    className="min-h-[44px] sm:min-h-0"
                   />
                 </div>
                 <div className="space-y-2">
@@ -429,12 +435,14 @@ export function SettingsContent() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
+                    className="min-h-[44px] sm:min-h-0"
                   />
                 </div>
               </div>
               <Button
                 onClick={handleChangePassword}
                 disabled={isChangingPassword || !currentPassword || !newPassword}
+                className="min-h-[44px] touch-manipulation w-full sm:w-auto"
               >
                 {isChangingPassword ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -448,12 +456,12 @@ export function SettingsContent() {
         </Card>
 
         {/* Account Actions Section */}
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-6 text-red-700">Zona de Perigo</h2>
+        <Card className="p-4 sm:p-6 rounded-2xl border border-border/60">
+          <h2 className="text-lg font-semibold mb-4 sm:mb-6 text-red-700">Zona de Perigo</h2>
 
           {/* Logout all devices */}
-          <div className="flex items-center justify-between py-4 border-b">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4 border-b">
+            <div className="min-w-0">
               <p className="font-medium">Terminar sessão em todos os dispositivos</p>
               <p className="text-sm text-muted-foreground">
                 Encerra todas as sessões ativas exceto a atual
@@ -461,7 +469,7 @@ export function SettingsContent() {
             </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="min-h-[44px] w-full sm:w-auto touch-manipulation shrink-0">
                   <LogOut className="h-4 w-4 mr-2" />
                   Terminar Sessões
                 </Button>
@@ -486,8 +494,8 @@ export function SettingsContent() {
           </div>
 
           {/* Delete account */}
-          <div className="flex items-center justify-between py-4">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+            <div className="min-w-0">
               <p className="font-medium text-red-600">Eliminar conta</p>
               <p className="text-sm text-muted-foreground">
                 Elimina permanentemente a sua conta e todos os dados associados
@@ -495,7 +503,7 @@ export function SettingsContent() {
             </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">
+                <Button variant="destructive" size="sm" className="min-h-[44px] w-full sm:w-auto touch-manipulation shrink-0">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Eliminar Conta
                 </Button>

@@ -6,6 +6,7 @@ import { apiClient as api, clearStatsCache } from '@/lib/api-client';
 import { DashboardHeader } from '@/components/ui/dashboard-header';
 import { UserGoalSection } from '@/components/dashboard/user-goal-section';
 import { useModelContext } from '@/contexts/model-context';
+import { useAuth } from '@/hooks/use-auth';
 import { useUserModels } from '@/hooks/use-user-models';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
@@ -19,6 +20,7 @@ export function DashboardContent() {
   const [error, setError] = useState<string | null>(null);
   const [backendUnavailable, setBackendUnavailable] = useState(false);
   const { activeModel, loading: modelLoading } = useModelContext();
+  const { hasTeam } = useAuth();
   const { models, loading: modelsLoading } = useUserModels();
 
   const [yearlyStats, setYearlyStats] = useState<any>(null);
@@ -81,14 +83,18 @@ export function DashboardContent() {
     }
   };
 
-  // Redirecionar para seleção de modelos só quando há modelos carregados com sucesso e está vazio (não quando o backend está em baixo)
+  // Redirecionar para onboarding quando faltam modelos ou equipa
   useEffect(() => {
     if (modelsLoading || modelLoading || backendUnavailable) return;
     if (!models || models.length === 0) {
-      router.replace('/select-models');
+      router.replace('/onboarding');
       return;
     }
-  }, [modelsLoading, modelLoading, models, router, backendUnavailable]);
+    if (hasTeam === false) {
+      router.replace('/onboarding');
+      return;
+    }
+  }, [modelsLoading, modelLoading, models, hasTeam, router, backendUnavailable]);
 
   // Carregamento inicial e ao mudar de modelo (período global único: mensal)
   useEffect(() => {

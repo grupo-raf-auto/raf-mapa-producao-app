@@ -2,6 +2,16 @@ import { useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { Spinner } from '@/components/ui/spinner';
 
+const ONBOARDING_PATH = '/onboarding';
+const ALLOWED_WITHOUT_ONBOARDING = [
+  '/sign-in',
+  '/verify-email',
+  '/approval-status',
+  '/forgot-password',
+  '/reset-password',
+  ONBOARDING_PATH,
+];
+
 export function ProtectedRoute({
   children,
   requireAdmin,
@@ -9,8 +19,9 @@ export function ProtectedRoute({
   children: React.ReactNode;
   requireAdmin?: boolean;
 }) {
-  const { user, isLoading, emailVerified, approvalStatus, isAdmin } = useAuth();
+  const { user, isLoading, emailVerified, approvalStatus, isAdmin, hasModels, hasTeam } = useAuth();
   const location = useLocation();
+  const pathname = location.pathname;
 
   if (isLoading) {
     return (
@@ -24,7 +35,7 @@ export function ProtectedRoute({
     return <Navigate to="/sign-in" replace />;
   }
 
-  if (!emailVerified && location.pathname !== '/verify-email') {
+  if (!emailVerified && pathname !== '/verify-email') {
     return <Navigate to="/verify-email" replace />;
   }
 
@@ -32,10 +43,20 @@ export function ProtectedRoute({
     !isAdmin &&
     approvalStatus != null &&
     approvalStatus !== 'approved' &&
-    location.pathname !== '/approval-status' &&
-    location.pathname !== '/verify-email'
+    pathname !== '/approval-status' &&
+    pathname !== '/verify-email'
   ) {
     return <Navigate to="/approval-status" replace />;
+  }
+
+  // Convidado (user aprovado) só acede ao resto da app após escolher modelo e equipa
+  if (
+    !requireAdmin &&
+    !isAdmin &&
+    (hasModels === false || hasTeam === false) &&
+    !ALLOWED_WITHOUT_ONBOARDING.some((p) => pathname === p || pathname.startsWith(p + '/'))
+  ) {
+    return <Navigate to={ONBOARDING_PATH} replace />;
   }
 
   if (requireAdmin && !isAdmin) {
@@ -44,11 +65,11 @@ export function ProtectedRoute({
 
   if (
     isAdmin &&
-    !location.pathname.startsWith('/admin') &&
-    location.pathname !== '/approval-status' &&
-    location.pathname !== '/verify-email' &&
-    location.pathname !== '/settings' &&
-    location.pathname !== '/help'
+    !pathname.startsWith('/admin') &&
+    pathname !== '/approval-status' &&
+    pathname !== '/verify-email' &&
+    pathname !== '/settings' &&
+    pathname !== '/help'
   ) {
     return <Navigate to="/admin" replace />;
   }

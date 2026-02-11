@@ -13,6 +13,8 @@ export interface UserStatus {
   role: 'admin' | 'user';
   emailVerified: boolean;
   status: 'pending' | 'approved' | 'rejected';
+  hasTeam?: boolean;
+  hasModels?: boolean;
 }
 
 export interface SessionUser {
@@ -30,6 +32,8 @@ export interface AuthState {
   role?: 'admin' | 'user';
   emailVerified?: boolean;
   approvalStatus?: 'pending' | 'approved' | 'rejected';
+  hasTeam?: boolean;
+  hasModels?: boolean;
   isAdmin: boolean;
   updateUserStatus: (partial: Partial<UserStatus>) => void;
 }
@@ -52,6 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: 'user',
           emailVerified: partial.emailVerified ?? false,
           status: partial.status,
+          hasTeam: partial.hasTeam ?? false,
+          hasModels: partial.hasModels ?? false,
         };
       return null;
     });
@@ -85,6 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: data.role || 'user',
           emailVerified: data.emailVerified ?? false,
           status: data.approvalStatus || 'pending',
+          hasTeam: data.hasTeam ?? false,
+          hasModels: data.hasModels ?? false,
         });
       })
       .catch((error) => {
@@ -94,6 +102,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: (fallbackUser?.role as 'admin' | 'user') || 'user',
           emailVerified: fallbackUser?.emailVerified || false,
           status: 'pending',
+          hasTeam: false,
+          hasModels: false,
         });
       })
       .finally(() => {
@@ -110,6 +120,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     role: userStatus?.role,
     emailVerified: userStatus?.emailVerified ?? (session?.user as SessionUser | undefined)?.emailVerified,
     approvalStatus: userStatus?.status,
+    hasTeam: userStatus?.hasTeam ?? false,
+    hasModels: userStatus?.hasModels ?? false,
     isAdmin: userStatus?.role === 'admin',
     updateUserStatus,
   };

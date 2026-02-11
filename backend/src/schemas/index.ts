@@ -98,6 +98,7 @@ export const updateUserSchema = z.object({
   status: z.enum(VALID_USER_STATUSES).optional(),
   isActive: z.boolean().optional(),
   rejectionReason: z.string().max(500).optional(),
+  teamId: z.string().nullable().optional(),
 });
 
 // ============ DOCUMENT SCANNER ============

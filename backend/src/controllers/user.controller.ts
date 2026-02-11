@@ -152,6 +152,9 @@ export class UserController extends BaseCRUDController<any> {
         body.approvedBy = null;
       }
 
+      // Apenas admin pode alterar teamId de um utilizador
+      if (user.role !== 'admin' && 'teamId' in body) delete body.teamId;
+
       const updated = await this.repository.update(id, body);
 
       logger.info({ id, userId: user.id, status: body.status }, 'Updated user');

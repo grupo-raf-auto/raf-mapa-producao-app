@@ -77,14 +77,21 @@ router.get('/role', async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Não autenticado' });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: {
-        role: true,
-        status: true,
-        emailVerified: true,
-      },
-    });
+    const userId = session.user.id;
+    const [user, modelCount] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          role: true,
+          status: true,
+          emailVerified: true,
+          teamId: true,
+        },
+      }),
+      prisma.userModel.count({
+        where: { userId, isActive: true },
+      }),
+    ]);
 
     if (!user) {
       return res.status(404).json({ message: 'Utilizador não encontrado' });
@@ -94,6 +101,8 @@ router.get('/role', async (req: Request, res: Response) => {
       role: user.role,
       approvalStatus: user.status,
       emailVerified: user.emailVerified,
+      hasTeam: !!user.teamId,
+      hasModels: modelCount > 0,
     });
   } catch (error) {
     console.error('[api/user/role]', error);

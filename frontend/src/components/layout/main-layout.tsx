@@ -10,7 +10,7 @@ import { NotificationsDropdown } from './notifications-dropdown';
 import { PageAnimation } from '@/components/ui/page-animation';
 import { Sidebar as SidebarBase } from '@/components/ui/sidebar';
 import { useSidebar } from '@/components/ui/sidebar';
-import { Search, Bug, ChevronDown, LayoutGrid, Menu, X } from 'lucide-react';
+import { Search, Bug, ChevronDown, LayoutGrid, Menu, X, UsersRound } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 import { useRouter } from '@/lib/router-compat';
 import { toast } from 'sonner';
@@ -27,6 +27,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { authClient } from '@/lib/auth-client';
 import { Settings, HelpCircle, LogOut, Moon, Sun } from 'lucide-react';
+import { apiClient } from '@/lib/api-client';
+import { Badge } from '@/components/ui/badge';
 
 // Top bar with search, notifications and user profile
 function TopBar() {
@@ -39,12 +41,21 @@ function TopBar() {
   const { setOpen: setSidebarOpen } = useSidebar();
   const [mounted, setMounted] = useState(false);
   const [reportBugOpen, setReportBugOpen] = useState(false);
+  const [myTeam, setMyTeam] = useState<{ name: string } | null>(null);
   const { isOpen: isSearchOpen, open: openSearch, setIsOpen: setSearchOpen } = useSearch({ enabled: true, shortcut: 'k' });
   const isAdmin = (session?.user as { role?: string })?.role === 'admin';
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!user || isAdminRoute) return;
+    apiClient.teams
+      .getMy()
+      .then((data: { name?: string }) => (data?.name ? setMyTeam({ name: data.name }) : setMyTeam(null)))
+      .catch(() => setMyTeam(null));
+  }, [user, isAdminRoute]);
 
   const displayName =
     user?.name ||
@@ -141,6 +152,13 @@ function TopBar() {
         description: 'Visualizar todas as consultas do sistema',
         category: 'reports' as const,
         tags: ['Admin', 'Relatórios'],
+      },
+      {
+        id: 'admin/equipas',
+        title: 'Admin - Equipas',
+        description: 'Gerir equipas e desempenho global',
+        category: 'reports' as const,
+        tags: ['Admin', 'Equipas'],
       },
       {
         id: 'admin/performance',
@@ -245,8 +263,19 @@ function TopBar() {
         </button>
       </div>
 
-      {/* Right side - Model selector, CRM, Bug, Notifications, Profile */}
+      {/* Right side - Team badge, Model selector, CRM, Bug, Notifications, Profile */}
       <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        {/* Equipa do utilizador - à esquerda do seletor de modelos */}
+        {!isAdminRoute && myTeam && (
+          <Badge
+            variant="secondary"
+            className="gap-1.5 px-2.5 py-1.5 rounded-lg font-medium text-xs border border-violet-200 dark:border-violet-800/80 bg-violet-500/15 hover:bg-violet-500/25 text-violet-700 dark:text-violet-300 shrink-0"
+            title={`Equipa: ${myTeam.name}`}
+          >
+            <UsersRound className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
+            <span className="max-w-[120px] sm:max-w-[160px] truncate">{myTeam.name}</span>
+          </Badge>
+        )}
         {/* Model Selector - only show for users (not admins) */}
         {!isAdminRoute && <ModelSelector />}
 

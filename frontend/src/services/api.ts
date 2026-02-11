@@ -440,4 +440,48 @@ export const apiClient = {
         method: 'PATCH',
       }).then(() => invalidateCache('user-models')),
   },
+  teams: {
+    getList: (all?: boolean) =>
+      fetchWithAuth(all ? 'teams?all=true' : 'teams').then((raw) => {
+        if (Array.isArray(raw)) return raw;
+        if (raw && typeof raw === 'object' && 'data' in raw) return (raw as { data: unknown[] }).data;
+        return [];
+      }),
+    getMy: () => fetchWithAuth('teams/my'),
+    join: (teamId: string) =>
+      fetchWithAuth('teams/join', {
+        method: 'POST',
+        body: JSON.stringify({ teamId }),
+      }).then(() => {
+        invalidateCache('teams');
+        invalidateCache('user');
+      }),
+    getRankings: () =>
+      fetchWithAuth('teams/rankings').then((raw) => {
+        if (Array.isArray(raw)) return raw;
+        if (raw && typeof raw === 'object' && 'data' in raw) return (raw as { data: unknown[] }).data;
+        return [];
+      }),
+    getById: (id: string) => fetchWithAuth(`teams/${id}`),
+    getMembers: (id: string) =>
+      fetchWithAuth(`teams/${id}/members`).then((raw) => {
+        if (Array.isArray(raw)) return raw;
+        if (raw && typeof raw === 'object' && 'data' in raw) return (raw as { data: unknown[] }).data;
+        return [];
+      }),
+    create: (data: { name: string; description?: string }) =>
+      fetchWithAuth('teams', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }).then(() => invalidateCache('teams')),
+    update: (id: string, data: { name?: string; description?: string; isActive?: boolean }) =>
+      fetchWithAuth(`teams/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }).then(() => invalidateCache('teams')),
+    delete: (id: string) =>
+      fetchWithAuth(`teams/${id}`, { method: 'DELETE' }).then(() =>
+        invalidateCache('teams'),
+      ),
+  },
 };

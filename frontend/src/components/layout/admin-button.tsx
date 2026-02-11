@@ -36,7 +36,6 @@ export function AdminButton() {
     try {
       await authClient.signOut();
       router.push('/sign-in');
-      router.refresh();
     } catch (e) {
       console.error('Erro ao sair:', e);
     }

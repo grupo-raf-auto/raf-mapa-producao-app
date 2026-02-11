@@ -57,7 +57,6 @@ import { Edit, Euro, Save, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { useRouter } from '@/lib/router-compat';
 import { useModal } from '@/contexts/modal-context';
 import {
   ColumnDef,
@@ -153,7 +152,6 @@ export function ConsultasDataTable({
   >(null);
   const [localSubmissions, setLocalSubmissions] =
     useState<Submission[]>(submissions);
-  const router = useRouter();
   const { setIsModalOpen } = useModal();
 
   useEffect(() => {
@@ -288,11 +286,7 @@ export function ConsultasDataTable({
       setIsEditing(false);
       toast.success('Formulário atualizado com sucesso!');
 
-      if (onSubmissionUpdate) {
-        onSubmissionUpdate();
-      } else {
-        router.refresh();
-      }
+      onSubmissionUpdate?.();
     } catch (error: any) {
       console.error('Error saving submission:', error);
       toast.error(
@@ -341,13 +335,7 @@ export function ConsultasDataTable({
       setSubmissionToDelete(null);
       toast.success('Formulário removido com sucesso!');
 
-      setTimeout(() => {
-        if (onSubmissionUpdate) {
-          onSubmissionUpdate();
-        } else {
-          router.refresh();
-        }
-      }, 200);
+      setTimeout(() => onSubmissionUpdate?.(), 200);
     } catch (error: any) {
       console.error('Error deleting submission:', error);
       const errorMessage =

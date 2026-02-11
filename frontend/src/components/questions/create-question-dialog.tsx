@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useRouter } from '@/lib/router-compat';
 import {
   Dialog,
   DialogContent,
@@ -89,7 +88,6 @@ export function CreateQuestionDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
 
   const form = useForm<QuestionFormValues>({
     resolver: zodResolver(questionSchema),
@@ -114,7 +112,9 @@ export function CreateQuestionDialog({
       };
       await api.questions.create(payload);
       toast.success('Questão criada.');
-      router.refresh();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('questions-updated'));
+      }
       setOpen(false);
       form.reset();
     } catch (error) {

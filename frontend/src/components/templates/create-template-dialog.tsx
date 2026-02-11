@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from '@/lib/router-compat';
 import {
   Dialog,
   DialogContent,
@@ -86,8 +85,11 @@ function sortQuestions(questions: QuestionFromApi[]): QuestionFromApi[] {
 
 export function CreateTemplateDialog({
   children,
+  onCreated,
 }: {
   children: React.ReactNode;
+  /** Chamado após criar template com sucesso; use para atualizar listas sem reload */
+  onCreated?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [availableQuestions, setAvailableQuestions] = useState<
@@ -96,7 +98,6 @@ export function CreateTemplateDialog({
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [entries, setEntries] = useState<QuestionEntry[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
 
   const form = useForm<TemplateFormValues>({
     resolver: zodResolver(templateSchema),
@@ -164,7 +165,10 @@ export function CreateTemplateDialog({
       });
 
       toast.success('Template criado com sucesso.');
-      router.refresh();
+      onCreated?.();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('templates-updated'));
+      }
       setOpen(false);
       form.reset();
       setEntries([]);

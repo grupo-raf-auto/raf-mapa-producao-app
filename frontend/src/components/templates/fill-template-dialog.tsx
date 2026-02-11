@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useRouter } from '@/lib/router-compat';
 import {
   Dialog,
   DialogContent,
@@ -71,6 +70,8 @@ interface FillTemplateDialogProps {
   template: Template | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Chamado após submissão com sucesso; use para atualizar listas sem reload da página */
+  onSubmitted?: () => void;
 }
 
 /** Verifica se a data (string YYYY-MM-DD ou parseável) é futura (após hoje). */
@@ -129,12 +130,12 @@ export function FillTemplateDialog({
   template,
   open,
   onOpenChange,
+  onSubmitted,
 }: FillTemplateDialogProps) {
   const { data: session } = useSession();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const router = useRouter();
   const agentDisplayName = getDisplayName(session?.user);
 
   // Carregar questões do template
@@ -253,9 +254,11 @@ export function FillTemplateDialog({
       // Fechar dialog e resetar form
       form.reset();
       onOpenChange(false);
-      router.refresh();
+      onSubmitted?.();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('submissions-updated'));
+      }
 
-      // Mostrar mensagem de sucesso
       toast.success('Formulário submetido com sucesso!');
     } catch (error: unknown) {
       console.error('Error submitting form:', error);

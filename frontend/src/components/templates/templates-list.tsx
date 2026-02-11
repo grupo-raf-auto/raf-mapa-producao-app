@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from '@/lib/router-compat';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
@@ -75,34 +74,38 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [fillingTemplate, setFillingTemplate] = useState<Template | null>(null);
   const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
-  const router = useRouter();
 
-  // Carregar templates
-  useEffect(() => {
-    const loadTemplates = async () => {
-      try {
-        setError(null);
-        const templatesData = await api.templates.getAll();
-        setTemplates(templatesData);
-      } catch (error: any) {
-        console.error('Error loading templates:', error);
-        setError(
-          error.message || 'Erro ao carregar templates. Tente novamente.',
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadTemplates();
+  const loadTemplates = useCallback(async () => {
+    try {
+      setError(null);
+      const templatesData = await api.templates.getAll();
+      setTemplates(templatesData);
+    } catch (error: unknown) {
+      console.error('Error loading templates:', error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Erro ao carregar templates. Tente novamente.',
+      );
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadTemplates();
+  }, [loadTemplates]);
+
+  useEffect(() => {
+    const handler = () => loadTemplates();
+    window.addEventListener('templates-updated', handler);
+    return () => window.removeEventListener('templates-updated', handler);
+  }, [loadTemplates]);
 
   const handleDelete = async (id: string) => {
     try {
       await api.templates.delete(id);
-      // Atualizar lista local removendo o template excluído
       setTemplates((prev) => prev.filter((t) => t._id !== id));
-      router.refresh();
     } catch (error) {
       console.error('Error deleting template:', error);
       const message =
@@ -122,19 +125,6 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
     setIsEditDialogOpen(open);
     if (!open) {
       setEditingTemplate(null);
-      // Recarregar templates após edição
-      const loadTemplates = async () => {
-        try {
-          setError(null);
-          const templatesData = await api.templates.getAll();
-          setTemplates(templatesData);
-        } catch (error: any) {
-          console.error('Error loading templates:', error);
-          setError(
-            error.message || 'Erro ao carregar templates. Tente novamente.',
-          );
-        }
-      };
       loadTemplates();
     }
   };

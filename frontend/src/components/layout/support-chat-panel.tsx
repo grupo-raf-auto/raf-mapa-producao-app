@@ -92,19 +92,19 @@ export function SupportChatPanel() {
 
   const panelContent = (
     <>
-      {/* Backdrop — full area, stronger on mobile */}
+      {/* Backdrop apenas em mobile — desktop: painel fixo ao lado, sem modal */}
       <div
-        className="fixed inset-0 bg-black/40 md:bg-black/25 z-[100] backdrop-blur-[2px]"
+        className="fixed inset-0 bg-black/40 z-[100] backdrop-blur-[2px] md:hidden"
         onClick={closeChat}
         aria-hidden
       />
 
-      {/* Panel — full screen mobile; side panel desktop */}
+      {/* Panel — full screen mobile; no desktop altura do container (não full screen) */}
       <div
         className={cn(
           'fixed z-[101] flex flex-col bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 shadow-2xl',
-          'inset-0 md:inset-auto md:left-[220px] lg:left-[260px] md:top-0 md:bottom-0 md:w-[min(400px,calc(100vw-220px))] lg:w-[400px]',
-          'rounded-none md:rounded-l-2xl border-0 md:border-r border-slate-200 dark:border-slate-800',
+          'inset-0 md:inset-auto md:left-[calc(220px+1rem)] lg:left-[calc(260px+1rem)] md:right-5 lg:right-6 xl:right-8 md:top-5 lg:top-6 xl:top-8 md:h-[calc(100vh-2.5rem)] lg:h-[calc(100vh-3rem)] xl:h-[calc(100vh-4rem)] md:w-[min(400px,calc(100vw-220px-2.25rem))] lg:w-[min(400px,calc(100vw-260px-2.5rem))] xl:w-[min(400px,calc(100vw-260px-3rem))]',
+          'rounded-none md:rounded-2xl border-0 md:border border-slate-200 dark:border-slate-800',
           'animate-in slide-in-from-right-4 md:slide-in-from-left-2 duration-200',
         )}
         role="dialog"

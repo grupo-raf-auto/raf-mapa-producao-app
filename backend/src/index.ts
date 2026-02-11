@@ -24,6 +24,7 @@ import chatRoutes from './routes/chat.routes';
 import documentRoutes from './routes/document.routes';
 import scannerRoutes from './routes/documentScanner.routes';
 import ticketRoutes from './routes/ticket.routes';
+import teamRoutes from './routes/team.routes';
 import notificationsRoutes from './routes/notifications.routes';
 import messageGeneratorRoutes from './routes/message-generator.routes';
 import { seedUserModels } from './scripts/seed-user-models';
@@ -134,6 +135,7 @@ async function main() {
   app.use('/api/documents', authenticateUser, documentRoutes);
   app.use('/api/scanner', authenticateUser, scannerRoutes);
   app.use('/api/tickets', authenticateUser, ticketRoutes);
+  app.use('/api/teams', teamRoutes);
   app.use('/api/notifications', authenticateUser, notificationsRoutes);
   app.use('/api/message-generator', messageGeneratorRoutes);
 

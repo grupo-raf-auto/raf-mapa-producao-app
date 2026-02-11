@@ -17,25 +17,34 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Mapear tipos de modelo para ícones e labels
+// Mapear tipos de modelo para ícones, labels e cores (trigger + itens do dropdown)
 const modelConfig = {
   credito: {
     icon: CreditCard,
     label: 'Crédito',
     color:
       'bg-blue-500/20 text-blue-700 dark:text-blue-300 hover:bg-blue-500/30',
+    itemColor:
+      'text-blue-700 dark:text-blue-300 data-[highlighted]:bg-blue-500/15',
+    iconColor: 'text-blue-600 dark:text-blue-400',
   },
   seguro: {
     icon: Shield,
     label: 'Seguros',
     color:
       'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/30',
+    itemColor:
+      'text-emerald-700 dark:text-emerald-300 data-[highlighted]:bg-emerald-500/15',
+    iconColor: 'text-emerald-600 dark:text-emerald-400',
   },
   imobiliaria: {
     icon: Building2,
     label: 'Imobiliária',
     color:
       'bg-orange-500/20 text-orange-700 dark:text-orange-300 hover:bg-orange-500/30',
+    itemColor:
+      'text-orange-700 dark:text-orange-300 data-[highlighted]:bg-orange-500/15',
+    iconColor: 'text-orange-600 dark:text-orange-400',
   },
 };
 
@@ -141,12 +150,12 @@ export function ModelSelector() {
               key={model.id}
               onClick={() => handleModelSwitch(model.id)}
               disabled={isActive || isSwitching}
-              className="flex items-center gap-2 cursor-pointer"
+              className={`flex items-center gap-2 cursor-pointer ${config?.itemColor || ''}`}
             >
-              <Icon className="w-4 h-4" />
-              <span className="flex-1">{config?.label || model.modelType}</span>
+              <Icon className={`w-4 h-4 shrink-0 ${config?.iconColor || 'text-muted-foreground'}`} />
+              <span className="flex-1 font-medium">{config?.label || model.modelType}</span>
               {isActive && (
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <Check className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
               )}
             </DropdownMenuItem>
           );

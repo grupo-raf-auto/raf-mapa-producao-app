@@ -24,6 +24,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { apiClient as api } from '@/lib/api-client';
 import { toast } from 'sonner';
@@ -38,8 +47,9 @@ import {
   ChevronDown,
   MailCheck,
   MailX,
-  Settings2,
   Shield,
+  AlertTriangle,
+  Layers,
 } from 'lucide-react';
 import { UserModelsModal } from './user-models-modal';
 import { PageHeader } from '@/components/ui/page-header';
@@ -84,6 +94,9 @@ export function UsersManagement() {
   const [roleUpdatingUserId, setRoleUpdatingUserId] = useState<string | null>(
     null,
   );
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -159,14 +172,27 @@ export function UsersManagement() {
     }
   };
 
-  const deleteUser = async (userId: string) => {
-    if (!confirm('Tem a certeza que deseja eliminar este utilizador?')) return;
+  const openDeleteModal = (user: User) => {
+    setUserToDelete({
+      id: user._id || user.id,
+      name: getUserDisplayName(user),
+    });
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    setDeleteSubmitting(true);
     try {
-      await api.users.delete(userId);
+      await api.users.delete(userToDelete.id);
       toast.success('Utilizador eliminado com sucesso');
+      setDeleteModalOpen(false);
+      setUserToDelete(null);
       loadData();
     } catch (error: any) {
       toast.error('Erro ao eliminar utilizador: ' + error.message);
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -400,11 +426,16 @@ export function UsersManagement() {
                       </Button>
                     </>
                   )}
-                  <Button variant="outline" size="sm" onClick={() => openModelsModal(user)} className="min-h-[44px] rounded-xl gap-2">
-                    <Settings2 className="w-4 h-4" />
-                    Modelos
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openModelsModal(user)}
+                    className="min-h-[44px] rounded-xl gap-2.5 border-border/80 bg-muted/10 hover:bg-muted/40 hover:border-muted-foreground/25 font-medium text-foreground/95 shadow-sm"
+                  >
+                    <Layers className="w-4 h-4 text-muted-foreground" />
+                    Gerir modelos
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => deleteUser(user._id || user.id)} className="min-w-[44px] min-h-[44px] text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+                  <Button variant="ghost" size="icon" onClick={() => openDeleteModal(user)} className="min-w-[44px] min-h-[44px] text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -503,11 +534,16 @@ export function UsersManagement() {
                             <Button variant="outline" size="sm" onClick={() => openRejectModal(user._id || user.id)} className="rounded-lg">Rejeitar</Button>
                           </>
                         )}
-                        <Button variant="outline" size="sm" className="gap-1.5 rounded-lg" onClick={() => openModelsModal(user)}>
-                          <Settings2 className="w-3.5 h-3.5" />
-                          Modelos
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openModelsModal(user)}
+                          className="gap-2 rounded-xl border-border/80 bg-muted/10 hover:bg-muted/40 hover:border-muted-foreground/25 font-medium text-foreground/95 shadow-sm"
+                        >
+                          <Layers className="w-4 h-4 text-muted-foreground" />
+                          Gerir modelos
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => deleteUser(user._id || user.id)} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+                        <Button variant="ghost" size="icon" onClick={() => openDeleteModal(user)} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -566,6 +602,50 @@ export function UsersManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Eliminar utilizador — modal de confirmação */}
+      <AlertDialog open={deleteModalOpen} onOpenChange={(open) => { setDeleteModalOpen(open); if (!open) setUserToDelete(null); }}>
+        <AlertDialogContent className="sm:max-w-md rounded-2xl border-border/80 shadow-xl">
+          <AlertDialogHeader>
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+                <AlertTriangle className="h-6 w-6 text-destructive" />
+              </div>
+              <div className="space-y-2 pt-0.5">
+                <AlertDialogTitle className="text-left text-lg">
+                  Eliminar utilizador
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-left text-muted-foreground">
+                  Tem a certeza que deseja eliminar <span className="font-semibold text-foreground">{userToDelete?.name ?? 'este utilizador'}</span>? Esta ação não pode ser desfeita e todos os dados associados serão removidos.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex flex-row gap-2 sm:justify-end mt-6">
+            <AlertDialogCancel disabled={deleteSubmitting} className="rounded-xl">
+              Cancelar
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              className="rounded-xl"
+              disabled={deleteSubmitting}
+              onClick={confirmDeleteUser}
+            >
+              {deleteSubmitting ? (
+                <>
+                  <Spinner variant="bars" className="w-4 h-4 mr-2" />
+                  A eliminar...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Eliminar
+                </>
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

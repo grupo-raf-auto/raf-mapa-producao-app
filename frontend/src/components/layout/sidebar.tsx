@@ -9,6 +9,7 @@ import {
   Settings,
   HelpCircle,
   User,
+  Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SidebarSupportChat } from '@/components/layout/sidebar-support-chat';
@@ -20,6 +21,12 @@ const mainNavigation = [
     href: '/',
     icon: LayoutDashboard,
     description: 'Métricas e visão geral',
+  },
+  {
+    label: 'Equipas',
+    href: '/equipas',
+    icon: Users,
+    description: 'Métricas e ranking da sua equipa',
   },
   {
     label: 'Consultas',

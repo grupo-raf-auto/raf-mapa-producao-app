@@ -8,6 +8,7 @@ import { AuthProvider } from '@/contexts/auth-context';
 // Pages
 import HomePage from '@/pages/Home';
 import SelectModelsPage from '@/pages/SelectModels';
+import OnboardingPage from '@/pages/Onboarding';
 import AdminPage from '@/pages/Admin';
 import TemplatesPage from '@/pages/Templates';
 import FormulariosPage from '@/pages/Formularios';
@@ -17,6 +18,7 @@ import GeradorMensagensPage from '@/pages/GeradorMensagens';
 import MysabichaoPage from '@/pages/Mysabichao';
 import SettingsPage from '@/pages/Settings';
 import HelpPage from '@/pages/Help';
+import EquipasPage from '@/pages/Equipas';
 import SignInPage from '@/pages/SignIn';
 import AdminUsersPage from '@/pages/admin/Users';
 import AdminConsultasPage from '@/pages/admin/Consultas';
@@ -26,6 +28,7 @@ import AdminDocumentsPage from '@/pages/admin/Documents';
 import AdminTicketsPage from '@/pages/admin/Tickets';
 import AdminDefinicoesPage from '@/pages/admin/Definicoes';
 import AdminAjudaPage from '@/pages/admin/Ajuda';
+import AdminEquipasPage from '@/pages/admin/Equipas';
 
 // Auth flows (full-page components)
 import { VerifyEmail } from '@/components/auth/verify-email';
@@ -58,6 +61,7 @@ function App() {
 
                 {/* User routes */}
                 <Route path="/" element={<HomePage />} />
+                <Route path="/onboarding" element={<OnboardingPage />} />
                 <Route path="/select-models" element={<SelectModelsPage />} />
                 <Route path="/templates" element={<TemplatesPage />} />
                 <Route path="/formularios" element={<FormulariosPage />} />
@@ -67,6 +71,7 @@ function App() {
                 <Route path="/mysabichao" element={<MysabichaoPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/help" element={<HelpPage />} />
+                <Route path="/equipas" element={<EquipasPage />} />
 
                 {/* Admin routes */}
                 <Route path="/admin" element={<AdminPage />}>
@@ -75,6 +80,7 @@ function App() {
                   <Route path="users/:userId/models" element={<SelectModelsPage />} />
                   <Route path="consultas" element={<AdminConsultasPage />} />
                   <Route path="performance" element={<AdminPerformancePage />} />
+                  <Route path="equipas" element={<AdminEquipasPage />} />
                   <Route path="templates" element={<AdminTemplatesPage />} />
                   <Route path="documents" element={<AdminDocumentsPage />} />
                   <Route path="tickets" element={<AdminTicketsPage />} />

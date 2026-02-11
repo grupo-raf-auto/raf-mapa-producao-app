@@ -9,6 +9,7 @@ import {
   HelpCircle,
   Shield,
   Users,
+  UsersRound,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SidebarSupportChat } from '@/components/layout/sidebar-support-chat';
@@ -32,6 +33,12 @@ const adminNavigation = [
     tab: 'performance',
     icon: TrendingUp,
     description: 'Métricas e análise',
+  },
+  {
+    label: 'Equipas',
+    tab: 'equipas',
+    icon: UsersRound,
+    description: 'Gerir equipas e ver desempenho global',
   },
   {
     label: 'Templates',

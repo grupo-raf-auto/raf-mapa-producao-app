@@ -48,6 +48,13 @@ const adminSearchData: SearchItem[] = [
     tags: ['Consultas', 'Submissões', 'Filtros'],
   },
   {
+    id: 'admin/equipas',
+    title: 'Equipas',
+    description: 'Gerir equipas e ver desempenho global',
+    category: 'horizon',
+    tags: ['Equipas', 'Ranking'],
+  },
+  {
     id: 'admin/performance',
     title: 'Desempenho',
     description: 'Métricas e análise de performance',

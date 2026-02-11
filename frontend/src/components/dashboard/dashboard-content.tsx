@@ -4,6 +4,7 @@ import { KPICards } from './kpi-cards';
 import { DashboardChartsWrapper } from './dashboard-charts-wrapper';
 import { apiClient as api, clearStatsCache } from '@/lib/api-client';
 import { DashboardHeader } from '@/components/ui/dashboard-header';
+import { UserGoalSection } from '@/components/dashboard/user-goal-section';
 import { useModelContext } from '@/contexts/model-context';
 import { useUserModels } from '@/hooks/use-user-models';
 import { Card, CardContent } from '@/components/ui/card';
@@ -249,6 +250,10 @@ export function DashboardContent() {
       )}
 
       <DashboardHeader />
+
+      <UserGoalSection
+        monthlyData={salesStats?.byMonth ?? []}
+      />
 
       <section aria-label="Indicadores principais">
         <KPICards cards={kpiCards} />

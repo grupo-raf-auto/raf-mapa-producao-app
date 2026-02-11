@@ -387,6 +387,21 @@ export const apiClient = {
         body: JSON.stringify(data),
       }).then(() => invalidateCache('notifications')),
   },
+  user: {
+    getGoal: () => fetchWithAuth('user/goal'),
+    setGoal: (data: {
+      goalType: string;
+      targetValue: number;
+      period?: string;
+    }) =>
+      fetchWithAuth('user/goal', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }).then((result) => {
+        invalidateCache('user');
+        return result;
+      }),
+  },
   userModels: {
     getMyModels: async () => {
       const raw = await fetchWithAuth('user-models/my-models');

@@ -47,12 +47,14 @@ interface User {
   firstName?: string;
   lastName?: string;
   name?: string;
+  image?: string | null;
 }
 
 interface SubmissionWithDetails extends Submission {
   template?: Template;
   templateTitle?: string;
   agentName?: string | null;
+  agentImage?: string | null;
   bancoAnswer?: string | null;
   seguradoraAnswer?: string | null;
   valorAnswer?: string | null;
@@ -165,6 +167,7 @@ export function AdminConsultasList({
             template,
             templateTitle: template?.title || 'Template não encontrado',
             agentName,
+            agentImage: agent?.image ?? null,
             valorQuestionId: valorQuestion?._id,
             valorAnswer: valorAnswer,
             nomeClienteQuestionId: nomeClienteQuestion?._id,

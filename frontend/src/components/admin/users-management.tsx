@@ -53,6 +53,7 @@ import {
 } from 'lucide-react';
 import { UserModelsModal } from './user-models-modal';
 import { PageHeader } from '@/components/ui/page-header';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface User {
   _id: string;
@@ -61,6 +62,7 @@ interface User {
   firstName?: string;
   lastName?: string;
   name?: string;
+  image?: string | null;
   role: 'admin' | 'user';
   status: 'pending' | 'approved' | 'rejected';
   emailVerified: boolean;
@@ -230,6 +232,12 @@ export function UsersManagement() {
     return user.email.split('@')[0];
   };
 
+  const getUserInitials = (user: User) => {
+    const name = getUserDisplayName(user);
+    if (name.includes(' ')) return name.split(/\s+/).map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+    return (name.slice(0, 2) || 'U').toUpperCase();
+  };
+
   if (loading) {
     return (
       <Card className="rounded-2xl border border-border/60 shadow-sm">
@@ -357,9 +365,17 @@ export function UsersManagement() {
               className="rounded-2xl border border-border/60 shadow-sm overflow-hidden"
             >
               <CardContent className="p-4 space-y-4">
-                <div>
-                  <p className="font-semibold text-foreground truncate">{getUserDisplayName(user)}</p>
-                  <p className="text-sm text-muted-foreground truncate mt-0.5">{user.email}</p>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-11 w-11 shrink-0 rounded-full border-2 border-border/60">
+                    <AvatarImage src={user.image ?? undefined} alt={getUserDisplayName(user)} />
+                    <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
+                      {getUserInitials(user)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-foreground truncate">{getUserDisplayName(user)}</p>
+                    <p className="text-sm text-muted-foreground truncate mt-0.5">{user.email}</p>
+                  </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge
@@ -469,9 +485,17 @@ export function UsersManagement() {
                 filteredUsers.map((user) => (
                   <TableRow key={user._id || user.id} className="border-border/40">
                     <TableCell>
-                      <div>
-                        <p className="font-medium">{getUserDisplayName(user)}</p>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9 shrink-0 rounded-full border border-border/60">
+                          <AvatarImage src={user.image ?? undefined} alt={getUserDisplayName(user)} />
+                          <AvatarFallback className="bg-muted text-muted-foreground text-xs font-medium">
+                            {getUserInitials(user)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <p className="font-medium truncate">{getUserDisplayName(user)}</p>
+                          <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>

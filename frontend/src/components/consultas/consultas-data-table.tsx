@@ -56,6 +56,7 @@ import {
 import { Edit, Euro, Save, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { useModal } from '@/contexts/modal-context';
 import {
@@ -107,6 +108,7 @@ interface Submission {
   submittedBy: string;
   commissionPaid?: boolean;
   agentName?: string | null;
+  agentImage?: string | null;
   valorQuestionId?: string;
   valorAnswer?: string | null;
   nomeClienteQuestionId?: string;
@@ -388,11 +390,22 @@ export function ConsultasDataTable({
               id: 'agentName',
               accessorKey: 'agentName',
               cell: ({ row }: { row: { original: Submission } }) => {
-                const value = row.original.agentName;
-                return value ? (
-                  <span className="text-foreground">{value}</span>
-                ) : (
-                  <span className="text-muted-foreground">-</span>
+                const name = row.original.agentName;
+                const image = row.original.agentImage;
+                if (!name) return <span className="text-muted-foreground">-</span>;
+                const initials = name.includes(' ')
+                  ? name.split(/\s+/).map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+                  : (name.slice(0, 2) || '-').toUpperCase();
+                return (
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8 shrink-0 rounded-full border border-border/60">
+                      <AvatarImage src={image ?? undefined} alt={name} />
+                      <AvatarFallback className="bg-muted text-muted-foreground text-xs font-medium">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-foreground truncate">{name}</span>
+                  </div>
                 );
               },
             } as ColumnDef<Submission>,

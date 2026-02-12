@@ -383,7 +383,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
       <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
         <AdminTopBar onOpenSidebar={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-auto overflow-x-hidden p-4 sm:p-5 md:p-6 min-h-0 min-w-0" role="main">
+        <main className="flex-1 overflow-auto overflow-x-hidden px-5 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-4 sm:py-5 md:py-6 min-h-0 min-w-0" role="main">
           <div className="max-w-[1600px] mx-auto w-full min-w-0">{children}</div>
         </main>
       </div>

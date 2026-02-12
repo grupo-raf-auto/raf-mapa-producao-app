@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { BorderRotate } from '@/components/ui/animated-gradient-border';
 import { SlidersHorizontal, Search, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AdminConsultasFiltersModal } from './admin-consultas-filters-modal';
@@ -94,7 +95,8 @@ export function AdminConsultasFilters({
 
   return (
     <>
-      <Card className="mb-4 sm:mb-6 rounded-xl sm:rounded-2xl overflow-hidden min-w-0 max-w-full">
+      <BorderRotate gradientColors={{ primary: '#5c1a1a', secondary: '#ef4444', accent: '#fca5a5' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+      <Card className="mb-4 sm:mb-6 rounded-xl sm:rounded-2xl overflow-hidden min-w-0 max-w-full border-0">
         <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h2 className="text-sm sm:text-base font-semibold">Filtros</h2>
@@ -210,6 +212,7 @@ export function AdminConsultasFilters({
           </div>
         </CardContent>
       </Card>
+      </BorderRotate>
 
       <AdminConsultasFiltersModal
         open={isModalOpen}

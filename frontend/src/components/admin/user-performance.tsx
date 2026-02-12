@@ -38,6 +38,8 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DashboardMetricCard } from '@/components/ui/dashboard-metric-card';
+import { BorderRotate } from '@/components/ui/animated-gradient-border';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface UserStats {
   userId: string;
@@ -45,6 +47,7 @@ interface UserStats {
   email: string;
   firstName?: string;
   lastName?: string;
+  image?: string;
   role: string;
   totalSubmissions: number;
   totalTemplates: number;
@@ -339,7 +342,8 @@ export function UserPerformance() {
         </SectionTitle>
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-5">
           <AnimatedSection delay={0}>
-            <div className="chart-card h-full relative min-h-[260px] sm:min-h-[320px] max-w-full overflow-hidden">
+            <BorderRotate gradientColors={{ primary: '#1e3a5f', secondary: '#3b82f6', accent: '#93c5fd' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+            <div className="chart-card h-full relative min-h-[260px] sm:min-h-[320px] max-w-full overflow-hidden" style={{ border: 'none' }}>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                 <div className="min-w-0">
                   <h3 className="chart-card-title">
@@ -480,6 +484,7 @@ export function UserPerformance() {
                 </ResponsiveContainer>
               </div>
             </div>
+            </BorderRotate>
           </AnimatedSection>
         </div>
       </section>
@@ -491,7 +496,8 @@ export function UserPerformance() {
         </SectionTitle>
         <div className="grid grid-cols-1 gap-5">
           <AnimatedSection delay={0.1}>
-            <div className="chart-card h-full min-h-[280px] sm:min-h-[360px] max-w-full overflow-hidden">
+            <BorderRotate gradientColors={{ primary: '#134e4a', secondary: '#14b8a6', accent: '#5eead4' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+            <div className="chart-card h-full min-h-[280px] sm:min-h-[360px] max-w-full overflow-hidden" style={{ border: 'none' }}>
               <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <h3 className="chart-card-title">
@@ -648,6 +654,7 @@ export function UserPerformance() {
                 </ResponsiveContainer>
               </div>
             </div>
+            </BorderRotate>
           </AnimatedSection>
         </div>
       </section>
@@ -667,25 +674,35 @@ export function UserPerformance() {
 
             {/* Mobile: cards por utilizador */}
             <div className="md:hidden divide-y divide-border/60">
-              {sortedUsers.map((user) => (
+              {sortedUsers.map((user) => {
+                const initials = user.firstName && user.lastName
+                  ? `${user.firstName[0]}${user.lastName[0]}`
+                  : user.email[0].toUpperCase();
+                return (
                 <div
                   key={user.userId}
                   className="p-4 space-y-3"
                 >
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-foreground">
-                        {user.firstName && user.lastName
-                          ? `${user.firstName} ${user.lastName}`
-                          : user.email}
-                      </span>
-                      {user.role === 'admin' ? (
-                        <Badge variant="default" className="text-xs">Admin</Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-xs">User</Badge>
-                      )}
+                  <div className="flex items-start gap-3">
+                    <Avatar className="w-10 h-10 shrink-0">
+                      <AvatarImage src={user.image} alt={user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email} />
+                      <AvatarFallback>{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-foreground">
+                          {user.firstName && user.lastName
+                            ? `${user.firstName} ${user.lastName}`
+                            : user.email}
+                        </span>
+                        {user.role === 'admin' ? (
+                          <Badge variant="default" className="text-xs">Admin</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">User</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate mt-0.5">{user.email}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground truncate mt-0.5">{user.email}</p>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                     <div>
@@ -715,7 +732,8 @@ export function UserPerformance() {
                     Registado: {format(new Date(user.createdAt), 'dd/MM/yyyy')}
                   </p>
                 </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Desktop: tabela com scroll horizontal */}
@@ -735,21 +753,31 @@ export function UserPerformance() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedUsers.map((user) => (
+                  {sortedUsers.map((user) => {
+                    const initials = user.firstName && user.lastName
+                      ? `${user.firstName[0]}${user.lastName[0]}`
+                      : user.email[0].toUpperCase();
+                    return (
                     <TableRow key={user.userId} className="performance-table-row">
                       <TableCell className="performance-table-cell performance-table-cell-user">
-                        <div className="performance-table-user">
-                          <div className="performance-table-user-name-row">
-                            <span className="performance-table-user-name">
-                              {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}
-                            </span>
-                            {user.role === 'admin' ? (
-                              <Badge variant="default" className="performance-table-badge-role">Admin</Badge>
-                            ) : (
-                              <Badge variant="outline" className="performance-table-badge-role">User</Badge>
-                            )}
+                        <div className="flex items-center gap-3">
+                          <Avatar className="w-8 h-8 shrink-0">
+                            <AvatarImage src={user.image} alt={user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email} />
+                            <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                          </Avatar>
+                          <div className="performance-table-user min-w-0">
+                            <div className="performance-table-user-name-row">
+                              <span className="performance-table-user-name">
+                                {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}
+                              </span>
+                              {user.role === 'admin' ? (
+                                <Badge variant="default" className="performance-table-badge-role">Admin</Badge>
+                              ) : (
+                                <Badge variant="outline" className="performance-table-badge-role">User</Badge>
+                              )}
+                            </div>
+                            <span className="performance-table-user-email">{user.email}</span>
                           </div>
-                          <span className="performance-table-user-email">{user.email}</span>
                         </div>
                       </TableCell>
                       <TableCell className="performance-table-cell performance-table-cell-num text-right tabular-nums">{user.totalSubmissions}</TableCell>
@@ -780,7 +808,8 @@ export function UserPerformance() {
                         {format(new Date(user.createdAt), 'dd/MM/yyyy')}
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

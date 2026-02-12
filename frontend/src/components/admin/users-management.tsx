@@ -52,6 +52,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { UserModelsModal } from './user-models-modal';
+import { BorderRotate } from '@/components/ui/animated-gradient-border';
 import { PageHeader } from '@/components/ui/page-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -261,7 +262,8 @@ export function UsersManagement() {
 
       {/* Stats Cards — mobile-first: 2 col grid, depois 4 col */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <Card className="rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+        <BorderRotate gradientColors={{ primary: '#1e3a5f', secondary: '#3b82f6', accent: '#93c5fd' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+        <Card className="rounded-2xl border-0 shadow-sm overflow-hidden">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
@@ -274,7 +276,9 @@ export function UsersManagement() {
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-2xl border border-amber-200/80 bg-amber-50/50 dark:border-amber-800/50 dark:bg-amber-950/30 shadow-sm overflow-hidden">
+        </BorderRotate>
+        <BorderRotate gradientColors={{ primary: '#5c3d0e', secondary: '#f59e0b', accent: '#fcd34d' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+        <Card className="rounded-2xl border-0 bg-amber-50/50 dark:bg-amber-950/30 shadow-sm overflow-hidden">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
@@ -287,7 +291,9 @@ export function UsersManagement() {
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-2xl border border-emerald-200/80 bg-emerald-50/50 dark:border-emerald-800/50 dark:bg-emerald-950/30 shadow-sm overflow-hidden">
+        </BorderRotate>
+        <BorderRotate gradientColors={{ primary: '#14532d', secondary: '#22c55e', accent: '#86efac' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+        <Card className="rounded-2xl border-0 bg-emerald-50/50 dark:bg-emerald-950/30 shadow-sm overflow-hidden">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
@@ -300,7 +306,9 @@ export function UsersManagement() {
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-2xl border border-red-200/80 bg-red-50/50 dark:border-red-800/50 dark:bg-red-950/30 shadow-sm overflow-hidden">
+        </BorderRotate>
+        <BorderRotate gradientColors={{ primary: '#5c1a1a', secondary: '#ef4444', accent: '#fca5a5' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+        <Card className="rounded-2xl border-0 bg-red-50/50 dark:bg-red-950/30 shadow-sm overflow-hidden">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
@@ -313,10 +321,12 @@ export function UsersManagement() {
             </div>
           </CardContent>
         </Card>
+        </BorderRotate>
       </div>
 
       {/* Search and Filter — touch-friendly */}
-      <Card className="rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+      <BorderRotate gradientColors={{ primary: '#2d2d2d', secondary: '#6b7280', accent: '#d1d5db' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+      <Card className="rounded-2xl border-0 shadow-sm overflow-hidden">
         <CardContent className="p-4 sm:p-5 space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -349,6 +359,7 @@ export function UsersManagement() {
           </div>
         </CardContent>
       </Card>
+      </BorderRotate>
 
       {/* Mobile: lista em cards */}
       <div className="md:hidden space-y-3">
@@ -413,7 +424,7 @@ export function UsersManagement() {
                         size="sm"
                         className={`w-full justify-between min-h-[44px] rounded-xl ${
                           user.role === 'admin'
-                            ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950/50 dark:border-blue-800 dark:text-blue-300'
+                            ? 'bg-violet-50 border-violet-200 text-violet-700 dark:bg-violet-950/50 dark:border-violet-800 dark:text-violet-300 font-semibold'
                             : 'bg-muted/50 border-border text-foreground'
                         }`}
                       >
@@ -425,7 +436,11 @@ export function UsersManagement() {
                       <DropdownMenuItem onClick={() => changeRole(user._id || user.id, 'user')} disabled={user.role === 'user'}>
                         USER
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => changeRole(user._id || user.id, 'admin')} disabled={user.role === 'admin'}>
+                      <DropdownMenuItem
+                        onClick={() => changeRole(user._id || user.id, 'admin')}
+                        disabled={user.role === 'admin'}
+                        className="text-violet-700 dark:text-violet-300 font-semibold data-[highlighted]:bg-violet-50 dark:data-[highlighted]:bg-violet-950/50"
+                      >
                         ADMIN
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -537,7 +552,7 @@ export function UsersManagement() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className={`gap-1 rounded-full ${user.role === 'admin' ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300' : 'bg-muted/50 border-border'}`}
+                              className={`gap-1 rounded-full ${user.role === 'admin' ? 'bg-violet-50 border-violet-200 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300 font-semibold' : 'bg-muted/50 border-border'}`}
                             >
                               {user.role === 'admin' ? 'ADMIN' : 'USER'}
                               <ChevronDown className="w-3 h-3" />
@@ -545,7 +560,13 @@ export function UsersManagement() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="start">
                             <DropdownMenuItem onClick={() => changeRole(user._id || user.id, 'user')} disabled={user.role === 'user'}>USER</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => changeRole(user._id || user.id, 'admin')} disabled={user.role === 'admin'}>ADMIN</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => changeRole(user._id || user.id, 'admin')}
+                              disabled={user.role === 'admin'}
+                              className="text-violet-700 dark:text-violet-300 font-semibold data-[highlighted]:bg-violet-50 dark:data-[highlighted]:bg-violet-950/50"
+                            >
+                              ADMIN
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       )}

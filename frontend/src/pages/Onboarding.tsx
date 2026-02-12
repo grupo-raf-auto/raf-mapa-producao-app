@@ -52,11 +52,11 @@ export default function OnboardingPage() {
     checkState();
   }, [session, isPending, isAdmin]);
 
-  // Se o utilizador já tem equipa (ex.: auth acabou de carregar após reload), redirecionar
+  // Se o utilizador já tem modelos e equipa opcional (ex.: auth acabou de carregar após reload), redirecionar
   useEffect(() => {
     if (!session?.user || isAdmin || isInitializing) return;
-    if (hasTeam) router.replace('/');
-  }, [session?.user, isAdmin, hasTeam, isInitializing]);
+    if (hasModels) router.replace('/');
+  }, [session?.user, isAdmin, hasModels, isInitializing]);
 
   async function checkState() {
     try {
@@ -68,11 +68,8 @@ export default function OnboardingPage() {
       setTeams(Array.isArray(teamList) ? teamList : []);
       if (models && models.length > 0) {
         setSelectedModels(models.map((m: { modelType: string }) => m.modelType));
-        if (hasTeam) {
-          router.replace('/');
-          return;
-        }
-        // Quem já tem modelos mas não equipa: começar no passo 1 na mesma; ao clicar Continuar vai ao passo 2
+        router.replace('/');
+        return;
       }
       // Sempre começar no passo 1 (Modelo de negócio) ao carregar a página
       setCurrentStep(1);
@@ -139,15 +136,15 @@ export default function OnboardingPage() {
   }
 
   async function handleStep2Next(): Promise<boolean> {
-    if (!selectedTeamId) {
-      setError('Selecione uma equipa para continuar.');
-      return false;
-    }
     setError(null);
     setIsLoading(true);
     try {
-      await apiClient.teams.join(selectedTeamId);
-      updateUserStatus({ hasTeam: true });
+      if (selectedTeamId) {
+        await apiClient.teams.join(selectedTeamId);
+        updateUserStatus({ hasTeam: true });
+      } else {
+        updateUserStatus({ hasTeam: false });
+      }
       setCurrentStep(3);
       return true;
     } catch (err) {
@@ -244,7 +241,7 @@ export default function OnboardingPage() {
   const step2Content = (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Escolha a sua equipa. Terá acesso às métricas da sua equipa e poderá comparar com as restantes.
+        Escolha a sua equipa (opcional). Pode inscrever-se mais tarde na página Equipas. Terá acesso às métricas da sua equipa e poderá comparar com as restantes.
       </p>
       {teamsLoading ? (
         <div className="flex items-center justify-center py-8">
@@ -300,7 +297,7 @@ export default function OnboardingPage() {
 
   const steps = [
     { title: 'Modelo de negócio', content: step1Content },
-    { title: 'Equipa', content: step2Content },
+    { title: 'Equipa (opcional)', content: step2Content },
     { title: 'Conclusão', content: step3Content },
   ];
 
@@ -351,7 +348,7 @@ export default function OnboardingPage() {
                   </Button>
                   <Button
                     size="sm"
-                    disabled={isLoading || (currentStep === 2 && !selectedTeamId) || (currentStep === 1 && !hasModels)}
+                    disabled={isLoading || (currentStep === 1 && !hasModels)}
                     onClick={async () => {
                       if (currentStep === 1) await handleStep1Next();
                       else if (currentStep === 2) await handleStep2Next();
@@ -363,7 +360,8 @@ export default function OnboardingPage() {
                       </span>
                     ) : currentStep === 2 ? (
                       <span className="inline-flex items-center gap-2">
-                        Continuar <ArrowRight className="w-4 h-4" />
+                        {selectedTeamId ? 'Continuar' : 'Continuar sem equipa'}
+                        <ArrowRight className="w-4 h-4" />
                       </span>
                     ) : (
                       'Continuar'

@@ -49,11 +49,11 @@ export function ProtectedRoute({
     return <Navigate to="/approval-status" replace />;
   }
 
-  // Convidado (user aprovado) só acede ao resto da app após escolher modelo e equipa
+  // Convidado (user aprovado) só acede ao resto da app após escolher modelo (equipa é facultativa)
   if (
     !requireAdmin &&
     !isAdmin &&
-    (hasModels === false || hasTeam === false) &&
+    hasModels === false &&
     !ALLOWED_WITHOUT_ONBOARDING.some((p) => pathname === p || pathname.startsWith(p + '/'))
   ) {
     return <Navigate to={ONBOARDING_PATH} replace />;

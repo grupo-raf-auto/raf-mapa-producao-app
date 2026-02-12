@@ -15,6 +15,7 @@ import { FileStack, Calendar, FileEdit, Lock } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { FillTemplateDialog } from "@/components/templates/fill-template-dialog";
 import { PageHeader } from "@/components/ui/page-header";
+import { BorderRotate } from "@/components/ui/animated-gradient-border";
 import { useModelContext } from "@/contexts/model-context";
 
 interface Template {
@@ -135,9 +136,15 @@ export function FormulariosContent() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredTemplates.map((template) => (
-            <Card
+            <BorderRotate
               key={template._id}
-              className="shadow-sm hover:shadow-md transition-shadow"
+              gradientColors={{ primary: '#5c1a1a', secondary: '#ef4444', accent: '#fca5a5' }}
+              backgroundColor="var(--card)"
+              borderRadius={16}
+              borderWidth={2}
+            >
+            <Card
+              className="rounded-2xl border-0 shadow-sm"
             >
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -184,6 +191,7 @@ export function FormulariosContent() {
                 </div>
               </CardContent>
             </Card>
+            </BorderRotate>
           ))}
         </div>
       )}

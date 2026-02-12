@@ -32,6 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { BorderRotate } from "@/components/ui/animated-gradient-border";
 
 interface Document {
   _id: string;
@@ -210,7 +211,8 @@ export function DocumentsManager() {
     <div className="space-y-4 sm:space-y-6">
       {/* Estatísticas — mobile: cards compactos com elevação; desktop: 3 colunas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <Card className="rounded-2xl border border-border/70 shadow-(--shadow-surface) overflow-hidden transition-shadow hover:shadow-(--shadow-elevated) sm:transition-none">
+        <BorderRotate gradientColors={{ primary: '#1e3a5f', secondary: '#3b82f6', accent: '#93c5fd' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+        <Card className="rounded-2xl border-0 shadow-(--shadow-surface) overflow-hidden">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-blue-500/10 dark:bg-blue-400/10 flex items-center justify-center shrink-0 ring-1 ring-blue-500/10 dark:ring-blue-400/20">
@@ -223,7 +225,9 @@ export function DocumentsManager() {
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-2xl border border-border/70 shadow-(--shadow-surface) overflow-hidden transition-shadow hover:shadow-(--shadow-elevated) sm:transition-none">
+        </BorderRotate>
+        <BorderRotate gradientColors={{ primary: '#14532d', secondary: '#22c55e', accent: '#86efac' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+        <Card className="rounded-2xl border-0 shadow-(--shadow-surface) overflow-hidden">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 dark:bg-emerald-400/10 flex items-center justify-center shrink-0 ring-1 ring-emerald-500/10 dark:ring-emerald-400/20">
@@ -236,7 +240,9 @@ export function DocumentsManager() {
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-2xl border border-border/70 shadow-(--shadow-surface) overflow-hidden transition-shadow hover:shadow-(--shadow-elevated) sm:transition-none">
+        </BorderRotate>
+        <BorderRotate gradientColors={{ primary: '#2d2d2d', secondary: '#6b7280', accent: '#d1d5db' }} backgroundColor="var(--card)" borderRadius={16} borderWidth={2}>
+        <Card className="rounded-2xl border-0 shadow-(--shadow-surface) overflow-hidden">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-slate-500/10 dark:bg-slate-400/10 flex items-center justify-center shrink-0 ring-1 ring-slate-500/10 dark:ring-slate-400/20">
@@ -249,6 +255,7 @@ export function DocumentsManager() {
             </div>
           </CardContent>
         </Card>
+        </BorderRotate>
       </div>
 
       {/* Upload — mobile/tablet: stack; desktop: row */}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
+import { BorderRotate } from '@/components/ui/animated-gradient-border';
 import {
   Select,
   SelectContent,
@@ -112,7 +113,13 @@ export function ConsultasFilters({
     valorMax !== '';
 
   return (
-    <Card className="rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+    <BorderRotate
+      gradientColors={{ primary: '#5c1a1a', secondary: '#ef4444', accent: '#fca5a5' }}
+      backgroundColor="var(--card)"
+      borderRadius={16}
+      borderWidth={2}
+    >
+    <Card className="rounded-2xl border-0 shadow-sm overflow-hidden">
       <div className="p-4 sm:p-5 md:p-6 space-y-5 sm:space-y-6">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-base sm:text-lg font-semibold text-foreground">Filtros</h3>
@@ -229,5 +236,6 @@ export function ConsultasFilters({
         </div>
       </div>
     </Card>
+    </BorderRotate>
   );
 }

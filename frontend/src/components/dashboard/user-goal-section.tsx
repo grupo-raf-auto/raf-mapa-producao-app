@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import {
   Target,
-  TrendingUp,
   Euro,
   FileStack,
   Shield,
@@ -24,14 +22,21 @@ import { chartColors } from '@/lib/design-system';
 import { useModelContext } from '@/contexts/model-context';
 import type { ModelType } from '@/contexts/model-context';
 import {
-  AreaChart,
-  Area,
+  CartesianGrid,
+  Line,
+  LineChart,
   XAxis,
   YAxis,
-  Tooltip,
-  ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/line-chart';
+import { GoalProgressCard } from './goal-progress-card';
+import { ShineBorder } from '@/components/ui/shine-border';
 
 const ICONS = { FileStack, Euro, Shield, Home } as const;
 
@@ -344,13 +349,9 @@ export function UserGoalSection({ monthlyData = [] }: UserGoalSectionProps) {
   const goalType = data?.goal?.goalType ?? 'submissions_monthly';
   const option =
     options.find((o) => o.id === goalType) || options[0];
-  const IconComponent = ICONS[option.icon];
 
   // Cores do card alinhadas ao dropdown de modelos na navbar (model-selector)
-  const modelCardStyles: Record<
-    string,
-    { card: string; loading?: string }
-  > = {
+  const modelCardStyles: Record<string, string> = {
     credito:
       'border border-blue-200/80 dark:border-blue-500/20 bg-linear-to-br from-blue-50/90 via-sky-50/40 to-white dark:from-blue-950/50 dark:via-slate-800/60 dark:to-slate-800/40 shadow-lg shadow-blue-500/10',
     imobiliaria:
@@ -369,6 +370,60 @@ export function UserGoalSection({ monthlyData = [] }: UserGoalSectionProps) {
     target: hasGoal && data?.goal ? Number(data.goal.targetValue) : 0,
   }));
 
+  // Calcular progresso esperado baseado no tempo decorrido
+  const calculateExpectedProgress = (): {
+    expectedPercent: number;
+    isAheadOfPace: boolean;
+    paceDifferencePercent: number;
+  } => {
+    if (!hasGoal || !data?.goal) {
+      return { expectedPercent: 0, isAheadOfPace: true, paceDifferencePercent: 0 };
+    }
+
+    const now = new Date();
+    const period = data.goal.period || 'monthly';
+    let expectedPercent = 0;
+
+    if (period === 'monthly') {
+      // Calcular quantos dias do mês já passaram
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const daysInMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+      ).getDate();
+      const daysElapsed = Math.floor(
+        (now.getTime() - firstDayOfMonth.getTime()) / (1000 * 60 * 60 * 24),
+      ) + 1; // +1 para incluir o dia atual
+      expectedPercent = Math.min(100, (daysElapsed / daysInMonth) * 100);
+    } else {
+      // Anual: calcular quantos dias do ano já passaram
+      const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
+      const lastDayOfYear = new Date(now.getFullYear(), 11, 31);
+      const daysInYear = Math.ceil(
+        (lastDayOfYear.getTime() - firstDayOfYear.getTime()) /
+          (1000 * 60 * 60 * 24),
+      ) + 1; // +1 para incluir o último dia
+      const daysElapsed =
+        Math.floor(
+          (now.getTime() - firstDayOfYear.getTime()) / (1000 * 60 * 60 * 24),
+        ) + 1; // +1 para incluir o dia atual
+      expectedPercent = Math.min(100, (daysElapsed / daysInYear) * 100);
+    }
+
+    const actualProgress = progress?.progressPercent || 0;
+    const paceDifference = actualProgress - expectedPercent;
+    const isAheadOfPace = paceDifference >= 0;
+
+    return {
+      expectedPercent,
+      isAheadOfPace,
+      paceDifferencePercent: Math.abs(paceDifference),
+    };
+  };
+
+  const paceInfo = calculateExpectedProgress();
+
   if (loading) {
     return (
       <section aria-label="Objetivo">
@@ -385,207 +440,185 @@ export function UserGoalSection({ monthlyData = [] }: UserGoalSectionProps) {
   }
 
   return (
-    <section aria-label="Objetivo do utilizador">
-      <Card className={`overflow-hidden ${cardClassName}`}>
-        <CardHeader className="pb-3">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
+    <section aria-label="Objetivo do utilizador" className="space-y-4">
+      {/* Card principal de objetivos - redesenhado */}
+      <ShineBorder
+        borderRadius={16}
+        borderWidth={3}
+        duration={12}
+        color={[
+          option.color || '#B91C1C',
+          chartColors.secondary || '#0D9488',
+          option.color || '#B91C1C',
+        ]}
+        className="shadow-lg overflow-hidden"
+      >
+        <Card className="border-0 shadow-none bg-linear-to-br from-white via-white to-gray-50/50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 h-full w-full" style={{ borderRadius: '13px' }}>
+          <CardHeader className="pb-2 pt-3 px-4 border-b border-gray-100 dark:border-slate-700/50">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
               <div
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--goal-icon-bg) text-(--goal-icon)"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
                 style={{
-                  ['--goal-icon-bg' as string]: `${option.color}18`,
-                  ['--goal-icon' as string]: option.color,
+                  background: `linear-gradient(135deg, ${option.color}15, ${option.color}25)`,
+                  border: `1px solid ${option.color}30`,
                 }}
               >
-                <Target className="h-6 w-6" />
+                <Target className="h-4 w-4" style={{ color: option.color }} />
               </div>
               <div>
-                <CardTitle className="text-lg font-semibold">
+                <CardTitle className="text-base font-bold text-gray-900 dark:text-gray-100 mb-0">
                   O meu objetivo
                 </CardTitle>
-                <p className="text-sm text-muted-foreground mt-0.5">
+                <p className="text-[11px] text-gray-600 dark:text-gray-400">
                   {hasGoal
-                    ? 'Acompanhe o seu progresso em relação à meta definida.'
-                    : 'Defina um objetivo para acompanhar as suas métricas.'}
+                    ? `${option.label} • ${data?.goal?.period === 'yearly' ? 'Anual' : 'Mensal'}`
+                    : 'Defina um objetivo para acompanhar as suas métricas'}
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setModalOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl border border-primary/60 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 hover:border-primary transition-colors shadow-sm"
+              className="inline-flex items-center gap-1 rounded-lg bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm"
             >
-              <Settings2 className="h-4 w-4" />
-              {hasGoal ? 'Alterar objetivo' : 'Definir objetivo'}
+              <Settings2 className="h-3 w-3" />
+              {hasGoal ? 'Alterar' : 'Definir'}
             </button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6 pt-0">
-          {/* Bloco de métricas do objetivo */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="rounded-xl bg-white/80 dark:bg-slate-800/50 border border-border/60 p-4 flex items-center gap-4 shadow-sm">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted/80">
-                <IconComponent className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Valor atual
-                </p>
-                <p className="text-lg font-bold tabular-nums truncate">
-                  {progress
-                    ? formatValue(progress.currentValue, goalType)
-                    : '—'}
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl bg-white/80 dark:bg-slate-800/50 border border-border/60 p-4 flex items-center gap-4 shadow-sm">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted/80">
-                <Target className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Objetivo
-                </p>
-                <p className="text-lg font-bold tabular-nums truncate">
-                  {progress && hasGoal
-                    ? formatValue(progress.targetValue, goalType)
-                    : '—'}
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl bg-primary/10 dark:bg-primary/20 border border-primary/20 p-4 flex items-center gap-4 shadow-sm">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-primary">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-primary uppercase tracking-wider">
-                  Progresso
-                </p>
-                <p className="text-xl font-bold tabular-nums text-primary">
-                  {progress?.progressPercent ?? 0}%
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl bg-white/80 dark:bg-slate-800/50 border border-border/60 p-4 flex flex-col justify-center shadow-sm">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
-                Estado
-              </p>
-              <p className="text-sm font-semibold text-foreground">
-                {hasGoal
-                  ? `Objetivo: ${option.label}`
-                  : 'Sem objetivo definido'}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {hasGoal
-                  ? 'Altere quando quiser.'
-                  : 'Clique em "Definir objetivo".'}
-              </p>
-            </div>
-          </div>
-
-          {/* Barra e gráfico (só com objetivo definido) */}
-          {progress && progress.targetValue > 0 && (
-            <div className="rounded-xl bg-white/60 dark:bg-slate-800/40 border border-border/50 p-4 sm:p-5 space-y-5">
-              <div className="flex flex-wrap justify-between items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Evolução vs objetivo
-                </span>
-                <span className="text-sm font-semibold tabular-nums">
-                  {formatValue(progress.currentValue, goalType)} /{' '}
-                  {formatValue(progress.targetValue, goalType)}
-                </span>
-              </div>
-              <div className="h-3 w-full rounded-full bg-muted/80 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full bg-primary"
-                  initial={{ width: 0 }}
-                  animate={{
-                    width: `${Math.min(100, progress.progressPercent)}%`,
-                  }}
-                  transition={{ duration: 0.8, ease: 'easeOut' }}
+        <CardContent className="pt-3 px-4 pb-4">
+          {hasGoal && progress ? (
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-3">
+              {/* Coluna esquerda: Métricas + Progresso vs ritmo */}
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-md bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200/50 dark:border-blue-800/30 px-2.5 py-1.5">
+                    <p className="text-[10px] font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wider">
+                      Valor atual
+                    </p>
+                    <p className="text-sm font-bold text-blue-900 dark:text-blue-100 tabular-nums truncate">
+                      {formatValue(progress.currentValue, goalType)}
+                    </p>
+                  </div>
+                  <div className="rounded-md bg-purple-50/80 dark:bg-purple-950/30 border border-purple-200/50 dark:border-purple-800/30 px-2.5 py-1.5">
+                    <p className="text-[10px] font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wider">
+                      Objetivo
+                    </p>
+                    <p className="text-sm font-bold text-purple-900 dark:text-purple-100 tabular-nums truncate">
+                      {formatValue(progress.targetValue, goalType)}
+                    </p>
+                  </div>
+                </div>
+                <GoalProgressCard
+                  progressPercent={progress.progressPercent}
+                  expectedProgressPercent={paceInfo.expectedPercent}
+                  isAheadOfPace={paceInfo.isAheadOfPace}
+                  paceDifferencePercent={paceInfo.paceDifferencePercent}
                 />
               </div>
-              {chartData.length > 0 && (
-                <div className="h-[220px] w-full -mx-1">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={chartData}
-                      margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+
+              {/* Coluna direita: Gráfico de evolução */}
+              {progress.targetValue > 0 && chartData.length > 0 ? (
+                <div className="rounded-lg bg-white/60 dark:bg-slate-800/40 border border-gray-200/50 dark:border-slate-700/50 p-3 flex flex-col">
+                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Evolução temporal
+                  </span>
+                  <div className="h-[90px] w-full">
+                    <ChartContainer
+                      config={{
+                        current: {
+                          label: 'Atual',
+                          color: chartColors.primary,
+                        },
+                      } satisfies ChartConfig}
+                      className="h-full w-full !aspect-auto"
                     >
-                      <defs>
-                        <linearGradient
-                          id="goalCurrent"
-                          x1="0"
-                          y1="0"
-                          x2="0"
-                          y2="1"
-                        >
-                          <stop
-                            offset="0%"
-                            stopColor={chartColors.primary}
-                            stopOpacity={0.35}
+                      <LineChart
+                        accessibilityLayer
+                        data={chartData}
+                        margin={{ left: 8, right: 8, top: 4, bottom: 0 }}
+                      >
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="month"
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={6}
+                          tick={{ fontSize: 10 }}
+                          tickFormatter={(v) => {
+                            const s = String(v);
+                            return s.length >= 7 ? s.slice(0, 7) : s;
+                          }}
+                        />
+                        <YAxis
+                          tickLine={false}
+                          axisLine={false}
+                          tick={{ fontSize: 10 }}
+                          tickFormatter={(v) =>
+                            isValueGoal
+                              ? `${(v / 1000).toFixed(0)}k`
+                              : String(v)
+                          }
+                        />
+                        <ChartTooltip
+                          cursor={false}
+                          content={
+                            <ChartTooltipContent
+                              hideLabel
+                              formatter={(value) =>
+                                isValueGoal && typeof value === 'number'
+                                  ? formatValue(value, 'value_monthly')
+                                  : typeof value === 'number'
+                                    ? value.toLocaleString('pt-PT')
+                                    : String(value ?? '')
+                              }
+                            />
+                          }
+                        />
+                        {progress.targetValue > 0 && (
+                          <ReferenceLine
+                            y={progress.targetValue}
+                            stroke={chartColors.secondary}
+                            strokeDasharray="4 4"
+                            strokeWidth={1.5}
                           />
-                          <stop
-                            offset="100%"
-                            stopColor={chartColors.primary}
-                            stopOpacity={0}
-                          />
-                        </linearGradient>
-                      </defs>
-                      <XAxis
-                        dataKey="month"
-                        tick={{ fontSize: 11, fill: chartColors.axis }}
-                        tickFormatter={(v) => {
-                          const s = String(v);
-                          return s.length >= 7 ? s.slice(0, 7) : s;
-                        }}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 11, fill: chartColors.axis }}
-                        tickFormatter={(v) =>
-                          isValueGoal
-                            ? `${(v / 1000).toFixed(0)}k`
-                            : String(v)
-                        }
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'var(--card)',
-                          border: '1px solid var(--border)',
-                          borderRadius: '10px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                        }}
-                        formatter={(value: number) => [
-                          isValueGoal
-                            ? formatValue(value, 'value_monthly')
-                            : value,
-                          'Atual',
-                        ]}
-                        labelFormatter={(label) => `Mês: ${label}`}
-                      />
-                      {progress.targetValue > 0 && (
-                        <ReferenceLine
-                          y={progress.targetValue}
-                          stroke={chartColors.secondary}
+                        )}
+                        <Line
+                          dataKey="current"
+                          name="Atual"
+                          type="linear"
+                          stroke="var(--color-current)"
+                          dot={false}
                           strokeDasharray="4 4"
                           strokeWidth={2}
                         />
-                      )}
-                      <Area
-                        type="monotone"
-                        dataKey="current"
-                        stroke={chartColors.primary}
-                        strokeWidth={2}
-                        fill="url(#goalCurrent)"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                      </LineChart>
+                    </ChartContainer>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-lg bg-white/60 dark:bg-slate-800/40 border border-gray-200/50 dark:border-slate-700/50 p-3 flex items-center justify-center">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Sem dados de evolução</p>
                 </div>
               )}
             </div>
+          ) : (
+            <div className="text-center py-5">
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-800 mb-2">
+                <Target className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-0.5 font-medium">
+                Nenhum objetivo definido
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500">
+                Clique em &quot;Definir&quot; para começar
+              </p>
+            </div>
           )}
         </CardContent>
-      </Card>
+        </Card>
+      </ShineBorder>
 
       <GoalDefineModal
         open={modalOpen}

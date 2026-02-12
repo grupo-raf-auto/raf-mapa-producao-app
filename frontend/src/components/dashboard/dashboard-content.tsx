@@ -20,7 +20,7 @@ export function DashboardContent() {
   const [error, setError] = useState<string | null>(null);
   const [backendUnavailable, setBackendUnavailable] = useState(false);
   const { activeModel, loading: modelLoading } = useModelContext();
-  const { hasTeam } = useAuth();
+  const {} = useAuth();
   const { models, loading: modelsLoading } = useUserModels();
 
   const [yearlyStats, setYearlyStats] = useState<any>(null);
@@ -83,18 +83,14 @@ export function DashboardContent() {
     }
   };
 
-  // Redirecionar para onboarding quando faltam modelos ou equipa
+  // Redirecionar para onboarding quando faltam modelos (equipa é facultativa)
   useEffect(() => {
     if (modelsLoading || modelLoading || backendUnavailable) return;
     if (!models || models.length === 0) {
       router.replace('/onboarding');
       return;
     }
-    if (hasTeam === false) {
-      router.replace('/onboarding');
-      return;
-    }
-  }, [modelsLoading, modelLoading, models, hasTeam, router, backendUnavailable]);
+  }, [modelsLoading, modelLoading, models, router, backendUnavailable]);
 
   // Carregamento inicial e ao mudar de modelo (período global único: mensal)
   useEffect(() => {

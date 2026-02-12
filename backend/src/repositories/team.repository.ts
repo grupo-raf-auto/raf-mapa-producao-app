@@ -17,7 +17,7 @@ export class TeamRepository {
       orderBy: { name: 'asc' },
       include: {
         members: {
-          select: { id: true, firstName: true, lastName: true, name: true, email: true },
+          select: { id: true, firstName: true, lastName: true, name: true, email: true, teamRole: true },
         },
         _count: { select: { members: true } },
       },
@@ -28,7 +28,7 @@ export class TeamRepository {
   async findMembers(teamId: string) {
     return prisma.user.findMany({
       where: { teamId },
-      select: { id: true, firstName: true, lastName: true, name: true, email: true },
+      select: { id: true, firstName: true, lastName: true, name: true, email: true, teamRole: true },
       orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
     });
   }

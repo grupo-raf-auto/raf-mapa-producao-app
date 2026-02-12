@@ -99,6 +99,7 @@ export const updateUserSchema = z.object({
   isActive: z.boolean().optional(),
   rejectionReason: z.string().max(500).optional(),
   teamId: z.string().nullable().optional(),
+  teamRole: z.enum(['member', 'coordinator', 'leader']).nullable().optional(),
 });
 
 // ============ DOCUMENT SCANNER ============

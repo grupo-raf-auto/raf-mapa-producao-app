@@ -76,6 +76,7 @@ interface UserStats {
   email: string;
   firstName?: string;
   lastName?: string;
+  image?: string;
   role: string;
   status: string;
   emailVerified: boolean;
@@ -198,6 +199,7 @@ export class UserStatsService {
           email: user.email,
           firstName: user.firstName || user.name?.split(' ')[0],
           lastName: user.lastName || user.name?.split(' ').slice(1).join(' '),
+          image: user.image || undefined,
           role: user.role,
           status: user.status,
           emailVerified: user.emailVerified,

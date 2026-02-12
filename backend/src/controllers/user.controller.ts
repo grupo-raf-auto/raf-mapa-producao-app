@@ -22,6 +22,16 @@ export class UserController extends BaseCRUDController<any> {
   updateSchema = updateUserSchema;
   protected resourceName = 'User';
 
+  protected buildWhere(query: { withoutTeam?: string }): any {
+    const where: Record<string, unknown> = {};
+    if (query.withoutTeam === 'true') {
+      where.teamId = null;
+      where.status = 'approved';
+      where.isActive = true;
+    }
+    return where;
+  }
+
   /**
    * GET /api/users/me - Obter usuário autenticado
    */
@@ -152,8 +162,11 @@ export class UserController extends BaseCRUDController<any> {
         body.approvedBy = null;
       }
 
-      // Apenas admin pode alterar teamId de um utilizador
-      if (user.role !== 'admin' && 'teamId' in body) delete body.teamId;
+      // Apenas admin pode alterar teamId e teamRole de um utilizador
+      if (user.role !== 'admin') {
+        delete body.teamId;
+        delete body.teamRole;
+      }
 
       const updated = await this.repository.update(id, body);
 

@@ -37,11 +37,11 @@ export async function getMyTeam(req: Request, res: Response) {
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
     const u = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { teamId: true, team: true },
+      select: { teamId: true, team: true, teamRole: true },
     });
     if (!u?.teamId || !u.team)
       return res.status(404).json({ error: 'No team assigned' });
-    return res.json(u.team);
+    return res.json({ ...u.team, myRole: u.teamRole });
   } catch (error) {
     logger.error({ error }, 'Team getMyTeam error');
     return res.status(500).json({ error: 'Internal server error' });

@@ -39,7 +39,7 @@ export function useDocumentScanner() {
   const pollOnce = useCallback(
     async (scanId: string, attempt: number): Promise<boolean> => {
       try {
-        const detailResponse = await fetch(`/api/scanner/scan?id=${scanId}`, {
+        const detailResponse = await fetch(`/api/scanner/scans/${scanId}`, {
           signal: abortControllerRef.current?.signal,
         });
 

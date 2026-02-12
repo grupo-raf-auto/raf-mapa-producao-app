@@ -468,7 +468,7 @@ export default function AdminEquipasPage() {
           </TabsList>
         </div>
 
-        <div className="mx-auto max-w-7xl rounded-2xl bg-muted/70 p-6 lg:p-16">
+        <div className="mx-auto w-full max-w-[1600px] rounded-2xl bg-muted/70 p-6 lg:p-16">
         <TabsContent value="equipas" className="mt-0 space-y-8">
           {/* Card grid */}
           {teams.length === 0 ? (

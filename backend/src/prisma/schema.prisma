@@ -30,12 +30,40 @@ model Team {
     description String?
     isActive    Boolean  @default(true)
 
-    members User[]
+    members     User[]
+    objectives  Objective[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     @@map("team")
+}
+
+// Role do utilizador dentro da equipa (leader, coordinator, member)
+enum TeamRole {
+    member
+    coordinator
+    leader
+}
+
+// Objetivos hierárquicos (tree) - admin pode editar/reordenar, user apenas leitura
+model Objective {
+    id          String   @id @default(cuid())
+    title       String
+    description String?
+    parentId    String?
+    parent      Objective?  @relation("ObjectiveHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+    children    Objective[] @relation("ObjectiveHierarchy")
+    teamId      String?
+    team        Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+    order       Int      @default(0)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([parentId])
+    @@index([teamId])
+    @@map("objective")
 }
 
 // ============ Better Auth ============
@@ -53,8 +81,9 @@ model User {
     isActive      Boolean            @default(true)
 
     // Equipa (escolhida após primeiro login, após seleção de modelo)
-    teamId String?
-    team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+    teamId   String?
+    team     Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+    teamRole TeamRole? // role dentro da equipa (leader, coordinator, member)
 
     // Admin approval (controle de acesso manual)
     approvedAt      DateTime?

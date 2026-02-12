@@ -35,6 +35,8 @@ export interface DashboardMetricCardProps {
   sparklineType?: SparklineType;
   sparklineData?: number[];
   colorVariant?: ColorVariant;
+  /** 'clean' = white card with subtle border; 'default' = gradient border */
+  variant?: 'default' | 'clean';
 }
 
 // Generate sparkline paths
@@ -224,14 +226,14 @@ function Sparkline({
 // Professional palette aligned with dashboard charts (design-system)
 const colorMap: Record<
   ColorVariant,
-  { bg: string; text: string; icon: string }
+  { bg: string; text: string; icon: string; border: string }
 > = {
-  blue: { bg: 'rgba(99, 102, 241, 0.12)', text: '#6366F1', icon: '#6366F1' },
-  teal: { bg: 'rgba(13, 148, 136, 0.12)', text: '#0D9488', icon: '#0D9488' },
-  orange: { bg: 'rgba(194, 65, 58, 0.12)', text: '#C2413A', icon: '#C2413A' },
-  purple: { bg: 'rgba(99, 102, 241, 0.12)', text: '#6366F1', icon: '#6366F1' },
-  green: { bg: 'rgba(15, 118, 110, 0.12)', text: '#0F766E', icon: '#0F766E' },
-  red: { bg: 'rgba(185, 28, 28, 0.12)', text: '#B91C1C', icon: '#B91C1C' },
+  blue: { bg: 'rgba(99, 102, 241, 0.12)', text: '#6366F1', icon: '#6366F1', border: 'rgba(99, 102, 241, 0.2)' },
+  teal: { bg: 'rgba(13, 148, 136, 0.12)', text: '#0D9488', icon: '#0D9488', border: 'rgba(13, 148, 136, 0.2)' },
+  orange: { bg: 'rgba(194, 65, 58, 0.12)', text: '#C2413A', icon: '#C2413A', border: 'rgba(194, 65, 58, 0.2)' },
+  purple: { bg: 'rgba(139, 92, 246, 0.12)', text: '#8B5CF6', icon: '#8B5CF6', border: 'rgba(139, 92, 246, 0.2)' },
+  green: { bg: 'rgba(34, 197, 94, 0.12)', text: '#16A34A', icon: '#16A34A', border: 'rgba(34, 197, 94, 0.2)' },
+  red: { bg: 'rgba(185, 28, 28, 0.12)', text: '#B91C1C', icon: '#B91C1C', border: 'rgba(185, 28, 28, 0.2)' },
 };
 
 export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
@@ -246,6 +248,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
   sparklineType = 'bars',
   sparklineData,
   colorVariant = 'blue',
+  variant = 'clean',
 }) => {
   const colors = colorMap[colorVariant];
 
@@ -273,38 +276,32 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
 
   const gradientColors = kpiGradients[colorVariant] ?? kpiGradients.blue;
 
-  return (
-    <BorderRotate
-      animationMode="rotate-on-hover"
-      animationSpeed={3}
-      gradientColors={gradientColors}
-      backgroundColor="var(--card)"
-      borderWidth={2}
-      borderRadius={16}
-      className={cn('', className)}
+  const cardContent = (
+    <motion.article
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.4,
+        delay: animationDelay,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      }}
+      className={cn(
+        'kpi-card relative flex items-center justify-between gap-2 sm:gap-3 w-full h-full border-0 p-4 sm:p-5',
+      )}
+      style={variant === 'default' ? { border: 'none', boxShadow: 'none' } : undefined}
     >
-      <motion.article
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          duration: 0.4,
-          delay: animationDelay,
-          ease: [0.25, 0.46, 0.45, 0.94],
-        }}
-        className={cn(
-          'kpi-card relative flex items-center justify-between gap-2 sm:gap-3 w-full h-full border-0 !p-3 sm:!p-3.5',
-        )}
-        style={{ border: 'none', boxShadow: 'none' }}
-      >
       {/* Left side - Icon, Value, Title */}
       <div className="flex items-center gap-3 min-w-0 flex-1">
         {IconComponent && (
           <div
-            className="kpi-card-icon shrink-0 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg"
-            style={{ backgroundColor: colors.bg }}
+            className="kpi-card-icon shrink-0 w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl"
+            style={{
+              backgroundColor: colors.bg,
+              border: `1px solid ${colors.border}`,
+            }}
           >
             <IconComponent
-              className="h-4 w-4"
+              className="h-5 w-5 sm:h-5 sm:w-5"
               style={{ color: colors.icon }}
               aria-hidden
             />
@@ -313,12 +310,12 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
 
         <div className="min-w-0 flex-1">
           <span
-            className="block text-base sm:text-lg font-bold tracking-tight leading-tight truncate"
+            className="block text-lg sm:text-xl font-bold tracking-tight leading-tight truncate"
             style={{ color: colors.text }}
           >
             {typeof value === 'number' ? value.toLocaleString('pt-PT') : value}
           </span>
-          <p className="text-xs font-medium text-foreground mt-1 truncate">
+          <p className="text-sm font-semibold text-foreground mt-1 truncate">
             {title}
           </p>
           {(trendChange || description) && (
@@ -352,7 +349,33 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
           />
         </div>
       )}
-      </motion.article>
+    </motion.article>
+  );
+
+  if (variant === 'clean') {
+    return (
+      <div
+        className={cn(
+          'rounded-2xl border border-[#DDE6ED] dark:border-border/60 bg-white dark:bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200',
+          className,
+        )}
+      >
+        {cardContent}
+      </div>
+    );
+  }
+
+  return (
+    <BorderRotate
+      animationMode="rotate-on-hover"
+      animationSpeed={3}
+      gradientColors={gradientColors}
+      backgroundColor="var(--card)"
+      borderWidth={2}
+      borderRadius={16}
+      className={cn('', className)}
+    >
+      {cardContent}
     </BorderRotate>
   );
 };

@@ -64,7 +64,7 @@ const defaultSparklineData: Record<string, number[]> = {
 
 export function KPICards({ cards }: KPICardsProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {cards.map((kpi, index) => {
         const IconComponent = iconMap[kpi.iconName];
         const colorVariant =
@@ -88,6 +88,7 @@ export function KPICards({ cards }: KPICardsProps) {
             sparklineType={kpi.sparklineType || 'bars'}
             sparklineData={sparklineData}
             colorVariant={colorVariant}
+            variant="default"
           />
         );
       })}

@@ -15,6 +15,28 @@
    Modern Admin Dashboard with Floating Card Aesthetic
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANIMATED GRADIENT BORDER
+   ═══════════════════════════════════════════════════════════════════════════ */
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes gradient-rotate {
+  from {
+    --gradient-angle: 0deg;
+  }
+  to {
+    --gradient-angle: 360deg;
+  }
+}
+
+.gradient-border-auto {
+  animation: gradient-rotate var(--animation-duration, 3s) linear infinite;
+}
+
 /* Animations */
 @keyframes grid {
   0% {
@@ -184,7 +206,7 @@
   /* Borders & Inputs */
   --border: #e2e8f0;
   --input: #e2e8f0;
-  --ring: #dc2626;
+  --ring: #94a3b8;
 
   /* Elevation — modern shadow scale */
   --shadow-surface: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -219,6 +241,9 @@
   --kpi-teal: #0d9488;
   --kpi-orange: #c2413a;
   --kpi-purple: #6366f1;
+
+  /* Moving border (sky-500 for radial gradient) */
+  --sky-500: #0ea5e9;
 
   /* Table */
   --table-header: #f8fafc;
@@ -276,7 +301,7 @@
   /* Borders and inputs - subtle but visible */
   --border: #2a3441;
   --input: #2a3441;
-  --ring: #ff6b5b;
+  --ring: #64748b;
 
   /* Sidebar - integrated with dark theme */
   --sidebar: #1a2332;

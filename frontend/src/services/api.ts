@@ -29,7 +29,7 @@ function setCachedData(key: string, data: unknown): void {
   cache.set(key, { data, timestamp: Date.now() });
 }
 
-function invalidateCache(pathPrefix: string): void {
+export function invalidateCache(pathPrefix: string): void {
   for (const key of cache.keys()) {
     if (key.startsWith(pathPrefix)) cache.delete(key);
   }
@@ -275,7 +275,11 @@ export const apiClient = {
     },
   },
   users: {
-    getAll: () => fetchWithAuth('users'),
+    getAll: (params?: { withoutTeam?: boolean }) => {
+      const q = new URLSearchParams();
+      if (params?.withoutTeam) q.append('withoutTeam', 'true');
+      return fetchWithAuth(q.toString() ? `users?${q}` : 'users');
+    },
     getStats: () => fetchWithAuth('users/stats'),
     getById: (id: string) => fetchWithAuth(`users/${id}`),
     getCurrent: () => fetchWithAuth('users/me'),
@@ -439,6 +443,35 @@ export const apiClient = {
       fetchWithAuth(`user-models/user/${userId}/models/${modelId}/toggle`, {
         method: 'PATCH',
       }).then(() => invalidateCache('user-models')),
+  },
+  objectives: {
+    getTree: (teamId?: string) => {
+      const q = teamId ? `?teamId=${encodeURIComponent(teamId)}` : '';
+      return fetchWithAuth(`objectives${q}`);
+    },
+    getFlat: (teamId?: string) => {
+      const q = teamId ? `?teamId=${encodeURIComponent(teamId)}` : '';
+      return fetchWithAuth(`objectives/flat${q}`);
+    },
+    create: (data: { title: string; description?: string; parentId?: string; teamId?: string; order?: number }) =>
+      fetchWithAuth('objectives', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }).then(() => invalidateCache('objectives')),
+    update: (id: string, data: { title?: string; description?: string; parentId?: string | null; order?: number }) =>
+      fetchWithAuth(`objectives/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }).then(() => invalidateCache('objectives')),
+    delete: (id: string) =>
+      fetchWithAuth(`objectives/${id}`, { method: 'DELETE' }).then(() =>
+        invalidateCache('objectives'),
+      ),
+    reorder: (updates: { id: string; order: number; parentId?: string | null }[]) =>
+      fetchWithAuth('objectives/reorder', {
+        method: 'POST',
+        body: JSON.stringify({ updates }),
+      }).then(() => invalidateCache('objectives')),
   },
   teams: {
     getList: (all?: boolean) =>

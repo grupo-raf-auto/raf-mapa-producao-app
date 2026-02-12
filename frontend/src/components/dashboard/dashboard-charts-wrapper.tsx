@@ -1,13 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  TrendingUp,
-  Building2,
-  Users,
-  PieChart,
-  type LucideIcon,
-} from 'lucide-react';
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -210,6 +203,32 @@ export function DashboardChartsWrapper({
   const agenteDataForComparison =
     comparativeStats?.byAgente || salesStats?.byAgente || [];
 
+  // Separador de secção (usado também no layout Seguros)
+  function SectionSeparator({
+    id,
+    title,
+    description,
+  }: {
+    id: string;
+    title: string;
+    description: string;
+  }) {
+    return (
+      <div className="pt-6 pb-4" role="separator" aria-label="Divisão de secção">
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-border/60" />
+          <h2 id={id} className="text-xs font-semibold text-muted-foreground uppercase tracking-wider shrink-0">
+            {title}
+          </h2>
+          <div className="h-px flex-1 bg-border/60" />
+        </div>
+        <p className="text-center text-xs text-muted-foreground/90 mt-2.5 max-w-md mx-auto leading-relaxed">
+          {description}
+        </p>
+      </div>
+    );
+  }
+
   // Layout específico para dashboard de Seguros
   if (isSeguroModel) {
     return (
@@ -218,6 +237,11 @@ export function DashboardChartsWrapper({
         role="region"
         aria-label="Dashboard de seguros — gráficos e métricas"
       >
+        <SectionSeparator
+          id="seguro-evolucao"
+          title="Evolução das apólices"
+          description="Acompanhe a evolução ao longo do tempo e identifique padrões de crescimento."
+        />
         {/* Row 1: Evolução das Apólices (3 col, full width) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection className="md:col-span-2 lg:col-span-3" delay={0}>
@@ -274,6 +298,11 @@ export function DashboardChartsWrapper({
           </AnimatedSection>
         </div>
 
+        <SectionSeparator
+          id="seguro-producao"
+          title="Produção por seguradora"
+          description="Volume por seguradora e taxa de crescimento."
+        />
         {/* Row 2: Apólices por Seguradora + Taxa de Crescimento (3 col) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection className="md:col-span-2 lg:col-span-2" delay={0.1}>
@@ -304,6 +333,11 @@ export function DashboardChartsWrapper({
           </AnimatedSection>
         </div>
 
+        <SectionSeparator
+          id="seguro-performance"
+          title="Performance da equipa"
+          description="Desempenho por colaborador e agente, e identifique os melhores resultados."
+        />
         {/* Row 3: Performance por Colaborador (1 col) + Valor Médio por Agente (2 col) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection delay={0.2}>
@@ -341,6 +375,11 @@ export function DashboardChartsWrapper({
           </AnimatedSection>
         </div>
 
+        <SectionSeparator
+          id="seguro-distribuicao"
+          title="Distribuição e perfil"
+          description="Rating de clientes, distribuição geográfica e modalidades de fracionamento."
+        />
         {/* Row 4: Rating de Clientes, Distribuição por Distrito, Distribuição por Fracionamento (3 col) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection delay={0.35}>
@@ -374,62 +413,6 @@ export function DashboardChartsWrapper({
     );
   }
 
-  // Título de secção profissional com ícone, descrição e contagem de gráficos
-  function SectionHeader({
-    id,
-    icon: Icon,
-    title,
-    description,
-    chartCount,
-    accentColor,
-  }: {
-    id: string;
-    icon: LucideIcon;
-    title: string;
-    description: string;
-    chartCount: number;
-    accentColor: string;
-  }) {
-    return (
-      <div
-        className="flex items-start gap-3 rounded-xl border border-border/60 bg-muted/30 dark:bg-muted/10 px-4 py-3 mb-5"
-        style={{ borderLeft: `3px solid ${accentColor}` }}
-      >
-        <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-          style={{
-            background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}25)`,
-            border: `1px solid ${accentColor}30`,
-          }}
-        >
-          <Icon className="h-4.5 w-4.5" style={{ color: accentColor }} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2
-              id={id}
-              className="text-sm font-bold text-foreground tracking-tight"
-            >
-              {title}
-            </h2>
-            <span
-              className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums"
-              style={{
-                color: accentColor,
-                backgroundColor: `${accentColor}12`,
-              }}
-            >
-              {chartCount} {chartCount === 1 ? 'gráfico' : 'gráficos'}
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-            {description}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Layout Crédito e Imobiliária: agrupado por tópicos, grid 3 colunas
   return (
     <div
@@ -443,13 +426,10 @@ export function DashboardChartsWrapper({
     >
       {/* ——— 1. Evolução e tendência ——— */}
       <section aria-labelledby="topic-evolucao">
-        <SectionHeader
+        <SectionSeparator
           id="topic-evolucao"
-          icon={TrendingUp}
           title="Evolução e tendência"
           description="Acompanhe a evolução da produção ao longo do tempo e identifique padrões de crescimento."
-          chartCount={2}
-          accentColor="#3B82F6"
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection className="md:col-span-2 lg:col-span-2" delay={0}>
@@ -522,13 +502,10 @@ export function DashboardChartsWrapper({
 
       {/* ——— 2. Produção por entidade ——— */}
       <section aria-labelledby="topic-entidade">
-        <SectionHeader
+        <SectionSeparator
           id="topic-entidade"
-          icon={Building2}
           title="Produção por entidade"
           description="Analise o volume de produção e valores por banco, seguradora e ticket médio."
-          chartCount={3}
-          accentColor="#8B5CF6"
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection delay={0.1}>
@@ -579,13 +556,10 @@ export function DashboardChartsWrapper({
 
       {/* ——— 3. Performance da equipa ——— */}
       <section aria-labelledby="topic-performance">
-        <SectionHeader
+        <SectionSeparator
           id="topic-performance"
-          icon={Users}
           title="Performance da equipa"
           description="Compare o desempenho entre colaboradores e agentes, e identifique os melhores resultados."
-          chartCount={3}
-          accentColor="#F59E0B"
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection delay={0.25}>
@@ -640,13 +614,10 @@ export function DashboardChartsWrapper({
 
       {/* ——— 4. Distribuição e perfil ——— */}
       <section aria-labelledby="topic-distribuicao">
-        <SectionHeader
+        <SectionSeparator
           id="topic-distribuicao"
-          icon={PieChart}
           title="Distribuição e perfil"
           description="Visualize a distribuição geográfica, classificação dos clientes e modalidades de pagamento."
-          chartCount={3}
-          accentColor="#10B981"
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatedSection delay={0.4}>

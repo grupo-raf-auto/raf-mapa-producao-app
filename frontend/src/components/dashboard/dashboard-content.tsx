@@ -257,7 +257,25 @@ export function DashboardContent() {
         monthlyData={salesStats?.byMonth ?? []}
       />
 
-      <section aria-label="Indicadores principais">
+      {/* Divisão de tópico entre Objetivo e Indicadores */}
+      <div
+        className="pt-6 pb-4"
+        role="separator"
+        aria-label="Divisão de secção"
+      >
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-border/60" />
+          <h2 id="indicadores-principais" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider shrink-0">
+            Indicadores principais
+          </h2>
+          <div className="h-px flex-1 bg-border/60" />
+        </div>
+        <p className="text-center text-xs text-muted-foreground/90 mt-2.5 max-w-md mx-auto leading-relaxed">
+          Resumo da produção e métricas em tempo real
+        </p>
+      </div>
+
+      <section aria-labelledby="indicadores-principais">
         <KPICards cards={kpiCards} />
       </section>
 

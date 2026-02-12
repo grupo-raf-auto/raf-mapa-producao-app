@@ -1,0 +1,206 @@
+"use client";
+
+import React from "react";
+import {
+  motion,
+  useAnimationFrame,
+  useMotionTemplate,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
+import { useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+
+export function Button({
+  borderRadius = "1.75rem",
+  children,
+  as: Component = "button",
+  containerClassName,
+  borderClassName,
+  duration,
+  className,
+  ...otherProps
+}: {
+  borderRadius?: string;
+  children: React.ReactNode;
+  as?: React.ElementType;
+  containerClassName?: string;
+  borderClassName?: string;
+  duration?: number;
+  className?: string;
+  [key: string]: unknown;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <Component
+      className={cn(
+        "bg-transparent relative text-xl h-16 w-40 p-px overflow-hidden ",
+        containerClassName
+      )}
+      style={{
+        borderRadius: borderRadius,
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      {...otherProps}
+    >
+      {/* Borda estática por baixo da dinâmica */}
+      <div
+        className="absolute inset-0 border border-neutral-200 dark:border-slate-600/60 pointer-events-none"
+        style={{ borderRadius: `calc(${borderRadius} * 0.96)` }}
+      />
+      {isHovered && (
+        <div
+          className="absolute inset-0"
+          style={{ borderRadius: `calc(${borderRadius} * 0.96)` }}
+        >
+          <MovingBorder duration={duration} rx="30%" ry="30%">
+            <div
+              className={cn(
+                "h-20 w-20 opacity-[0.8] bg-[radial-gradient(var(--sky-500)_40%,transparent_60%)]",
+                borderClassName
+              )}
+            />
+          </MovingBorder>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          "relative bg-slate-900/80 border border-slate-800 backdrop-blur-xl text-white flex items-center justify-center w-full h-full text-sm antialiased",
+          className
+        )}
+        style={{
+          borderRadius: `calc(${borderRadius} * 0.96)`,
+        }}
+      >
+        {children}
+      </div>
+    </Component>
+  );
+}
+
+export const MovingBorder = ({
+  children,
+  duration = 2000,
+  rx,
+  ry,
+  ...otherProps
+}: {
+  children: React.ReactNode;
+  duration?: number;
+  rx?: string;
+  ry?: string;
+  [key: string]: unknown;
+}) => {
+  const pathRef = useRef<SVGRectElement | null>(null);
+  const progress = useMotionValue<number>(0);
+
+  useAnimationFrame((time) => {
+    const length = pathRef.current?.getTotalLength();
+    if (length) {
+      const pxPerMillisecond = length / duration;
+      progress.set((time * pxPerMillisecond) % length);
+    }
+  });
+
+  const x = useTransform(
+    progress,
+    (val) => pathRef.current?.getPointAtLength(val).x
+  );
+  const y = useTransform(
+    progress,
+    (val) => pathRef.current?.getPointAtLength(val).y
+  );
+
+  const transform = useMotionTemplate`translateX(${x}px) translateY(${y}px) translateX(-50%) translateY(-50%)`;
+
+  return (
+    <>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="none"
+        className="absolute h-full w-full"
+        width="100%"
+        height="100%"
+        {...otherProps}
+      >
+        <rect
+          fill="none"
+          width="100%"
+          height="100%"
+          rx={rx}
+          ry={ry}
+          ref={pathRef}
+        />
+      </svg>
+      <motion.div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          display: "inline-block",
+          transform,
+        }}
+      >
+        {children}
+      </motion.div>
+    </>
+  );
+};
+
+interface MovingBorderCardProps {
+  children: React.ReactNode;
+  className?: string;
+  duration?: number;
+  borderColor?: string;
+  glowColor?: "blue" | "purple" | "green" | "red" | "orange";
+}
+
+const glowColorToHex: Record<string, string> = {
+  blue: "#6366f1",
+  purple: "#a855f7",
+  green: "#22c55e",
+  red: "#ef4444",
+  orange: "#f97316",
+};
+
+/** Card wrapper with MovingBorder effect - for dashboard KPI and chart cards */
+export function MovingBorderCard({
+  children,
+  className,
+  duration = 2000,
+  borderColor,
+  glowColor = "blue",
+}: MovingBorderCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const color = borderColor ?? glowColorToHex[glowColor] ?? "#6366f1";
+
+  return (
+    <div
+      className={cn("relative p-px overflow-hidden w-full h-full rounded-2xl", className)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Borda estática por baixo da dinâmica */}
+      <div className="absolute inset-0 rounded-2xl border border-border/80 dark:border-border/60 pointer-events-none" />
+      {isHovered && (
+        <div className="absolute inset-0 rounded-2xl">
+          <MovingBorder duration={duration} rx="20%" ry="20%">
+            <div
+              className="h-20 w-20 opacity-[0.8]"
+              style={{
+                background: `radial-gradient(${color} 40%, transparent 60%)`,
+              }}
+            />
+          </MovingBorder>
+        </div>
+      )}
+
+      <div className="relative bg-card border-0 w-full h-full text-foreground rounded-2xl overflow-hidden">
+        {children}
+      </div>
+    </div>
+  );
+}

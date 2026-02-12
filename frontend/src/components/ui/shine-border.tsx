@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
@@ -23,46 +25,70 @@ interface ShineBorderProps {
  * @param children contains react node elements.
  */
 export function ShineBorder({
-  borderRadius = 8,
-  borderWidth = 1,
+  borderRadius = 16,
+  borderWidth = 2,
   duration = 14,
   color = "#000000",
   className,
   children,
 }: ShineBorderProps) {
-  const colorValue = color instanceof Array ? color.join(",") : color;
+  // Criar gradiente radial conforme o prompt original
+  // O formato precisa criar um "spotlight" que se move ao redor da borda
+  const getGradient = () => {
+    if (color instanceof Array && color.length > 1) {
+      // Para múltiplas cores, criar um radial-gradient que funciona com a animação
+      // O formato do prompt: radial-gradient(transparent, transparent, color1, color2, color3, transparent, transparent)
+      const colors = color.join(", ");
+      return `radial-gradient(transparent, transparent, ${colors}, transparent, transparent)`;
+    }
+    const singleColor = color instanceof Array ? color[0] : color;
+    return `radial-gradient(transparent, transparent, ${singleColor}, transparent, transparent)`;
+  };
+
+  const gradientValue = getGradient();
 
   return (
     <div
+      className={cn("relative", className)}
       style={
         {
-          "--border-radius": `${borderRadius}px`,
-          "--border-width": `${borderWidth}px`,
-          "--shine-pulse-duration": `${duration}s`,
-          "--background-radial-gradient": `radial-gradient(transparent,transparent, ${colorValue},transparent,transparent)`,
+          borderRadius: `${borderRadius}px`,
+          padding: `${borderWidth}px`,
         } as React.CSSProperties
       }
-      className={cn(
-        "relative h-full w-full rounded-xl overflow-hidden",
-        className,
-      )}
     >
+      {/* Borda animada - elemento pseudo antes */}
       <div
-        className="absolute inset-0 rounded-xl pointer-events-none"
-        style={{
-          padding: `${borderWidth}px`,
-          maskImage:
-            "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-          WebkitMaskImage:
-            "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-          maskComposite: "exclude",
-          WebkitMaskComposite: "xor",
-          backgroundImage: `radial-gradient(transparent,transparent, ${colorValue},transparent,transparent)`,
-          backgroundSize: "300% 300%",
-          animation: `shine-pulse ${duration}s infinite linear`,
-        }}
+        className="absolute inset-0 pointer-events-none"
+        style={
+          {
+            borderRadius: `${borderRadius}px`,
+            padding: `${borderWidth}px`,
+            backgroundImage: gradientValue,
+            backgroundSize: "300% 300%",
+            backgroundPosition: "0% 0%",
+            WebkitMaskImage:
+              "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            maskImage:
+              "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            WebkitMaskComposite: "xor",
+            maskComposite: "exclude",
+            animation: `shine-pulse ${duration}s infinite linear`,
+            willChange: "background-position",
+            zIndex: 0,
+          } as React.CSSProperties
+        }
       />
-      <div className="relative h-full w-full">{children}</div>
+      {/* Conteúdo */}
+      <div 
+        className="relative h-full w-full"
+        style={{ 
+          zIndex: 1,
+          borderRadius: `${borderRadius - borderWidth}px`,
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
   TrendingUp,
   TrendingDown,
 } from 'lucide-react';
+import { BorderRotate } from '@/components/ui/animated-gradient-border';
 
 type IconType =
   | React.ElementType
@@ -261,25 +262,45 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
         ? 'text-red-500'
         : 'text-muted-foreground';
 
+  const kpiGradients: Record<string, { primary: string; secondary: string; accent: string }> = {
+    blue: { primary: '#1e3a5f', secondary: '#3b82f6', accent: '#93c5fd' },
+    teal: { primary: '#134e4a', secondary: '#14b8a6', accent: '#5eead4' },
+    green: { primary: '#14532d', secondary: '#22c55e', accent: '#86efac' },
+    purple: { primary: '#3b1f6e', secondary: '#8b5cf6', accent: '#c4b5fd' },
+    orange: { primary: '#5c2d0e', secondary: '#f97316', accent: '#fdba74' },
+    red: { primary: '#5c1a1a', secondary: '#ef4444', accent: '#fca5a5' },
+  };
+
+  const gradientColors = kpiGradients[colorVariant] ?? kpiGradients.blue;
+
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.4,
-        delay: animationDelay,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      }}
-      className={cn(
-        'kpi-card relative flex items-center justify-between gap-3 sm:gap-4',
-        className,
-      )}
+    <BorderRotate
+      animationMode="rotate-on-hover"
+      animationSpeed={3}
+      gradientColors={gradientColors}
+      backgroundColor="var(--card)"
+      borderWidth={2}
+      borderRadius={16}
+      className={cn('', className)}
     >
+      <motion.article
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.4,
+          delay: animationDelay,
+          ease: [0.25, 0.46, 0.45, 0.94],
+        }}
+        className={cn(
+          'kpi-card relative flex items-center justify-between gap-2 sm:gap-3 w-full h-full border-0 !p-3 sm:!p-3.5',
+        )}
+        style={{ border: 'none', boxShadow: 'none' }}
+      >
       {/* Left side - Icon, Value, Title */}
       <div className="flex items-center gap-3 min-w-0 flex-1">
         {IconComponent && (
           <div
-            className="kpi-card-icon shrink-0 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg"
+            className="kpi-card-icon shrink-0 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg"
             style={{ backgroundColor: colors.bg }}
           >
             <IconComponent
@@ -292,7 +313,7 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
 
         <div className="min-w-0 flex-1">
           <span
-            className="block text-lg sm:text-xl font-bold tracking-tight leading-tight truncate"
+            className="block text-base sm:text-lg font-bold tracking-tight leading-tight truncate"
             style={{ color: colors.text }}
           >
             {typeof value === 'number' ? value.toLocaleString('pt-PT') : value}
@@ -326,12 +347,13 @@ export const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
             data={sparklineData}
             type={sparklineType}
             color={colors.text}
-            width={56}
-            height={28}
+            width={48}
+            height={24}
           />
         </div>
       )}
-    </motion.article>
+      </motion.article>
+    </BorderRotate>
   );
 };
 

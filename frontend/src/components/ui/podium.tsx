@@ -23,7 +23,7 @@ interface PodiumProps {
 
 export function Podium({
   entries = [],
-  title = 'Top Performers',
+  title = 'Top classificados',
   showScores = true,
   className,
 }: PodiumProps) {
@@ -101,7 +101,7 @@ export function Podium({
         )}
         {showScores && (
           <p className="text-sm font-semibold text-muted-foreground">
-            {entry.score.toLocaleString()} pts
+            {entry.score.toLocaleString()} pontos
           </p>
         )}
       </div>
@@ -112,7 +112,7 @@ export function Podium({
     <div className={cn('w-full max-w-4xl mx-auto p-6 space-y-8', className)}>
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-bold text-foreground">{title}</h2>
-        <p className="text-muted-foreground">Celebrating our top achievers</p>
+        <p className="text-muted-foreground">Destaques do ranking</p>
       </div>
 
       <Card className="p-8 bg-gradient-to-br from-background to-muted/20">
@@ -170,7 +170,7 @@ export function Podium({
       {entries.length > 3 && (
         <Card className="p-6">
           <h3 className="text-xl font-bold mb-4 text-foreground">
-            Other Rankings
+            Outras classificações
           </h3>
           <div className="space-y-3">
             {entries
@@ -205,7 +205,7 @@ export function Podium({
                   </div>
                   {showScores && (
                     <span className="font-semibold text-muted-foreground">
-                      {entry.score.toLocaleString()} pts
+                      {entry.score.toLocaleString()} pontos
                     </span>
                   )}
                 </div>

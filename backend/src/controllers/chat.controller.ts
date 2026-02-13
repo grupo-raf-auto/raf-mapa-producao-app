@@ -6,6 +6,7 @@ import {
   getSystemPrompt,
   ChatContext,
 } from '../services/openai.service';
+import { getOpenAIModelForFeature } from '../services/openai-model.service';
 import { searchRelevantChunks } from '../services/rag.service';
 
 export class ChatController {
@@ -107,9 +108,13 @@ export class ChatController {
             '\n[Nenhum contexto relevante encontrado nos documentos disponíveis.]\n',
           );
 
+      const model = await getOpenAIModelForFeature(
+        chatContext === 'support' ? 'assistente' : 'sabichao',
+      );
       const aiResponse = await generateChatResponse(
         messagesForOpenAI,
         enhancedSystemPrompt,
+        { model },
       );
 
       await prisma.chatMessage.create({

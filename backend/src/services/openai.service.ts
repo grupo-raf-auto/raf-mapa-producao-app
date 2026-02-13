@@ -16,6 +16,8 @@ export interface ChatMessage {
 export interface GenerateChatOptions {
   max_tokens?: number;
   temperature?: number;
+  /** Modelo OpenAI a usar. Se não fornecido, usa OPENAI_MODEL ou gpt-4o-mini */
+  model?: string;
 }
 
 /**
@@ -47,11 +49,14 @@ export async function generateChatResponse(
     // Adicionar mensagens da conversa
     messagesToSend.push(...messages);
 
+    const model =
+      options?.model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
+
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      model,
       messages: messagesToSend,
       temperature: options?.temperature ?? 0.5,
-      max_tokens: options?.max_tokens ?? 600,
+      max_completion_tokens: options?.max_tokens ?? 600,
     });
 
     const response = completion.choices[0]?.message?.content;

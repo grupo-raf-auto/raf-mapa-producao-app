@@ -1,4 +1,5 @@
 import { generateChatResponse } from './openai.service';
+import { getOpenAIModelForFeature } from './openai-model.service';
 import {
   MESSAGE_CONTEXTS,
   MESSAGE_TEMPLATES,
@@ -72,10 +73,11 @@ export async function generateMessage(params: {
     params.userInput.trim() ||
     'Gera um texto padrão para esta situação, usando placeholders onde necessário.';
 
+  const model = await getOpenAIModelForFeature('mytexto');
   const response = await generateChatResponse(
     [{ role: 'user', content: userMessage }],
     systemPrompt,
-    { max_tokens: 800, temperature: 0.6 },
+    { max_tokens: 800, temperature: 0.6, model },
   );
 
   return response.trim();

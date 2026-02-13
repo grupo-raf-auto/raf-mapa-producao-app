@@ -1,16 +1,14 @@
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion } from 'framer-motion';
 import {
   CheckCircle2,
   AlertTriangle,
-  Shield,
-  TrendingUp,
-  Flag,
-  FileCheck,
+  XCircle,
   FileText,
-  Clock,
-  Download,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 interface ScanResult {
   id: string;
@@ -20,7 +18,13 @@ interface ScanResult {
   iaScore: number;
   riskLevel: string;
   recommendation: string;
-  flags: Array<any>;
+  flags: Array<{
+    tipo?: string;
+    confianca?: number;
+    justificacao?: string;
+    valor?: number | string;
+    descricao?: string;
+  }>;
   justification: string;
   createdAt: string;
 }
@@ -30,398 +34,282 @@ interface ScannerResultsProps {
   onClose: () => void;
 }
 
-// Tradução de tipos de fraude para linguagem acessível
-const fraudTypeTranslations: Record<string, { title: string; description: string; emoji: string }> = {
-  "INCONSISTENCIA_CONTEUDO": {
-    title: "Inconsistência no Conteúdo",
-    description: "Detectámos informações conflitantes ou incompatíveis dentro do documento. Por exemplo, datas que não correspondem ou dados que se contradizem.",
-    emoji: "⚠️",
-  },
-  "TEXTO_ALTERADO": {
-    title: "Texto Modificado",
-    description: "O documento mostra sinais de edição ou alteração posterior. Partes do texto podem ter sido modificadas ou substituídas.",
-    emoji: "✏️",
-  },
-  "ESTRUTURA_SUSPEITA": {
-    title: "Estrutura Anómala",
-    description: "O layout e a estrutura do documento não correspondem ao padrão esperado. Podem haver secções ausentes ou dispostas de forma irregular.",
-    emoji: "🔨",
-  },
+const FLAG_LABELS: Record<string, string> = {
+  // IA
+  ASSINATURA_FALSIFICADA: 'Assinatura falsificada',
+  TEXTO_ALTERADO: 'Texto alterado',
+  INCONSISTENCIA_CONTEUDO: 'Inconsistência no conteúdo',
+  ESTRUTURA_SUSPEITA: 'Estrutura suspeita',
+  IMAGEM_EDITADA: 'Imagem editada',
+  CARIMBO_FALSO: 'Carimbo/selo falsificado',
+  // Técnico
+  PAGINAS_OCULTAS: 'Páginas ocultas',
+  METADATA_SUSPEITA: 'Metadados suspeitos',
+  MULTIPLAS_VERSOES: 'Múltiplas versões no PDF',
 };
 
+const RECOMMENDATION_LABELS: Record<string, string> = {
+  REJEITAR: 'Rejeitar',
+  REJEITAR_COM_REVISAO: 'Rejeitar com revisão',
+  VALIDAR_EXTRA: 'Validar com documentos adicionais',
+  ACEITAR: 'Aceitar',
+};
+
+function getFlagLabel(
+  flag: any,
+  indexAmongSame: number,
+  totalSame: number,
+  usedJustificacoes: Set<string>,
+  short = false
+): string {
+  const base = FLAG_LABELS[flag.tipo] || flag.tipo;
+  const justificacao = (flag.justificacao || '').trim();
+  if (totalSame <= 1) return base;
+  if (indexAmongSame === 0) return base;
+  // Modo curto (card Suspeitas): só etiquetas concisas, sem justificação longa
+  if (short) {
+    if (flag.tipo === 'INCONSISTENCIA_CONTEUDO') return 'Outra inconsistência';
+    if (flag.tipo === 'ESTRUTURA_SUSPEITA') return 'Outra anomalia estrutural';
+    if (flag.tipo === 'TEXTO_ALTERADO') return 'Outra alteração de texto';
+    return `${base} (${indexAmongSame + 1})`;
+  }
+  // Modo completo (Resumo): usar justificação se for única
+  const jKey = justificacao.toLowerCase();
+  if (justificacao && justificacao.length > 3 && !usedJustificacoes.has(jKey)) {
+    usedJustificacoes.add(jKey);
+    return justificacao;
+  }
+  if (flag.tipo === 'INCONSISTENCIA_CONTEUDO') return 'Outra inconsistência';
+  if (flag.tipo === 'ESTRUTURA_SUSPEITA') return 'Outra anomalia estrutural';
+  if (flag.tipo === 'TEXTO_ALTERADO') return 'Outra alteração de texto';
+  return `${base} (${indexAmongSame + 1})`;
+}
+
 export function ScannerResults({ result, onClose }: ScannerResultsProps) {
-  const getRiskConfig = (riskLevel: string) => {
-    const config: Record<
-      string,
-      {
-        label: string;
-        labelSmall: string;
-        icon: React.ReactNode;
-        color: string;
-        bgGradient: string;
-        accentColor: string;
-        severity: number;
-        advice: string;
-      }
-    > = {
-      ALTO_RISCO: {
-        label: "Alto Risco Detectado",
-        labelSmall: "Alto Risco",
-        icon: <AlertTriangle className="w-6 h-6" />,
-        color: "text-red-600",
-        bgGradient: "from-red-50 to-red-100/50",
-        accentColor: "bg-red-500",
-        severity: 3,
-        advice: "Recomendamos verificação manual urgente antes de prosseguir.",
-      },
-      MEDIO_ALTO: {
-        label: "Risco Moderado-Alto",
-        labelSmall: "Médio-Alto",
-        icon: <AlertTriangle className="w-6 h-6" />,
-        color: "text-orange-600",
-        bgGradient: "from-orange-50 to-orange-100/50",
-        accentColor: "bg-orange-500",
-        severity: 2,
-        advice: "Sugerimos análise cuidadosa e validação adicional.",
-      },
-      MEDIO: {
-        label: "Alguns Avisos",
-        labelSmall: "Médio",
-        icon: <Flag className="w-6 h-6" />,
-        color: "text-yellow-600",
-        bgGradient: "from-yellow-50 to-yellow-100/50",
-        accentColor: "bg-yellow-500",
-        severity: 1,
-        advice: "Verifique os detalhes abaixo antes de prosseguir.",
-      },
-      BAIXO: {
-        label: "Documento Seguro",
-        labelSmall: "Baixo Risco",
-        icon: <CheckCircle2 className="w-6 h-6" />,
-        color: "text-green-600",
-        bgGradient: "from-green-50 to-green-100/50",
-        accentColor: "bg-green-500",
-        severity: 0,
-        advice: "Documento passou na análise. Pode prosseguir com confiança.",
-      },
+  const [showResumo, setShowResumo] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+
+  const hasManipulation = result.flags && result.flags.length > 0;
+  const manipulationCount = result.flags?.length ?? 0;
+
+  const getVerdict = () => {
+    if (result.scoreTotal >= 85 && !hasManipulation)
+      return {
+        label: 'Sem manipulação detectada',
+        icon: CheckCircle2,
+        color: 'text-green-600',
+        bg: 'bg-green-50',
+        border: 'border-green-200',
+      };
+    if (result.scoreTotal >= 70)
+      return {
+        label: 'Baixo risco',
+        icon: CheckCircle2,
+        color: 'text-green-600',
+        bg: 'bg-green-50',
+        border: 'border-green-200',
+      };
+    if (result.scoreTotal >= 50)
+      return {
+        label: 'Risco moderado',
+        icon: AlertTriangle,
+        color: 'text-amber-600',
+        bg: 'bg-amber-50',
+        border: 'border-amber-200',
+      };
+    return {
+      label: 'Manipulação ou fraude provável',
+      icon: XCircle,
+      color: 'text-red-600',
+      bg: 'bg-red-50',
+      border: 'border-red-200',
     };
-    return config[riskLevel] || config.MEDIO;
   };
 
-  const riskConfig = getRiskConfig(result.riskLevel);
-
-  const scoreColor = (score: number) => {
-    if (score >= 75) return "text-green-600";
-    if (score >= 50) return "text-yellow-600";
-    return "text-red-600";
-  };
-
-  const getHumanizedFlagInfo = (flag: any) => {
-    if (typeof flag === "string") {
-      const translated = fraudTypeTranslations[flag];
-      if (translated) return translated;
-      return { title: flag, description: "Possível problema detectado no documento.", emoji: "⚠️" };
-    }
-    if (flag.tipo && fraudTypeTranslations[flag.tipo]) {
-      return fraudTypeTranslations[flag.tipo];
-    }
-    return { title: "Aviso detectado", description: JSON.stringify(flag), emoji: "⚠️" };
-  };
-
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: "easeOut" },
-    },
-  };
+  const verdict = getVerdict();
+  const VerdictIcon = verdict.icon;
 
   return (
     <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="w-full"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="w-full max-w-2xl mx-auto space-y-4"
     >
-      {/* Alert Header */}
-      <motion.div variants={itemVariants} className="mb-4">
-        <div className={`rounded-2xl p-6 ${riskConfig.bgGradient} border-2 ${riskConfig.color === "text-red-600" ? "border-red-200" : riskConfig.color === "text-orange-600" ? "border-orange-200" : riskConfig.color === "text-yellow-600" ? "border-yellow-200" : "border-green-200"}`}>
-          <div className="flex items-start gap-3">
-            {riskConfig.icon}
-            <div className="flex-1">
-              <h1 className={`text-2xl font-serif font-bold ${riskConfig.color} mb-1`}>
-                {riskConfig.label}
-              </h1>
-              <p className="text-sm text-slate-700 mb-2">
-                {riskConfig.advice}
+      {/* Score + Suspeitas lado a lado */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Card Score */}
+        <div className="rounded-xl border bg-card p-5 space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
+                Score
               </p>
-              <p className="text-xs text-slate-600 flex items-center gap-2">
-                <Clock className="w-3 h-3" />
-                Análise realizada em {new Date(result.createdAt).toLocaleDateString("pt-BR", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })} às {new Date(result.createdAt).toLocaleTimeString("pt-BR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Main Grid Layout */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        {/* Trust Score - Left Column */}
-        <div className="col-span-1 relative overflow-hidden rounded-2xl border-2 border-slate-200 bg-linear-to-br from-white to-slate-50 shadow-lg p-6">
-          <div className="space-y-4">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Nível de Confiança
-            </p>
-            <div className="flex items-baseline gap-2">
-              <span className={`text-6xl font-serif font-bold ${scoreColor(result.scoreTotal)}`}>
+              <p className="text-3xl font-bold tabular-nums">
                 {result.scoreTotal}
-              </span>
-              <span className="text-2xl font-light text-slate-400">%</span>
-            </div>
-
-            <div className="space-y-2">
-              <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
-                <motion.div
-                  className={`h-full rounded-full ${riskConfig.accentColor}`}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${result.scoreTotal}%` }}
-                  transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-                />
-              </div>
-              <p className="text-xs text-slate-600">
-                {result.scoreTotal >= 85
-                  ? "✓ Muito seguro"
-                  : result.scoreTotal >= 75
-                    ? "✓ Seguro"
-                    : result.scoreTotal >= 60
-                      ? "⚠ Análise adicional"
-                      : result.scoreTotal >= 40
-                        ? "⚠ Risco identificado"
-                        : "✗ Alto risco"}
+                <span className="text-lg font-normal text-muted-foreground">/100</span>
               </p>
             </div>
+            <div className={`rounded-lg px-3 py-1.5 border ${verdict.bg} ${verdict.border}`}>
+              <div className="flex items-center gap-1.5">
+                <VerdictIcon className={`w-4 h-4 ${verdict.color}`} />
+                <span className={`font-semibold text-xs ${verdict.color}`}>
+                  {verdict.label}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-3 text-xs">
+            <span className="text-muted-foreground">
+              {hasManipulation ? `${manipulationCount} suspeita${manipulationCount > 1 ? 's' : ''}` : 'Sem suspeitas'}
+            </span>
+            <span className="text-muted-foreground">•</span>
+            <span>
+              {RECOMMENDATION_LABELS[result.recommendation.split(' - ')[0]] ||
+                result.recommendation.split(' - ')[0]}
+            </span>
+          </div>
+          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+            <motion.div
+              className={`h-full rounded-full ${
+                result.scoreTotal >= 85 ? 'bg-green-500' :
+                result.scoreTotal >= 70 ? 'bg-green-400' :
+                result.scoreTotal >= 50 ? 'bg-amber-500' : 'bg-red-500'
+              }`}
+              initial={{ width: 0 }}
+              animate={{ width: `${result.scoreTotal}%` }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+            />
           </div>
         </div>
 
-        {/* Analysis Scores - Middle & Right Columns */}
-        <motion.div
-          whileHover={{ y: -2 }}
-          className="rounded-2xl border-2 border-blue-200 bg-linear-to-br from-blue-50 to-blue-50/50 p-6 shadow-lg"
-        >
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-blue-700 uppercase tracking-wider">
-                Análise Técnica
-              </span>
-              <TrendingUp className="w-4 h-4 text-blue-500" />
-            </div>
-            <div className="space-y-2">
-              <p className={`text-4xl font-serif font-bold ${scoreColor(result.technicalScore)}`}>
-                {result.technicalScore}%
-              </p>
-              <div className="w-full h-2 bg-blue-200 rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-blue-600 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${result.technicalScore}%` }}
-                  transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
-                />
-              </div>
-              <p className="text-xs text-blue-700">Estrutura e formato</p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ y: -2 }}
-          className="rounded-2xl border-2 border-purple-200 bg-linear-to-br from-purple-50 to-purple-50/50 p-6 shadow-lg"
-        >
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-purple-700 uppercase tracking-wider">
-                Anomalias
-              </span>
-              <Shield className="w-4 h-4 text-purple-500" />
-            </div>
-            <div className="space-y-2">
-              <p className={`text-4xl font-serif font-bold ${scoreColor(result.iaScore)}`}>
-                {result.iaScore}%
-              </p>
-              <div className="w-full h-2 bg-purple-200 rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-purple-600 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${result.iaScore}%` }}
-                  transition={{ duration: 0.8, ease: "easeOut", delay: 0.6 }}
-                />
-              </div>
-              <p className="text-xs text-purple-700">Detecção IA</p>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-
-      {/* Recommendation Box */}
-      <motion.div variants={itemVariants} className="mb-4">
-        <div className="bg-linear-to-r from-blue-50 to-slate-50 rounded-xl p-5 border-l-4 border-blue-500">
-          <p className="text-xs font-semibold text-blue-900 uppercase tracking-wider mb-2">
-            O que fazer agora
+        {/* Card Suspeitas */}
+        <div className="rounded-xl border bg-card p-5">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            Suspeitas
           </p>
-          <p className="text-sm text-blue-950 font-medium">
-            {result.recommendation}
-          </p>
-        </div>
-      </motion.div>
-
-      {/* Issues Grid */}
-      <AnimatePresence>
-        {result.flags && result.flags.length > 0 && (
-          <motion.div
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            className="mb-4"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
-              <h2 className="text-base font-semibold text-slate-900">
-                Problemas Detectados ({result.flags.length})
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3">
+          {hasManipulation ? (
+            <div className="space-y-2">
               {result.flags.map((flag: any, idx: number) => {
-                const flagInfo = getHumanizedFlagInfo(flag);
+                const sameTypeIndices = result.flags
+                  .map((f: any, i: number) => (f.tipo === flag.tipo ? i : -1))
+                  .filter((i: number) => i >= 0);
+                const indexAmongSame = sameTypeIndices.indexOf(idx);
+                const totalSame = sameTypeIndices.length;
+                const usedJustificacoes = new Set<string>();
+                result.flags.slice(0, idx).forEach((f: any) => {
+                  const j = (f.justificacao || '').trim().toLowerCase();
+                  if (j) usedJustificacoes.add(j);
+                });
                 return (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 + idx * 0.1 }}
-                    className="rounded-xl border-2 border-red-200 bg-linear-to-r from-red-50 to-red-50/50 p-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="text-lg shrink-0 mt-0.5">{flagInfo.emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-red-900 text-sm">
-                          {flagInfo.title}
-                        </h3>
-                        <p className="text-xs text-red-700 leading-relaxed mt-1">
-                          {flagInfo.description}
-                        </p>
-                        {flag.confianca && (
-                          <div className="flex items-center gap-2 text-xs mt-2">
-                            <span className="text-red-600 font-medium">
-                              Certeza: {Math.round(flag.confianca * 100)}%
-                            </span>
-                            <div className="flex-1 h-1.5 bg-red-200 rounded-full overflow-hidden max-w-xs">
-                              <div
-                                className="h-full bg-red-600 rounded-full"
-                                style={{ width: `${flag.confianca * 100}%` }}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
+                  <div key={idx} className="flex justify-between gap-2 text-sm">
+                    <span className="font-medium text-foreground">
+                      {getFlagLabel(flag, indexAmongSame, totalSame, usedJustificacoes, true)}
+                    </span>
+                    <span className="text-muted-foreground shrink-0">
+                      {flag.confianca != null ? `${(flag.confianca * 100).toFixed(0)}%` : ''}
+                    </span>
+                  </div>
                 );
               })}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          ) : (
+            <p className="text-sm text-muted-foreground">Nenhuma detectada</p>
+          )}
+        </div>
+      </div>
 
-      {/* Justification & File Info - Grid */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        {/* Detailed Analysis */}
-        <AnimatePresence>
-          {result.justification && (
+      {/* Resumo das inconsistências */}
+      {hasManipulation && (
+        <div className="rounded-xl border">
+          <button
+            onClick={() => setShowResumo(!showResumo)}
+            className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-xl"
+          >
+            <span className="text-sm font-medium">Resumo das inconsistências</span>
+            {showResumo ? (
+              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+          {showResumo && (
             <motion.div
-              className="rounded-xl border-2 border-slate-200 bg-linear-to-br from-slate-50 to-white p-5"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="px-4 pb-4 space-y-3"
             >
-              <div className="flex items-start gap-3 mb-3">
-                <div className="rounded-lg bg-slate-900 p-2">
-                  <FileCheck className="w-4 h-4 text-white shrink-0" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-900 text-sm">
-                    Análise Detalhada
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Explicação dos resultados</p>
-                </div>
-              </div>
-              <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap line-clamp-6">
-                {result.justification}
-              </p>
+              {result.flags.map((flag: any, idx: number) => {
+                const sameTypeIndices = result.flags
+                  .map((f: any, i: number) => (f.tipo === flag.tipo ? i : -1))
+                  .filter((i: number) => i >= 0);
+                const indexAmongSame = sameTypeIndices.indexOf(idx);
+                const totalSame = sameTypeIndices.length;
+                const usedJustificacoes = new Set<string>();
+                result.flags.slice(0, idx).forEach((f: any) => {
+                  const j = (f.justificacao || '').trim().toLowerCase();
+                  if (j) usedJustificacoes.add(j);
+                });
+                const label = getFlagLabel(flag, indexAmongSame, totalSame, usedJustificacoes);
+                const desc =
+                  flag.tipo === 'PAGINAS_OCULTAS' && flag.valor != null
+                    ? `${flag.valor} página(s) sem conteúdo na estrutura PDF`
+                    : flag.descricao || flag.justificacao || null;
+                return (
+                  <div key={idx} className="border-b border-border/50 pb-3 last:border-0 last:pb-0">
+                    <p className="text-sm font-medium text-foreground">
+                      {label}
+                      {flag.confianca != null && (
+                        <span className="text-muted-foreground font-normal ml-1">
+                          ({(flag.confianca * 100).toFixed(0)}%)
+                        </span>
+                      )}
+                    </p>
+                    {desc && (
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                        {desc}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </motion.div>
           )}
-        </AnimatePresence>
+        </div>
+      )}
 
-        {/* File Information */}
-        <motion.div
-          className="rounded-xl border-2 border-slate-200 bg-linear-to-r from-slate-900 to-slate-800 text-white p-5 flex flex-col justify-center"
-        >
-          <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-white/10 p-2">
-              <FileText className="w-5 h-5" />
-            </div>
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Documento
-              </p>
-              <p className="font-semibold text-white text-sm truncate mt-1">{result.fileName}</p>
-            </div>
-            <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
-          </div>
-        </motion.div>
-      </motion.div>
+      {/* Detalhes */}
+      {result.fileName && (
+        <div className="rounded-xl border">
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-xl"
+          >
+            <span className="text-sm font-medium">Detalhes</span>
+            {showDetails ? (
+              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+          {showDetails && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="px-4 pb-4"
+            >
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <FileText className="w-4 h-4 shrink-0" />
+                <span className="truncate">{result.fileName}</span>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
 
-      {/* Action Buttons */}
-      <motion.div
-        variants={itemVariants}
-        className="flex flex-col sm:flex-row gap-3"
-      >
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
-          <Button
-            variant="outline"
-            className="w-full gap-2 border-slate-300 hover:bg-slate-50"
-            disabled
-          >
-            <Download className="w-4 h-4" />
-            Relatório
-          </Button>
-        </motion.div>
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
-          <Button
-            onClick={onClose}
-            className="w-full bg-slate-900 hover:bg-slate-800 text-white gap-2 font-semibold"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            Fechar
-          </Button>
-        </motion.div>
-      </motion.div>
+      <Button onClick={onClose} className="w-full" size="lg">
+        <CheckCircle2 className="w-4 h-4 mr-2" />
+        Nova análise
+      </Button>
     </motion.div>
   );
 }

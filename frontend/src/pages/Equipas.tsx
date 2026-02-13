@@ -7,7 +7,8 @@ import { Podium, type PodiumEntry } from '@/components/ui/podium';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { AnimatedTabs } from '@/components/ui/animated-tabs';
 import {
   Select,
   SelectContent,
@@ -16,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ObjectivesTree } from '@/components/dashboard/objectives-tree';
-import { Users, Trophy, Target, TrendingUp, BarChart3, FileStack, User } from 'lucide-react';
+import { Users, Trophy, TrendingUp, FileStack, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { PageHeader } from '@/components/ui/page-header';
@@ -68,6 +69,7 @@ function EquipasContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [objectivesTeamId, setObjectivesTeamId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('ranking');
   const [winningTeamMembers, setWinningTeamMembers] = useState<TeamMember[]>([]);
   const [allTeamsMembers, setAllTeamsMembers] = useState<Array<{ team: TeamRanking; members: TeamMember[] }>>([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
@@ -250,7 +252,7 @@ function EquipasContent() {
         </div>
       )}
 
-      <Tabs defaultValue="ranking" className="w-full mt-8">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-8">
         <div className="flex flex-col gap-2 mb-6">
           <h2 className="text-lg font-semibold text-foreground">
             Acompanhe o desempenho da sua equipa
@@ -261,29 +263,15 @@ function EquipasContent() {
         </div>
 
         <div className="flex justify-center mb-6">
-          <TabsList className="inline-flex h-10 items-center justify-center rounded-lg bg-muted/50 p-1 gap-1">
-            <TabsTrigger
-              value="ranking"
-              className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-colors"
-            >
-              <Trophy className="h-4 w-4 shrink-0" />
-              Ranking
-            </TabsTrigger>
-            <TabsTrigger
-              value="objetivos"
-              className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-colors"
-            >
-              <Target className="h-4 w-4 shrink-0" />
-              Objetivos
-            </TabsTrigger>
-            <TabsTrigger
-              value="metricas"
-              className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-colors"
-            >
-              <BarChart3 className="h-4 w-4 shrink-0" />
-              Métricas
-            </TabsTrigger>
-          </TabsList>
+          <AnimatedTabs
+            tabs={[
+              { label: 'Ranking', value: 'ranking' },
+              { label: 'Objetivos', value: 'objetivos' },
+              { label: 'Métricas', value: 'metricas' },
+            ]}
+            value={activeTab}
+            onValueChange={setActiveTab}
+          />
         </div>
 
         <div className="rounded-xl border border-border/60 bg-slate-100/80 dark:bg-slate-800/50 p-6 lg:p-8 shadow-sm">

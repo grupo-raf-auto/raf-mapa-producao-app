@@ -11,7 +11,7 @@ export default function ScannerPage() {
         <div className="flex-1 flex flex-col min-h-0">
           <PageHeader
             title="MyScanner"
-            description="Deteção de fraudes e alterações em documentos."
+            description="Análise de manipulação e integridade documental."
             icon={FileCheck}
           />
           <div className="flex-1 overflow-auto flex items-center justify-center min-h-[320px]">

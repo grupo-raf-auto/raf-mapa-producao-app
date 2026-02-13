@@ -62,6 +62,10 @@ export class AppSettingsController {
         customButtonLabel,
         customButtonColor,
         customButtonUrl,
+        openaiModelSabichao,
+        openaiModelAssistente,
+        openaiModelScanner,
+        openaiModelMyTexto,
       } = req.body;
 
       // Validações
@@ -117,6 +121,37 @@ export class AppSettingsController {
         }
       }
 
+      // Validar modelos OpenAI (string válida ou null/vazio para default)
+      const validateModel = (v: unknown) =>
+        v === null ||
+        v === undefined ||
+        v === '' ||
+        (typeof v === 'string' && /^[a-zA-Z0-9.-]+$/.test(v.trim()));
+      if (openaiModelSabichao !== undefined && !validateModel(openaiModelSabichao)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Modelo MySabichão inválido. Use um identificador de modelo OpenAI (ex: gpt-4o, gpt-4o-mini).',
+        });
+      }
+      if (openaiModelAssistente !== undefined && !validateModel(openaiModelAssistente)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Modelo Assistente RAF inválido.',
+        });
+      }
+      if (openaiModelScanner !== undefined && !validateModel(openaiModelScanner)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Modelo MyScanner inválido.',
+        });
+      }
+      if (openaiModelMyTexto !== undefined && !validateModel(openaiModelMyTexto)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Modelo MyTexto inválido.',
+        });
+      }
+
       // Atualizar configurações
       const settings = await this.repository.updateSettings({
         sidebarLogo,
@@ -130,6 +165,10 @@ export class AppSettingsController {
         customButtonLabel,
         customButtonColor,
         customButtonUrl,
+        openaiModelSabichao: openaiModelSabichao || null,
+        openaiModelAssistente: openaiModelAssistente || null,
+        openaiModelScanner: openaiModelScanner || null,
+        openaiModelMyTexto: openaiModelMyTexto || null,
         updatedBy: userId,
       });
 

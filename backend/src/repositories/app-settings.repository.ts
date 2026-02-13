@@ -14,6 +14,10 @@ interface UpdateSettingsData {
   customButtonLabel?: string;
   customButtonColor?: string;
   customButtonUrl?: string;
+  openaiModelSabichao?: string | null;
+  openaiModelAssistente?: string | null;
+  openaiModelScanner?: string | null;
+  openaiModelMyTexto?: string | null;
   updatedBy?: string;
 }
 
@@ -76,6 +80,18 @@ export class AppSettingsRepository {
         ...(data.customButtonUrl !== undefined && {
           customButtonUrl: data.customButtonUrl,
         }),
+        ...(data.openaiModelSabichao !== undefined && {
+          openaiModelSabichao: data.openaiModelSabichao,
+        }),
+        ...(data.openaiModelAssistente !== undefined && {
+          openaiModelAssistente: data.openaiModelAssistente,
+        }),
+        ...(data.openaiModelScanner !== undefined && {
+          openaiModelScanner: data.openaiModelScanner,
+        }),
+        ...(data.openaiModelMyTexto !== undefined && {
+          openaiModelMyTexto: data.openaiModelMyTexto,
+        }),
         ...(data.updatedBy && { updatedBy: data.updatedBy }),
         version: { increment: 1 },
       },
@@ -106,6 +122,10 @@ export class AppSettingsRepository {
         customButtonLabel: 'CRM MyCredit',
         customButtonColor: '#22c55e', // green-500
         customButtonUrl: 'https://mycredit.pt',
+        openaiModelSabichao: null,
+        openaiModelAssistente: null,
+        openaiModelScanner: null,
+        openaiModelMyTexto: null,
         updatedBy: updatedBy || null,
         version: { increment: 1 },
       },

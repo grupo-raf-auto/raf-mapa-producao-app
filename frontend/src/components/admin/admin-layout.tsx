@@ -7,6 +7,8 @@ import { NotificationsDropdown } from '@/components/layout/notifications-dropdow
 import { useSession, authClient } from '@/lib/auth-client';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
+import { useAppSettings } from '@/contexts/app-settings-context';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,14 +52,14 @@ const adminSearchData: SearchItem[] = [
   {
     id: 'admin/equipas',
     title: 'Equipas',
-    description: 'Gerir equipas e ver desempenho global',
+    description: 'Gerir equipas e rankings por modelo (crédito, imobiliária, seguros)',
     category: 'horizon',
-    tags: ['Equipas', 'Ranking'],
+    tags: ['Equipas', 'Ranking', 'Métricas', 'Crédito', 'Imobiliária', 'Seguros'],
   },
   {
     id: 'admin/performance',
     title: 'Desempenho',
-    description: 'Métricas e análise de performance',
+    description: 'Métricas e análise de performance dos utilizadores',
     category: 'reports',
     tags: ['Desempenho', 'Métricas', 'Estatísticas'],
   },
@@ -85,9 +87,9 @@ const adminSearchData: SearchItem[] = [
   {
     id: 'admin/definicoes',
     title: 'Definições',
-    description: 'Configurações da conta',
+    description: 'Configurações da conta e aplicação (logótipo, botão custom)',
     category: 'horizon',
-    tags: ['Definições', 'Configuração'],
+    tags: ['Definições', 'Configuração', 'Aplicação', 'Perfil'],
   },
   {
     id: 'admin/ajuda',
@@ -130,6 +132,7 @@ function AdminTopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
     enabled: true,
     shortcut: 'k',
   });
+  const { settings } = useAppSettings();
 
   useEffect(() => {
     // Intentional: set mounted for client-only rendering (theme, search) to avoid hydration mismatch
@@ -174,11 +177,11 @@ function AdminTopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
       sessionStorage.clear();
       await authClient.signOut();
       toast.success('Sessão terminada com sucesso');
-      router.replace('/sign-in');
+      window.location.href = '/sign-in';
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Erro ao terminar sessão');
-      router.replace('/sign-in');
+      window.location.href = '/sign-in';
     }
   };
 
@@ -215,16 +218,21 @@ function AdminTopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-        <a
-          href={import.meta.env.VITE_CRM_MYCREDIT_URL || 'https://crm.my-credit.pt/'}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 px-2 sm:px-3 py-2 min-h-[44px] sm:min-h-0 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 font-medium text-xs transition-colors cursor-pointer shadow-sm touch-manipulation"
-          title="CRM MyCredit"
-        >
-          <LayoutGrid className="w-4 h-4 shrink-0" />
-          <span className="hidden sm:inline">CRM MyCredit</span>
-        </a>
+        {/* Custom Button - CRM MyCredit */}
+        {settings?.customButtonEnabled && (
+          <Button
+            onClick={() => window.open(settings.customButtonUrl, '_blank')}
+            style={{
+              backgroundColor: settings.customButtonColor,
+              color: '#ffffff',
+            }}
+            className="gap-1.5 sm:gap-2 hover:opacity-90 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 px-2.5 sm:px-3 shrink-0 shadow-sm"
+            size="sm"
+          >
+            <LayoutGrid className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">{settings.customButtonLabel}</span>
+          </Button>
+        )}
         <button
           type="button"
           title="Reportar um problema"

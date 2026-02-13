@@ -299,6 +299,7 @@ export function UserPerformance() {
           sparklineData={sparklineSubmissions}
           colorVariant="blue"
           animationDelay={0}
+          variant="default"
         />
         <DashboardMetricCard
           title="Total de Submissões"
@@ -310,6 +311,7 @@ export function UserPerformance() {
           sparklineData={sparklineSubmissions}
           colorVariant="teal"
           animationDelay={0.08}
+          variant="default"
         />
         <DashboardMetricCard
           title="Documentos"
@@ -321,6 +323,7 @@ export function UserPerformance() {
           sparklineData={sparklineDocuments}
           colorVariant="green"
           animationDelay={0.16}
+          variant="default"
         />
         <DashboardMetricCard
           title="Mensagens de Chat"
@@ -332,6 +335,7 @@ export function UserPerformance() {
           sparklineData={sparklineChat}
           colorVariant="red"
           animationDelay={0.24}
+          variant="default"
         />
       </div>
 

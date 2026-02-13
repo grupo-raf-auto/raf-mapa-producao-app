@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SidebarSupportChat } from '@/components/layout/sidebar-support-chat';
+import { useAppSettings } from '@/contexts/app-settings-context';
 
 // Admin navigation — each item maps to /admin/{tab}
 const adminNavigation = [
@@ -83,6 +84,7 @@ const sectionLabel =
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { settings } = useAppSettings();
 
   return (
     <aside
@@ -96,19 +98,36 @@ export function AdminSidebar() {
             to="/admin"
             className="flex items-center gap-3 min-h-[44px] py-2 -my-2 cursor-pointer rounded-lg active:bg-white/5"
           >
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-              <Image
-                src="/logo-raf-favicon.png"
-                alt="RAF"
-                width={28}
-                height={28}
-                className="w-7 h-7 object-contain"
-                priority
-              />
-            </div>
-            <span className="text-base sm:text-lg font-bold text-white tracking-tight">
-              Grupo RAF
-            </span>
+            {settings?.sidebarLogo ? (
+              <>
+                <img
+                  src={settings.sidebarLogo}
+                  alt="Logo"
+                  className="h-10 max-w-[120px] object-contain shrink-0"
+                />
+                {settings?.sidebarText && (
+                  <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+                    {settings.sidebarText}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                  <Image
+                    src="/logo-raf-favicon.png"
+                    alt="RAF"
+                    width={28}
+                    height={28}
+                    className="w-7 h-7 object-contain"
+                    priority
+                  />
+                </div>
+                <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+                  {settings?.sidebarText || 'Grupo RAF'}
+                </span>
+              </>
+            )}
           </Link>
         </div>
 
@@ -130,7 +149,7 @@ export function AdminSidebar() {
         </div>
 
         {/* Navigation — mobile-first padding and spacing */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 sm:py-6">
+        <div className="sidebar-nav-scroll flex-1 overflow-y-auto overflow-x-hidden py-4 sm:py-6">
           <nav className="space-y-1 px-3 sm:px-4" aria-label="Administração">
             <p className={sectionLabel}>Administração</p>
             {adminNavigation.map((item) => {

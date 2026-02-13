@@ -46,8 +46,9 @@ import {
   User,
   Calendar,
   AlertTriangle,
+  Users,
 } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { BorderRotate } from '@/components/ui/animated-gradient-border';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -69,7 +70,27 @@ interface TeamMember {
   lastName?: string | null;
   name?: string | null;
   email: string;
+  image?: string | null;
   teamRole?: TeamRoleType | null;
+  submissionsCount?: number;
+  approvedCount?: number;
+  pendingCount?: number;
+  userModels?: Array<{
+    id: string;
+    modelType: string;
+    creditoProfile?: {
+      totalProduction: number;
+      activeClients: number;
+    } | null;
+    imobiliariaProfile?: {
+      totalSales: number;
+      activeListings: number;
+    } | null;
+    seguroProfile?: {
+      totalPremiums: number;
+      activePolicies: number;
+    } | null;
+  }>;
 }
 
 interface Team {
@@ -142,6 +163,8 @@ export default function AdminEquipasPage() {
   const [addMemberLoading, setAddMemberLoading] = useState(false);
   const [selectedUserIdToAdd, setSelectedUserIdToAdd] = useState<string>('');
   const [objectivesTeamId, setObjectivesTeamId] = useState<string | null>(null);
+  const [allTeamsMembers, setAllTeamsMembers] = useState<Array<{ team: TeamRanking; members: TeamMember[] }>>([]);
+  const [loadingAllMembers, setLoadingAllMembers] = useState(false);
 
   const loadData = async () => {
     try {
@@ -164,6 +187,33 @@ export default function AdminEquipasPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Fetch all teams members for the table
+  useEffect(() => {
+    if (rankings.length === 0) return;
+
+    let cancelled = false;
+    setLoadingAllMembers(true);
+
+    Promise.all(
+      rankings.map((team) =>
+        apiClient.teams.getMembers(team.id)
+          .then((members) => ({ team, members: Array.isArray(members) ? members : [] }))
+          .catch(() => ({ team, members: [] }))
+      )
+    )
+      .then((teamsWithMembers) => {
+        if (cancelled) return;
+        setAllTeamsMembers(teamsWithMembers);
+      })
+      .catch((err) => {
+        console.error('Erro ao carregar membros das equipas:', err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingAllMembers(false);
+      });
+    return () => { cancelled = true; };
+  }, [rankings]);
 
   const openCreate = () => {
     setEditingTeam(null);
@@ -373,8 +423,9 @@ export default function AdminEquipasPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <Spinner variant="bars" className="w-10 h-10 text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">A carregar equipas...</p>
       </div>
     );
   }
@@ -437,18 +488,6 @@ export default function AdminEquipasPage() {
       </div>
 
       <Tabs defaultValue="equipas" className="w-full mt-8">
-        <div className="flex flex-col items-center gap-4 text-center mb-8">
-          <Badge variant="outline" className="bg-background">
-            Gestão de Equipas
-          </Badge>
-          <h2 className="max-w-2xl text-3xl font-semibold md:text-4xl">
-            Gerencie equipas e objetivos
-          </h2>
-          <p className="text-muted-foreground max-w-xl">
-            Crie, edite e acompanhe equipas, membros e objetivos da organização.
-          </p>
-        </div>
-
         <div className="flex justify-center mb-8">
           <TabsList className="flex flex-col items-center justify-center gap-4 sm:flex-row md:gap-10 bg-transparent p-0">
             <TabsTrigger
@@ -457,6 +496,13 @@ export default function AdminEquipasPage() {
             >
               <UsersRound className="h-auto w-4 shrink-0" />
               Equipas
+            </TabsTrigger>
+            <TabsTrigger
+              value="membros"
+              className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-primary transition-all"
+            >
+              <Users className="h-auto w-4 shrink-0" />
+              Membros
             </TabsTrigger>
             <TabsTrigger
               value="objetivos"
@@ -543,6 +589,7 @@ export default function AdminEquipasPage() {
                             <div className="flex -space-x-1.5">
                               {members.slice(0, 4).map((m) => (
                                 <Avatar key={m.id} className="h-6 w-6 rounded-full border-2 border-card">
+                                  <AvatarImage src={m.image || undefined} alt={getDisplayName(m)} />
                                   <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">
                                     {getInitials(m)}
                                   </AvatarFallback>
@@ -585,6 +632,119 @@ export default function AdminEquipasPage() {
               <Podium entries={podiumEntries} title="Top equipas" showScores />
             )}
           </section>
+        </TabsContent>
+
+        <TabsContent value="membros" className="mt-0 space-y-8">
+          <div className="flex items-center gap-2 mb-6">
+            <Users className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-semibold text-foreground">Todos os membros das equipas</h2>
+          </div>
+
+          {loadingAllMembers ? (
+            <div className="flex items-center justify-center py-12">
+              <Spinner variant="bars" className="w-8 h-8 text-muted-foreground" />
+            </div>
+          ) : allTeamsMembers.length === 0 ? (
+            <Card className="rounded-2xl border border-border/60">
+              <CardContent className="py-10 text-center text-sm text-muted-foreground">
+                Ainda não há dados de membros disponíveis.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-6">
+              {allTeamsMembers.map(({ team, members }) => (
+                <Card key={team.id} className="rounded-2xl border border-border/60">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <UsersRound className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold flex items-center gap-2">
+                            {team.name}
+                            <Badge variant={team.rank === 1 ? 'default' : team.rank <= 3 ? 'secondary' : 'outline'} className="text-xs">
+                              #{team.rank}
+                            </Badge>
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {members.length} {members.length === 1 ? 'membro' : 'membros'} · {team.score} {team.score === 1 ? 'submissão' : 'submissões'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {members.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        Esta equipa ainda não tem membros.
+                      </p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-border/50">
+                              <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Membro</th>
+                              <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Submissões</th>
+                              <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Aprovadas</th>
+                              <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Pendentes</th>
+                              <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Função</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {members.map((member) => {
+                              const displayName = getDisplayName(member);
+                              const initials = getInitials(member);
+
+                              return (
+                                <tr key={member.id} className="border-b border-border/30 last:border-0 hover:bg-muted/30 transition-colors">
+                                  <td className="py-3 px-4">
+                                    <div className="flex items-center gap-3">
+                                      <Avatar className="h-9 w-9">
+                                        <AvatarImage src={member.image || undefined} alt={displayName} />
+                                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                                          {initials}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <div className="flex flex-col">
+                                        <span className="text-sm font-medium">{displayName}</span>
+                                        <span className="text-xs text-muted-foreground">{member.email}</span>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="py-3 px-4 text-sm text-right tabular-nums">
+                                    {member.submissionsCount ?? '-'}
+                                  </td>
+                                  <td className="py-3 px-4 text-sm text-right tabular-nums">
+                                    <span className="text-green-600 dark:text-green-500 font-medium">
+                                      {member.approvedCount ?? '-'}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 px-4 text-sm text-right tabular-nums">
+                                    <span className="text-yellow-600 dark:text-yellow-500">
+                                      {member.pendingCount ?? '-'}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {member.teamRole ? (
+                                      <Badge variant="outline" className="text-xs">
+                                        {TEAM_ROLE_LABELS[member.teamRole]}
+                                      </Badge>
+                                    ) : (
+                                      <span className="text-xs text-muted-foreground">-</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
         <TabsContent value="objetivos" className="mt-0">
           <div className="grid place-items-center gap-10 lg:grid-cols-2 lg:gap-10">
@@ -714,6 +874,7 @@ export default function AdminEquipasPage() {
                     >
                       <div className="flex items-center gap-3 min-w-0 flex-1">
                         <Avatar className="h-11 w-11 rounded-full shrink-0">
+                          <AvatarImage src={member.image || undefined} alt={getDisplayName(member)} />
                           <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
                             {getInitials(member)}
                           </AvatarFallback>

@@ -47,11 +47,14 @@ import {
   Calendar,
   AlertTriangle,
   Users,
+  Euro,
+  FileCheck,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { BorderRotate } from '@/components/ui/animated-gradient-border';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { AnimatedTabs } from '@/components/ui/animated-tabs';
 import { ObjectivesTree } from '@/components/dashboard/objectives-tree';
 import { UserPlus, Target, Shield } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
@@ -140,6 +143,23 @@ const TEAM_ROLE_LABELS: Record<TeamRoleType, string> = {
   member: 'Membro',
 };
 
+type MembersModelType = 'credito' | 'imobiliaria' | 'seguro';
+
+function getMemberModelMetric(member: TeamMember, model: MembersModelType): { primary: number; secondary?: number } {
+  const um = member.userModels?.find((u) => u.modelType === model);
+  if (!um) return { primary: 0 };
+  if (model === 'credito' && um.creditoProfile) {
+    return { primary: Number(um.creditoProfile.totalProduction) || 0, secondary: um.creditoProfile.activeClients };
+  }
+  if (model === 'imobiliaria' && um.imobiliariaProfile) {
+    return { primary: Number(um.imobiliariaProfile.totalSales) || 0, secondary: um.imobiliariaProfile.activeListings };
+  }
+  if (model === 'seguro' && um.seguroProfile) {
+    return { primary: um.seguroProfile.activePolicies || 0, secondary: Number(um.seguroProfile.totalPremiums) || 0 };
+  }
+  return { primary: 0 };
+}
+
 export default function AdminEquipasPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [rankings, setRankings] = useState<TeamRanking[]>([]);
@@ -165,17 +185,69 @@ export default function AdminEquipasPage() {
   const [objectivesTeamId, setObjectivesTeamId] = useState<string | null>(null);
   const [allTeamsMembers, setAllTeamsMembers] = useState<Array<{ team: TeamRanking; members: TeamMember[] }>>([]);
   const [loadingAllMembers, setLoadingAllMembers] = useState(false);
+  const [activeTab, setActiveTab] = useState('equipas');
+  const [membersModelTab, setMembersModelTab] = useState<'credito' | 'imobiliaria' | 'seguro'>('credito');
+  const [aggregateMetrics, setAggregateMetrics] = useState<{
+    totalProducao: number;
+    totalVendas: number;
+    totalApolices: number;
+    topTeamName: string;
+    topTeamScore: number;
+    topTeamIsValue: boolean;
+  }>({ totalProducao: 0, totalVendas: 0, totalApolices: 0, topTeamName: '', topTeamScore: 0, topTeamIsValue: false });
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const [teamsList, rankingsList] = await Promise.all([
+      const [teamsList, rankingsList, metricsData] = await Promise.all([
         apiClient.teams.getList(true),
         apiClient.teams.getRankings(),
+        apiClient.teams.getMetrics().catch(() => []),
       ]);
       const list = Array.isArray(teamsList) ? teamsList : [];
       setTeams(list as Team[]);
       setRankings(Array.isArray(rankingsList) ? rankingsList : []);
+
+      const metrics = Array.isArray(metricsData) ? metricsData : [];
+      let totalProducao = 0;
+      let totalVendas = 0;
+      let totalApolices = 0;
+      let topTeamName = '';
+      let topTeamScore = 0;
+      let topTeamIsValue = true;
+      for (const item of metrics) {
+        const entry = item as { team?: { name?: string }; metrics?: Record<string, { totalValue?: number; primaryMetric?: number }> };
+        const m = entry.metrics ?? {};
+        const prod = Number(m.credito?.totalValue ?? 0) || 0;
+        const vendas = Number(m.imobiliaria?.totalValue ?? 0) || 0;
+        const apol = Number(m.seguro?.primaryMetric ?? 0) || 0;
+        totalProducao += prod;
+        totalVendas += vendas;
+        totalApolices += apol;
+        const teamValue = prod + vendas;
+        if (teamValue > topTeamScore) {
+          topTeamScore = teamValue;
+          topTeamName = entry.team?.name ?? '';
+          topTeamIsValue = true;
+        }
+      }
+      if (topTeamScore === 0 && totalApolices > 0) {
+        for (const item of metrics) {
+          const entry = item as { team?: { name?: string }; metrics?: Record<string, { primaryMetric?: number }> };
+          const apol = Number(entry.metrics?.seguro?.primaryMetric ?? 0) || 0;
+          if (apol > topTeamScore) {
+            topTeamScore = apol;
+            topTeamName = entry.team?.name ?? '';
+            topTeamIsValue = false;
+          }
+        }
+      }
+      if (topTeamName === '' && rankingsList?.[0]) {
+        topTeamName = (rankingsList[0] as { name?: string }).name ?? '';
+        topTeamScore = (rankingsList[0] as { score?: number }).score ?? 0;
+        topTeamIsValue = false;
+      }
+      setAggregateMetrics({ totalProducao, totalVendas, totalApolices, topTeamName, topTeamScore, topTeamIsValue });
     } catch (err) {
       console.error(err);
       toast.error('Erro ao carregar dados');
@@ -188,18 +260,39 @@ export default function AdminEquipasPage() {
     loadData();
   }, []);
 
-  // Fetch all teams members for the table
+  // Fetch all teams members for the table (usa teams, não rankings, para incluir todas as equipas)
   useEffect(() => {
-    if (rankings.length === 0) return;
+    if (teams.length === 0) return;
 
     let cancelled = false;
     setLoadingAllMembers(true);
 
+    const rankByTeamId = new Map(rankings.map((r, i) => [r.id, { rank: i + 1, score: r.score }]));
+
     Promise.all(
-      rankings.map((team) =>
+      teams.map((team) =>
         apiClient.teams.getMembers(team.id)
-          .then((members) => ({ team, members: Array.isArray(members) ? members : [] }))
-          .catch(() => ({ team, members: [] }))
+          .then((members) => {
+            const rankInfo = rankByTeamId.get(team.id);
+            return {
+              team: {
+                id: team.id,
+                name: team.name,
+                rank: rankInfo?.rank ?? 0,
+                score: rankInfo?.score ?? 0,
+              },
+              members: Array.isArray(members) ? members : [],
+            };
+          })
+          .catch(() => ({
+            team: {
+              id: team.id,
+              name: team.name,
+              rank: rankByTeamId.get(team.id)?.rank ?? 0,
+              score: rankByTeamId.get(team.id)?.score ?? 0,
+            },
+            members: [] as TeamMember[],
+          }))
       )
     )
       .then((teamsWithMembers) => {
@@ -213,7 +306,7 @@ export default function AdminEquipasPage() {
         if (!cancelled) setLoadingAllMembers(false);
       });
     return () => { cancelled = true; };
-  }, [rankings]);
+  }, [teams, rankings]);
 
   const openCreate = () => {
     setEditingTeam(null);
@@ -443,75 +536,99 @@ export default function AdminEquipasPage() {
           decoratorIcon={<Shield className="w-5 h-5" />}
           decoratorColor="text-red-500"
         />
-        <Button onClick={openCreate} className="shrink-0 rounded-xl bg-foreground hover:bg-foreground/90 text-background">
+        <Button onClick={openCreate} className="shrink-0 rounded-xl bg-red-600 hover:bg-red-700 text-white">
           <Plus className="w-4 h-4 mr-2" />
           Criar Equipa
         </Button>
       </div>
 
-      {/* Métricas */}
+      {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <BorderRotate gradientColors={{ primary: '#1e3a5f', secondary: '#3b82f6', accent: '#93c5fd' }} backgroundColor="var(--card)" borderRadius={12} borderWidth={2}>
-        <Card className="rounded-xl border-0">
-          <CardContent className="pt-6">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total equipas</p>
-            <p className="text-2xl font-bold text-foreground mt-1">{teams.length}</p>
-          </CardContent>
-        </Card>
+          <Card className="rounded-xl border-0">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
+                  <Euro className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Produção</p>
+                  <p className="text-xl font-bold text-foreground tabular-nums">
+                    {(aggregateMetrics.totalProducao + aggregateMetrics.totalVendas).toLocaleString('pt-PT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">Crédito + Imobiliária</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </BorderRotate>
         <BorderRotate gradientColors={{ primary: '#3b1f6e', secondary: '#8b5cf6', accent: '#c4b5fd' }} backgroundColor="var(--card)" borderRadius={12} borderWidth={2}>
-        <Card className="rounded-xl border-0">
-          <CardContent className="pt-6">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total membros</p>
-            <p className="text-2xl font-bold text-foreground mt-1">{totalMembers}</p>
-          </CardContent>
-        </Card>
-        </BorderRotate>
-        <BorderRotate gradientColors={{ primary: '#14532d', secondary: '#22c55e', accent: '#86efac' }} backgroundColor="var(--card)" borderRadius={12} borderWidth={2}>
-        <Card className="rounded-xl border-0">
-          <CardContent className="pt-6">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Equipas no ranking</p>
-            <p className="text-2xl font-bold text-foreground mt-1">{rankings.length}</p>
-          </CardContent>
-        </Card>
+          <Card className="rounded-xl border-0">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10">
+                  <FileCheck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Apólices</p>
+                  <p className="text-xl font-bold text-foreground tabular-nums">{aggregateMetrics.totalApolices.toLocaleString('pt-PT')}</p>
+                  <p className="text-[10px] text-muted-foreground">Seguros</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </BorderRotate>
         <BorderRotate gradientColors={{ primary: '#5c3d0e', secondary: '#f59e0b', accent: '#fcd34d' }} backgroundColor="var(--card)" borderRadius={12} borderWidth={2}>
-        <Card className="rounded-xl border-0">
-          <CardContent className="pt-6">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Top equipa</p>
-            <p className="text-lg font-semibold text-foreground mt-1 truncate">
-              {rankings[0]?.name ?? '—'}
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="rounded-xl border-0">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
+                  <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Top Equipa</p>
+                  <p className="text-lg font-bold text-foreground truncate">{aggregateMetrics.topTeamName || '—'}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {aggregateMetrics.topTeamName
+                      ? aggregateMetrics.topTeamIsValue
+                        ? `${aggregateMetrics.topTeamScore.toLocaleString('pt-PT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €`
+                        : `${aggregateMetrics.topTeamScore.toLocaleString('pt-PT')} apólices`
+                      : 'Sem dados'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </BorderRotate>
+        <BorderRotate gradientColors={{ primary: '#14532d', secondary: '#22c55e', accent: '#86efac' }} backgroundColor="var(--card)" borderRadius={12} borderWidth={2}>
+          <Card className="rounded-xl border-0">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
+                  <Users className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Colaboradores</p>
+                  <p className="text-xl font-bold text-foreground tabular-nums">{totalMembers}</p>
+                  <p className="text-[10px] text-muted-foreground">{teams.length} equipas</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </BorderRotate>
       </div>
 
-      <Tabs defaultValue="equipas" className="w-full mt-8">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-8">
         <div className="flex justify-center mb-8">
-          <TabsList className="flex flex-col items-center justify-center gap-4 sm:flex-row md:gap-10 bg-transparent p-0">
-            <TabsTrigger
-              value="equipas"
-              className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-primary transition-all"
-            >
-              <UsersRound className="h-auto w-4 shrink-0" />
-              Equipas
-            </TabsTrigger>
-            <TabsTrigger
-              value="membros"
-              className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-primary transition-all"
-            >
-              <Users className="h-auto w-4 shrink-0" />
-              Membros
-            </TabsTrigger>
-            <TabsTrigger
-              value="objetivos"
-              className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-primary transition-all"
-            >
-              <Target className="h-auto w-4 shrink-0" />
-              Objetivos
-            </TabsTrigger>
-          </TabsList>
+          <AnimatedTabs
+            tabs={[
+              { label: 'Equipas', value: 'equipas' },
+              { label: 'Membros', value: 'membros' },
+              { label: 'Objetivos', value: 'objetivos' },
+            ]}
+            value={activeTab}
+            onValueChange={setActiveTab}
+          />
         </div>
 
         <div className="mx-auto w-full max-w-[1600px] rounded-2xl bg-muted/70 p-6 lg:p-16">
@@ -635,9 +752,21 @@ export default function AdminEquipasPage() {
         </TabsContent>
 
         <TabsContent value="membros" className="mt-0 space-y-8">
-          <div className="flex items-center gap-2 mb-6">
-            <Users className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-semibold text-foreground">Todos os membros das equipas</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <Users className="w-6 h-6 text-primary" />
+              <h2 className="text-xl font-semibold text-foreground">Todos os membros das equipas</h2>
+            </div>
+            <Select value={membersModelTab} onValueChange={(v) => setMembersModelTab(v as MembersModelType)}>
+              <SelectTrigger className="w-[180px] rounded-xl">
+                <SelectValue placeholder="Modelo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="credito" className="rounded-lg">Crédito</SelectItem>
+                <SelectItem value="imobiliaria" className="rounded-lg">Imobiliária</SelectItem>
+                <SelectItem value="seguro" className="rounded-lg">Seguros</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {loadingAllMembers ? (
@@ -663,12 +792,15 @@ export default function AdminEquipasPage() {
                         <div>
                           <h3 className="font-semibold flex items-center gap-2">
                             {team.name}
-                            <Badge variant={team.rank === 1 ? 'default' : team.rank <= 3 ? 'secondary' : 'outline'} className="text-xs">
-                              #{team.rank}
-                            </Badge>
+                            {team.rank > 0 && (
+                              <Badge variant={team.rank === 1 ? 'default' : team.rank <= 3 ? 'secondary' : 'outline'} className="text-xs">
+                                #{team.rank}
+                              </Badge>
+                            )}
                           </h3>
                           <p className="text-sm text-muted-foreground">
-                            {members.length} {members.length === 1 ? 'membro' : 'membros'} · {team.score} {team.score === 1 ? 'submissão' : 'submissões'}
+                            {members.length} {members.length === 1 ? 'membro' : 'membros'}
+                            {team.rank > 0 && ` · ${team.score} ${team.score === 1 ? 'submissão' : 'submissões'}`}
                           </p>
                         </div>
                       </div>
@@ -684,9 +816,25 @@ export default function AdminEquipasPage() {
                           <thead>
                             <tr className="border-b border-border/50">
                               <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Membro</th>
+                              {membersModelTab === 'credito' && (
+                                <>
+                                  <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Produção (€)</th>
+                                  <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Clientes ativos</th>
+                                </>
+                              )}
+                              {membersModelTab === 'imobiliaria' && (
+                                <>
+                                  <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Vendas (€)</th>
+                                  <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Listagens ativas</th>
+                                </>
+                              )}
+                              {membersModelTab === 'seguro' && (
+                                <>
+                                  <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Apólices</th>
+                                  <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Prémios (€)</th>
+                                </>
+                              )}
                               <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Submissões</th>
-                              <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Aprovadas</th>
-                              <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Pendentes</th>
                               <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Função</th>
                             </tr>
                           </thead>
@@ -694,6 +842,7 @@ export default function AdminEquipasPage() {
                             {members.map((member) => {
                               const displayName = getDisplayName(member);
                               const initials = getInitials(member);
+                              const metric = getMemberModelMetric(member, membersModelTab);
 
                               return (
                                 <tr key={member.id} className="border-b border-border/30 last:border-0 hover:bg-muted/30 transition-colors">
@@ -711,18 +860,38 @@ export default function AdminEquipasPage() {
                                       </div>
                                     </div>
                                   </td>
+                                  {membersModelTab === 'credito' && (
+                                    <>
+                                      <td className="py-3 px-4 text-sm text-right tabular-nums font-medium">
+                                        {metric.primary > 0 ? metric.primary.toLocaleString('pt-PT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €' : '-'}
+                                      </td>
+                                      <td className="py-3 px-4 text-sm text-right tabular-nums">
+                                        {metric.secondary != null && metric.secondary > 0 ? metric.secondary : '-'}
+                                      </td>
+                                    </>
+                                  )}
+                                  {membersModelTab === 'imobiliaria' && (
+                                    <>
+                                      <td className="py-3 px-4 text-sm text-right tabular-nums font-medium">
+                                        {metric.primary > 0 ? metric.primary.toLocaleString('pt-PT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €' : '-'}
+                                      </td>
+                                      <td className="py-3 px-4 text-sm text-right tabular-nums">
+                                        {metric.secondary != null && metric.secondary > 0 ? metric.secondary : '-'}
+                                      </td>
+                                    </>
+                                  )}
+                                  {membersModelTab === 'seguro' && (
+                                    <>
+                                      <td className="py-3 px-4 text-sm text-right tabular-nums font-medium">
+                                        {metric.primary > 0 ? metric.primary : '-'}
+                                      </td>
+                                      <td className="py-3 px-4 text-sm text-right tabular-nums">
+                                        {metric.secondary != null && metric.secondary > 0 ? metric.secondary.toLocaleString('pt-PT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €' : '-'}
+                                      </td>
+                                    </>
+                                  )}
                                   <td className="py-3 px-4 text-sm text-right tabular-nums">
                                     {member.submissionsCount ?? '-'}
-                                  </td>
-                                  <td className="py-3 px-4 text-sm text-right tabular-nums">
-                                    <span className="text-green-600 dark:text-green-500 font-medium">
-                                      {member.approvedCount ?? '-'}
-                                    </span>
-                                  </td>
-                                  <td className="py-3 px-4 text-sm text-right tabular-nums">
-                                    <span className="text-yellow-600 dark:text-yellow-500">
-                                      {member.pendingCount ?? '-'}
-                                    </span>
                                   </td>
                                   <td className="py-3 px-4">
                                     {member.teamRole ? (

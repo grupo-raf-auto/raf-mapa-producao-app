@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiClient as api } from "@/lib/api-client";
 import { AdminConsultasWrapper } from "./admin-consultas-wrapper";
+import { PerformanceTop5Card } from "./performance-top5-card";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
@@ -105,6 +106,9 @@ export function AdminConsultasContent() {
         decoratorIcon={<Shield className="w-5 h-5" />}
         decoratorColor="text-red-500"
       />
+      <div className="w-full">
+        <PerformanceTop5Card />
+      </div>
       <AdminConsultasWrapper
         submissions={submissions}
         templates={templates}

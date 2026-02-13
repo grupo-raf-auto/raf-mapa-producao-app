@@ -5,13 +5,7 @@ import {
 } from '@/components/ui/animated-ai-chat';
 import { apiClient as api } from '@/lib/api-client';
 import { toast } from 'sonner';
-import {
-  FileText,
-  Layers,
-  FileUp,
-  Search,
-  Sparkles,
-} from 'lucide-react';
+import { FileText, HelpCircle, Zap, BookOpen, Sparkles } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
 import { Image } from '@/lib/router-compat';
 
@@ -29,32 +23,32 @@ interface Message {
 
 const MYSABICHAO_SUGGESTIONS: CommandSuggestion[] = [
   {
-    icon: <Search className="w-4 h-4" />,
-    label: 'Pesquisar',
-    description: 'Buscar informação nos PDFs carregados',
-    prefix: '/pesquisar',
-    action: 'O que dizem os documentos sobre este tema?',
+    icon: <BookOpen className="w-4 h-4" />,
+    label: 'Como funciona o CRM?',
+    description: 'Aprende a usar o sistema de gestão de clientes',
+    prefix: '/crm',
+    action: 'Como funciona o CRM?',
+  },
+  {
+    icon: <HelpCircle className="w-4 h-4" />,
+    label: 'Quais são as comissões dos bancos?',
+    description: 'Consulta tabelas e condições de comissão',
+    prefix: '/comissoes',
+    action: 'Quais são as comissões dos bancos?',
+  },
+  {
+    icon: <Zap className="w-4 h-4" />,
+    label: 'Como fazer onboarding de um cliente?',
+    description: 'Procedimentos para novos gestores',
+    prefix: '/onboarding',
+    action: 'Como fazer onboarding de um cliente?',
   },
   {
     icon: <FileText className="w-4 h-4" />,
-    label: 'Resumir',
-    description: 'Resumir conteúdo dos documentos extraídos',
-    prefix: '/resumir',
-    action: 'Resume o conteúdo principal dos documentos sobre este assunto.',
-  },
-  {
-    icon: <Layers className="w-4 h-4" />,
-    label: 'Extrair',
-    description: 'Extrair pontos-chave de um documento',
-    prefix: '/extrair',
-    action: 'Quais são os pontos principais deste documento?',
-  },
-  {
-    icon: <FileUp className="w-4 h-4" />,
-    label: 'Localizar',
-    description: 'Encontrar passagens específicas nos PDFs',
-    prefix: '/localizar',
-    action: 'Onde encontro informação sobre isto nos documentos carregados?',
+    label: 'Quais os contactos da administração?',
+    description: 'Encontra os contactos dos departamentos',
+    prefix: '/contactos',
+    action: 'Quais os contactos da administração?',
   },
 ];
 
@@ -123,13 +117,13 @@ export function MySabichaoContent() {
     <div className="flex flex-col h-full min-h-0">
       {/* Professional Header */}
       <PageHeader
-        title="MySabichão"
+        title="MySabichao"
         description="Assistente sobre os documentos carregados. Pesquisa, resume e extrai informação dos PDFs."
         customIcon={
           <div className="w-full h-full flex items-center justify-center p-1.5">
             <Image
               src="/LogoMySabischao.png"
-              alt="MySabichão"
+              alt="MySabichao"
               width={48}
               height={48}
               className="w-full h-full object-contain"

@@ -58,6 +58,14 @@ function isUnauthorizedError(errorMessage: string, status: number): boolean {
   );
 }
 
+const PUBLIC_AUTH_PATHS = ['/sign-in', '/forgot-password', '/reset-password', '/verify-email', '/approval-status'];
+
+function isOnPublicAuthPage(): boolean {
+  if (typeof window === 'undefined') return false;
+  const path = window.location.pathname;
+  return PUBLIC_AUTH_PATHS.some((p) => path === p || path.startsWith(p + '/'));
+}
+
 async function fetchWithAuth(
   path: string,
   options: RequestInit = {},
@@ -110,7 +118,10 @@ async function fetchWithAuth(
     }
     if (isUnauthorizedError(errorMessage, res.status)) {
       cache.clear();
-      window.location.href = '/sign-in';
+      // Evitar loop de reload: não redirecionar se já estamos numa página de auth pública
+      if (!isOnPublicAuthPage()) {
+        window.location.href = '/sign-in';
+      }
       throw new Error('Redirecting to login');
     }
     throw new Error(errorMessage);
@@ -489,12 +500,26 @@ export const apiClient = {
         invalidateCache('teams');
         invalidateCache('user');
       }),
-    getRankings: () =>
-      fetchWithAuth('teams/rankings').then((raw) => {
+    getRankings: (params?: { modelType?: string; teamId?: string }) => {
+      const q = new URLSearchParams();
+      if (params?.modelType) q.append('modelType', params.modelType);
+      if (params?.teamId) q.append('teamId', params.teamId);
+      return fetchWithAuth(`teams/rankings${q.toString() ? `?${q}` : ''}`).then((raw) => {
         if (Array.isArray(raw)) return raw;
         if (raw && typeof raw === 'object' && 'data' in raw) return (raw as { data: unknown[] }).data;
         return [];
-      }),
+      });
+    },
+    getMetrics: (params?: { modelType?: string; teamId?: string }) => {
+      const q = new URLSearchParams();
+      if (params?.modelType) q.append('modelType', params.modelType);
+      if (params?.teamId) q.append('teamId', params.teamId);
+      return fetchWithAuth(`teams/metrics${q.toString() ? `?${q}` : ''}`).then((raw) => {
+        if (Array.isArray(raw)) return raw;
+        if (raw && typeof raw === 'object' && 'data' in raw) return (raw as { data: unknown[] }).data;
+        return [];
+      });
+    },
     getById: (id: string) => fetchWithAuth(`teams/${id}`),
     getMembers: (id: string) =>
       fetchWithAuth(`teams/${id}/members`).then((raw) => {
@@ -516,5 +541,41 @@ export const apiClient = {
       fetchWithAuth(`teams/${id}`, { method: 'DELETE' }).then(() =>
         invalidateCache('teams'),
       ),
+  },
+
+  appSettings: {
+    get: () => fetchWithAuth('app-settings'),
+    update: (data: {
+      sidebarLogo?: string | null;
+      sidebarText?: string;
+      primaryColor?: string | null;
+      secondaryColor?: string | null;
+      accentColor?: string | null;
+      sidebarColor?: string | null;
+      theme?: string;
+      customButtonEnabled?: boolean;
+      customButtonLabel?: string;
+      customButtonColor?: string;
+      customButtonUrl?: string;
+    }) =>
+      fetchWithAuth('app-settings', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }).then(() => invalidateCache('app-settings')),
+    reset: () =>
+      fetchWithAuth('app-settings/reset', {
+        method: 'POST',
+      }).then(() => invalidateCache('app-settings')),
+  },
+  admin: {
+    /** Restaura templates e questões iniciais (sem dados dummy). Apenas admin. */
+    seed: () =>
+      fetchWithAuth('admin/seed', {
+        method: 'POST',
+      }).then((result) => {
+        invalidateCache('questions');
+        invalidateCache('templates');
+        return result;
+      }),
   },
 };

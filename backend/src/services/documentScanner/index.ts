@@ -1,15 +1,15 @@
-import { TechnicalValidator } from "./technicalValidator";
 import { AIValidator } from "./aiValidator";
 import { ScoreCompiler } from "./scoreCompiler";
+import { extractTextFromDocument } from "../../utils/textExtractor";
 import type { DocumentScanResult } from "./types";
 import * as fs from "fs";
 
 /**
- * Main document scanner orchestrating technical and AI validation
+ * Scanner de documentos – verificação apenas por IA (sem libs técnicas)
  */
 export class DocumentScanner {
   /**
-   * Scans document for fraud using dual validation approach
+   * Analisa documento usando apenas IA (extração de texto + análise estrutural)
    */
   static async scanDocument(
     documentId: string,
@@ -17,32 +17,25 @@ export class DocumentScanner {
     mimeType: string
   ): Promise<DocumentScanResult> {
     try {
-      // Stage 1: Technical validation
-      console.log(`[${documentId}] Iniciando validação técnica...`);
-      const technicalResult = await TechnicalValidator.validate(
-        filePath,
-        mimeType
-      );
+      // Stage 1: Extrair texto
+      console.log(`[${documentId}] Extraindo texto...`);
+      const extractedText = await extractTextFromDocument(filePath, mimeType);
       console.log(
-        `[${documentId}] Validação técnica completa: score ${technicalResult.scoreTecnico}`
+        `[${documentId}] Texto extraído: ${extractedText.length} caracteres`
       );
 
-      // Stage 2: AI validation
+      // Stage 2: Validação por IA
       console.log(`[${documentId}] Iniciando validação IA...`);
-      const aiResult = await AIValidator.validateDocument(
-        filePath,
-        technicalResult,
-        mimeType
-      );
+      const aiResult = await AIValidator.validateDocument(extractedText);
       console.log(
         `[${documentId}] Validação IA completa: score ${aiResult.scoreIA}`
       );
 
-      // Stage 3: Compile results
-      const result = ScoreCompiler.compile(documentId, technicalResult, aiResult);
+      // Stage 3: Compilar resultados
+      const result = ScoreCompiler.compile(documentId, aiResult);
 
       console.log(
-        `[${documentId}] Scan completo: score total ${result.scoreTotal}, risco ${result.nivelRisco}`
+        `[${documentId}] Scan completo: score ${result.scoreTotal}, risco ${result.nivelRisco}`
       );
 
       return result;

@@ -1,5 +1,4 @@
 import * as fs from "fs";
-import * as pdfjsLib from "pdfjs-dist";
 import pdfParse from "pdf-parse";
 
 interface PDFMetadata {
@@ -55,21 +54,12 @@ export async function analyzePDF(filePath: string): Promise<PDFAnalysisResult> {
     suspiciousFeatures.push("compressao_anormal");
   }
 
-  // 4. Check for hidden pages (pages with no text but present in structure)
-  const pageDetails = [];
-  for (let i = 1; i <= data.numpages; i++) {
-    const pageText = data.text.split("\f")[i - 1] || "";
-    pageDetails.push({
-      pageNum: i,
-      hasContent: pageText.trim().length > 0,
-      textLength: pageText.length,
-    });
-  }
+  // 4. Check for hidden pages (páginas sem conteúdo extraível na estrutura PDF)
+  const pageDetails = await getPageDetailsFromPdf(fileBuffer, data.numpages, data.text);
+  const pagesWithoutContent = pageDetails.filter((p) => !p.hasContent);
+  const hasHiddenPages = pagesWithoutContent.length > 0;
 
-  const hiddenPages = pageDetails.some(
-    (p) => !p.hasContent && p.pageNum <= data.numpages
-  );
-  if (hiddenPages) {
+  if (hasHiddenPages) {
     suspiciousFeatures.push("paginas_ocultas_detectadas");
   }
 
@@ -88,8 +78,52 @@ export async function analyzePDF(filePath: string): Promise<PDFAnalysisResult> {
       hasXFA: fileStr.includes("/XFA"),
     },
     textContent: data.text,
-    hasHiddenPages: hiddenPages,
+    hasHiddenPages,
     suspiciousFeatures,
     pageDetails,
   };
+}
+
+/**
+ * Extrai detalhes por página para detecção de páginas ocultas.
+ * Usa pdfjs para extrair texto por página; fallback para heurística com pdf-parse.
+ */
+async function getPageDetailsFromPdf(
+  fileBuffer: Buffer,
+  numPages: number,
+  fullText: string
+): Promise<Array<{ pageNum: number; hasContent: boolean; textLength: number }>> {
+  try {
+    const pdfjsLib = await import("pdfjs-dist");
+    const doc = await (pdfjsLib as any).getDocument({ data: new Uint8Array(fileBuffer) }).promise;
+    const pageDetails: Array<{ pageNum: number; hasContent: boolean; textLength: number }> = [];
+
+    for (let i = 1; i <= numPages; i++) {
+      const page = await doc.getPage(i);
+      const textContent = await page.getTextContent();
+      const text = (textContent.items as Array<{ str?: string }>)
+        .map((item) => item.str || "")
+        .join(" ")
+        .trim();
+      pageDetails.push({
+        pageNum: i,
+        hasContent: text.length > 0,
+        textLength: text.length,
+      });
+    }
+    return pageDetails;
+  } catch {
+    // Fallback: usa form feed (\f) como separador de páginas (comum em PDFs)
+    const parts = fullText.split(/\f/);
+    const pageDetails: Array<{ pageNum: number; hasContent: boolean; textLength: number }> = [];
+    for (let i = 1; i <= numPages; i++) {
+      const pageText = (parts[i - 1] || "").trim();
+      pageDetails.push({
+        pageNum: i,
+        hasContent: pageText.length > 0,
+        textLength: pageText.length,
+      });
+    }
+    return pageDetails;
+  }
 }

@@ -117,7 +117,7 @@ export function SupportChatPanel() {
           <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl md:rounded-2xl bg-black flex items-center justify-center shadow-lg shadow-black/25 border border-slate-800 shrink-0 p-1.5">
             <Image
               src="/LogoMySabischao.png"
-              alt="MySabichão"
+              alt="MySabichao"
               width={40}
               height={40}
               className="w-full h-full object-contain"
@@ -125,7 +125,7 @@ export function SupportChatPanel() {
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-base font-semibold text-slate-900 dark:text-white truncate">
-              Assistente RAF
+              MySabichao
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
               Suporte inteligente 24/7
@@ -157,7 +157,7 @@ export function SupportChatPanel() {
                 <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-black flex items-center justify-center mx-auto mb-4 md:mb-5 shadow-lg shadow-black/25 border border-slate-800 p-2 md:p-3">
                   <Image
                     src="/LogoMySabischao.png"
-                    alt="MySabichão"
+                    alt="MySabichao"
                     width={80}
                     height={80}
                     className="w-full h-full object-contain"
@@ -177,7 +177,7 @@ export function SupportChatPanel() {
                     'Como submeter um formulário?',
                     'Como funciona o MyScanner?',
                     'Como vejo as métricas da minha equipa?',
-                    'O que é o MySabichão?',
+                    'O que é o MySabichao?',
                   ].map((suggestion) => (
                     <button
                       key={suggestion}
@@ -214,7 +214,7 @@ export function SupportChatPanel() {
                 ) : (
                   <Image
                     src="/LogoMySabischao.png"
-                    alt="MySabichão"
+                    alt="MySabichao"
                     width={36}
                     height={36}
                     className="w-full h-full object-contain"
@@ -254,7 +254,7 @@ export function SupportChatPanel() {
               <div className="w-9 h-9 rounded-xl bg-black border border-slate-800 flex items-center justify-center shadow-sm shrink-0 p-1">
                 <Image
                   src="/LogoMySabischao.png"
-                  alt="MySabichão"
+                  alt="MySabichao"
                   width={36}
                   height={36}
                   className="w-full h-full object-contain"

@@ -130,7 +130,7 @@ export class AppSettingsController {
       if (openaiModelSabichao !== undefined && !validateModel(openaiModelSabichao)) {
         return res.status(400).json({
           success: false,
-          error: 'Modelo MySabichão inválido. Use um identificador de modelo OpenAI (ex: gpt-4o, gpt-4o-mini).',
+          error: 'Modelo MySabichao inválido. Use um identificador de modelo OpenAI (ex: gpt-4o, gpt-4o-mini).',
         });
       }
       if (openaiModelAssistente !== undefined && !validateModel(openaiModelAssistente)) {

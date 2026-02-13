@@ -102,7 +102,7 @@ package "Gestão de Perguntas e Categorias" {
 ' ============================================
 ' PACOTE: MYSABICHÃO
 ' ============================================
-package "MySabichão - Chat com IA" {
+package "MySabichao - Chat com IA" {
   usecase "UC-052: Enviar Mensagem" as UC052
   usecase "UC-053: Receber Resposta\ncom RAG" as UC053
   usecase "UC-054: Visualizar Histórico" as UC054

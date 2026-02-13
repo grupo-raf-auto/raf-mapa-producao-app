@@ -144,7 +144,7 @@ function TopBar() {
     },
     {
       id: 'mysabichao',
-      title: 'MySabichão',
+      title: 'MySabichao',
       description: 'Pesquisar e extrair informação dos PDFs carregados',
       category: 'knowledge',
       tags: ['IA', 'PDFs', 'Documentos', 'RAG'],

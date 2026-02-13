@@ -202,8 +202,8 @@
           <mxGeometry x="20" y="410" width="260" height="30" as="geometry" />
         </mxCell>
 
-        <!-- Package: MySabichão -->
-        <mxCell id="pkg-sabichao" value="MySabichão - Chat com IA" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1;align=left;" vertex="1" parent="1">
+        <!-- Package: MySabichao -->
+        <mxCell id="pkg-sabichao" value="MySabichao - Chat com IA" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1;align=left;" vertex="1" parent="1">
           <mxGeometry x="500" y="700" width="300" height="430" as="geometry" />
         </mxCell>
         <mxCell id="uc-052" value="UC-052: Enviar Mensagem" style="shape=umlUseCase;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;fillColor=#E8F4F8;strokeColor=#2E86AB;fontSize=11;" vertex="1" parent="pkg-sabichao">

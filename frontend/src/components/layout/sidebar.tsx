@@ -58,7 +58,7 @@ const intelligentTools = [
     description: 'Gerar textos para email e WhatsApp com IA',
   },
   {
-    label: 'MySabichão',
+    label: 'MySabichao',
     href: '/mysabichao',
     icon: Brain,
     description: 'Assistente IA',
@@ -190,7 +190,7 @@ export function Sidebar() {
               const isActive =
                 pathname === item.href ||
                 (item.href !== '/' && pathname.startsWith(item.href));
-              const isMySabichao = item.label === 'MySabichão';
+              const isMySabichao = item.label === 'MySabichao';
               return (
                 <Link
                   key={item.label}
@@ -207,7 +207,7 @@ export function Sidebar() {
                     <div className="shrink-0 w-5 h-5 flex items-center justify-center">
                       <Image
                         src="/LogoMySabischao.png"
-                        alt="MySabichão"
+                        alt="MySabichao"
                         width={20}
                         height={20}
                         className="w-full h-full object-contain transition-all"

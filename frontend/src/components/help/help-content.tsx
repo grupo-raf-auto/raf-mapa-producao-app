@@ -27,9 +27,9 @@ const userFaqs = [
   },
   {
     id: 'faq-3',
-    question: 'O que é o MySabichão?',
+    question: 'O que é o MySabichao?',
     answer:
-      'O MySabichão é o nosso assistente de inteligência artificial que pode responder a dúvidas sobre produtos, processos e regulamentação. Basta escrever a sua pergunta e obterá uma resposta baseada na documentação interna.',
+      'O MySabichao é o nosso assistente de inteligência artificial que pode responder a dúvidas sobre produtos, processos e regulamentação. Basta escrever a sua pergunta e obterá uma resposta baseada na documentação interna.',
   },
   {
     id: 'faq-4',
@@ -62,7 +62,7 @@ const adminFaqs = [
     id: 'admin-faq-1',
     question: 'O que é o Painel Admin?',
     answer:
-      'O Painel Admin é a área de administração da plataforma Grupo RAF. Permite gerir utilizadores, consultas de toda a equipa, métricas de desempenho, templates de formulários, documentos do MySabichão e tickets de suporte, tudo num único local com acesso completo.',
+      'O Painel Admin é a área de administração da plataforma Grupo RAF. Permite gerir utilizadores, consultas de toda a equipa, métricas de desempenho, templates de formulários, documentos do MySabichao e tickets de suporte, tudo num único local com acesso completo.',
   },
   {
     id: 'admin-faq-2',
@@ -90,9 +90,9 @@ const adminFaqs = [
   },
   {
     id: 'admin-faq-6',
-    question: 'Como gerir os ficheiros do MySabichão?',
+    question: 'Como gerir os ficheiros do MySabichao?',
     answer:
-      'A secção "Ficheiros" permite fazer upload e gerir os documentos que alimentam o assistente MySabichão. Estes ficheiros são usados para que o assistente responda às perguntas dos utilizadores. Organize e atualize a documentação aqui.',
+      'A secção "Ficheiros" permite fazer upload e gerir os documentos que alimentam o assistente MySabichao. Estes ficheiros são usados para que o assistente responda às perguntas dos utilizadores. Organize e atualize a documentação aqui.',
   },
   {
     id: 'admin-faq-7',

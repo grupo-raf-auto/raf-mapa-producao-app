@@ -565,7 +565,7 @@ export function AdminAppSettings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-xs">MySabichão</Label>
+                <Label className="text-xs">MySabichao</Label>
                 <Select
                   value={openaiModelSabichao || 'default'}
                   onValueChange={(v) => setOpenaiModelSabichao(v === 'default' ? '' : v)}
@@ -584,7 +584,7 @@ export function AdminAppSettings() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs">Assistente RAF</Label>
+                <Label className="text-xs">MySabichao</Label>
                 <Select
                   value={openaiModelAssistente || 'default'}
                   onValueChange={(v) => setOpenaiModelAssistente(v === 'default' ? '' : v)}

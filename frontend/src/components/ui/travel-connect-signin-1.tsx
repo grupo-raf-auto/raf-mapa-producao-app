@@ -440,7 +440,7 @@ const SignInCard = () => {
             >
               Acede à plataforma do{' '}
               <span className="text-primary font-semibold">Grupo RAF</span> e ao{' '}
-              <span className="text-primary font-semibold">MySabichão</span>, o
+              <span className="text-primary font-semibold">MySabichao</span>, o
               teu assistente inteligente para gestão de crédito, formulários e
               conhecimento interno
             </motion.p>

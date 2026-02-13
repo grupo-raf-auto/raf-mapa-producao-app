@@ -1,5 +1,5 @@
 ================================================================================
-                    DOCUMENTAÇÃO COMPLETA - MySabichão
+                    DOCUMENTAÇÃO COMPLETA - MySabichao
 ================================================================================
 
 ÍNDICE
@@ -23,7 +23,7 @@
 
 FINALIDADE
 ----------
-O MySabichão é um assistente virtual inteligente com IA que permite aos
+O MySabichao é um assistente virtual inteligente com IA que permite aos
 utilizadores fazer qualquer tipo de dúvida e receber respostas inteligentes.
 Utiliza RAG (Retrieval Augmented Generation) para acessar documentos da empresa.
 
@@ -51,7 +51,7 @@ PROBLEMA QUE RESOLVE
 
 PRINCIPAIS FUNCIONALIDADES
 ---------------------------
-1. Chat Principal (MySabichão): Responde perguntas usando RAG com documentos
+1. Chat Principal (MySabichao): Responde perguntas usando RAG com documentos
    da empresa
 2. Chat de Suporte: Ajuda com processos e uso do sistema
 3. Gestão de Documentos: Upload, processamento e indexação de documentos
@@ -74,7 +74,7 @@ raf-mapa-producao-app/
 ├── client/                    # Frontend Next.js
 │   ├── app/                  # App Router do Next.js
 │   │   ├── api/              # API Routes (proxy, upload)
-│   │   ├── mysabichao/       # Página do MySabichão
+│   │   ├── mysabichao/       # Página do MySabichao
 │   │   └── ...
 │   ├── components/           # Componentes React
 │   │   ├── mysabichao/      # Componentes específicos do chat
@@ -635,7 +635,7 @@ ESTRATÉGIA DE PROMPTS
 
 System Prompts:
 
-1. MySabichão (sabichao):
+1. MySabichao (sabichao):
    - Foco: dados e documentos da empresa
    - RAG: usa contexto dos documentos
    - Tom: profissional e objetivo
@@ -1116,6 +1116,6 @@ CONFIGURAÇÕES ESSENCIAIS
 FIM DA DOCUMENTAÇÃO
 ================================================================================
 
-Esta documentação cobre todos os aspetos principais do projeto MySabichão.
+Esta documentação cobre todos os aspetos principais do projeto MySabichao.
 Use como referência para replicar a solução em novos projetos, adaptando
 conforme necessário ao contexto específico.

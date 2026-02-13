@@ -89,11 +89,11 @@ export async function generateChatResponse(
 export type ChatContext = 'sabichao' | 'support';
 
 /**
- * Gera system prompt padrão para o MySabichão (base de dados da empresa)
+ * Gera system prompt padrão para o MySabichao (base de dados da empresa)
  */
 export function getSabichaoSystemPrompt(): string {
   return `[ROLE BASE]
-Você é o MySabichão, assistente especializado e confiável da empresa.
+Você é o MySabichao, assistente especializado e confiável da empresa.
 Responde de forma profissional, clara e amigável.
 
 [FONTE DE VERDADE]
@@ -170,7 +170,7 @@ MyScanner - Análise de fraude em documentos. Upload de PDF/JPG/PNG (até 50MB) 
 
 MyTexto - Gerador de textos para email e WhatsApp com ajuda de IA.
 
-MySabichão - Assistente IA para consultar a base de conhecimento interna da empresa.
+MySabichao - Assistente IA para consultar a base de conhecimento interna da empresa.
 
 Definições - Gestão de dados pessoais, palavra-passe e preferências.
 

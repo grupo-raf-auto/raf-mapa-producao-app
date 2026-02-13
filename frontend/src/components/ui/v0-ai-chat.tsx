@@ -125,7 +125,7 @@ export function V0AIChat({
   loading = false,
   messages = [],
   placeholder = 'Pergunta sobre os documentos...',
-  title = 'MySabichão',
+  title = 'MySabichao',
   onQuickAction,
   onClearHistory,
 }: V0AIChatProps) {

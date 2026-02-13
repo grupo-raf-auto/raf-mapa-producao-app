@@ -19,14 +19,14 @@ export function SidebarSupportChat() {
           <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center group-hover:bg-black/90 transition-colors p-1.5 border border-slate-800">
             <Image
               src="/LogoMySabischao.png"
-              alt="MySabichão"
+              alt="MySabichao"
               width={40}
               height={40}
               className="w-full h-full object-contain"
             />
           </div>
           <div>
-            <p className="text-sm font-semibold text-white">Assistente RAF</p>
+            <p className="text-sm font-semibold text-white">MySabichao</p>
             <p className="text-xs text-white/60">Suporte inteligente</p>
           </div>
         </div>

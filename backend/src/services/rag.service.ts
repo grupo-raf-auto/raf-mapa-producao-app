@@ -7,7 +7,7 @@ dotenv.config();
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Parâmetros conforme especificação do sistema RAG MySabichão
+// Parâmetros conforme especificação do sistema RAG MySabichao
 // Chunking: 1000 caracteres com 200 caracteres de sobreposição
 const CHUNK_SIZE = 1000; // Tamanho padrão conforme especificação
 const CHUNK_OVERLAP = 200; // Sobreposição conforme especificação

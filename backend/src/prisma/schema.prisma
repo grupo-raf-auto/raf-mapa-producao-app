@@ -565,7 +565,7 @@ model AppSettings {
     customButtonUrl     String  @default("https://mycredit.pt")
 
     // Modelos OpenAI por funcionalidade (null = usar env ou default)
-    openaiModelSabichao   String? // MySabichão - base de conhecimento
+    openaiModelSabichao   String? // MySabichao - base de conhecimento
     openaiModelAssistente String? // Assistente RAF - suporte
     openaiModelScanner    String? // MyScanner - análise de documentos
     openaiModelMyTexto   String? // MyTexto - gerador de mensagens

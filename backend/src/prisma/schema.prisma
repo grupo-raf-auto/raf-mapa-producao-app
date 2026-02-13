@@ -32,11 +32,31 @@ model Team {
 
     members     User[]
     objectives  Objective[]
+    teamModels  TeamModel[] // Uma equipa pode ter vários modelos ativos
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     @@map("team")
+}
+
+// Relação N:N entre Team e tipos de modelo
+// Uma equipa pode trabalhar com vários modelos simultaneamente
+model TeamModel {
+    id        String  @id @default(cuid())
+    teamId    String
+    modelType String  // "credito" | "imobiliaria" | "seguro"
+    isActive  Boolean @default(true)
+
+    team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([teamId, modelType]) // Uma equipa só pode ter um registo por tipo de modelo
+    @@index([teamId])
+    @@index([modelType])
+    @@map("team_model")
 }
 
 // Role do utilizador dentro da equipa (leader, coordinator, member)
@@ -519,4 +539,36 @@ model BugReport {
     @@index([status])
     @@index([readAt])
     @@map("bug_report")
+}
+
+// ============ App Settings (configurações customizáveis pelo admin) ============
+model AppSettings {
+    id String @id @default(cuid())
+
+    // Logo da sidebar (base64 ou URL)
+    sidebarLogo String? @db.Text
+    sidebarText String  @default("Grupo RAF") // Texto ao lado do logo
+
+    // Cores customizáveis
+    primaryColor   String? // cor primária da app
+    secondaryColor String? // cor secundária
+    accentColor    String? // cor de destaque
+    sidebarColor   String? // cor de fundo da sidebar (gradient start)
+
+    // Tema
+    theme String @default("light") // light | dark | system
+
+    // Botão customizável (CRM MyCredit)
+    customButtonEnabled Boolean @default(true)
+    customButtonLabel   String  @default("CRM MyCredit")
+    customButtonColor   String  @default("#22c55e") // green-500
+    customButtonUrl     String  @default("https://mycredit.pt")
+
+    // Controle de versão
+    version   Int      @default(1)
+    updatedBy String? // ID do admin que fez a última atualização
+    updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+
+    @@map("app_settings")
 }

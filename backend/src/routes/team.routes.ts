@@ -19,8 +19,11 @@ router.post('/join', teamController.join);
 /** Team rankings for podium (all authenticated users) */
 router.get('/rankings', teamController.getRankings);
 
-/** Get team members (admin only) - must be before /:id */
-router.get('/:id/members', requireAdmin, teamController.getMembers);
+/** Get detailed metrics by team and model (all authenticated users) */
+router.get('/metrics', teamController.getMetrics);
+
+/** Get team members (authenticated users) - must be before /:id */
+router.get('/:id/members', teamController.getMembers);
 
 /** Get one team */
 router.get('/:id', teamController.getOne);

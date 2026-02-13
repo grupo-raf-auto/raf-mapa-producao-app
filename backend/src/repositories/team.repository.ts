@@ -17,20 +17,76 @@ export class TeamRepository {
       orderBy: { name: 'asc' },
       include: {
         members: {
-          select: { id: true, firstName: true, lastName: true, name: true, email: true, teamRole: true },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            name: true,
+            email: true,
+            image: true,
+            teamRole: true,
+          },
         },
         _count: { select: { members: true } },
       },
     });
   }
 
-  /** Get members of a team (for admin). */
+  /** Get members of a team with profile photo, model metrics, and submission stats. */
   async findMembers(teamId: string) {
-    return prisma.user.findMany({
+    const members = await prisma.user.findMany({
       where: { teamId },
-      select: { id: true, firstName: true, lastName: true, name: true, email: true, teamRole: true },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        name: true,
+        email: true,
+        image: true,
+        teamRole: true,
+        userModels: {
+          where: { isActive: true },
+          select: {
+            id: true,
+            modelType: true,
+            creditoProfile: {
+              select: {
+                totalProduction: true,
+                activeClients: true,
+              },
+            },
+            imobiliariaProfile: {
+              select: {
+                totalSales: true,
+                activeListings: true,
+              },
+            },
+            seguroProfile: {
+              select: {
+                totalPremiums: true,
+                activePolicies: true,
+              },
+            },
+          },
+        },
+        submissions: {
+          select: {
+            id: true,
+            commissionPaid: true,
+          },
+        },
+      },
       orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
     });
+
+    // Adicionar contagens de submissões (aprovadas = commissionPaid true, pendentes = false)
+    return members.map((member) => ({
+      ...member,
+      submissionsCount: member.submissions.length,
+      approvedCount: member.submissions.filter((s) => s.commissionPaid).length,
+      pendingCount: member.submissions.filter((s) => !s.commissionPaid).length,
+      submissions: undefined, // Remover array completo
+    }));
   }
 
   async findUnique(id: string): Promise<Team | null> {

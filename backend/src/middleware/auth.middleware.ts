@@ -167,8 +167,12 @@ export async function authenticateUser(
     return res.status(401).json({ error: 'Unauthorized: No token provided' });
   } catch (error) {
     console.error('Authentication error:', error);
-    res
-      .status(500)
-      .json({ error: 'Internal server error during authentication' });
+    if (!res.headersSent) {
+      res
+        .status(500)
+        .json({ error: 'Internal server error during authentication' });
+    } else {
+      next(error);
+    }
   }
 }

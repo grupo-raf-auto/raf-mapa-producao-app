@@ -125,8 +125,16 @@ export const auth = betterAuth({
     BASE_URL,
     FRONTEND_URL,
     process.env.CLIENT_URL,
+    ...(process.env.EXTRA_CORS_ORIGINS
+      ? process.env.EXTRA_CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+      : []),
     ...(process.env.NODE_ENV !== 'production'
       ? ['http://localhost:3004', 'http://localhost:3006', 'http://127.0.0.1:3004', 'http://127.0.0.1:3006']
       : []),
   ].filter((x): x is string => Boolean(x)),
+
+  advanced: {
+    // Em desenvolvimento: desativar validação de origem para permitir acesso via IP na rede local
+    disableOriginCheck: process.env.NODE_ENV !== 'production',
+  },
 });

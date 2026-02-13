@@ -106,7 +106,7 @@ export function ConsultasContent() {
         <Card className="rounded-2xl border border-border/60 shadow-sm">
           <CardContent className="py-10 sm:py-12 px-4 text-center flex flex-col items-center gap-3">
             <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Carregando formulários...</p>
+            <p className="text-sm text-muted-foreground">A carregar consultas...</p>
           </CardContent>
         </Card>
       </div>

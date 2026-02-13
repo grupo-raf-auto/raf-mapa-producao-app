@@ -89,7 +89,7 @@ export function FormulariosContent() {
         <Card className="shadow-sm">
           <CardContent className="py-8 text-center flex flex-col items-center gap-3">
             <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
-            <p className="text-muted-foreground">Carregando formulários...</p>
+            <p className="text-muted-foreground">A carregar formulários...</p>
           </CardContent>
         </Card>
       </div>

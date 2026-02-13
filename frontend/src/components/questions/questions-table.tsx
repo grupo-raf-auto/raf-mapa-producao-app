@@ -60,7 +60,7 @@ export async function QuestionsTable() {
             questions.map((question: Question) => (
               <TableRow
                 key={question._id}
-                className="hover:bg-gray-50 active:bg-gray-100"
+                className="hover:bg-muted/50 active:bg-muted"
               >
                 <TableCell className="font-medium">{question.title}</TableCell>
                 <TableCell>

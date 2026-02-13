@@ -11,9 +11,9 @@ import {
   FileUp,
   Search,
   Sparkles,
-  Brain,
 } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
+import { Image } from '@/lib/router-compat';
 
 // Helper para gerar IDs únicos
 function generateId() {
@@ -125,7 +125,17 @@ export function MySabichaoContent() {
       <PageHeader
         title="MySabichão"
         description="Assistente para templates, documentação e análise. Perguntas em linguagem natural."
-        icon={Brain}
+        customIcon={
+          <div className="w-full h-full flex items-center justify-center p-1.5">
+            <Image
+              src="/LogoMySabischao.png"
+              alt="MySabichão"
+              width={48}
+              height={48}
+              className="w-full h-full object-contain"
+            />
+          </div>
+        }
         iconGradient="from-red-600 via-red-500 to-red-700"
         decoratorIcon={<Sparkles className="w-5 h-5" />}
         decoratorColor="text-red-500"

@@ -14,7 +14,6 @@ import { SeguradoraChart } from './seguradora-chart';
 import { TicketMedioChart } from './ticket-medio-chart';
 import { ColaboradorPerformanceChart } from './colaborador-performance-chart';
 import { GrowthRateChart } from './growth-rate-chart';
-import { AgentePerformanceChart } from './agente-performance-chart';
 import { RatingDistributionChart } from './rating-distribution-chart';
 import { TicketMedioAgenteChart } from './ticket-medio-agente-chart';
 import { FracionamentoChart } from './fracionamento-chart';
@@ -507,7 +506,13 @@ export function DashboardChartsWrapper({
           title="Produção por entidade"
           description="Analise o volume de produção e valores por banco, seguradora e ticket médio."
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div
+          className={`grid gap-5 ${
+            isCreditoOuImobiliaria
+              ? 'grid-cols-1 md:grid-cols-2'
+              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+          }`}
+        >
           <AnimatedSection delay={0.1}>
             <ChartCard glowColor="purple" className="h-full min-h-[280px]">
               <div className="flex items-center justify-between mb-4">
@@ -526,18 +531,20 @@ export function DashboardChartsWrapper({
               <OverallSellProgressChart data={salesStats?.byBanco || []} />
             </ChartCard>
           </AnimatedSection>
-          <AnimatedSection delay={0.15}>
-            <ChartCard glowColor="orange" className="h-full min-h-[280px]">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="chart-card-title">Produção por Seguradora</h3>
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                  Operações
-                </span>
-              </div>
-              <SeguradoraChart data={salesStats?.bySeguradora || []} />
-            </ChartCard>
-          </AnimatedSection>
-          <AnimatedSection delay={0.2}>
+          {!isCreditoOuImobiliaria && (
+            <AnimatedSection delay={0.15}>
+              <ChartCard glowColor="orange" className="h-full min-h-[280px]">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="chart-card-title">Produção por Seguradora</h3>
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                    Operações
+                  </span>
+                </div>
+                <SeguradoraChart data={salesStats?.bySeguradora || []} />
+              </ChartCard>
+            </AnimatedSection>
+          )}
+          <AnimatedSection delay={isCreditoOuImobiliaria ? 0.15 : 0.2}>
             <ChartCard glowColor="red" className="h-full min-h-[280px]">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="chart-card-title">Ticket Médio por Banco</h3>
@@ -559,9 +566,9 @@ export function DashboardChartsWrapper({
         <SectionSeparator
           id="topic-performance"
           title="Performance da equipa"
-          description="Compare o desempenho entre colaboradores e agentes, e identifique os melhores resultados."
+          description="Compare o desempenho entre colaboradores e identifique os melhores resultados."
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <AnimatedSection delay={0.25}>
             <ChartCard glowColor="red" className="h-full min-h-[280px]">
               <div className="flex items-center justify-between mb-4">
@@ -579,23 +586,6 @@ export function DashboardChartsWrapper({
             </ChartCard>
           </AnimatedSection>
           <AnimatedSection delay={0.3}>
-            <ChartCard glowColor="blue" className="h-full min-h-[320px]">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="chart-card-title">Performance por Agente</h3>
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                  Top 10
-                </span>
-              </div>
-              <AgentePerformanceChart
-                data={agenteDataForComparison.map((item) => ({
-                  ...item,
-                  averageValue: item.averageValue ?? 0,
-                }))}
-                globalAverage={salesStats?.averageValue}
-              />
-            </ChartCard>
-          </AnimatedSection>
-          <AnimatedSection delay={0.35}>
             <ChartCard glowColor="red" className="h-full min-h-[280px]">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="chart-card-title">Ticket Médio por Agente</h3>

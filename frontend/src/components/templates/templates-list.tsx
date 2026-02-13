@@ -134,7 +134,7 @@ export function TemplatesList({ showFillButton = true }: TemplatesListProps) {
       <Card className="shadow-sm">
         <CardContent className="py-8 text-center flex flex-col items-center gap-3">
           <Spinner variant="bars" className="w-6 h-6 text-muted-foreground" />
-          <p className="text-muted-foreground">Carregando templates...</p>
+          <p className="text-muted-foreground">A carregar templates...</p>
         </CardContent>
       </Card>
     );

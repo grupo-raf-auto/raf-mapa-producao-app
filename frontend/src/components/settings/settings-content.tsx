@@ -1,6 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { PageHeader } from '@/components/ui/page-header';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +26,7 @@ import {
   X,
   Save,
   Loader2,
-  Settings,
+  AlertTriangle,
 } from 'lucide-react';
 import { authClient, useSession } from '@/lib/auth-client';
 import { toast } from 'sonner';
@@ -43,7 +41,6 @@ interface UserProfile {
 }
 
 export function SettingsContent() {
-  const navigate = useNavigate();
   const sessionData = useSession();
   const user = sessionData.data?.user as UserProfile | undefined;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -257,7 +254,7 @@ export function SettingsContent() {
           'Sessão terminada. Contacte o suporte para eliminar a conta.',
         );
       }
-      navigate('/sign-in');
+      window.location.href = '/sign-in';
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Erro ao eliminar conta',
@@ -268,17 +265,15 @@ export function SettingsContent() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 px-1 sm:px-0">
-      <PageHeader
-        title="Definições"
-        description="Conta e preferências."
-        icon={Settings}
-      />
-      <div className="max-w-3xl mx-auto w-full">
-        {/* My Profile Section */}
-        <Card className="p-4 sm:p-6 mb-4 sm:mb-6 rounded-2xl border border-border/60">
-          <h2 className="text-lg font-semibold mb-4 sm:mb-6 flex items-center gap-2">
-            <User className="h-5 w-5 text-red-700 shrink-0" />
+    <div className="px-1 sm:px-0">
+      <div className="max-w-4xl mx-auto w-full">
+        <div className="space-y-4">
+          {/* My Profile Section */}
+          <Card className="p-4 sm:p-6 rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-shadow">
+          <h2 className="text-lg font-semibold mb-4 sm:mb-6 flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 shrink-0">
+              <User className="h-5 w-5 text-red-700" />
+            </div>
             O Meu Perfil
           </h2>
 
@@ -371,10 +366,12 @@ export function SettingsContent() {
           </Button>
         </Card>
 
-        {/* Account Security Section */}
-        <Card className="p-4 sm:p-6 mb-4 sm:mb-6 rounded-2xl border border-border/60">
-          <h2 className="text-lg font-semibold mb-4 sm:mb-6 flex items-center gap-2">
-            <Lock className="h-5 w-5 text-red-700 shrink-0" />
+          {/* Account Security Section */}
+          <Card className="p-4 sm:p-6 rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-shadow">
+          <h2 className="text-lg font-semibold mb-4 sm:mb-6 flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 shrink-0">
+              <Lock className="h-5 w-5 text-red-700" />
+            </div>
             Segurança da Conta
           </h2>
 
@@ -455,108 +452,114 @@ export function SettingsContent() {
           </div>
         </Card>
 
-        {/* Account Actions Section */}
-        <Card className="p-4 sm:p-6 rounded-2xl border border-border/60">
-          <h2 className="text-lg font-semibold mb-4 sm:mb-6 text-red-700">Zona de Perigo</h2>
+          {/* Account Actions Section */}
+          <Card className="p-4 sm:p-6 rounded-2xl border border-red-200/70 shadow-sm hover:shadow-md transition-shadow bg-red-50/30">
+            <h2 className="text-lg font-semibold mb-4 sm:mb-6 flex items-center gap-2.5 text-red-700">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100">
+                <AlertTriangle className="h-5 w-5 text-red-700" />
+              </div>
+              Zona de Perigo
+            </h2>
 
-          {/* Logout all devices */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4 border-b">
-            <div className="min-w-0">
-              <p className="font-medium">Terminar sessão em todos os dispositivos</p>
-              <p className="text-sm text-muted-foreground">
-                Encerra todas as sessões ativas exceto a atual
-              </p>
-            </div>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" size="sm" className="min-h-[44px] w-full sm:w-auto touch-manipulation shrink-0">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Terminar Sessões
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Terminar todas as sessões?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta ação irá encerrar todas as sessões ativas em outros
-                    dispositivos. Terá de iniciar sessão novamente nesses
-                    dispositivos.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleLogoutAllDevices}>
+            {/* Logout all devices */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4 border-b">
+              <div className="min-w-0">
+                <p className="font-medium">Terminar sessão em todos os dispositivos</p>
+                <p className="text-sm text-muted-foreground">
+                  Encerra todas as sessões ativas exceto a atual
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="min-h-[44px] w-full sm:w-auto touch-manipulation shrink-0">
+                    <LogOut className="h-4 w-4 mr-2" />
                     Terminar Sessões
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-
-          {/* Delete account */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-            <div className="min-w-0">
-              <p className="font-medium text-red-600">Eliminar conta</p>
-              <p className="text-sm text-muted-foreground">
-                Elimina permanentemente a sua conta e todos os dados associados
-              </p>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Terminar todas as sessões?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação irá encerrar todas as sessões ativas em outros
+                      dispositivos. Terá de iniciar sessão novamente nesses
+                      dispositivos.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleLogoutAllDevices}>
+                      Terminar Sessões
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm" className="min-h-[44px] w-full sm:w-auto touch-manipulation shrink-0">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Eliminar Conta
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Tem a certeza absoluta?</AlertDialogTitle>
-                  <AlertDialogDescription asChild>
-                    <div className="space-y-4">
-                      <p>
-                        Esta ação não pode ser revertida. Irá eliminar
-                        permanentemente a sua conta e remover todos os dados dos
-                        nossos servidores.
-                      </p>
-                      <div className="space-y-2">
-                        <Label htmlFor="deleteConfirm">
-                          Escreva{' '}
-                          <span className="font-semibold">ELIMINAR</span> para
-                          confirmar:
-                        </Label>
-                        <Input
-                          id="deleteConfirm"
-                          value={deleteConfirmation}
-                          onChange={(e) => setDeleteConfirmation(e.target.value)}
-                          placeholder="ELIMINAR"
-                        />
-                      </div>
-                    </div>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel onClick={() => setDeleteConfirmation('')}>
-                    Cancelar
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDeleteAccount}
-                    disabled={
-                      isDeletingAccount || deleteConfirmation !== 'ELIMINAR'
-                    }
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    {isDeletingAccount ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4 mr-2" />
-                    )}
+
+            {/* Delete account */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+              <div className="min-w-0">
+                <p className="font-medium text-red-600">Eliminar conta</p>
+                <p className="text-sm text-muted-foreground">
+                  Elimina permanentemente a sua conta e todos os dados associados
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="min-h-[44px] w-full sm:w-auto touch-manipulation shrink-0">
+                    <Trash2 className="h-4 w-4 mr-2" />
                     Eliminar Conta
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </Card>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Tem a certeza absoluta?</AlertDialogTitle>
+                    <AlertDialogDescription asChild>
+                      <div className="space-y-4">
+                        <p>
+                          Esta ação não pode ser revertida. Irá eliminar
+                          permanentemente a sua conta e remover todos os dados dos
+                          nossos servidores.
+                        </p>
+                        <div className="space-y-2">
+                          <Label htmlFor="deleteConfirm">
+                            Escreva{' '}
+                            <span className="font-semibold">ELIMINAR</span> para
+                            confirmar:
+                          </Label>
+                          <Input
+                            id="deleteConfirm"
+                            value={deleteConfirmation}
+                            onChange={(e) => setDeleteConfirmation(e.target.value)}
+                            placeholder="ELIMINAR"
+                          />
+                        </div>
+                      </div>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setDeleteConfirmation('')}>
+                      Cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteAccount}
+                      disabled={
+                        isDeletingAccount || deleteConfirmation !== 'ELIMINAR'
+                      }
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      {isDeletingAccount ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4 mr-2" />
+                      )}
+                      Eliminar Conta
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );

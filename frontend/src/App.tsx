@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { ModalProvider } from '@/contexts/modal-context';
 import { ModelContextProvider } from '@/contexts/model-context';
 import { AuthProvider } from '@/contexts/auth-context';
+import { AppSettingsProvider } from '@/contexts/app-settings-context';
 
 // Pages
 import HomePage from '@/pages/Home';
@@ -49,9 +50,10 @@ function App() {
     >
       <BrowserRouter>
         <AuthProvider>
-          <ModelContextProvider>
-            <ModalProvider>
-              <Routes>
+          <AppSettingsProvider>
+            <ModelContextProvider>
+              <ModalProvider>
+                <Routes>
                 {/* Public auth routes */}
                 <Route path="/sign-in" element={<SignInPage />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -90,10 +92,11 @@ function App() {
 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-              <Toaster position="top-center" richColors />
-            </ModalProvider>
-          </ModelContextProvider>
+                </Routes>
+                <Toaster position="top-center" richColors />
+              </ModalProvider>
+            </ModelContextProvider>
+          </AppSettingsProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

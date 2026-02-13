@@ -8,8 +8,9 @@ export default function SignInPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-3">
         <Spinner variant="bars" className="h-8 w-8" />
+        <p className="text-sm text-muted-foreground">A autenticar...</p>
       </div>
     );
   }

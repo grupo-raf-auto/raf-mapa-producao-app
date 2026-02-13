@@ -557,6 +557,10 @@ export const apiClient = {
       customButtonLabel?: string;
       customButtonColor?: string;
       customButtonUrl?: string;
+      openaiModelSabichao?: string | null;
+      openaiModelAssistente?: string | null;
+      openaiModelScanner?: string | null;
+      openaiModelMyTexto?: string | null;
     }) =>
       fetchWithAuth('app-settings', {
         method: 'PUT',

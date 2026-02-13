@@ -26,7 +26,15 @@ import {
   Save,
   Upload,
   X,
+  Cpu,
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
 import { apiClient, invalidateCache } from '@/services/api';
 import { useAppSettings } from '@/contexts/app-settings-context';
@@ -44,11 +52,39 @@ interface AppSettings {
   customButtonLabel: string;
   customButtonColor: string;
   customButtonUrl: string;
+  openaiModelSabichao: string | null;
+  openaiModelAssistente: string | null;
+  openaiModelScanner: string | null;
+  openaiModelMyTexto: string | null;
   version: number;
   updatedBy: string | null;
   updatedAt: string;
   createdAt: string;
 }
+
+const OPENAI_MODELS = [
+  { value: '', label: 'Predefinido (gpt-4o-mini / gpt-5.2-pro para Scanner)' },
+  // GPT-5.x (mais recentes)
+  { value: 'gpt-5.2', label: 'GPT-5.2 (mais avançado)' },
+  { value: 'gpt-5.2-pro', label: 'GPT-5.2 Pro' },
+  { value: 'gpt-5.2-codex', label: 'GPT-5.2-Codex (coding)' },
+  { value: 'gpt-5.1', label: 'GPT-5.1' },
+  { value: 'gpt-5.1-codex', label: 'GPT-5.1-Codex' },
+  { value: 'gpt-5', label: 'GPT-5' },
+  { value: 'gpt-5-pro', label: 'GPT-5 Pro' },
+  { value: 'gpt-5-mini', label: 'GPT-5 mini (rápido, económico)' },
+  { value: 'gpt-5-nano', label: 'GPT-5 nano (mais económico)' },
+  // GPT-4.x
+  { value: 'gpt-4.1', label: 'GPT-4.1' },
+  { value: 'gpt-4o', label: 'GPT-4o (vision)' },
+  { value: 'gpt-4o-mini', label: 'GPT-4o-mini' },
+  { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+  { value: 'gpt-4', label: 'GPT-4' },
+  { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
+  // Reasoning
+  { value: 'o1', label: 'o1 (raciocínio)' },
+  { value: 'o1-mini', label: 'o1-mini' },
+];
 
 const DEFAULT_COLORS = {
   primary: '#dc2626', // red-600
@@ -97,6 +133,10 @@ export function AdminAppSettings() {
   const [customButtonLabel, setCustomButtonLabel] = useState('CRM MyCredit');
   const [customButtonColor, setCustomButtonColor] = useState('#22c55e');
   const [customButtonUrl, setCustomButtonUrl] = useState('https://mycredit.pt');
+  const [openaiModelSabichao, setOpenaiModelSabichao] = useState<string>('');
+  const [openaiModelAssistente, setOpenaiModelAssistente] = useState<string>('');
+  const [openaiModelScanner, setOpenaiModelScanner] = useState<string>('');
+  const [openaiModelMyTexto, setOpenaiModelMyTexto] = useState<string>('');
 
   // Carregar configurações
   const loadSettings = async () => {
@@ -121,6 +161,10 @@ export function AdminAppSettings() {
       setCustomButtonLabel(data.customButtonLabel || 'CRM MyCredit');
       setCustomButtonColor(data.customButtonColor || '#22c55e');
       setCustomButtonUrl(data.customButtonUrl || 'https://mycredit.pt');
+      setOpenaiModelSabichao(data.openaiModelSabichao || '');
+      setOpenaiModelAssistente(data.openaiModelAssistente || '');
+      setOpenaiModelScanner(data.openaiModelScanner || '');
+      setOpenaiModelMyTexto(data.openaiModelMyTexto || '');
 
       return data;
     } catch (error) {
@@ -206,6 +250,10 @@ export function AdminAppSettings() {
         customButtonLabel,
         customButtonColor,
         customButtonUrl,
+        openaiModelSabichao: openaiModelSabichao || null,
+        openaiModelAssistente: openaiModelAssistente || null,
+        openaiModelScanner: openaiModelScanner || null,
+        openaiModelMyTexto: openaiModelMyTexto || null,
       };
 
       await apiClient.appSettings.update(updateData);
@@ -255,7 +303,7 @@ export function AdminAppSettings() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="space-y-6">
-        {/* Grid de 3 Colunas - Logo + Cores + Botão NavBar */}
+        {/* Grid - 3 colunas: Logo + Cores + Botão NavBar | Modelos OpenAI */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {/* Logo da Sidebar */}
           <Card className="rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-shadow">
@@ -499,6 +547,99 @@ export function AdminAppSettings() {
                   Botão desativado
                 </p>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Modelos OpenAI por funcionalidade */}
+          <Card className="rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2.5 text-base font-semibold">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 shrink-0">
+                  <Cpu className="h-5 w-5 text-violet-700" />
+                </div>
+                Modelos OpenAI
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Escolha a versão do OpenAI para cada funcionalidade. O MyScanner usa por predefinição o gpt-5.2-pro para análise de documentos.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-xs">MySabichão</Label>
+                <Select
+                  value={openaiModelSabichao || 'default'}
+                  onValueChange={(v) => setOpenaiModelSabichao(v === 'default' ? '' : v)}
+                >
+                  <SelectTrigger className="w-full min-h-[44px]">
+                    <SelectValue placeholder="Predefinido" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Predefinido</SelectItem>
+                    {OPENAI_MODELS.filter((m) => m.value).map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">Assistente RAF</Label>
+                <Select
+                  value={openaiModelAssistente || 'default'}
+                  onValueChange={(v) => setOpenaiModelAssistente(v === 'default' ? '' : v)}
+                >
+                  <SelectTrigger className="w-full min-h-[44px]">
+                    <SelectValue placeholder="Predefinido" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Predefinido</SelectItem>
+                    {OPENAI_MODELS.filter((m) => m.value).map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">MyScanner</Label>
+                <Select
+                  value={openaiModelScanner || 'default'}
+                  onValueChange={(v) => setOpenaiModelScanner(v === 'default' ? '' : v)}
+                >
+                  <SelectTrigger className="w-full min-h-[44px]">
+                    <SelectValue placeholder="Predefinido (gpt-5.2-pro)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Predefinido (gpt-4o)</SelectItem>
+                    {OPENAI_MODELS.filter((m) => m.value).map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">MyTexto</Label>
+                <Select
+                  value={openaiModelMyTexto || 'default'}
+                  onValueChange={(v) => setOpenaiModelMyTexto(v === 'default' ? '' : v)}
+                >
+                  <SelectTrigger className="w-full min-h-[44px]">
+                    <SelectValue placeholder="Predefinido" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Predefinido</SelectItem>
+                    {OPENAI_MODELS.filter((m) => m.value).map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
           </Card>
         </div>

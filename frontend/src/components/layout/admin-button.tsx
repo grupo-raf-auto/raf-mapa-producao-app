@@ -35,9 +35,10 @@ export function AdminButton() {
   const handleSignOut = async () => {
     try {
       await authClient.signOut();
-      router.push('/sign-in');
+      window.location.href = '/sign-in';
     } catch (e) {
       console.error('Erro ao sair:', e);
+      window.location.href = '/sign-in';
     }
   };
 

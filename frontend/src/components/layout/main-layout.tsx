@@ -10,7 +10,7 @@ import { NotificationsDropdown } from './notifications-dropdown';
 import { PageAnimation } from '@/components/ui/page-animation';
 import { Sidebar as SidebarBase } from '@/components/ui/sidebar';
 import { useSidebar } from '@/components/ui/sidebar';
-import { Search, Bug, ChevronDown, LayoutGrid, Menu, X, UsersRound } from 'lucide-react';
+import { Search, Bug, ChevronDown, Menu, X, UsersRound, LayoutGrid } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 import { useRouter } from '@/lib/router-compat';
 import { toast } from 'sonner';
@@ -29,6 +29,8 @@ import { authClient } from '@/lib/auth-client';
 import { Settings, HelpCircle, LogOut, Moon, Sun } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { Badge } from '@/components/ui/badge';
+import { useAppSettings } from '@/contexts/app-settings-context';
+import { Button } from '@/components/ui/button';
 
 // Top bar with search, notifications and user profile
 function TopBar() {
@@ -44,6 +46,7 @@ function TopBar() {
   const [myTeam, setMyTeam] = useState<{ name: string } | null>(null);
   const { isOpen: isSearchOpen, open: openSearch, setIsOpen: setSearchOpen } = useSearch({ enabled: true, shortcut: 'k' });
   const isAdmin = (session?.user as { role?: string })?.role === 'admin';
+  const { settings } = useAppSettings();
 
   useEffect(() => {
     setMounted(true);
@@ -71,11 +74,11 @@ function TopBar() {
       sessionStorage.clear();
       await authClient.signOut();
       toast.success('Sessão terminada com sucesso');
-      router.replace('/sign-in');
+      window.location.href = '/sign-in';
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Erro ao terminar sessão');
-      router.replace('/sign-in');
+      window.location.href = '/sign-in';
     }
   };
 
@@ -86,11 +89,18 @@ function TopBar() {
   // Search data based on app routes & user role (admin items only when isAdmin)
   const searchData: SearchItem[] = [
     {
-      id: 'dashboard',
+      id: '',
       title: 'Dashboard',
       description: 'Visão geral e métricas principais do sistema',
       category: 'horizon',
       tags: ['Home', 'Principal', 'Visão Geral'],
+    },
+    {
+      id: 'equipas',
+      title: 'Equipas',
+      description: 'Ranking e métricas da sua equipa por modelo (crédito, imobiliária, seguros)',
+      category: 'horizon',
+      tags: ['Equipa', 'Ranking', 'Métricas'],
     },
     ...(isAdmin
       ? [
@@ -119,10 +129,17 @@ function TopBar() {
     },
     {
       id: 'scanner',
-      title: 'Scanner de Documentos',
-      description: 'Digitalizar e processar documentos',
+      title: 'MyScanner',
+      description: 'Análise de fraudes em documentos e digitalização',
       category: 'actions',
-      tags: ['Scan', 'Documentos', 'Upload'],
+      tags: ['Scan', 'Documentos', 'Fraudes'],
+    },
+    {
+      id: 'gerador-mensagens',
+      title: 'MyTexto',
+      description: 'Gerar textos para email e WhatsApp com IA',
+      category: 'actions',
+      tags: ['IA', 'Email', 'WhatsApp', 'Mensagens'],
     },
     {
       id: 'mysabichao',
@@ -130,6 +147,20 @@ function TopBar() {
       description: 'Assistente inteligente e gestão de documentos',
       category: 'knowledge',
       tags: ['IA', 'Documentos', 'Assistente'],
+    },
+    {
+      id: 'settings',
+      title: 'Definições',
+      description: 'Configurações da conta e preferências',
+      category: 'horizon',
+      tags: ['Configuração', 'Perfil'],
+    },
+    {
+      id: 'help',
+      title: 'Ajuda',
+      description: 'Centro de ajuda e FAQ',
+      category: 'horizon',
+      tags: ['Ajuda', 'FAQ', 'Suporte'],
     },
     ...(isAdmin ? [
       {
@@ -279,18 +310,20 @@ function TopBar() {
         {/* Model Selector - only show for users (not admins) */}
         {!isAdminRoute && <ModelSelector />}
 
-        {/* CRM MyCredit - só ícone em mobile */}
-        {!isAdminRoute && (
-          <a
-            href={import.meta.env.VITE_CRM_MYCREDIT_URL || 'https://crm.my-credit.pt/'}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center shrink-0 w-10 h-10 sm:w-auto sm:min-h-0 sm:px-3 sm:py-2 min-h-[44px] rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 font-medium text-xs transition-colors cursor-pointer shadow-sm touch-manipulation"
-            title="CRM MyCredit"
+        {/* Custom Button - CRM MyCredit */}
+        {!isAdminRoute && settings?.customButtonEnabled && (
+          <Button
+            onClick={() => window.open(settings.customButtonUrl, '_blank')}
+            style={{
+              backgroundColor: settings.customButtonColor,
+              color: '#ffffff',
+            }}
+            className="gap-1.5 sm:gap-2 hover:opacity-90 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 px-2.5 sm:px-3 shrink-0"
+            size="sm"
           >
             <LayoutGrid className="w-4 h-4 shrink-0" />
-            <span className="hidden sm:inline ml-1">CRM MyCredit</span>
-          </a>
+            <span className="hidden sm:inline">{settings.customButtonLabel}</span>
+          </Button>
         )}
 
         {/* Report bug */}

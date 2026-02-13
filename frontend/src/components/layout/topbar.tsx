@@ -1,13 +1,15 @@
-import { Search, User, Shield } from 'lucide-react';
+import { Search, User, Shield, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRouter } from '@/lib/router-compat';
 import { useUserRole } from '@/hooks/use-user-role';
 import { ModelSwitcher } from './model-switcher';
+import { useAppSettings } from '@/contexts/app-settings-context';
 
 export function Topbar() {
   const router = useRouter();
   const { userRole, loading } = useUserRole();
+  const { settings } = useAppSettings();
 
   return (
     <header
@@ -27,6 +29,22 @@ export function Topbar() {
       <div className="ml-auto flex items-center gap-4">
         {/* NEW: Model Switcher */}
         <ModelSwitcher />
+
+        {/* Custom Button - CRM MyCredit */}
+        {settings?.customButtonEnabled && (
+          <Button
+            onClick={() => window.open(settings.customButtonUrl, '_blank')}
+            style={{
+              backgroundColor: settings.customButtonColor,
+              color: '#ffffff',
+            }}
+            className="gap-2 hover:opacity-90"
+            size="sm"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span className="hidden sm:inline">{settings.customButtonLabel}</span>
+          </Button>
+        )}
 
         {!loading && userRole === 'admin' && (
           <Button

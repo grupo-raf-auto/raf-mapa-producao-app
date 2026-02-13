@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SidebarSupportChat } from '@/components/layout/sidebar-support-chat';
+import { useAppSettings } from '@/contexts/app-settings-context';
 
 // Navegação principal - visível para todos
 const mainNavigation = [
@@ -87,6 +88,7 @@ const sectionLabel =
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { settings } = useAppSettings();
 
   return (
     <aside
@@ -100,19 +102,36 @@ export function Sidebar() {
             to="/"
             className="flex items-center gap-3 min-h-[44px] py-2 -my-2 cursor-pointer rounded-lg active:bg-white/5"
           >
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-              <Image
-                src="/logo-raf-favicon.png"
-                alt="RAF"
-                width={28}
-                height={28}
-                className="w-7 h-7 object-contain"
-                priority
-              />
-            </div>
-            <span className="text-base sm:text-lg font-bold text-white tracking-tight">
-              Grupo RAF
-            </span>
+            {settings?.sidebarLogo ? (
+              <>
+                <img
+                  src={settings.sidebarLogo}
+                  alt="Logo"
+                  className="h-10 max-w-[120px] object-contain shrink-0"
+                />
+                {settings?.sidebarText && (
+                  <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+                    {settings.sidebarText}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                  <Image
+                    src="/logo-raf-favicon.png"
+                    alt="RAF"
+                    width={28}
+                    height={28}
+                    className="w-7 h-7 object-contain"
+                    priority
+                  />
+                </div>
+                <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+                  {settings?.sidebarText || 'Grupo RAF'}
+                </span>
+              </>
+            )}
           </Link>
         </div>
 
@@ -171,6 +190,7 @@ export function Sidebar() {
               const isActive =
                 pathname === item.href ||
                 (item.href !== '/' && pathname.startsWith(item.href));
+              const isMySabichao = item.label === 'MySabichão';
               return (
                 <Link
                   key={item.label}
@@ -183,7 +203,22 @@ export function Sidebar() {
                       : 'text-white/70 hover:bg-white/10 hover:text-white',
                   )}
                 >
-                  <Icon className="shrink-0 h-5 w-5" aria-hidden />
+                  {isMySabichao ? (
+                    <div className="shrink-0 w-5 h-5 flex items-center justify-center">
+                      <Image
+                        src="/LogoMySabischao.png"
+                        alt="MySabichão"
+                        width={20}
+                        height={20}
+                        className="w-full h-full object-contain transition-all"
+                        style={isActive ? {
+                          filter: 'brightness(0) saturate(100%) invert(27%) sepia(73%) saturate(1064%) hue-rotate(292deg) brightness(90%) contrast(88%)'
+                        } : undefined}
+                      />
+                    </div>
+                  ) : (
+                    <Icon className="shrink-0 h-5 w-5" aria-hidden />
+                  )}
                   <span className="text-sm">{item.label}</span>
                 </Link>
               );

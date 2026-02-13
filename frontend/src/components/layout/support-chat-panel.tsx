@@ -1,11 +1,12 @@
 import { useState, FormEvent, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Send, X, Bot, User, Sparkles } from 'lucide-react';
+import { Send, X, User, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { apiClient as api } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useSupportChat } from '@/contexts/support-chat-context';
+import { Image } from '@/lib/router-compat';
 
 interface Message {
   id: string;
@@ -113,8 +114,14 @@ export function SupportChatPanel() {
       >
         {/* Header — safe area on mobile */}
         <div className="px-4 py-3 md:px-6 md:py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center gap-3 md:gap-4 shrink-0 min-h-[56px]">
-          <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl md:rounded-2xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-lg shadow-red-600/25 shrink-0">
-            <Bot className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl md:rounded-2xl bg-black flex items-center justify-center shadow-lg shadow-black/25 border border-slate-800 shrink-0 p-1.5">
+            <Image
+              src="/LogoMySabischao.png"
+              alt="MySabichão"
+              width={40}
+              height={40}
+              className="w-full h-full object-contain"
+            />
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-base font-semibold text-slate-900 dark:text-white truncate">
@@ -147,8 +154,14 @@ export function SupportChatPanel() {
                 <div className="absolute bottom-40 right-10 w-40 h-40 bg-slate-200 dark:bg-slate-800 rounded-full blur-3xl" />
               </div>
               <div className="relative z-10 w-full max-w-[320px]">
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/40 dark:to-red-800/30 flex items-center justify-center mx-auto mb-4 md:mb-5 shadow-sm border border-red-100 dark:border-red-800/50">
-                  <Sparkles className="w-8 h-8 md:w-10 md:h-10 text-red-500 dark:text-red-400" />
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-black flex items-center justify-center mx-auto mb-4 md:mb-5 shadow-lg shadow-black/25 border border-slate-800 p-2 md:p-3">
+                  <Image
+                    src="/LogoMySabischao.png"
+                    alt="MySabichão"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <h3 className="text-lg md:text-xl font-semibold text-slate-900 dark:text-white mb-2">
                   Como posso ajudar?
@@ -162,8 +175,9 @@ export function SupportChatPanel() {
                   </p>
                   {[
                     'Como submeter um formulário?',
-                    'Como funciona o scanner?',
-                    'Onde vejo as minhas consultas?',
+                    'Como funciona o MyScanner?',
+                    'Como vejo as métricas da minha equipa?',
+                    'O que é o MySabichão?',
                   ].map((suggestion) => (
                     <button
                       key={suggestion}
@@ -192,13 +206,19 @@ export function SupportChatPanel() {
                   'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm',
                   message.role === 'user'
                     ? 'bg-gradient-to-br from-red-600 to-red-700 text-white'
-                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700',
+                    : 'bg-black border border-slate-800 p-1',
                 )}
               >
                 {message.role === 'user' ? (
                   <User className="w-4 h-4" />
                 ) : (
-                  <Bot className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                  <Image
+                    src="/LogoMySabischao.png"
+                    alt="MySabichão"
+                    width={36}
+                    height={36}
+                    className="w-full h-full object-contain"
+                  />
                 )}
               </div>
               <div
@@ -231,8 +251,14 @@ export function SupportChatPanel() {
 
           {loading && (
             <div className="flex gap-3">
-              <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-sm shrink-0">
-                <Bot className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              <div className="w-9 h-9 rounded-xl bg-black border border-slate-800 flex items-center justify-center shadow-sm shrink-0 p-1">
+                <Image
+                  src="/LogoMySabischao.png"
+                  alt="MySabichão"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
                 <div className="flex gap-1.5">

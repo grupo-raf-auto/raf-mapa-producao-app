@@ -69,7 +69,8 @@ export function ProtectedRoute({
     pathname !== '/approval-status' &&
     pathname !== '/verify-email' &&
     pathname !== '/settings' &&
-    pathname !== '/help'
+    pathname !== '/help' &&
+    pathname !== '/equipas'
   ) {
     return <Navigate to="/admin" replace />;
   }

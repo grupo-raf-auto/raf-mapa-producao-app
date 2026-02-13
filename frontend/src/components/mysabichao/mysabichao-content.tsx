@@ -29,32 +29,32 @@ interface Message {
 
 const MYSABICHAO_SUGGESTIONS: CommandSuggestion[] = [
   {
+    icon: <Search className="w-4 h-4" />,
+    label: 'Pesquisar',
+    description: 'Buscar informação nos PDFs carregados',
+    prefix: '/pesquisar',
+    action: 'O que dizem os documentos sobre este tema?',
+  },
+  {
     icon: <FileText className="w-4 h-4" />,
-    label: 'Templates',
-    description: 'Minutas e modelos de documentos',
-    prefix: '/templates',
-    action: 'Quais são os templates e minutas disponíveis?',
+    label: 'Resumir',
+    description: 'Resumir conteúdo dos documentos extraídos',
+    prefix: '/resumir',
+    action: 'Resume o conteúdo principal dos documentos sobre este assunto.',
   },
   {
     icon: <Layers className="w-4 h-4" />,
-    label: 'Procedimentos',
-    description: 'Fluxos de trabalho e normas',
-    prefix: '/procedimentos',
-    action: 'Como funcionam os procedimentos de crédito e análise?',
+    label: 'Extrair',
+    description: 'Extrair pontos-chave de um documento',
+    prefix: '/extrair',
+    action: 'Quais são os pontos principais deste documento?',
   },
   {
     icon: <FileUp className="w-4 h-4" />,
-    label: 'Documentação',
-    description: 'Guias e manuais internos',
-    prefix: '/docs',
-    action: 'Onde encontro a documentação interna e manuais?',
-  },
-  {
-    icon: <Search className="w-4 h-4" />,
-    label: 'Análise',
-    description: 'Critérios de análise de risco',
-    prefix: '/analise',
-    action: 'Quais são os critérios para análise de risco?',
+    label: 'Localizar',
+    description: 'Encontrar passagens específicas nos PDFs',
+    prefix: '/localizar',
+    action: 'Onde encontro informação sobre isto nos documentos carregados?',
   },
 ];
 
@@ -124,7 +124,7 @@ export function MySabichaoContent() {
       {/* Professional Header */}
       <PageHeader
         title="MySabichão"
-        description="Assistente para templates, documentação e análise. Perguntas em linguagem natural."
+        description="Assistente sobre os documentos carregados. Pesquisa, resume e extrai informação dos PDFs."
         customIcon={
           <div className="w-full h-full flex items-center justify-center p-1.5">
             <Image
@@ -149,7 +149,7 @@ export function MySabichaoContent() {
             onSend={sendMessage}
             loading={loading}
             messages={messages}
-            placeholder="Pergunte ao MySabichão sobre a empresa, templates, relatórios... O sistema buscará informações relevantes dos documentos enviados."
+            placeholder="Pergunte sobre o conteúdo dos documentos carregados. O sistema pesquisa nos PDFs extraídos e responde com base no que encontrou."
             onClearHistory={clearHistory}
             suggestions={MYSABICHAO_SUGGESTIONS}
           />

@@ -516,10 +516,10 @@ export function AnimatedAIChat({
 
   return (
     <div className="flex flex-col w-full h-full min-h-0 relative">
-      {/* Messages Area */}
+      {/* Messages Area - scroll interno, input fixo abaixo */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto px-4 sm:px-6 py-8 min-h-0 bg-gradient-to-b from-background via-background to-background/80"
+        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 sm:px-6 py-8 min-h-0 bg-gradient-to-b from-background via-background to-background/80 scroll-smooth"
         style={{ touchAction: 'pan-y' }}
       >
         {messages.length === 0 ? (
@@ -703,8 +703,8 @@ export function AnimatedAIChat({
         )}
       </div>
 
-      {/* Input Area - Clean Professional Design */}
-      <div className="shrink-0 bg-gradient-to-t from-slate-50/50 to-background/80 backdrop-blur-md">
+      {/* Input Area - fixo na base, separado da área de scroll */}
+      <div className="shrink-0 border-t border-border/40 bg-background/95 backdrop-blur-md">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5">
           <div className="relative">
             {/* Command Palette */}

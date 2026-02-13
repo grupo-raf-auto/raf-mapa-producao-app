@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 import { usePathname } from '@/lib/router-compat';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './sidebar';
@@ -144,9 +145,9 @@ function TopBar() {
     {
       id: 'mysabichao',
       title: 'MySabichão',
-      description: 'Assistente inteligente e gestão de documentos',
+      description: 'Pesquisar e extrair informação dos PDFs carregados',
       category: 'knowledge',
-      tags: ['IA', 'Documentos', 'Assistente'],
+      tags: ['IA', 'PDFs', 'Documentos', 'RAG'],
     },
     {
       id: 'settings',
@@ -449,14 +450,32 @@ function MainContent({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const isMysabichao = pathname === '/mysabichao';
+
   return (
     <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
       <TopBar />
 
-      {/* Main: mobile-first padding; generous horizontal padding para estética profissional */}
-      <main className="flex-1 overflow-auto overflow-x-hidden px-5 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-4 sm:py-5 md:py-6 min-w-0" role="main">
-        <div className="max-w-[1600px] mx-auto w-full min-w-0">
-          <PageAnimation key={pathname}>{children}</PageAnimation>
+      {/* Main: mysabichao usa flex para scroll interno; outras páginas scroll no main */}
+      <main
+        className={cn(
+          'flex-1 px-5 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-4 sm:py-5 md:py-6 min-w-0 min-h-0',
+          isMysabichao ? 'flex flex-col overflow-hidden' : 'overflow-auto overflow-x-hidden',
+        )}
+        role="main"
+      >
+        <div
+          className={cn(
+            'max-w-[1600px] mx-auto w-full min-w-0',
+            isMysabichao && 'flex-1 min-h-0 flex flex-col overflow-hidden',
+          )}
+        >
+          <PageAnimation
+            key={pathname}
+            className={isMysabichao ? 'flex-1 min-h-0 flex flex-col overflow-hidden' : undefined}
+          >
+            {children}
+          </PageAnimation>
         </div>
       </main>
     </div>

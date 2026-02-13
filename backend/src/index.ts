@@ -28,6 +28,8 @@ import teamRoutes from './routes/team.routes';
 import objectiveRoutes from './routes/objective.routes';
 import notificationsRoutes from './routes/notifications.routes';
 import messageGeneratorRoutes from './routes/message-generator.routes';
+import appSettingsRoutes from './routes/app-settings.routes';
+import seedRoutes from './routes/seed.routes';
 import { seedUserModels } from './scripts/seed-user-models';
 import { authenticateUser } from './middleware/auth.middleware';
 
@@ -48,7 +50,13 @@ async function main() {
               scriptSrc: ["'self'"],
               styleSrc: ["'self'", "'unsafe-inline'"],
               imgSrc: ["'self'", 'data:', 'blob:'],
-              connectSrc: ["'self'", process.env.CLIENT_URL || 'http://localhost:3004'],
+              connectSrc: [
+                "'self'",
+                process.env.CLIENT_URL || 'http://localhost:3004',
+                ...(process.env.EXTRA_CORS_ORIGINS
+                  ? process.env.EXTRA_CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+                  : []),
+              ],
               fontSrc: ["'self'"],
               objectSrc: ["'none'"],
               frameAncestors: ["'none'"],
@@ -87,9 +95,15 @@ async function main() {
     console.log('⚠️ Rate limiting DISABLED');
   }
 
+  const corsOrigins = [
+    process.env.CLIENT_URL || 'http://localhost:3004',
+    ...(process.env.EXTRA_CORS_ORIGINS
+      ? process.env.EXTRA_CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+      : []),
+  ];
   app.use(
     cors({
-      origin: process.env.CLIENT_URL || 'http://localhost:3004',
+      origin: corsOrigins,
       credentials: true,
     }),
   );
@@ -140,6 +154,8 @@ async function main() {
   app.use('/api/objectives', objectiveRoutes);
   app.use('/api/notifications', authenticateUser, notificationsRoutes);
   app.use('/api/message-generator', messageGeneratorRoutes);
+  app.use('/api/app-settings', appSettingsRoutes);
+  app.use('/api/admin/seed', seedRoutes);
 
   app.use((_req, res) => {
     res.status(404).json({ error: 'Route not found' });

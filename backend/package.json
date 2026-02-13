@@ -20,6 +20,8 @@
     "db:push": "prisma db push --schema=./src/prisma/schema.prisma",
     "seed": "tsx src/scripts/seed-templates.ts",
     "seed:questions": "tsx src/scripts/seed-questions.ts",
+    "seed:templates": "tsx src/scripts/seed-templates.ts",
+    "seed:dummy": "tsx src/scripts/seed-dummy.ts",
     "set-admin": "tsx src/scripts/set-admin.ts",
     "fix-credential-accounts": "tsx src/scripts/fix-credential-accounts.ts"
   },

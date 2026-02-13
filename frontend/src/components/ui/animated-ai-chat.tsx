@@ -111,7 +111,10 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
               )}
             >
               {!isNumbered && (
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60 shrink-0 mt-[0.4em]" aria-hidden />
+                <span
+                  className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60 shrink-0 mt-[0.4em]"
+                  aria-hidden
+                />
               )}
               <span className="min-w-0">{item.text}</span>
             </li>
@@ -139,7 +142,10 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
     if (line.startsWith('## ')) {
       flushList();
       result.push(
-        <h2 key={index} className="font-bold text-base mt-4 mb-1.5 text-foreground leading-tight">
+        <h2
+          key={index}
+          className="font-bold text-base mt-4 mb-1.5 text-foreground leading-tight"
+        >
           {line.replace('## ', '')}
         </h2>,
       );
@@ -148,7 +154,10 @@ function formatMessageContent(content: string, role: 'user' | 'assistant') {
     if (line.startsWith('# ')) {
       flushList();
       result.push(
-        <h1 key={index} className="font-bold text-lg mt-4 mb-1.5 text-foreground leading-tight">
+        <h1
+          key={index}
+          className="font-bold text-lg mt-4 mb-1.5 text-foreground leading-tight"
+        >
           {line.replace('# ', '')}
         </h1>,
       );
@@ -533,7 +542,7 @@ export function AnimatedAIChat({
               <div className="w-20 h-20 mx-auto rounded-3xl bg-black flex items-center justify-center shadow-lg shadow-black/25 border border-slate-800 p-3">
                 <Image
                   src="/LogoMySabischao.png"
-                  alt="MySabichão"
+                  alt="MySabichao"
                   width={80}
                   height={80}
                   className="w-full h-full object-contain"
@@ -578,7 +587,7 @@ export function AnimatedAIChat({
             </div>
           </div>
         ) : (
-          <div className="max-w-3xl mx-auto space-y-5">
+          <div className="max-w-4xl mx-auto space-y-5">
             {/* Clear Button - Inline with messages */}
             {onClearHistory && (
               <div className="flex justify-end">
@@ -624,7 +633,7 @@ export function AnimatedAIChat({
                   ) : (
                     <Image
                       src="/LogoMySabischao.png"
-                      alt="MySabichão"
+                      alt="MySabichao"
                       width={40}
                       height={40}
                       className="w-full h-full object-contain"
@@ -641,13 +650,13 @@ export function AnimatedAIChat({
                 >
                   {message.role === 'assistant' && (
                     <span className="text-xs text-muted-foreground font-medium px-0.5">
-                      Assistente RAF
+                      MySabichao
                     </span>
                   )}
                   <div
                     className={cn(
                       'rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4',
-                      'max-w-[min(90%,22rem)] sm:max-w-[min(85%,26rem)]',
+                      'max-w-[min(95%,42rem)] sm:max-w-[min(92%,50rem)]',
                       'shadow-sm',
                       message.role === 'user'
                         ? 'bg-gradient-to-br from-red-600 to-red-700 text-white'
@@ -682,7 +691,7 @@ export function AnimatedAIChat({
                 <div className="w-10 h-10 rounded-xl bg-black border border-slate-800 shadow-sm flex items-center justify-center shrink-0 p-1.5">
                   <Image
                     src="/LogoMySabischao.png"
-                    alt="MySabichão"
+                    alt="MySabichao"
                     width={40}
                     height={40}
                     className="w-full h-full object-contain"
@@ -690,9 +699,9 @@ export function AnimatedAIChat({
                 </div>
                 <div className="flex flex-col gap-1 min-w-0">
                   <span className="text-xs text-muted-foreground font-medium px-0.5">
-                    Assistente RAF
+                    MySabichao
                   </span>
-                  <div className="rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 max-w-[min(90%,22rem)] sm:max-w-[min(85%,26rem)] bg-white dark:bg-card border border-border/60 shadow-sm min-h-14 flex items-center">
+                  <div className="rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 max-w-[min(95%,42rem)] sm:max-w-[min(92%,50rem)] bg-white dark:bg-card border border-border/60 shadow-sm min-h-14 flex items-center">
                     <TypingDots />
                   </div>
                 </div>
@@ -705,7 +714,7 @@ export function AnimatedAIChat({
 
       {/* Input Area - fixo na base, separado da área de scroll */}
       <div className="shrink-0 border-t border-border/40 bg-background/95 backdrop-blur-md">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-5">
           <div className="relative">
             {/* Command Palette */}
             <AnimatePresence>

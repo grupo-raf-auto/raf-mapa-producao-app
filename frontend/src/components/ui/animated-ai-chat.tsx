@@ -10,7 +10,6 @@ import {
   SendIcon,
   XIcon,
   Command,
-  Bot,
   User,
   Trash2,
 } from 'lucide-react';
@@ -18,6 +17,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as React from 'react';
 import { useSession } from '@/lib/auth-client';
+import { Image } from '@/lib/router-compat';
 
 interface UseAutoResizeTextareaProps {
   minHeight: number;
@@ -300,32 +300,31 @@ function parseInlineFormatting(text: string): (string | JSX.Element)[] {
 const DEFAULT_COMMAND_SUGGESTIONS: CommandSuggestion[] = [
   {
     icon: <FileText className="w-4 h-4" />,
-    label: 'CRM e Processos',
-    description: 'Aprende a usar o sistema',
-    prefix: '/crm',
-    action: 'Como funciona o CRM?',
+    label: 'Sistema RAF',
+    description: 'Como usar o sistema',
+    prefix: '/sistema',
+    action: 'Como funciona o sistema RAF Mapa Produção?',
   },
   {
     icon: <HelpCircle className="w-4 h-4" />,
-    label: 'Contactos',
-    description: 'Departamentos e equipas',
-    prefix: '/contactos',
-    action: 'Quais são os contactos da MyCredit?',
+    label: 'Formulários',
+    description: 'Submeter e consultar',
+    prefix: '/formularios',
+    action: 'Como submeto e consulto os meus formulários?',
   },
   {
     icon: <Zap className="w-4 h-4" />,
-    label: 'Onboarding',
-    description: 'Novos clientes e gestores',
-    prefix: '/onboarding',
-    action: 'Como fazer onboarding de um cliente?',
+    label: 'Ferramentas IA',
+    description: 'Scanner, Texto e Sabichão',
+    prefix: '/ferramentas',
+    action: 'Quais são as ferramentas de IA disponíveis?',
   },
   {
     icon: <MonitorIcon className="w-4 h-4" />,
-    label: 'Sobre o Website',
-    description: 'Funcionalidades e navegação',
-    prefix: '/website',
-    action:
-      'Como funciona o website? Quais são as principais funcionalidades disponíveis?',
+    label: 'Equipas e Métricas',
+    description: 'Ver desempenho',
+    prefix: '/equipas',
+    action: 'Como vejo as métricas da minha equipa?',
   },
 ];
 
@@ -531,8 +530,14 @@ export function AnimatedAIChat({
               transition={{ duration: 0.5, ease: 'easeOut' }}
               className="space-y-4"
             >
-              <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-red-500/20 to-red-600/10 flex items-center justify-center shadow-lg">
-                <Bot className="w-10 h-10 text-red-600" />
+              <div className="w-20 h-20 mx-auto rounded-3xl bg-black flex items-center justify-center shadow-lg shadow-black/25 border border-slate-800 p-3">
+                <Image
+                  src="/LogoMySabischao.png"
+                  alt="MySabichão"
+                  width={80}
+                  height={80}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
                 Olá,{' '}
@@ -610,14 +615,20 @@ export function AnimatedAIChat({
                     'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border',
                     message.role === 'user'
                       ? 'bg-gradient-to-br from-red-600 to-red-700 text-white border-red-500/30 shadow-sm'
-                      : 'bg-gradient-to-br from-slate-50 to-slate-100 text-slate-600 border-slate-200/80 shadow-sm',
+                      : 'bg-black border-slate-800 shadow-sm p-1.5',
                   )}
                   aria-hidden
                 >
                   {message.role === 'user' ? (
                     <User className="w-5 h-5" />
                   ) : (
-                    <Bot className="w-5 h-5" />
+                    <Image
+                      src="/LogoMySabischao.png"
+                      alt="MySabichão"
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-contain"
+                    />
                   )}
                 </div>
 
@@ -630,7 +641,7 @@ export function AnimatedAIChat({
                 >
                   {message.role === 'assistant' && (
                     <span className="text-xs text-muted-foreground font-medium px-0.5">
-                      MySabichão
+                      Assistente RAF
                     </span>
                   )}
                   <div
@@ -640,7 +651,7 @@ export function AnimatedAIChat({
                       'shadow-sm',
                       message.role === 'user'
                         ? 'bg-gradient-to-br from-red-600 to-red-700 text-white'
-                        : 'bg-white text-foreground border border-border/60',
+                        : 'bg-white dark:bg-card text-foreground border border-border/60',
                     )}
                   >
                     <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
@@ -668,14 +679,20 @@ export function AnimatedAIChat({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 text-slate-600 border border-slate-200/80 shadow-sm flex items-center justify-center shrink-0">
-                  <Bot className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-xl bg-black border border-slate-800 shadow-sm flex items-center justify-center shrink-0 p-1.5">
+                  <Image
+                    src="/LogoMySabischao.png"
+                    alt="MySabichão"
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <div className="flex flex-col gap-1 min-w-0">
                   <span className="text-xs text-muted-foreground font-medium px-0.5">
-                    MySabichão
+                    Assistente RAF
                   </span>
-                  <div className="rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 max-w-[min(90%,22rem)] sm:max-w-[min(85%,26rem)] bg-white border border-border/60 shadow-sm min-h-14 flex items-center">
+                  <div className="rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 max-w-[min(90%,22rem)] sm:max-w-[min(85%,26rem)] bg-white dark:bg-card border border-border/60 shadow-sm min-h-14 flex items-center">
                     <TypingDots />
                   </div>
                 </div>
@@ -695,7 +712,7 @@ export function AnimatedAIChat({
               {showCommandPalette && (
                 <motion.div
                   ref={commandPaletteRef}
-                  className="absolute left-0 right-0 bottom-full mb-3 bg-white rounded-2xl z-50 shadow-xl border border-border/60 overflow-hidden"
+                  className="absolute left-0 right-0 bottom-full mb-3 bg-white dark:bg-card rounded-2xl z-50 shadow-xl border border-border/60 overflow-hidden"
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
@@ -728,7 +745,7 @@ export function AnimatedAIChat({
             </AnimatePresence>
 
             {/* Input Container */}
-            <div className="relative bg-white rounded-2xl border border-border/60 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all shadow-sm">
+            <div className="relative bg-white dark:bg-card rounded-2xl border border-border/60 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all shadow-sm">
               {/* Textarea */}
               <div className="p-4">
                 <textarea

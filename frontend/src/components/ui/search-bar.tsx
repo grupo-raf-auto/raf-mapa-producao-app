@@ -235,13 +235,13 @@ export function SearchBar({
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] animate-in fade-in duration-150"
+        className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] animate-in fade-in duration-150"
         onClick={handleClose}
       />
 
       {/* Search Modal */}
       <div className="fixed top-[12%] left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-2xl max-h-[75vh] z-[101] animate-in slide-in-from-top-2 fade-in duration-200">
-        <div className="bg-background border border-border/60 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[75vh]">
+        <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[75vh]">
           {/* Search Header */}
           <div className="border-b border-border/40 shrink-0">
             <div className="flex items-center gap-3 px-5 py-3.5">
@@ -355,8 +355,8 @@ export function SearchBar({
                       className={cn(
                         'flex items-start gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-colors',
                         selectedIndex === index
-                          ? 'bg-slate-200/80 dark:bg-slate-700/70'
-                          : 'hover:bg-slate-200/50 dark:hover:bg-slate-800',
+                          ? 'bg-muted text-foreground'
+                          : 'hover:bg-muted',
                       )}
                     >
                       <div className="mt-0.5 shrink-0">
@@ -384,7 +384,7 @@ export function SearchBar({
                               <Badge
                                 key={idx}
                                 variant="secondary"
-                                className="text-[10px] px-1.5 py-0 h-4 font-medium bg-slate-200/80 text-slate-700 dark:bg-slate-700 dark:text-slate-200"
+                                className="text-[10px] px-1.5 py-0 h-4 font-medium bg-primary/10 text-primary border border-primary/20 dark:bg-primary/25 dark:text-red-300 dark:border-primary/40"
                               >
                                 {tag}
                               </Badge>
@@ -392,7 +392,7 @@ export function SearchBar({
                             {item.tags.length > 3 && (
                               <Badge
                                 variant="outline"
-                                className="text-[10px] px-1.5 py-0 h-4 font-medium border-slate-300 text-slate-600 dark:border-slate-600 dark:text-slate-300"
+                                className="text-[10px] px-1.5 py-0 h-4 font-medium border-primary/30 text-muted-foreground dark:border-primary/40 dark:text-red-200/90"
                               >
                                 +{item.tags.length - 3}
                               </Badge>
@@ -424,7 +424,7 @@ export function SearchBar({
           </div>
 
           {/* Footer - keyboard shortcuts */}
-          <div className="border-t border-border/40 bg-muted/20 px-5 py-2.5 shrink-0">
+          <div className="border-t border-border/40 bg-muted/30 px-5 py-2.5 shrink-0">
             <div className="flex items-center gap-5 text-[11px] text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <kbd className="px-1.5 py-0.5 bg-background border border-border rounded text-[10px] font-mono">

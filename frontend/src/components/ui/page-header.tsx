@@ -5,7 +5,8 @@ import { ReactNode } from 'react';
 interface PageHeaderProps {
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  customIcon?: ReactNode;
   iconGradient?: string;
   iconColor?: string;
   decoratorIcon?: ReactNode;
@@ -16,6 +17,7 @@ export function PageHeader({
   title,
   description,
   icon: Icon,
+  customIcon,
   iconGradient = 'from-red-600 via-red-500 to-red-700',
   iconColor = 'text-white',
   decoratorIcon,
@@ -34,7 +36,7 @@ export function PageHeader({
             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${iconGradient} flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.08)] ring-1 ring-black/5`}
             aria-hidden
           >
-            <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColor}`} />
+            {customIcon || (Icon && <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColor}`} />)}
           </div>
         </div>
         <div className="flex-1 min-w-0">

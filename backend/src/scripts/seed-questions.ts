@@ -25,23 +25,39 @@ function isDatabaseUrlValid(url: string | undefined): boolean {
   return /^(postgresql|postgres):\/\//i.test(url.trim());
 }
 
-export async function seedQuestions(): Promise<void> {
+export interface SeedQuestionsResult {
+  created: number;
+  skipped: number;
+}
+
+/** Seed de questões. Passar disconnect: false quando chamado a partir da API. */
+export async function seedQuestions(options?: {
+  disconnect?: boolean;
+  silent?: boolean;
+}): Promise<SeedQuestionsResult> {
+  const disconnect = options?.disconnect ?? true;
+  const silent = options?.silent ?? false;
+
   if (!isDatabaseUrlValid(process.env.DATABASE_URL)) {
-    console.warn(
-      '⚠️  Seed de questões ignorado: defina DATABASE_URL em backend/.env ou na raiz do projeto.',
-    );
-    return;
+    if (!silent) {
+      console.warn(
+        '⚠️  Seed de questões ignorado: defina DATABASE_URL em backend/.env ou na raiz do projeto.',
+      );
+    }
+    return { created: 0, skipped: 0 };
   }
 
-  console.log('🌱 Seed de questões...');
-  console.log(
-    `   Fonte: ${SEED_QUESTIONS.length} questões em seed-questions-data.ts\n`,
-  );
+  if (!silent) {
+    console.log('🌱 Seed de questões...');
+    console.log(
+      `   Fonte: ${SEED_QUESTIONS.length} questões em seed-questions-data.ts\n`,
+    );
+  }
+
+  let created = 0;
+  let skipped = 0;
 
   try {
-    let created = 0;
-    let skipped = 0;
-
     for (const q of SEED_QUESTIONS) {
       const existing = await prisma.question.findFirst({
         where: { title: q.title },
@@ -49,7 +65,7 @@ export async function seedQuestions(): Promise<void> {
 
       if (existing) {
         skipped++;
-        console.log(`   ⏭️  "${q.title}" já existe (ignorado).`);
+        if (!silent) console.log(`   ⏭️  "${q.title}" já existe (ignorado).`);
         continue;
       }
 
@@ -63,34 +79,44 @@ export async function seedQuestions(): Promise<void> {
         },
       });
       created++;
-      console.log(`   ✅ "${q.title}" criada.`);
+      if (!silent) console.log(`   ✅ "${q.title}" criada.`);
     }
 
-    console.log('\n📊 Resumo:');
-    console.log(`   Criadas: ${created}`);
-    console.log(`   Já existentes: ${skipped}`);
+    if (!silent) {
+      console.log('\n📊 Resumo:');
+      console.log(`   Criadas: ${created}`);
+      console.log(`   Já existentes: ${skipped}`);
+    }
+    return { created, skipped };
   } catch (error: unknown) {
     const prismaError = error as { code?: string };
     if (prismaError?.code === 'P2021') {
-      console.warn(
-        '⚠️  Seed de questões ignorado: tabelas da base de dados não existem.\n   Execute: npx prisma migrate deploy --schema=src/prisma/schema.prisma',
-      );
-      return;
+      if (!silent) {
+        console.warn(
+          '⚠️  Seed de questões ignorado: tabelas da base de dados não existem.\n   Execute: npx prisma migrate deploy --schema=src/prisma/schema.prisma',
+        );
+      }
+      return { created: 0, skipped: 0 };
     }
     console.error('❌ Erro durante seed de questões:', error);
     throw error;
   } finally {
-    await prisma.$disconnect();
+    if (disconnect) {
+      await prisma.$disconnect();
+    }
   }
 }
 
 // Executar se chamado diretamente (npm run seed:questions)
-seedQuestions()
-  .then(() => {
-    console.log('\n✅ Seed de questões concluído.');
-    process.exit(0);
-  })
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+const isMain = process.argv[1]?.includes('seed-questions');
+if (isMain) {
+  seedQuestions({ disconnect: true })
+    .then(() => {
+      console.log('\n✅ Seed de questões concluído.');
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+}
